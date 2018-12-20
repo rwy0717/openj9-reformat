@@ -24,40 +24,36 @@
 
 #include "jvmti_test.h"
 
-
-void
-getHelp(char *h, int helpSize)
+void getHelp(char* h, int helpSize)
 {
-	int i;
-	int testCount = getTestCount();
-	jvmtiTest *t;
+    int i;
+    int testCount = getTestCount();
+    jvmtiTest* t;
 
-	sprintf(h, "JVMTI TestRunner\n\n");
-	sprintf(h + strlen(h), "Usage:\n");
-	sprintf(h + strlen(h), "\tjava -agentlib:jvmtitest=test:TESTNAME[,args:\"args\"] -cp TESTCP com.ibm.jvmti.tests.util.TestRunner\n\n");
-	sprintf(h + strlen(h), "Test List:\n");
+    sprintf(h, "JVMTI TestRunner\n\n");
+    sprintf(h + strlen(h), "Usage:\n");
+    sprintf(h + strlen(h),
+        "\tjava -agentlib:jvmtitest=test:TESTNAME[,args:\"args\"] -cp TESTCP com.ibm.jvmti.tests.util.TestRunner\n\n");
+    sprintf(h + strlen(h), "Test List:\n");
 
-	for (i = 0; i < testCount; i++) {
-		t = getTestAtIndex(i);
-		sprintf(h + strlen(h), "\t%10s - %s\n", t->name, t->description);
-	}
+    for (i = 0; i < testCount; i++) {
+        t = getTestAtIndex(i);
+        sprintf(h + strlen(h), "\t%10s - %s\n", t->name, t->description);
+    }
 
-	return;
+    return;
 }
 
-
-
-void
-printHelp()
+void printHelp()
 {
-	char *h;
+    char* h;
 
-	h = malloc(16 * 1024);
-	if (h) {
-		getHelp(h, 16 * 1024);
-		fprintf(stderr, "%s\n", h);
-		free(h);
-	} else {
-		fprintf(stderr, "Error: unable to allocate memory to print help\n");
-	}
+    h = malloc(16 * 1024);
+    if (h) {
+        getHelp(h, 16 * 1024);
+        fprintf(stderr, "%s\n", h);
+        free(h);
+    } else {
+        fprintf(stderr, "Error: unable to allocate memory to print help\n");
+    }
 }

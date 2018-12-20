@@ -25,17 +25,11 @@
  * definitions are permitted.
  */
 
-
 #include "codegen/OMRCodeGenPhaseEnum.hpp"
 
 // The entries in this file must be kept in sync with codegen/J9CodeGenPhaseFunctionTable.hpp
 
-   AllocateLinkageRegisters,
-   PopulateOSRBufferPhase,
-   MoveUpArrayLengthStoresPhase,
-   InsertEpilogueYieldPointsPhase,
-   CompressedReferenceRematerializationPhase,
-   SplitWarmAndColdBlocksPhase,
-   IdentifyUnneededByteConvsPhase,
-   LateSequentialConstantStoreSimplificationPhase,  // all
-   LastJ9Phase = LateSequentialConstantStoreSimplificationPhase,
+AllocateLinkageRegisters, PopulateOSRBufferPhase, MoveUpArrayLengthStoresPhase, InsertEpilogueYieldPointsPhase,
+    CompressedReferenceRematerializationPhase, SplitWarmAndColdBlocksPhase, IdentifyUnneededByteConvsPhase,
+    LateSequentialConstantStoreSimplificationPhase, // all
+    LastJ9Phase = LateSequentialConstantStoreSimplificationPhase,

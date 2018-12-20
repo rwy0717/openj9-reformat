@@ -30,11 +30,9 @@ extern const U_32 newArrayParamConversion[];
 extern const U_32 baseTypeCharConversion[];
 extern const U_32 argTypeCharConversion[];
 extern const U_32 oneArgTypeCharConversion[];
-extern const U_8  verificationBaseTokenEncode[];
-extern const U_8  verificationBaseArrayTokenEncode[];
+extern const U_8 verificationBaseTokenEncode[];
+extern const U_8 verificationBaseArrayTokenEncode[];
 extern const U_32 verificationTokenDecode[];
 #include "bcverify_api.h"
 
-#endif     /* vrfyconvert_h */
-
-
+#endif /* vrfyconvert_h */

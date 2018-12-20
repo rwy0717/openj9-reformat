@@ -33,19 +33,19 @@
 #include "util_api.h"
 
 typedef struct J9LogLevel {
-	char* level;
-	UDATA combine;
-	UDATA flag;
+    char* level;
+    UDATA combine;
+    UDATA flag;
 } J9LogLevel;
 
 static const J9LogLevel logLevels[] = {
-	{"all",    FALSE, J9NLS_ERROR|J9NLS_WARNING|J9NLS_INFO|J9NLS_CONFIG|J9NLS_VITAL},
-	{"none",   FALSE, 0},
-	{"error",  TRUE,  J9NLS_ERROR},
-	{"warn",   TRUE,  J9NLS_WARNING},
-	{"info",   TRUE,  J9NLS_INFO},
-	{"config", TRUE,  J9NLS_CONFIG},
-	{"vital",  TRUE,  J9NLS_VITAL},
+    { "all", FALSE, J9NLS_ERROR | J9NLS_WARNING | J9NLS_INFO | J9NLS_CONFIG | J9NLS_VITAL },
+    { "none", FALSE, 0 },
+    { "error", TRUE, J9NLS_ERROR },
+    { "warn", TRUE, J9NLS_WARNING },
+    { "info", TRUE, J9NLS_INFO },
+    { "config", TRUE, J9NLS_CONFIG },
+    { "vital", TRUE, J9NLS_VITAL },
 };
 
 /* These identify locations in the above array */
@@ -53,11 +53,11 @@ static const J9LogLevel logLevels[] = {
 #define XLOG_OPTION_NONE 1
 
 #define XLOG_OPT "-Xlog"
-static const UDATA numLogLevels = ( sizeof(logLevels) / sizeof(J9LogLevel) );
+static const UDATA numLogLevels = (sizeof(logLevels) / sizeof(J9LogLevel));
 
 static const UDATA defaultLogOptions = J9NLS_ERROR | J9NLS_VITAL;
 
-static UDATA parseLogOptions(char *options, UDATA *optionsFlags, UDATA *parseSucceeded);
+static UDATA parseLogOptions(char* options, UDATA* optionsFlags, UDATA* parseSucceeded);
 static void printXlogUsage(struct J9PortLibrary* PORTLIB);
 
 /**
@@ -71,70 +71,70 @@ static void printXlogUsage(struct J9PortLibrary* PORTLIB);
  * @return Boolean: true on success, false on failure
  */
 UDATA
-queryLogOptions(J9JavaVM *vm, I_32 bufferSize, void *optionsBuffer, I_32 *dataSize)
+queryLogOptions(J9JavaVM* vm, I_32 bufferSize, void* optionsBuffer, I_32* dataSize)
 {
-	UDATA opts;
-	UDATA i;
-	UDATA optionCount;
-	I_32 length;
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    UDATA opts;
+    UDATA i;
+    UDATA optionCount;
+    I_32 length;
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	/* basic sanity */
-	if (dataSize == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    /* basic sanity */
+    if (dataSize == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	if (optionsBuffer == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    if (optionsBuffer == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	if (bufferSize == 0) {
-		return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-	}
+    if (bufferSize == 0) {
+        return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+    }
 
-	/* call the portlibrary to query the JVM log options */
-	opts = j9syslog_query();
+    /* call the portlibrary to query the JVM log options */
+    opts = j9syslog_query();
 
-	/* Test for 'none' case */
-	if (opts == 0) {
-		length = (I_32)strlen(logLevels[XLOG_OPTION_NONE].level);
-		*dataSize = length+1;
-		if(bufferSize > length) {
-			strcpy(optionsBuffer,logLevels[XLOG_OPTION_NONE].level);
-			return JVMTI_ERROR_NONE;
-		} else {
-			return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-		}
-	}
+    /* Test for 'none' case */
+    if (opts == 0) {
+        length = (I_32)strlen(logLevels[XLOG_OPTION_NONE].level);
+        *dataSize = length + 1;
+        if (bufferSize > length) {
+            strcpy(optionsBuffer, logLevels[XLOG_OPTION_NONE].level);
+            return JVMTI_ERROR_NONE;
+        } else {
+            return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+        }
+    }
 
-	/* get the length of the required buffer */
-	for (i = XLOG_OPTION_FIRST_PRINTABLE, optionCount = 0, length = 0; i < numLogLevels; i++) {
-		if ((opts & logLevels[i].flag) == logLevels[i].flag) {
+    /* get the length of the required buffer */
+    for (i = XLOG_OPTION_FIRST_PRINTABLE, optionCount = 0, length = 0; i < numLogLevels; i++) {
+        if ((opts & logLevels[i].flag) == logLevels[i].flag) {
 
-			/* +1 as always append ',' or '\0' */
-			length += (I_32)strlen(logLevels[i].level) + 1;
-			optionCount++;
-		}
-	}
-	*dataSize = length;
+            /* +1 as always append ',' or '\0' */
+            length += (I_32)strlen(logLevels[i].level) + 1;
+            optionCount++;
+        }
+    }
+    *dataSize = length;
 
-	if (bufferSize < length) {
-		return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-	}
+    if (bufferSize < length) {
+        return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+    }
 
-	strcpy(optionsBuffer, "");
+    strcpy(optionsBuffer, "");
 
-	/* create the options string */
-	for (i = XLOG_OPTION_FIRST_PRINTABLE, optionCount = 0; i < numLogLevels; i++) {
-		if ((opts & logLevels[i].flag) == logLevels[i].flag) {
-			if (optionCount > 0) {
-				strcat(optionsBuffer, ",");
-			}
-			strcat(optionsBuffer, logLevels[i].level);
-			optionCount++;
-		}
-	}
-	return JVMTI_ERROR_NONE;
+    /* create the options string */
+    for (i = XLOG_OPTION_FIRST_PRINTABLE, optionCount = 0; i < numLogLevels; i++) {
+        if ((opts & logLevels[i].flag) == logLevels[i].flag) {
+            if (optionCount > 0) {
+                strcat(optionsBuffer, ",");
+            }
+            strcat(optionsBuffer, logLevels[i].level);
+            optionCount++;
+        }
+    }
+    return JVMTI_ERROR_NONE;
 }
 
 /**
@@ -146,204 +146,216 @@ queryLogOptions(J9JavaVM *vm, I_32 bufferSize, void *optionsBuffer, I_32 *dataSi
  * @return Boolean: true on success, false on failure
  */
 UDATA
-setLogOptions(J9JavaVM *vm, char *options)
+setLogOptions(J9JavaVM* vm, char* options)
 {
-	UDATA rc = FALSE;
-	UDATA optsParsed = FALSE;
-	UDATA setOptions = 0;
-	char *buffer;
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    UDATA rc = FALSE;
+    UDATA optsParsed = FALSE;
+    UDATA setOptions = 0;
+    char* buffer;
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	if (options == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    if (options == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	/* +1 for trailing \0 */
-	buffer = j9mem_allocate_memory(strlen((char*)options)+1, OMRMEM_CATEGORY_VM);
-	if (buffer == NULL) {
-		return JVMTI_ERROR_OUT_OF_MEMORY;
-	}
+    /* +1 for trailing \0 */
+    buffer = j9mem_allocate_memory(strlen((char*)options) + 1, OMRMEM_CATEGORY_VM);
+    if (buffer == NULL) {
+        return JVMTI_ERROR_OUT_OF_MEMORY;
+    }
 
-	strcpy(buffer, (char*)options);
-	rc = parseLogOptions(buffer, &setOptions, &optsParsed);
+    strcpy(buffer, (char*)options);
+    rc = parseLogOptions(buffer, &setOptions, &optsParsed);
 
-	if (optsParsed == TRUE) {
-		 /* call the port library to set the JVM log options */
-		j9syslog_set(setOptions);
-	}
-	j9mem_free_memory(buffer);
+    if (optsParsed == TRUE) {
+        /* call the port library to set the JVM log options */
+        j9syslog_set(setOptions);
+    }
+    j9mem_free_memory(buffer);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-parseLogOptions(char *options, UDATA *optionsFlags, UDATA *parseSucceeded)
+parseLogOptions(char* options, UDATA* optionsFlags, UDATA* parseSucceeded)
 {
-	UDATA optlen;
-	UDATA i, j;
-	UDATA seenNonCombining, optCount;
-	UDATA tempFlags;
-	char *token;
+    UDATA optlen;
+    UDATA i, j;
+    UDATA seenNonCombining, optCount;
+    UDATA tempFlags;
+    char* token;
 
-	/* quick validity checks */
-	if (options == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    /* quick validity checks */
+    if (options == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	if (optionsFlags == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    if (optionsFlags == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	if (parseSucceeded == NULL) {
-		return JVMTI_ERROR_NULL_POINTER;
-	}
+    if (parseSucceeded == NULL) {
+        return JVMTI_ERROR_NULL_POINTER;
+    }
 
-	*parseSucceeded = FALSE;
-	optlen = strlen(options);
+    *parseSucceeded = FALSE;
+    optlen = strlen(options);
 
-	/* remove any whitespace from the options string */
-	for (i = 0, j = 0; i < optlen; i++) {
-		if (!isspace(options[i])) {
-			options[j] = options[i];
-			j++;
-		}
-	}
-	options[j] = '\0';
+    /* remove any whitespace from the options string */
+    for (i = 0, j = 0; i < optlen; i++) {
+        if (!isspace(options[i])) {
+            options[j] = options[i];
+            j++;
+        }
+    }
+    options[j] = '\0';
 
-	/* recalculate length after collapsing whitespace */
-	optlen = strlen(options);
+    /* recalculate length after collapsing whitespace */
+    optlen = strlen(options);
 
-	if (optlen == 0) {
-		/* empty string has been passed, raise error */
-		return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-	}
+    if (optlen == 0) {
+        /* empty string has been passed, raise error */
+        return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+    }
 
-	token = strtok(options,",");
-	seenNonCombining = FALSE;
-	optCount = 0;
-	tempFlags = 0;
+    token = strtok(options, ",");
+    seenNonCombining = FALSE;
+    optCount = 0;
+    tempFlags = 0;
 
-	/* loop over all tokens in the options string */
-	while (token != NULL) {
-		UDATA isValidToken = FALSE;
+    /* loop over all tokens in the options string */
+    while (token != NULL) {
+        UDATA isValidToken = FALSE;
 
-		/* check for a match against the log options table */
-		for (i = 0; i < numLogLevels; i++) {
-			if (j9_cmdla_stricmp(logLevels[i].level, token) == 0) {
+        /* check for a match against the log options table */
+        for (i = 0; i < numLogLevels; i++) {
+            if (j9_cmdla_stricmp(logLevels[i].level, token) == 0) {
 
-				/* check and set validity of combinations */
-				if (logLevels[i].combine == FALSE) {
-					if (optCount != 0) {
-						return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-					}
-					seenNonCombining = TRUE;
-				} else if (seenNonCombining) {
-					return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-				}
+                /* check and set validity of combinations */
+                if (logLevels[i].combine == FALSE) {
+                    if (optCount != 0) {
+                        return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+                    }
+                    seenNonCombining = TRUE;
+                } else if (seenNonCombining) {
+                    return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+                }
 
-				optCount++;
-				tempFlags |= logLevels[i].flag;
-				isValidToken = TRUE;
-				break;
-			}
-		}
+                optCount++;
+                tempFlags |= logLevels[i].flag;
+                isValidToken = TRUE;
+                break;
+            }
+        }
 
-		/* Found a token that was unexpected */
-		if (isValidToken != TRUE) {
-			return JVMTI_ERROR_ILLEGAL_ARGUMENT;
-		}
+        /* Found a token that was unexpected */
+        if (isValidToken != TRUE) {
+            return JVMTI_ERROR_ILLEGAL_ARGUMENT;
+        }
 
-		token = strtok(NULL,",");
-	}
+        token = strtok(NULL, ",");
+    }
 
-	*parseSucceeded = TRUE;
-	*optionsFlags = tempFlags;
-	return JVMTI_ERROR_NONE;
+    *parseSucceeded = TRUE;
+    *optionsFlags = tempFlags;
+    return JVMTI_ERROR_NONE;
 }
 
-jint
-processXLogOptions(J9JavaVM * vm)
+jint processXLogOptions(J9JavaVM* vm)
 {
-	IDATA xlogindex;
-	UDATA xlogflags, printhelp, tempflags;
-	jint rc = JNI_OK;
-	J9VMInitArgs* j9vm_args = vm->vmArgsArray;
+    IDATA xlogindex;
+    UDATA xlogflags, printhelp, tempflags;
+    jint rc = JNI_OK;
+    J9VMInitArgs* j9vm_args = vm->vmArgsArray;
 
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	printhelp = FALSE;
+    printhelp = FALSE;
 
-	/* The default for -Xlog is to be turned on and capture 'error' and 'vital' type messages */
-	xlogflags = defaultLogOptions;
+    /* The default for -Xlog is to be turned on and capture 'error' and 'vital' type messages */
+    xlogflags = defaultLogOptions;
 
-	xlogindex = FIND_ARG_IN_VMARGS_FORWARD(OPTIONAL_LIST_MATCH, XLOG_OPT, NULL);
+    xlogindex = FIND_ARG_IN_VMARGS_FORWARD(OPTIONAL_LIST_MATCH, XLOG_OPT, NULL);
 
-	/* If xlogindex == -1 nothing was specified, so use the default setting from above */
+    /* If xlogindex == -1 nothing was specified, so use the default setting from above */
 
-	while (xlogindex >= 0) {
-		IDATA optionsfound;
-		UDATA optionsparsed = FALSE;
-		char *xlogoptions = NULL;
+    while (xlogindex >= 0) {
+        IDATA optionsfound;
+        UDATA optionsparsed = FALSE;
+        char* xlogoptions = NULL;
 
-		CONSUME_ARG(j9vm_args, xlogindex);
-		optionsfound = GET_OPTION_VALUE(xlogindex, ':', &xlogoptions);
+        CONSUME_ARG(j9vm_args, xlogindex);
+        optionsfound = GET_OPTION_VALUE(xlogindex, ':', &xlogoptions);
 
-		if (optionsfound != OPTION_OK) {
-			rc = JNI_ERR;
-			goto _couldnotparse;
-		}
+        if (optionsfound != OPTION_OK) {
+            rc = JNI_ERR;
+            goto _couldnotparse;
+        }
 
-		if (xlogoptions == NULL) {
-			/* Reached if e.g. just -Xlog is specified */
-			printhelp = TRUE;
-			j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_OPTION_MALFORMED, j9vm_args->actualVMArgs->options[xlogindex].optionString);
+        if (xlogoptions == NULL) {
+            /* Reached if e.g. just -Xlog is specified */
+            printhelp = TRUE;
+            j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_OPTION_MALFORMED,
+                j9vm_args->actualVMArgs->options[xlogindex].optionString);
 
-		} else if (j9_cmdla_stricmp(logLevels[XLOG_OPTION_NONE].level, xlogoptions) == 0) {
-			/* -Xlog:none suppresses everything seen so far */
-			printhelp = FALSE;
-			xlogflags = 0;
+        } else if (j9_cmdla_stricmp(logLevels[XLOG_OPTION_NONE].level, xlogoptions) == 0) {
+            /* -Xlog:none suppresses everything seen so far */
+            printhelp = FALSE;
+            xlogflags = 0;
 
-		} else if (j9_cmdla_stricmp("help", xlogoptions) == 0) {
-			printhelp = TRUE;
+        } else if (j9_cmdla_stricmp("help", xlogoptions) == 0) {
+            printhelp = TRUE;
 
-		} else {
-			/* Found some options to try and process */
-			parseLogOptions(xlogoptions, &tempflags, &optionsparsed);
+        } else {
+            /* Found some options to try and process */
+            parseLogOptions(xlogoptions, &tempflags, &optionsparsed);
 
-			if (optionsparsed != TRUE) {
-				j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_OPTION_MALFORMED, j9vm_args->actualVMArgs->options[xlogindex].optionString);
-			} else {
-				xlogflags |= tempflags;
-			}
-		}
+            if (optionsparsed != TRUE) {
+                j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_OPTION_MALFORMED,
+                    j9vm_args->actualVMArgs->options[xlogindex].optionString);
+            } else {
+                xlogflags |= tempflags;
+            }
+        }
 
-		xlogindex = FIND_NEXT_ARG_IN_VMARGS_FORWARD(STARTSWITH_MATCH, XLOG_OPT, NULL, xlogindex);
-	}
+        xlogindex = FIND_NEXT_ARG_IN_VMARGS_FORWARD(STARTSWITH_MATCH, XLOG_OPT, NULL, xlogindex);
+    }
 
-	/* Options are good, start logging */
-	j9port_control(J9PORT_CTLDATA_SYSLOG_OPEN, xlogflags);
+    /* Options are good, start logging */
+    j9port_control(J9PORT_CTLDATA_SYSLOG_OPEN, xlogflags);
 
 _couldnotparse:
 
-	if (printhelp) {
-		printXlogUsage(PORTLIB);
-	}
+    if (printhelp) {
+        printXlogUsage(PORTLIB);
+    }
 
-	return rc;
+    return rc;
 }
-static void
-printXlogUsage(struct J9PortLibrary* PORTLIB)
+static void printXlogUsage(struct J9PortLibrary* PORTLIB)
 {
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP01, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP02, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP03, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP04, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP05, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP06, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP07, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP08, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP09, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP10, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP11, NULL));
-	j9tty_err_printf(PORTLIB, j9nls_lookup_message(J9NLS_INFO|J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP12, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP01, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP02, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP03, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP04, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP05, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP06, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP07, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP08, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP09, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP10, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP11, NULL));
+    j9tty_err_printf(
+        PORTLIB, j9nls_lookup_message(J9NLS_INFO | J9NLS_DO_NOT_PRINT_MESSAGE_TAG, J9NLS_VM_XLOG_HELP12, NULL));
 }

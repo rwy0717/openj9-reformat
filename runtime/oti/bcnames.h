@@ -28,8 +28,8 @@ extern "C" {
 #endif
 
 #include "j9comp.h"
-extern J9_CDATA char * const JavaBCNames[];
-extern J9_CDATA char * const sunJavaBCNames[];
+extern J9_CDATA char* const JavaBCNames[];
+extern J9_CDATA char* const sunJavaBCNames[];
 
 #define JBnop 0
 #define JBaconstnull 1

@@ -29,100 +29,104 @@
 
 class TR_BitVector;
 class TR_ResolvedMethod;
-namespace TR { class AutomaticSymbol; }
-namespace TR { class CodeGenerator; }
-namespace TR { class Instruction; }
-namespace TR { class MemoryReference; }
-namespace TR { class Node; }
-namespace TR { class ParameterSymbol; }
-namespace TR { class RegisterDependencyConditions; }
-namespace TR { class ResolvedMethodSymbol; }
+namespace TR {
+class AutomaticSymbol;
+}
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Instruction;
+}
+namespace TR {
+class MemoryReference;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class ParameterSymbol;
+}
+namespace TR {
+class RegisterDependencyConditions;
+}
+namespace TR {
+class ResolvedMethodSymbol;
+}
 
 namespace TR {
 
-struct PPCPICItem
-   {
-   TR_ALLOC(TR_Memory::Linkage);
+struct PPCPICItem {
+    TR_ALLOC(TR_Memory::Linkage);
 
-   PPCPICItem(TR_OpaqueClassBlock *clazz, TR_ResolvedMethod *method, float freq) :
-      _clazz(clazz), _method(method), _frequency(freq) {}
+    PPCPICItem(TR_OpaqueClassBlock* clazz, TR_ResolvedMethod* method, float freq)
+        : _clazz(clazz)
+        , _method(method)
+        , _frequency(freq)
+    {}
 
-   TR_OpaqueClassBlock *_clazz;
-   TR_ResolvedMethod *_method;
-   float _frequency;
-   };
+    TR_OpaqueClassBlock* _clazz;
+    TR_ResolvedMethod* _method;
+    float _frequency;
+};
 
+class PPCPrivateLinkage : public TR::Linkage {
+public:
+    PPCPrivateLinkage(TR::CodeGenerator* cg);
 
-class PPCPrivateLinkage : public TR::Linkage
-   {
-   public:
+    virtual const TR::PPCLinkageProperties& getProperties();
+    virtual uint32_t getRightToLeft();
+    virtual bool hasToBeOnStack(TR::ParameterSymbol* parm);
+    virtual void mapStack(TR::ResolvedMethodSymbol* method);
+    virtual void mapSingleAutomatic(TR::AutomaticSymbol* p, uint32_t& stackIndex);
+    virtual void initPPCRealRegisterLinkage();
+    virtual TR::MemoryReference* getOutgoingArgumentMemRef(int32_t argSize, TR::Register* argReg,
+        TR::InstOpCode::Mnemonic opCode, TR::PPCMemoryArgument& memArg, uint32_t len);
+    virtual TR::MemoryReference* getOutgoingArgumentMemRef(int32_t argSize, TR::Register* argReg,
+        TR::InstOpCode::Mnemonic opCode, TR::PPCMemoryArgument& memArg, uint32_t len,
+        const TR::PPCLinkageProperties& properties);
+    virtual void setParameterLinkageRegisterIndex(TR::ResolvedMethodSymbol* method);
 
-   PPCPrivateLinkage(TR::CodeGenerator *cg);
+    virtual void createPrologue(TR::Instruction* cursor);
 
-   virtual const TR::PPCLinkageProperties& getProperties();
-   virtual uint32_t getRightToLeft();
-   virtual bool hasToBeOnStack(TR::ParameterSymbol *parm);
-   virtual void mapStack(TR::ResolvedMethodSymbol *method);
-   virtual void mapSingleAutomatic(TR::AutomaticSymbol *p, uint32_t &stackIndex);
-   virtual void initPPCRealRegisterLinkage();
-   virtual TR::MemoryReference *getOutgoingArgumentMemRef(int32_t argSize, TR::Register *argReg, TR::InstOpCode::Mnemonic opCode, TR::PPCMemoryArgument &memArg, uint32_t len);
-   virtual TR::MemoryReference *getOutgoingArgumentMemRef(int32_t argSize, TR::Register *argReg, TR::InstOpCode::Mnemonic opCode, TR::PPCMemoryArgument &memArg, uint32_t len, const TR::PPCLinkageProperties& properties);
-   virtual void setParameterLinkageRegisterIndex(TR::ResolvedMethodSymbol *method);
+    virtual void createEpilogue(TR::Instruction* cursor);
 
-   virtual void createPrologue(TR::Instruction *cursor);
+    virtual int32_t buildArgs(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies);
 
-   virtual void createEpilogue(TR::Instruction *cursor);
+    virtual void buildVirtualDispatch(
+        TR::Node* callNode, TR::RegisterDependencyConditions* dependencies, uint32_t sizeOfArguments);
 
-   virtual int32_t buildArgs(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies);
+protected:
+    TR::PPCLinkageProperties _properties;
 
-   virtual void buildVirtualDispatch(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies,
-         uint32_t sizeOfArguments);
+    int32_t buildPrivateLinkageArgs(
+        TR::Node* callNode, TR::RegisterDependencyConditions* dependencies, TR_LinkageConventions linkage);
 
-   protected:
+    void buildDirectCall(TR::Node* callNode, TR::SymbolReference* callSymRef,
+        TR::RegisterDependencyConditions* dependencies, const TR::PPCLinkageProperties& pp, int32_t argSize);
 
-   TR::PPCLinkageProperties _properties;
+    virtual TR::Register* buildDirectDispatch(TR::Node* callNode);
 
-   int32_t buildPrivateLinkageArgs(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies,
-         TR_LinkageConventions linkage);
+    virtual TR::Register* buildIndirectDispatch(TR::Node* callNode);
 
-   void buildDirectCall(
-         TR::Node *callNode,
-         TR::SymbolReference *callSymRef,
-         TR::RegisterDependencyConditions *dependencies,
-         const TR::PPCLinkageProperties &pp,
-         int32_t argSize);
+    virtual TR::Register* buildalloca(TR::Node* BIFCallNode);
+};
 
-   virtual TR::Register *buildDirectDispatch(TR::Node *callNode);
+class PPCHelperLinkage : public TR::PPCPrivateLinkage {
+public:
+    PPCHelperLinkage(TR::CodeGenerator* cg, TR_LinkageConventions helperLinkage)
+        : _helperLinkage(helperLinkage)
+        , TR::PPCPrivateLinkage(cg)
+    {
+        TR_ASSERT(helperLinkage == TR_Helper || helperLinkage == TR_CHelper, "Unexpected helper linkage convention");
+    }
 
-   virtual TR::Register *buildIndirectDispatch(TR::Node *callNode);
+    virtual int32_t buildArgs(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies);
 
-   virtual TR::Register *buildalloca(TR::Node *BIFCallNode);
-   };
+protected:
+    TR_LinkageConventions _helperLinkage;
+};
 
-
-class PPCHelperLinkage : public TR::PPCPrivateLinkage
-   {
-   public:
-
-   PPCHelperLinkage(TR::CodeGenerator *cg, TR_LinkageConventions helperLinkage) : _helperLinkage(helperLinkage), TR::PPCPrivateLinkage(cg)
-      {
-      TR_ASSERT(helperLinkage == TR_Helper || helperLinkage == TR_CHelper, "Unexpected helper linkage convention");
-      }
-
-   virtual int32_t buildArgs(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies);
-   protected:
-
-   TR_LinkageConventions _helperLinkage;
-   };
-
-}
+} // namespace TR
 
 #endif

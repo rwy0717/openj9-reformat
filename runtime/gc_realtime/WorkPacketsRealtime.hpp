@@ -30,39 +30,37 @@
 
 class MM_IncrementalOverflow;
 
-class MM_WorkPacketsRealtime : public MM_WorkPacketsSATB
-{
+class MM_WorkPacketsRealtime : public MM_WorkPacketsSATB {
 public:
 protected:
-	MM_YieldCollaborator _yieldCollaborator;
-	
+    MM_YieldCollaborator _yieldCollaborator;
+
 public:
-	static MM_WorkPacketsRealtime *newInstance(MM_EnvironmentBase *env);
-	
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
-	
-	MM_IncrementalOverflow *getIncrementalOverflowHandler() const { return (MM_IncrementalOverflow*)_overflowHandler; }
-	MM_YieldCollaborator *getYieldCollaborator() { return &_yieldCollaborator; }
+    static MM_WorkPacketsRealtime* newInstance(MM_EnvironmentBase* env);
 
-	virtual MM_Packet *getInputPacket(MM_EnvironmentBase *env);
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	/**
-	 * Create a MM_WorkPacketsRealtime object.
-	 */
-	MM_WorkPacketsRealtime(MM_EnvironmentBase *env) :
-		MM_WorkPacketsSATB(env)
-		, _yieldCollaborator(&_inputListMonitor, &_inputListWaitCount, MM_YieldCollaborator::WorkPacketsRealtime)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_IncrementalOverflow* getIncrementalOverflowHandler() const { return (MM_IncrementalOverflow*)_overflowHandler; }
+    MM_YieldCollaborator* getYieldCollaborator() { return &_yieldCollaborator; }
+
+    virtual MM_Packet* getInputPacket(MM_EnvironmentBase* env);
+
+    /**
+     * Create a MM_WorkPacketsRealtime object.
+     */
+    MM_WorkPacketsRealtime(MM_EnvironmentBase* env)
+        : MM_WorkPacketsSATB(env)
+        , _yieldCollaborator(&_inputListMonitor, &_inputListWaitCount, MM_YieldCollaborator::WorkPacketsRealtime)
+    {
+        _typeId = __FUNCTION__;
+    };
 
 protected:
-	virtual MM_WorkPacketOverflow *createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
-	virtual void notifyWaitingThreads(MM_EnvironmentBase *env);
+    virtual MM_WorkPacketOverflow* createOverflowHandler(MM_EnvironmentBase* env, MM_WorkPackets* workPackets);
+    virtual void notifyWaitingThreads(MM_EnvironmentBase* env);
 
 private:
 };
 
 #endif /* WORKPACKETSREALTIME_HPP_ */
-

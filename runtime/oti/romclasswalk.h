@@ -37,14 +37,14 @@
 #define J9ROM_UTF8_NOSRP 9
 #define J9ROM_INTERMEDIATECLASSDATA 10
 
-typedef void(*J9ROMClassSlotCallback)(J9ROMClass*, U_32, void*, const char*, void*);
-typedef void(*J9ROMClassSectionCallback)(J9ROMClass*, void*, UDATA, const char*, void*);
-typedef BOOLEAN(*J9ROMClassValidateRangeCallback)(J9ROMClass*, void*, UDATA, void*);
+typedef void (*J9ROMClassSlotCallback)(J9ROMClass*, U_32, void*, const char*, void*);
+typedef void (*J9ROMClassSectionCallback)(J9ROMClass*, void*, UDATA, const char*, void*);
+typedef BOOLEAN (*J9ROMClassValidateRangeCallback)(J9ROMClass*, void*, UDATA, void*);
 
 typedef struct J9ROMClassWalkCallbacks {
-	J9ROMClassSlotCallback slotCallback;
-	J9ROMClassSectionCallback sectionCallback;
-	J9ROMClassValidateRangeCallback validateRangeCallback;
+    J9ROMClassSlotCallback slotCallback;
+    J9ROMClassSectionCallback sectionCallback;
+    J9ROMClassValidateRangeCallback validateRangeCallback;
 } J9ROMClassWalkCallbacks;
 
-#endif     /* romclasswalk_h */
+#endif /* romclasswalk_h */

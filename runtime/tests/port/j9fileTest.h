@@ -24,6 +24,6 @@
 
 IDATA j9file_create_file(J9PortLibrary* portLibrary, char* filename, I_32 openMode, const char* testName);
 IDATA j9file_create_status_file(J9PortLibrary* portLibrary, char* filename, const char* testName);
-IDATA j9file_status_file_exists(J9PortLibrary* portLibrary, char * filename, const char* testName);
+IDATA j9file_status_file_exists(J9PortLibrary* portLibrary, char* filename, const char* testName);
 
 #endif /* !defined(J9FILETEST_H_INCLUDED) */

@@ -24,15 +24,14 @@
 #include "dfix.h"
 #include "dfix_internal.h"
 
-static void
-dfix_memcpy_impl1(void *dest, const void *src, size_t size)
+static void dfix_memcpy_impl1(void* dest, const void* src, size_t size)
 {
-	printf("running in dfix_memcpy_impl1(dest=0x%p,src=0x%p,size=%llu).\n", dest, src, (unsigned long long)size);
+    printf("running in dfix_memcpy_impl1(dest=0x%p,src=0x%p,size=%llu).\n", dest, src, (unsigned long long)size);
 }
 
 BOOLEAN
 resolve_dfix_memcpy()
 {
-	dfix_memcpy_impl = dfix_memcpy_impl1;
-	return TRUE;
+    dfix_memcpy_impl = dfix_memcpy_impl1;
+    return TRUE;
 }

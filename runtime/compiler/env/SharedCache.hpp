@@ -29,35 +29,34 @@
 
 class TR_PersistentClassLoaderTable;
 class TR_ResolvedMethod;
-namespace TR { class ResolvedMethodSymbol; }
+namespace TR {
+class ResolvedMethodSymbol;
+}
 
-class TR_SharedCache
-   {
+class TR_SharedCache {
 public:
-   virtual void persistIprofileInfo(TR::ResolvedMethodSymbol *, TR::Compilation *) { return; }
-   virtual void persistIprofileInfo(TR::ResolvedMethodSymbol *, TR_ResolvedMethod*, TR::Compilation *) { return; }
+    virtual void persistIprofileInfo(TR::ResolvedMethodSymbol*, TR::Compilation*) { return; }
+    virtual void persistIprofileInfo(TR::ResolvedMethodSymbol*, TR_ResolvedMethod*, TR::Compilation*) { return; }
 
-   virtual bool isMostlyFull() { return false; }
+    virtual bool isMostlyFull() { return false; }
 
-   virtual bool canRememberClass(TR_OpaqueClassBlock *clazz) { return 0; }
-   virtual uintptrj_t *rememberClass(TR_OpaqueClassBlock *clazz) { return 0; }
-   virtual bool classMatchesCachedVersion(TR_OpaqueClassBlock *clazz, uintptrj_t *chainData=NULL) { return false; }
+    virtual bool canRememberClass(TR_OpaqueClassBlock* clazz) { return 0; }
+    virtual uintptrj_t* rememberClass(TR_OpaqueClassBlock* clazz) { return 0; }
+    virtual bool classMatchesCachedVersion(TR_OpaqueClassBlock* clazz, uintptrj_t* chainData = NULL) { return false; }
 
-   virtual void *pointerFromOffsetInSharedCache(void *offset) { return (void *) NULL; }
-   virtual void *offsetInSharedCacheFromPointer(void *ptr) { return (void *) NULL; }
+    virtual void* pointerFromOffsetInSharedCache(void* offset) { return (void*)NULL; }
+    virtual void* offsetInSharedCacheFromPointer(void* ptr) { return (void*)NULL; }
 
-   virtual bool isPointerInSharedCache(void *ptr, void * & cacheOffset) { return false; }
+    virtual bool isPointerInSharedCache(void* ptr, void*& cacheOffset) { return false; }
 
-   virtual TR_OpaqueClassBlock *lookupClassFromChainAndLoader(uintptrj_t *cinaData, void *loader) { return NULL; }
+    virtual TR_OpaqueClassBlock* lookupClassFromChainAndLoader(uintptrj_t* cinaData, void* loader) { return NULL; }
 
-   void setPersistentClassLoaderTable(TR_PersistentClassLoaderTable *table) { _persistentClassLoaderTable = table; }
+    void setPersistentClassLoaderTable(TR_PersistentClassLoaderTable* table) { _persistentClassLoaderTable = table; }
 
-   TR_PersistentClassLoaderTable *persistentClassLoaderTable() { return _persistentClassLoaderTable; }
+    TR_PersistentClassLoaderTable* persistentClassLoaderTable() { return _persistentClassLoaderTable; }
 
 private:
-
-   TR_PersistentClassLoaderTable *_persistentClassLoaderTable;
-
-   };
+    TR_PersistentClassLoaderTable* _persistentClassLoaderTable;
+};
 
 #endif

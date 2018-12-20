@@ -66,7 +66,8 @@
 #define J9VM_MANAGEMENT_GC_HEAP_ID_MASK 0xff
 
 #define J9VM_MANAGEMENT_GC_ID_GLOBAL (J9VM_MANAGEMENT_GC_HEAP + J9_GC_MANAGEMENT_COLLECTOR_GLOBAL)
-#define J9VM_MANAGEMENT_GC_ID_SCAVENGE (J9VM_MANAGEMENT_GC_HEAP + J9VM_MANAGEMENT_GC_LOCAL + J9_GC_MANAGEMENT_COLLECTOR_SCAVENGE)
+#define J9VM_MANAGEMENT_GC_ID_SCAVENGE \
+    (J9VM_MANAGEMENT_GC_HEAP + J9VM_MANAGEMENT_GC_LOCAL + J9_GC_MANAGEMENT_COLLECTOR_SCAVENGE)
 #define J9VM_MANAGEMENT_GC_ID_PGC (J9VM_MANAGEMENT_GC_HEAP + J9VM_MANAGEMENT_GC_LOCAL + J9_GC_MANAGEMENT_COLLECTOR_PGC)
 #define J9VM_MANAGEMENT_GC_ID_GGC (J9VM_MANAGEMENT_GC_HEAP + J9_GC_MANAGEMENT_COLLECTOR_GGC)
 #define J9VM_MANAGEMENT_GC_ID_EPSILON (J9VM_MANAGEMENT_GC_HEAP + J9_GC_MANAGEMENT_COLLECTOR_EPSILON)
@@ -77,41 +78,39 @@
 #define J9VM_MANAGEMENT_NONHEAPPOOL_NAME_JITDATA "JIT data cache"
 
 typedef struct memoryPoolUsageThreshold {
-	U_32 poolID;
-	U_64 usedSize;
-	U_64 totalSize;
-	U_64 maxSize;
-	U_64 thresholdCrossingCount;
+    U_32 poolID;
+    U_64 usedSize;
+    U_64 totalSize;
+    U_64 maxSize;
+    U_64 thresholdCrossingCount;
 } memoryPoolUsageThreshold;
 
 typedef struct J9MemoryNotification {
-	UDATA type;
-	U_64 sequenceNumber;
-	struct J9MemoryNotification *next;
-	memoryPoolUsageThreshold *usageThreshold;
-	J9GarbageCollectionInfo *gcInfo;
+    UDATA type;
+    U_64 sequenceNumber;
+    struct J9MemoryNotification* next;
+    memoryPoolUsageThreshold* usageThreshold;
+    J9GarbageCollectionInfo* gcInfo;
 } J9MemoryNotification;
 
-
-
 typedef struct J9DLPARNotification {
-	UDATA type;
-	struct J9DLPARNotification *next;
-	U_64 data;
-	U_64 sequenceNumber;
+    UDATA type;
+    struct J9DLPARNotification* next;
+    U_64 data;
+    U_64 sequenceNumber;
 } J9DLPARNotification;
-jint managementInit(J9JavaVM *vm);
-void managementTerminate(J9JavaVM *vm);
+jint managementInit(J9JavaVM* vm);
+void managementTerminate(J9JavaVM* vm);
 
-
-#define MEMORY_SEGMENT_LIST_DO(segmentList, imageSegment) {\
-	J9MemorySegment *imageSegment, *i2; \
-	imageSegment = segmentList->nextSegment; \
-	while(imageSegment) { \
-		i2 = (J9MemorySegment *)(imageSegment->nextSegment);
+#define MEMORY_SEGMENT_LIST_DO(segmentList, imageSegment) \
+    {                                                     \
+        J9MemorySegment *imageSegment, *i2;               \
+        imageSegment = segmentList->nextSegment;          \
+        while (imageSegment) {                            \
+            i2 = (J9MemorySegment*)(imageSegment->nextSegment);
 #define END_MEMORY_SEGMENT_LIST_DO(imageSegment) \
-		imageSegment = i2; }}
+    imageSegment = i2;                           \
+    }                                            \
+    }
 
-#endif     /* mgmtinit_h */
-
-
+#endif /* mgmtinit_h */

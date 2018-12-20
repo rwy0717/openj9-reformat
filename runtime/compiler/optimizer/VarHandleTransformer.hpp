@@ -21,27 +21,25 @@
  *******************************************************************************/
 
 #ifndef VARHANDLETRANSFORMER_INCL
-#define VARHANDLETRANSFORMER_INCL 
+#define VARHANDLETRANSFORMER_INCL
 
-#include <stdint.h>                           // for int32_t, uint32_t, etc
-#include "il/Node.hpp"                        // for Node
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t, uint32_t, etc
+#include "il/Node.hpp" // for Node
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-class TR_VarHandleTransformer : public TR::Optimization
-   {
-   public:
+class TR_VarHandleTransformer : public TR::Optimization {
+public:
+    TR_VarHandleTransformer(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {}
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_VarHandleTransformer(manager);
+    }
 
-   TR_VarHandleTransformer(TR::OptimizationManager *manager)
-      : TR::Optimization(manager)
-      {}
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_VarHandleTransformer(manager);
-      }
-
-   TR::RecognizedMethod getVarHandleAccessMethod(TR::Node* node);
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
-   };
+    TR::RecognizedMethod getVarHandleAccessMethod(TR::Node* node);
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
+};
 #endif

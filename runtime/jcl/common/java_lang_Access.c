@@ -36,30 +36,29 @@
  *
  * @return a ConstantPool object reference or NULL on error.
  */
-jobject JNICALL 
-Java_java_lang_Access_getConstantPool(JNIEnv *env, jclass unusedClass, jobject classToIntrospect)
+jobject JNICALL Java_java_lang_Access_getConstantPool(JNIEnv* env, jclass unusedClass, jobject classToIntrospect)
 {
-	jclass sun_reflect_ConstantPool = JCL_CACHE_GET(env,CLS_sun_reflect_ConstantPool);
-	jfieldID constantPoolOop;
-	jobject constantPool;
+    jclass sun_reflect_ConstantPool = JCL_CACHE_GET(env, CLS_sun_reflect_ConstantPool);
+    jfieldID constantPoolOop;
+    jobject constantPool;
 
-	/* lazy-initialize the cached field IDs */
-	if (NULL == sun_reflect_ConstantPool) {
-		if (!initializeSunReflectConstantPoolIDCache(env)) {
-			return NULL;
-		}
-		sun_reflect_ConstantPool = JCL_CACHE_GET(env, CLS_sun_reflect_ConstantPool);
-	}
-	
-	/* allocate the new ConstantPool object */
-	constantPool = (*env)->AllocObject(env, sun_reflect_ConstantPool);
-	if (NULL == constantPool) {
-		return NULL;
-	}
+    /* lazy-initialize the cached field IDs */
+    if (NULL == sun_reflect_ConstantPool) {
+        if (!initializeSunReflectConstantPoolIDCache(env)) {
+            return NULL;
+        }
+        sun_reflect_ConstantPool = JCL_CACHE_GET(env, CLS_sun_reflect_ConstantPool);
+    }
 
-	/* and set the private constantPoolOop member */
-	constantPoolOop = JCL_CACHE_GET(env, FID_sun_reflect_ConstantPool_constantPoolOop);
-	(*env)->SetObjectField(env, constantPool, constantPoolOop, classToIntrospect);
-	
-	return constantPool;
+    /* allocate the new ConstantPool object */
+    constantPool = (*env)->AllocObject(env, sun_reflect_ConstantPool);
+    if (NULL == constantPool) {
+        return NULL;
+    }
+
+    /* and set the private constantPoolOop member */
+    constantPoolOop = JCL_CACHE_GET(env, FID_sun_reflect_ConstantPool_constantPoolOop);
+    (*env)->SetObjectField(env, constantPool, constantPoolOop, classToIntrospect);
+
+    return constantPool;
 }

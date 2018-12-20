@@ -24,77 +24,70 @@
 
 #include "jvmti_test.h"
 
-
-static void
-processToken(agentEnv * env, char * token)
+static void processToken(agentEnv* env, char* token)
 {
-	IDATA tokenLen = strlen(token);
+    IDATA tokenLen = strlen(token);
 
-	if (!strncmp("test:", token, 5)) {
-		if (tokenLen > 5) {
-			env->testName = strdup(token + 5);
-		}
-		return;
-	}
+    if (!strncmp("test:", token, 5)) {
+        if (tokenLen > 5) {
+            env->testName = strdup(token + 5);
+        }
+        return;
+    }
 
-	if (!strncmp("args:", token, 5)) {
-		if (tokenLen > 5) {
-			env->testArgs = strdup(token + 5);
-		}
-		return;
-	}
+    if (!strncmp("args:", token, 5)) {
+        if (tokenLen > 5) {
+            env->testArgs = strdup(token + 5);
+        }
+        return;
+    }
 
-	if (!strncmp("outputLevel:", token, 12)) {
-		if (tokenLen > 12) {
-			env->outputLevel = atoi(token + 12);
-		}
-		return;
-	}
+    if (!strncmp("outputLevel:", token, 12)) {
+        if (tokenLen > 12) {
+            env->outputLevel = atoi(token + 12);
+        }
+        return;
+    }
 
+    if (!strncmp("subtest:", token, 8)) {
+        if (tokenLen > 8) {
+            env->subtest = strdup(token + 8);
+        }
+        return;
+    }
 
-	if (!strncmp("subtest:", token, 8)) {
-		if (tokenLen > 8) {
-			env->subtest = strdup(token + 8);
-		}
-		return;
-	}
-
-	return;
+    return;
 }
 
-void
-parseArguments(agentEnv * env, char * agentOptions)
+void parseArguments(agentEnv* env, char* agentOptions)
 {
-	char *str, *token;
+    char *str, *token;
 
-	str = strdup(agentOptions);
+    str = strdup(agentOptions);
 
-	freeArguments(env);
+    freeArguments(env);
 
-	token = strtok(str, ",");
-	while (token) {
-		processToken(env, token);
-		token = strtok(NULL, ",");
-	}
+    token = strtok(str, ",");
+    while (token) {
+        processToken(env, token);
+        token = strtok(NULL, ",");
+    }
 
-	free(str);
+    free(str);
 }
 
-void
-freeArguments(agentEnv * env)
+void freeArguments(agentEnv* env)
 {
-	if (env->testName) {
-		free(env->testName);
-		env->testName = NULL;
-	}
-	if (env->testArgs) {
-		free(env->testArgs);
-		env->testArgs = NULL;
-	}
-	if (env->subtest) {
-		free(env->subtest);
-		env->subtest = NULL;
-	}
+    if (env->testName) {
+        free(env->testName);
+        env->testName = NULL;
+    }
+    if (env->testArgs) {
+        free(env->testArgs);
+        env->testArgs = NULL;
+    }
+    if (env->subtest) {
+        free(env->subtest);
+        env->subtest = NULL;
+    }
 }
-
-

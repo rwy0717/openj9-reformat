@@ -24,13 +24,13 @@
 #define include_internal_h
 
 /**
-* @file include_internal.h
-* @brief Internal prototypes used within the INCLUDE module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the INCLUDE module.
-*
-*/
+ * @file include_internal.h
+ * @brief Internal prototypes used within the INCLUDE module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the INCLUDE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -40,10 +40,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* include_internal_h */
-

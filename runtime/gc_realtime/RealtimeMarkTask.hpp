@@ -39,26 +39,26 @@ class MM_RealtimeMarkingScheme;
 /**
  * Task representing a the mark phase of Metronome global collection.
  */
-class MM_RealtimeMarkTask : public MM_IncrementalParallelTask
-{
+class MM_RealtimeMarkTask : public MM_IncrementalParallelTask {
 private:
-	MM_RealtimeMarkingScheme *_markingScheme;
-	MM_CycleState *_cycleState;  /**< Collection cycle state active for the task */
+    MM_RealtimeMarkingScheme* _markingScheme;
+    MM_CycleState* _cycleState; /**< Collection cycle state active for the task */
 
 public:
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_MARK; };
-	
-	virtual void run(MM_EnvironmentBase *env);
-	virtual void setup(MM_EnvironmentBase *env);
-	virtual void cleanup(MM_EnvironmentBase *env);
-	
-	MM_RealtimeMarkTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_RealtimeGC *realtimeGC, MM_RealtimeMarkingScheme *markingScheme, MM_CycleState *cycleState) :
-		MM_IncrementalParallelTask(env, dispatcher)
-		,_markingScheme(markingScheme)
-		,_cycleState(cycleState)
-	{
-		_typeId = __FUNCTION__;
-	}
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_MARK; };
+
+    virtual void run(MM_EnvironmentBase* env);
+    virtual void setup(MM_EnvironmentBase* env);
+    virtual void cleanup(MM_EnvironmentBase* env);
+
+    MM_RealtimeMarkTask(MM_EnvironmentBase* env, MM_Dispatcher* dispatcher, MM_RealtimeGC* realtimeGC,
+        MM_RealtimeMarkingScheme* markingScheme, MM_CycleState* cycleState)
+        : MM_IncrementalParallelTask(env, dispatcher)
+        , _markingScheme(markingScheme)
+        , _cycleState(cycleState)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 #endif /* REALTIMEMARKTASK_HPP_ */

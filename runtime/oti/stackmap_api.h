@@ -24,13 +24,13 @@
 #define stackmap_api_h
 
 /**
-* @file stackmap_api.h
-* @brief Public API for the STACKMAP module.
-*
-* This file contains public function prototypes and
-* type definitions for the STACKMAP module.
-*
-*/
+ * @file stackmap_api.h
+ * @brief Public API for the STACKMAP module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the STACKMAP module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -45,156 +45,144 @@ extern "C" {
 /* ---------------- maxmap.c ---------------- */
 
 /**
-* @brief
-* @param vmThread
-* @param romClass
-* @return UDATA
-*/
+ * @brief
+ * @param vmThread
+ * @param romClass
+ * @return UDATA
+ */
 UDATA
-j9maxmap_setMapMemoryBuffer(J9JavaVM * vm, J9ROMClass * romClass);
+j9maxmap_setMapMemoryBuffer(J9JavaVM* vm, J9ROMClass* romClass);
 
 /* ---------------- mapmemorybuffer.c ---------------- */
 
 /**
-* @brief Callback function to access the global emergency buffer for stack/local mapping.
-* @return A pointer to the guaranteed large enough global buffer.
-*/
-UDATA * j9mapmemory_GetBuffer(void * userData) ;
+ * @brief Callback function to access the global emergency buffer for stack/local mapping.
+ * @return A pointer to the guaranteed large enough global buffer.
+ */
+UDATA* j9mapmemory_GetBuffer(void* userData);
 
 /**
-* @brief Callback function to release the global emergency buffer for stack/local mapping.
-* @return Void.
-*/
-void j9mapmemory_ReleaseBuffer(void * userData);
+ * @brief Callback function to release the global emergency buffer for stack/local mapping.
+ * @return Void.
+ */
+void j9mapmemory_ReleaseBuffer(void* userData);
 
 /**
-* @brief Callback function to access the global emergency results buffer for stack/local mapping.
-* @return A pointer to the guaranteed large enough global buffer.
-*/
-U_32 * j9mapmemory_GetResultsBuffer(void * userData) ;
+ * @brief Callback function to access the global emergency results buffer for stack/local mapping.
+ * @return A pointer to the guaranteed large enough global buffer.
+ */
+U_32* j9mapmemory_GetResultsBuffer(void* userData);
 
 /**
-* @brief Callback function to release the global emergency results buffer for stack/local mapping.
-* @return Void.
-*/
-void j9mapmemory_ReleaseResultsBuffer(void * userData);
-
+ * @brief Callback function to release the global emergency results buffer for stack/local mapping.
+ * @return Void.
+ */
+void j9mapmemory_ReleaseResultsBuffer(void* userData);
 
 /* ---------------- fixreturns.c ---------------- */
 
 struct J9ROMClass;
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @return IDATA
-*/
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @return IDATA
+ */
 IDATA
-fixReturnBytecodes(J9PortLibrary * portLib, struct J9ROMClass* romClass);
-
+fixReturnBytecodes(J9PortLibrary* portLib, struct J9ROMClass* romClass);
 
 /**
-* @brief
-* @param romMethod
-* @param returnSlots
-* @return U_8
-*/
-U_8
-getReturnBytecode(J9ROMClass *romClass, J9ROMMethod * romMethod, UDATA * returnSlots);
-
+ * @brief
+ * @param romMethod
+ * @param returnSlots
+ * @return U_8
+ */
+U_8 getReturnBytecode(J9ROMClass* romClass, J9ROMMethod* romMethod, UDATA* returnSlots);
 
 /* ---------------- localmap.c ---------------- */
 
 /**
-* @brief
-* @param romMethod
-* @param resultArrayBase
-* @return void
-*/
-void
-j9localmap_ArgBitsForPC0 (J9ROMClass * romClass, J9ROMMethod * romMethod, U_32 * resultArrayBase);
-
+ * @brief
+ * @param romMethod
+ * @param resultArrayBase
+ * @return void
+ */
+void j9localmap_ArgBitsForPC0(J9ROMClass* romClass, J9ROMMethod* romMethod, U_32* resultArrayBase);
 
 /**
-* @brief
-* @param portLibrary
-* @param romClass
-* @param romMethod
-* @param pc
-* @param resultArrayBase
-* @param userData
-* @param getBuffer function
-* @param releaseBuffer function
-* @return IDATA
-*/
+ * @brief
+ * @param portLibrary
+ * @param romClass
+ * @param romMethod
+ * @param pc
+ * @param resultArrayBase
+ * @param userData
+ * @param getBuffer function
+ * @param releaseBuffer function
+ * @return IDATA
+ */
 IDATA
-j9localmap_LocalBitsForPC(J9PortLibrary * portLib, J9ROMClass * romClass, J9ROMMethod * romMethod, UDATA pc, U_32 * resultArrayBase, 
-		void * userData, UDATA * (* getBuffer) (void * userData), void (* releaseBuffer) (void * userData));
-
+j9localmap_LocalBitsForPC(J9PortLibrary* portLib, J9ROMClass* romClass, J9ROMMethod* romMethod, UDATA pc,
+    U_32* resultArrayBase, void* userData, UDATA* (*getBuffer)(void* userData), void (*releaseBuffer)(void* userData));
 
 /* ---------------- debuglocalmap.c ---------------- */
 
 /**
-* @brief
-* @param portLibrary
-* @param romClass
-* @param romMethod
-* @param pc
-* @param resultArrayBase
-* @param userData
-* @param getBuffer function
-* @param releaseBuffer function
-* @return IDATA
-*/
+ * @brief
+ * @param portLibrary
+ * @param romClass
+ * @param romMethod
+ * @param pc
+ * @param resultArrayBase
+ * @param userData
+ * @param getBuffer function
+ * @param releaseBuffer function
+ * @return IDATA
+ */
 IDATA
-j9localmap_DebugLocalBitsForPC(J9PortLibrary * portLib, J9ROMClass * romClass, J9ROMMethod * romMethod, UDATA pc, U_32 * resultArrayBase, 
-		void * userData, UDATA * (* getBuffer) (void * userData), void (* releaseBuffer) (void * userData)); 
-
+j9localmap_DebugLocalBitsForPC(J9PortLibrary* portLib, J9ROMClass* romClass, J9ROMMethod* romMethod, UDATA pc,
+    U_32* resultArrayBase, void* userData, UDATA* (*getBuffer)(void* userData), void (*releaseBuffer)(void* userData));
 
 /**
-* @brief
-* @param *currentThread
-* @param *ramMethod
-* @param offsetPC
-* @param slot
-* @param slotSignature
-* @param compressTypes
-* @return UDATA
-*/
+ * @brief
+ * @param *currentThread
+ * @param *ramMethod
+ * @param offsetPC
+ * @param slot
+ * @param slotSignature
+ * @param compressTypes
+ * @return UDATA
+ */
 UDATA
-validateLocalSlot(J9VMThread *currentThread, J9Method *ramMethod, U_32 offsetPC, U_32 slot, char slotSignature, UDATA compressTypes);
-
+validateLocalSlot(
+    J9VMThread* currentThread, J9Method* ramMethod, U_32 offsetPC, U_32 slot, char slotSignature, UDATA compressTypes);
 
 /**
-* @brief
-* @param *vm
-* @return void
-*/
-void
-installDebugLocalMapper(J9JavaVM * vm);
-
+ * @brief
+ * @param *vm
+ * @return void
+ */
+void installDebugLocalMapper(J9JavaVM* vm);
 
 /* ---------------- stackmap.c ---------------- */
 
 /**
-* @brief
-* @param portLib
-* @param pc
-* @param romClass
-* @param romMethod
-* @param resultArrayBase
-* @param resultArraySize
-* @param userData
-* @param getBuffer function
-* @param releaseBuffer function
-* @return IDATA
-*/
+ * @brief
+ * @param portLib
+ * @param pc
+ * @param romClass
+ * @param romMethod
+ * @param resultArrayBase
+ * @param resultArraySize
+ * @param userData
+ * @param getBuffer function
+ * @param releaseBuffer function
+ * @return IDATA
+ */
 IDATA
-j9stackmap_StackBitsForPC(J9PortLibrary * portLib, UDATA pc, J9ROMClass * romClass, J9ROMMethod * romMethod,
-		U_32 * resultArrayBase, UDATA resultArraySize,
-		void * userData, 
-		UDATA * (* getBuffer) (void * userData), 
-		void (* releaseBuffer) (void * userData));
+j9stackmap_StackBitsForPC(J9PortLibrary* portLib, UDATA pc, J9ROMClass* romClass, J9ROMMethod* romMethod,
+    U_32* resultArrayBase, UDATA resultArraySize, void* userData, UDATA* (*getBuffer)(void* userData),
+    void (*releaseBuffer)(void* userData));
 
 #ifdef __cplusplus
 }

@@ -25,49 +25,45 @@
 #include "exelib_api.h"
 #include "dfix.h"
 
-void
-zero_memory_loop(void* address, size_t size)
+void zero_memory_loop(void* address, size_t size)
 {
-	int i;
-	for (i=0; i < 10; i++) {
-		dfix_zero_memory(address, size);
-	}
+    int i;
+    for (i = 0; i < 10; i++) {
+        dfix_zero_memory(address, size);
+    }
 }
 
-void
-memcpy_loop(void* dest, void* src, size_t size)
+void memcpy_loop(void* dest, void* src, size_t size)
 {
-	int i;
-	for (i=0; i < 10; i++) {
-		dfix_memcpy(dest, src, size);
-	}
+    int i;
+    for (i = 0; i < 10; i++) {
+        dfix_memcpy(dest, src, size);
+    }
 }
 
-
-UDATA RunAllTests(J9PortLibrary *portLibrary)
+UDATA RunAllTests(J9PortLibrary* portLibrary)
 {
-	char block1[256];
-	char block2[256];
+    char block1[256];
+    char block2[256];
 
-	zero_memory_loop(block1, sizeof(block1));
-	memcpy_loop(block1, block2, sizeof(block1));
-	return 1;
+    zero_memory_loop(block1, sizeof(block1));
+    memcpy_loop(block1, block2, sizeof(block1));
+    return 1;
 }
 
 extern "C" {
 
 UDATA
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg)
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg)
 {
-	struct j9cmdlineOptions * startupOptions = (struct j9cmdlineOptions *) arg;
-	PORT_ACCESS_FROM_PORT(portLibrary);
+    struct j9cmdlineOptions* startupOptions = (struct j9cmdlineOptions*)arg;
+    PORT_ACCESS_FROM_PORT(portLibrary);
 
 #if defined(J9VM_OPT_MEMORY_CHECK_SUPPORT)
-	/* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
-	memoryCheck_parseCmdLine( PORTLIB, startupOptions->argc-1, startupOptions->argv );
+    /* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
+    memoryCheck_parseCmdLine(PORTLIB, startupOptions->argc - 1, startupOptions->argv);
 #endif /* J9VM_OPT_MEMORY_CHECK_SUPPORT */
 
-	return RunAllTests(portLibrary);
+    return RunAllTests(portLibrary);
 }
-
 }

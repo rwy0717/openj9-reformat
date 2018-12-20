@@ -38,117 +38,109 @@
  * Allocate and initialize a new instance of the receiver.
  * @return a new instance of the receiver, or NULL on failure.
  */
-MM_SweepSchemeRealtime *
-MM_SweepSchemeRealtime::newInstance(MM_EnvironmentBase *env, MM_RealtimeGC *realtimeGC, MM_Scheduler *scheduler, MM_MarkMap *markMap)
+MM_SweepSchemeRealtime* MM_SweepSchemeRealtime::newInstance(
+    MM_EnvironmentBase* env, MM_RealtimeGC* realtimeGC, MM_Scheduler* scheduler, MM_MarkMap* markMap)
 {
-	MM_SweepSchemeRealtime *instance;
+    MM_SweepSchemeRealtime* instance;
 
-	instance = (MM_SweepSchemeRealtime *)env->getForge()->allocate(sizeof(MM_SweepSchemeRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != instance) {
-		new(instance) MM_SweepSchemeRealtime(env, realtimeGC, scheduler, markMap);
-		if (!instance->initialize(env)) {
-			instance->kill(env);
-			instance = NULL;
-		}
-	}
+    instance = (MM_SweepSchemeRealtime*)env->getForge()->allocate(
+        sizeof(MM_SweepSchemeRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != instance) {
+        new (instance) MM_SweepSchemeRealtime(env, realtimeGC, scheduler, markMap);
+        if (!instance->initialize(env)) {
+            instance->kill(env);
+            instance = NULL;
+        }
+    }
 
-	return instance;
+    return instance;
 }
 
 /**
  * Free the receiver and all associated resources.
  */
-void
-MM_SweepSchemeRealtime::kill(MM_EnvironmentBase *env)
+void MM_SweepSchemeRealtime::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-void
-MM_SweepSchemeRealtime::preSweep(MM_EnvironmentBase *env)
+void MM_SweepSchemeRealtime::preSweep(MM_EnvironmentBase* env)
 {
-	_realtimeGC->setCollectorSweeping();
-	_scheduler->condYieldFromGC(env, _scheduler->beatNanos);
+    _realtimeGC->setCollectorSweeping();
+    _scheduler->condYieldFromGC(env, _scheduler->beatNanos);
 
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	MM_SweepSchemeSegregated::preSweep(env);
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    MM_SweepSchemeSegregated::preSweep(env);
 
-	_realtimeGC->allThreadsAllocateUnmarked(env);
-	if (ext->concurrentSweepingEnabled) {
-		_realtimeGC->setCollectorConcurrentSweeping();
-		_scheduler->_barrierSynchronization->releaseExclusiveVMAccess(env, _scheduler->_exclusiveVMAccessRequired);
-	}
+    _realtimeGC->allThreadsAllocateUnmarked(env);
+    if (ext->concurrentSweepingEnabled) {
+        _realtimeGC->setCollectorConcurrentSweeping();
+        _scheduler->_barrierSynchronization->releaseExclusiveVMAccess(env, _scheduler->_exclusiveVMAccessRequired);
+    }
 }
 
-void
-MM_SweepSchemeRealtime::postSweep(MM_EnvironmentBase *env)
+void MM_SweepSchemeRealtime::postSweep(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	if (ext->concurrentSweepingEnabled) {
-		_scheduler->_barrierSynchronization->acquireExclusiveVMAccess(env, _scheduler->_exclusiveVMAccessRequired);
-		_realtimeGC->setCollectorSweeping(); /* It might have been in ConcurrentSweep mode before. */
-	}
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    if (ext->concurrentSweepingEnabled) {
+        _scheduler->_barrierSynchronization->acquireExclusiveVMAccess(env, _scheduler->_exclusiveVMAccessRequired);
+        _realtimeGC->setCollectorSweeping(); /* It might have been in ConcurrentSweep mode before. */
+    }
 
-	MM_SweepSchemeSegregated::postSweep(env);
+    MM_SweepSchemeSegregated::postSweep(env);
 
-	MM_MemoryPoolSegregated *memoryPool = _realtimeGC->_memoryPool;
-	ext->gcTrigger = OMR_MAX(ext->gcInitialTrigger, ext->headRoom + memoryPool->getBytesInUse());
+    MM_MemoryPoolSegregated* memoryPool = _realtimeGC->_memoryPool;
+    ext->gcTrigger = OMR_MAX(ext->gcInitialTrigger, ext->headRoom + memoryPool->getBytesInUse());
 }
 
-void
-MM_SweepSchemeRealtime::incrementalSweepArraylet(MM_EnvironmentBase *env)
+void MM_SweepSchemeRealtime::incrementalSweepArraylet(MM_EnvironmentBase* env)
 {
-	_realtimeGC->setCollectorSweepingArraylets(true);
+    _realtimeGC->setCollectorSweepingArraylets(true);
 
-	MM_SweepSchemeSegregated::incrementalSweepArraylet(env);
+    MM_SweepSchemeSegregated::incrementalSweepArraylet(env);
 
-	_realtimeGC->setCollectorSweepingArraylets(false);
+    _realtimeGC->setCollectorSweepingArraylets(false);
 }
 
-
-void
-MM_SweepSchemeRealtime::yieldFromSweep(MM_EnvironmentBase *env, UDATA yieldSlackTime)
+void MM_SweepSchemeRealtime::yieldFromSweep(MM_EnvironmentBase* env, UDATA yieldSlackTime)
 {
-	_scheduler->condYieldFromGC(env, yieldSlackTime);
+    _scheduler->condYieldFromGC(env, yieldSlackTime);
 }
 
 UDATA
-MM_SweepSchemeRealtime::resetCoalesceFreeRegionCount(MM_EnvironmentBase *env)
+MM_SweepSchemeRealtime::resetCoalesceFreeRegionCount(MM_EnvironmentBase* env)
 {
-	_coalesceFreeRegionCount = 0;
-	return 100000;
+    _coalesceFreeRegionCount = 0;
+    return 100000;
 }
 
-bool
-MM_SweepSchemeRealtime::updateCoalesceFreeRegionCount(UDATA range)
+bool MM_SweepSchemeRealtime::updateCoalesceFreeRegionCount(UDATA range)
 {
-	bool mustYield = false;
-	_coalesceFreeRegionCount += range;
-	if (_coalesceFreeRegionCount > MAX_REGION_COALESCE) {
-		_coalesceFreeRegionCount = 0;
-		mustYield = true;
-	}
-	return mustYield;
+    bool mustYield = false;
+    _coalesceFreeRegionCount += range;
+    if (_coalesceFreeRegionCount > MAX_REGION_COALESCE) {
+        _coalesceFreeRegionCount = 0;
+        mustYield = true;
+    }
+    return mustYield;
 }
 
 UDATA
-MM_SweepSchemeRealtime::resetSweepSmallRegionCount(MM_EnvironmentBase *env, UDATA sweepSmallRegionsPerIteration)
+MM_SweepSchemeRealtime::resetSweepSmallRegionCount(MM_EnvironmentBase* env, UDATA sweepSmallRegionsPerIteration)
 {
-	_sweepSmallRegionCount = 0;
-	_yieldSmallRegionCount = sweepSmallRegionsPerIteration >> 3;
-	return 50000;
+    _sweepSmallRegionCount = 0;
+    _yieldSmallRegionCount = sweepSmallRegionsPerIteration >> 3;
+    return 50000;
 }
 
-bool
-MM_SweepSchemeRealtime::updateSweepSmallRegionCount()
+bool MM_SweepSchemeRealtime::updateSweepSmallRegionCount()
 {
-	bool mustYield = false;
-	_sweepSmallRegionCount += 1;
-	if (_sweepSmallRegionCount >= _yieldSmallRegionCount) {
-		_sweepSmallRegionCount = 0;
-		mustYield = true;
-	}
-	return mustYield;
+    bool mustYield = false;
+    _sweepSmallRegionCount += 1;
+    if (_sweepSmallRegionCount >= _yieldSmallRegionCount) {
+        _sweepSmallRegionCount = 0;
+        mustYield = true;
+    }
+    return mustYield;
 }
-

@@ -23,52 +23,52 @@
 #include "j9protos.h"
 
 UDATA
-areExtensionsEnabled(J9JavaVM * vm)
+areExtensionsEnabled(J9JavaVM* vm)
 {
 
-	/* If -Xfuture is specified, adhere strictly to the specification */
+    /* If -Xfuture is specified, adhere strictly to the specification */
 
-	if (vm->runtimeFlags & J9_RUNTIME_XFUTURE) {
-		return FALSE;
-	}
+    if (vm->runtimeFlags & J9_RUNTIME_XFUTURE) {
+        return FALSE;
+    }
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
 
 #ifdef J9VM_JIT_FULL_SPEED_DEBUG
 
-	/* Enable RedefineClass and RetransformClass extensions only if we are in full speed debug.
+    /* Enable RedefineClass and RetransformClass extensions only if we are in full speed debug.
      * Currently this is always true since acquiring the redefine capability forces us into FSD.
-	 */
+     */
 
     if (vm->jitConfig) {
-		/* JIT is available and initialized for this platform */
-		if (J9_FSD_ENABLED(vm)) {
-			return TRUE;
-		} else {
-			/* but FSD is not enabled */
-			return FALSE;
-		}
-	} else {
+        /* JIT is available and initialized for this platform */
+        if (J9_FSD_ENABLED(vm)) {
+            return TRUE;
+        } else {
+            /* but FSD is not enabled */
+            return FALSE;
+        }
+    } else {
 
-		/* JIT is not available, since we run in interpreted mode, no JIT fixups are necessary
-		 * and we can allow extensions */
+        /* JIT is not available, since we run in interpreted mode, no JIT fixups are necessary
+         * and we can allow extensions */
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
 #else
 
     /* We have JIT but no FSD, do not allow extensions */
 
     if (vm->jitConfig) {
-    	return FALSE;
+        return FALSE;
     }
 
 #endif /* J9VM_JIT_FULL_SPEED_DEBUG */
 
 #else
 
-	/* No JIT, extensions are always allowed */
+    /* No JIT, extensions are always allowed */
 
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */
 

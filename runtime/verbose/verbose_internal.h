@@ -24,13 +24,13 @@
 #define verbose_internal_h
 
 /**
-* @file verbose_internal.h
-* @brief Internal prototypes used within the VERBOSE module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the VERBOSE module.
-*
-*/
+ * @file verbose_internal.h
+ * @brief Internal prototypes used within the VERBOSE module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the VERBOSE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,29 +43,29 @@ extern "C" {
 
 /* ---------------- verbose.c ---------------- */
 
-#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT)) 
+#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT))
 /**
-* @brief
-* @param *dynamicLoadBuffers
-* @return void
-*/
-void hookDynamicLoadReporting(J9TranslationBufferSet *dynamicLoadBuffers);
+ * @brief
+ * @param *dynamicLoadBuffers
+ * @return void
+ */
+void hookDynamicLoadReporting(J9TranslationBufferSet* dynamicLoadBuffers);
 #endif /* J9VM_OPT_DYNAMIC_LOAD_SUPPORT */
 
-#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT)) 
+#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT))
 /**
  * Reports stats related to dynamic loading of class
  * @param javaVM - pointer to J9JavaVM
  * @param loader - class loader
  * @param romClass - the class for which stats are displayed
- * @param [in/out] localBuffer - contains values for entryIndex, loadLocationType and cpEntryUsed. This pointer can't be NULL.
+ * @param [in/out] localBuffer - contains values for entryIndex, loadLocationType and cpEntryUsed. This pointer can't be
+ * NULL.
  * @return void
  */
-void
-reportDynloadStatistics(struct J9JavaVM *javaVM, struct J9ClassLoader *loader, struct J9ROMClass *romClass, struct J9TranslationLocalBuffer *localBuffer);
+void reportDynloadStatistics(struct J9JavaVM* javaVM, struct J9ClassLoader* loader, struct J9ROMClass* romClass,
+    struct J9TranslationLocalBuffer* localBuffer);
 
 #endif /* J9VM_OPT_DYNAMIC_LOAD_SUPPORT */
-
 
 /* ---------------- errormessageframeworkcfr.c ---------------- */
 
@@ -79,9 +79,8 @@ reportDynloadStatistics(struct J9JavaVM *javaVM, struct J9ClassLoader *loader, s
  * @param msgBufferLength - the length of the error message buffer
  * @return pointer to the generated error messages on success; otherwise, return NULL.
  */
-U_8*
-generateJ9CfrExceptionDetails(J9JavaVM *javaVM, J9CfrError *error, U_8* className, UDATA classNameLength, U_8* initMsgBuffer, UDATA* msgBufferLength);
-
+U_8* generateJ9CfrExceptionDetails(J9JavaVM* javaVM, J9CfrError* error, U_8* className, UDATA classNameLength,
+    U_8* initMsgBuffer, UDATA* msgBufferLength);
 
 /* ---------------- errormessageframeworkrtv.c ---------------- */
 
@@ -92,8 +91,7 @@ generateJ9CfrExceptionDetails(J9JavaVM *javaVM, J9CfrError *error, U_8* classNam
  * @param msgBufferLength - the length of the error message buffer
  * @return pointer to the generated error messages on success; otherwise, return NULL.
  */
-U_8*
-generateJ9RtvExceptionDetails(J9BytecodeVerificationData* error, U_8* initMsgBuffer, UDATA* msgBufferLength);
+U_8* generateJ9RtvExceptionDetails(J9BytecodeVerificationData* error, U_8* initMsgBuffer, UDATA* msgBufferLength);
 
 #ifdef __cplusplus
 }

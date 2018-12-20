@@ -36,30 +36,27 @@
  * @return the next class in the segment being iterated
  * @return NULL if there are no more classes in the segment
  */
-J9Class *
-GC_ClassHeapIterator::nextClass() 
+J9Class* GC_ClassHeapIterator::nextClass()
 {
-	J9Class *currentScanPtr;
+    J9Class* currentScanPtr;
 #if defined(J9VM_OPT_FRAGMENT_RAM_CLASSES)
-	if(_scanPtr != NULL) {
-		currentScanPtr = _scanPtr;
-		_scanPtr = _scanPtr->nextClassInSegment;
-		return currentScanPtr;
-	}
+    if (_scanPtr != NULL) {
+        currentScanPtr = _scanPtr;
+        _scanPtr = _scanPtr->nextClassInSegment;
+        return currentScanPtr;
+    }
 #else
-	if(_scanPtr < (J9Class *)_memorySegment->heapAlloc) {
+    if (_scanPtr < (J9Class*)_memorySegment->heapAlloc) {
 #if defined(J9VM_INTERP_NATIVE_SUPPORT)
-		/* Skip the JIT VTable if there is one */
-		if(_vm->jitConfig) {
-			_scanPtr = (J9Class *)( ((UDATA)_scanPtr) + *((UDATA *)_scanPtr) );
-		}
+        /* Skip the JIT VTable if there is one */
+        if (_vm->jitConfig) {
+            _scanPtr = (J9Class*)(((UDATA)_scanPtr) + *((UDATA*)_scanPtr));
+        }
 #endif
-		currentScanPtr = _scanPtr;
-		_scanPtr = (J9Class *)( ((UDATA)_scanPtr) + GC_ClassModel::getSizeInBytes(_scanPtr) );
-		return currentScanPtr;
-	}
+        currentScanPtr = _scanPtr;
+        _scanPtr = (J9Class*)(((UDATA)_scanPtr) + GC_ClassModel::getSizeInBytes(_scanPtr));
+        return currentScanPtr;
+    }
 #endif
-	return NULL;
+    return NULL;
 }
-
-

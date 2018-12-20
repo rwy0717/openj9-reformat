@@ -23,16 +23,16 @@
 #define j9portpg_h
 /* @ddr_namespace: map_to_type=J9PortpgConstants */
 /* from windef.h */
-typedef void *HANDLE;
+typedef void* HANDLE;
 
 typedef struct J9PortPlatformGlobals {
-	BOOLEAN sock_IPv6_function_support;
-	HANDLE shmem_creationMutex;
-	HANDLE shsem_creationMutex;
+    BOOLEAN sock_IPv6_function_support;
+    HANDLE shmem_creationMutex;
+    HANDLE shsem_creationMutex;
 #if defined(J9_USE_CONNECTION_MANAGER)
-	HANDLE sock_connection;
+    HANDLE sock_connection;
 #endif
-	int si_l1DCacheLineSize;
+    int si_l1DCacheLineSize;
 } J9PortPlatformGlobals;
 
 #define PPG_sock_IPv6_FUNCTION_SUPPORT (portLibrary->portGlobals->platformGlobals.sock_IPv6_function_support)

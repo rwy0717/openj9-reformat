@@ -32,41 +32,40 @@
 class MM_EnvironmentBase;
 class MM_OSInterface;
 
-class MM_Timer : public MM_BaseVirtual
-{
-/* Data members & types */
+class MM_Timer : public MM_BaseVirtual {
+    /* Data members & types */
 public:
 protected:
 private:
-	U_64 _tickBase; /**< Current tick count from the TSC */
-	U_64 _sytemTimeBase; /**< Current system time in nanoseconds */
-	MM_OSInterface* _osInterface; /**< OS Interface used to set the time base on reset/initialize. */
-	
-/* Methods */
+    U_64 _tickBase; /**< Current tick count from the TSC */
+    U_64 _sytemTimeBase; /**< Current system time in nanoseconds */
+    MM_OSInterface* _osInterface; /**< OS Interface used to set the time base on reset/initialize. */
+
+    /* Methods */
 public:
-	static MM_Timer* newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
-	virtual void kill(MM_EnvironmentBase* env);
-	
-	U_64 peekElapsedTime(U_64 base);
-	U_64 getTimeInNanos();
-	U_64 nanoTime();
-	void reset();
-	bool hasTimeElapsed(U_64 startTimeInNanos, U_64 timeToWaitInNanos);
-	
+    static MM_Timer* newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
+    virtual void kill(MM_EnvironmentBase* env);
+
+    U_64 peekElapsedTime(U_64 base);
+    U_64 getTimeInNanos();
+    U_64 nanoTime();
+    void reset();
+    bool hasTimeElapsed(U_64 startTimeInNanos, U_64 timeToWaitInNanos);
+
 protected:
-	bool initialize(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
-	void tearDown(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
+    void tearDown(MM_EnvironmentBase* env);
+
 private:
-	U_64 rebaseTime();
-	
-	MM_Timer() :
-		_tickBase(J9CONST64(0)),
-		_sytemTimeBase(J9CONST64(0)),
-		_osInterface(NULL)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
+    U_64 rebaseTime();
+
+    MM_Timer()
+        : _tickBase(J9CONST64(0))
+        , _sytemTimeBase(J9CONST64(0))
+        , _osInterface(NULL)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 #endif /*TIMER_HPP_*/

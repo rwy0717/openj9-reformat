@@ -36,7 +36,7 @@
 #define assert1(expr) assert((ASSERT_LEVEL < 1) || (expr));
 #define assert2(expr) assert((ASSERT_LEVEL < 2) || (expr));
 
-#define MAX_UINT ((UDATA) (-1))
+#define MAX_UINT ((UDATA)(-1))
 
 #define CLOCK_SWITCH_TICK_THRESHOLD 1000000
 #define INTER_YIELD_WARNING_THRESHOLD_NS 80000
@@ -50,18 +50,18 @@
 
 #define ROOT_GRANULARITY 100
 
-/* 
+/*
  *	NOTE: Since we are using safe points, any information recorded by the
- *	GC when it is known that threads are stopped, can be accessed by the threads 
- *	without a critical section. 
+ *	GC when it is known that threads are stopped, can be accessed by the threads
+ *	without a critical section.
  */
-#define	GC_PHASE_IDLE		0x00000000
-#define	GC_PHASE_ROOT		0x00000001
-#define	GC_PHASE_TRACE		0x00000002
-#define	GC_PHASE_SWEEP		0x00000004
-#define	GC_PHASE_CONCURRENT_TRACE 0x00000008
-#define	GC_PHASE_CONCURRENT_SWEEP 0x00000010
-#define GC_PHASE_UNLOADING_CLASS_LOADERS  0x00000020
+#define GC_PHASE_IDLE 0x00000000
+#define GC_PHASE_ROOT 0x00000001
+#define GC_PHASE_TRACE 0x00000002
+#define GC_PHASE_SWEEP 0x00000004
+#define GC_PHASE_CONCURRENT_TRACE 0x00000008
+#define GC_PHASE_CONCURRENT_SWEEP 0x00000010
+#define GC_PHASE_UNLOADING_CLASS_LOADERS 0x00000020
 
 #define MINIMUM_FREE_CHUNK_SIZE 64
 

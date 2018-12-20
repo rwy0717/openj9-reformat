@@ -35,23 +35,17 @@
 /**
  * Signature for the callback function passed to the stack walker
  */
-typedef void J9MODRON_OSLOTITERATOR(J9JavaVM *javaVM, J9Object **objectIndirect, void *localData, J9StackWalkState *walkState, const void *stackLocation);
+typedef void J9MODRON_OSLOTITERATOR(J9JavaVM* javaVM, J9Object** objectIndirect, void* localData,
+    J9StackWalkState* walkState, const void* stackLocation);
 
 /**
  * Iterate over all slots on the stack of a given thread which contain object references.
  * @ingroup GC_Structs
  */
-class GC_VMThreadStackSlotIterator
-{
+class GC_VMThreadStackSlotIterator {
 public:
-	static void scanSlots(
-			J9VMThread *vmThread,
-			J9VMThread *walkThread,
-			void *userData,
-			J9MODRON_OSLOTITERATOR *oSlotIterator,
-			bool includeStackFrameClassReferences,
-			bool trackVisibleFrameDepth);
+    static void scanSlots(J9VMThread* vmThread, J9VMThread* walkThread, void* userData,
+        J9MODRON_OSLOTITERATOR* oSlotIterator, bool includeStackFrameClassReferences, bool trackVisibleFrameDepth);
 };
 
 #endif /* VMTHREADSTACKSLOTITERATOR_HPP_ */
-

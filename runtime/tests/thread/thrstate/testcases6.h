@@ -23,19 +23,19 @@
 #define _TESTCASES6_H_INCLUDED
 
 /*
- * sleeping states 
+ * sleeping states
  */
-extern UDATA test_vS_nSt(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nBMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nBMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nBMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWTMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWTMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nWTMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vS_nST(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nSt(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nBMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nBMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nBMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWTMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWTMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nWTMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vS_nST(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
 
 #if 0
 /* not possible */
@@ -46,9 +46,9 @@ extern UDATA test_vS_nS(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
 /*
  * suspended
  */
-extern UDATA test_vZ_nSt(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vZ_nBMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vZ_nWMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_vZ_nWMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vZ_nSt(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vZ_nBMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vZ_nWMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_vZ_nWMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
 
 #endif /*_TESTCASES6_H_INCLUDED*/

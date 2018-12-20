@@ -27,27 +27,28 @@
 #include "j9protos.h"
 #include "ut_j9shr.h"
 
-class SH_CompositeCache
-{
+class SH_CompositeCache {
 public:
-	virtual U_16 getJVMID(void) = 0;
+    virtual U_16 getJVMID(void) = 0;
 
-	virtual bool isRunningReadOnly(void) = 0;
+    virtual bool isRunningReadOnly(void) = 0;
 
-	virtual UDATA getTotalUsableCacheSize(void) = 0;
+    virtual UDATA getTotalUsableCacheSize(void) = 0;
 
-	virtual void getMinMaxBytes(U_32 *softmx, I_32 *minAOT, I_32 *maxAOT, I_32 *minJIT, I_32 *maxJIT) = 0;
+    virtual void getMinMaxBytes(U_32* softmx, I_32* minAOT, I_32* maxAOT, I_32* minJIT, I_32* maxJIT) = 0;
 
-	virtual UDATA getFreeAvailableBytes(void) = 0;
+    virtual UDATA getFreeAvailableBytes(void) = 0;
 
-	virtual U_32 getDebugBytes(void) = 0;
+    virtual U_32 getDebugBytes(void) = 0;
 
-	virtual void setInternCacheHeaderFields(J9SRP** sharedTail, J9SRP** sharedHead, U_32** totalSharedNodes, U_32** totalSharedWeight) = 0;
-	
-	virtual bool isStarted(void) = 0;
+    virtual void setInternCacheHeaderFields(
+        J9SRP** sharedTail, J9SRP** sharedHead, U_32** totalSharedNodes, U_32** totalSharedWeight)
+        = 0;
 
-	virtual IDATA restoreFromSnapshot(J9JavaVM* vm, const char* cacheName, bool* cacheExist) = 0;
+    virtual bool isStarted(void) = 0;
 
-	virtual I_32 tryAdjustMinMaxSizes(J9VMThread *currentThread, bool isJCLCall = false) = 0;
+    virtual IDATA restoreFromSnapshot(J9JavaVM* vm, const char* cacheName, bool* cacheExist) = 0;
+
+    virtual I_32 tryAdjustMinMaxSizes(J9VMThread* currentThread, bool isJCLCall = false) = 0;
 };
 #endif /*COMPOSITECACHE_H_INCLUDED*/

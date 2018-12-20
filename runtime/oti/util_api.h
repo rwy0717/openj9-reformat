@@ -26,13 +26,13 @@
 /* @ddr_namespace: map_to_type=UtilApiConstants */
 
 /**
-* @file util_api.h
-* @brief Public API for the UTIL module.
-*
-* This file contains public function prototypes and
-* type definitions for the UTIL module.
-*
-*/
+ * @file util_api.h
+ * @brief Public API for the UTIL module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the UTIL module.
+ *
+ */
 
 #include "j9.h"
 #include "jni.h"
@@ -47,323 +47,288 @@
 extern "C" {
 #endif
 
-typedef enum
-{
-	ONLY_SPEC_MODIFIERS,
-	INCLUDE_INTERNAL_MODIFIERS
-} modifierScope;
+typedef enum { ONLY_SPEC_MODIFIERS, INCLUDE_INTERNAL_MODIFIERS } modifierScope;
 
-typedef enum
-{
-	MODIFIERSOURCE_FIELD,
-	MODIFIERSOURCE_METHOD,
-	MODIFIERSOURCE_CLASS,
-	MODIFIERSOURCE_METHODPARAMETER
+typedef enum {
+    MODIFIERSOURCE_FIELD,
+    MODIFIERSOURCE_METHOD,
+    MODIFIERSOURCE_CLASS,
+    MODIFIERSOURCE_METHODPARAMETER
 } modifierSource;
 
 /* ---------------- alignedmemcpy.asm ---------------- */
-void
-alignedMemcpy(J9VMThread *vmStruct, void *dest, void *source, UDATA bytes, UDATA alignment);
+void alignedMemcpy(J9VMThread* vmStruct, void* dest, void* source, UDATA bytes, UDATA alignment);
 
-void
-alignedBackwardsMemcpy(J9VMThread *vmStruct, void *dest, void *source, UDATA bytes, UDATA alignment);
-
+void alignedBackwardsMemcpy(J9VMThread* vmStruct, void* dest, void* source, UDATA bytes, UDATA alignment);
 
 /* ---------------- argbits.c ---------------- */
 
 /**
-* @brief
-* @param *signature
-* @param *resultArrayBase
-* @param resultArraySize
-* @param isStatic
-* @return void
-*/
-void
-argBitsFromSignature(U_8 * signature, U_32 * resultArrayBase, UDATA resultArraySize, UDATA isStatic);
-
+ * @brief
+ * @param *signature
+ * @param *resultArrayBase
+ * @param resultArraySize
+ * @param isStatic
+ * @return void
+ */
+void argBitsFromSignature(U_8* signature, U_32* resultArrayBase, UDATA resultArraySize, UDATA isStatic);
 
 /* ---------------- bcdump.c ---------------- */
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param romMethod
-* @param flags
-* @return IDATA
-*/
-IDATA dumpBytecodes(J9PortLibrary * portLib, J9ROMClass * romClass, J9ROMMethod * romMethod, U_32 flags);
-
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param romMethod
+ * @param flags
+ * @return IDATA
+ */
+IDATA dumpBytecodes(J9PortLibrary* portLib, J9ROMClass* romClass, J9ROMMethod* romMethod, U_32 flags);
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param bytecodes
-* @param walkStartPC
-* @param walkEndPC
-* @param flags
-* @param *printFunction
-* @param *userData
-* @param *indent
-* @return IDATA
-*/
-IDATA j9bcutil_dumpBytecodes(J9PortLibrary * portLib, J9ROMClass * romClass,
-							 U_8 * bytecodes, UDATA walkStartPC, UDATA walkEndPC,
-							 UDATA flags, void *printFunction, void *userData, char *indent);
-
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param bytecodes
+ * @param walkStartPC
+ * @param walkEndPC
+ * @param flags
+ * @param *printFunction
+ * @param *userData
+ * @param *indent
+ * @return IDATA
+ */
+IDATA j9bcutil_dumpBytecodes(J9PortLibrary* portLib, J9ROMClass* romClass, U_8* bytecodes, UDATA walkStartPC,
+    UDATA walkEndPC, UDATA flags, void* printFunction, void* userData, char* indent);
 
 /* ---------------- binarysup.c ---------------- */
 
 /**
-* @brief
-* @param data1
-* @param length1
-* @param data2
-* @param length2
-* @return IDATA
-*/
+ * @brief
+ * @param data1
+ * @param length1
+ * @param data2
+ * @param length2
+ * @return IDATA
+ */
 IDATA
 compareUTF8Length(U_8* data1, UDATA length1, void* data2, UDATA length2);
-
 
 /* ---------------- checkcast.cpp ---------------- */
 
 /**
-* @brief	Returns TRUE if instanceClass can be cast to castClass, FALSE otherwise.
-* 			Updates the castClassCache.  DO NOT call this without VM access.
-* 
-* @param *instanceClass
-* @param *castClass
-* @return IDATA
-*/
+ * @brief	Returns TRUE if instanceClass can be cast to castClass, FALSE otherwise.
+ * 			Updates the castClassCache.  DO NOT call this without VM access.
+ *
+ * @param *instanceClass
+ * @param *castClass
+ * @return IDATA
+ */
 IDATA
-instanceOfOrCheckCast( J9Class *instanceClass, J9Class *castClass );
+instanceOfOrCheckCast(J9Class* instanceClass, J9Class* castClass);
 
 /**
-* @brief	Returns TRUE if instanceClass can be cast to castClass, FALSE otherwise.
-* 			Does not update the castClassCache.
-*
-* @param *instanceClass
-* @param *castClass
-* @return IDATA
-*/
+ * @brief	Returns TRUE if instanceClass can be cast to castClass, FALSE otherwise.
+ * 			Does not update the castClassCache.
+ *
+ * @param *instanceClass
+ * @param *castClass
+ * @return IDATA
+ */
 IDATA
-instanceOfOrCheckCastNoCacheUpdate( J9Class *instanceClass, J9Class *castClass );
+instanceOfOrCheckCastNoCacheUpdate(J9Class* instanceClass, J9Class* castClass);
 
 /* ---------------- defarg.c ---------------- */
 
 /**
-* @brief
-* @param arg
-* @param key
-* @return char *
-*/
-char *getDefineArgument(char* arg, char* key);
-
+ * @brief
+ * @param arg
+ * @param key
+ * @return char *
+ */
+char* getDefineArgument(char* arg, char* key);
 
 /* ---------------- divhelp.c ---------------- */
 
 /**
-* @brief Helper function called by VM interpreter, using pointers to 
-*        values. Calculates quotient of 2 longs.
-* @param[in] *a Pointer to long dividend.
-* @param[in] *b Pointer to long divisor.
-* @param[out] *c Pointer to long quotient.
-* @return I_32 0.
-* 
-*/
-void helperLongDivideLong(I_64 *a, I_64 *b, I_64 *c);
-
-
-/**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the product of
-*        2 longs.
-* @param[in] *a Pointer to long multiplicand.
-* @param[in] *b Pointer to long multiplier.
-* @param[out] *c Pointer to long product.
-* @return I_32 0.
-*/
-void helperLongMultiplyLong(I_64 *a, I_64 *b, I_64 *c);
-
+ * @brief Helper function called by VM interpreter, using pointers to
+ *        values. Calculates quotient of 2 longs.
+ * @param[in] *a Pointer to long dividend.
+ * @param[in] *b Pointer to long divisor.
+ * @param[out] *c Pointer to long quotient.
+ * @return I_32 0.
+ *
+ */
+void helperLongDivideLong(I_64* a, I_64* b, I_64* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the remainder when
-*        dividing 2 longs.
-* @param[in] *a Pointer to long dividend.
-* @param[in] *b Pointer to long divisor.
-* @param[out] *c Pointer to long remainder.
-* @return I_32 0.
-*/
-void helperLongRemainderLong(I_64 *a, I_64 *b, I_64 *c);
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the product of
+ *        2 longs.
+ * @param[in] *a Pointer to long multiplicand.
+ * @param[in] *b Pointer to long multiplier.
+ * @param[out] *c Pointer to long product.
+ * @return I_32 0.
+ */
+void helperLongMultiplyLong(I_64* a, I_64* b, I_64* c);
 
+/**
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the remainder when
+ *        dividing 2 longs.
+ * @param[in] *a Pointer to long dividend.
+ * @param[in] *b Pointer to long divisor.
+ * @param[out] *c Pointer to long remainder.
+ * @return I_32 0.
+ */
+void helperLongRemainderLong(I_64* a, I_64* b, I_64* c);
 
 /* ---------------- divhelp.c C-helpers---------------- */
 
 /**
-* @brief Helper function used by JIT. Given 2 long
-*        values, returns quotient.
-* @param[in] a Long dividend.
-* @param[in] b Long divisor.
-* @return Resulting long quotient.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 long
+ *        values, returns quotient.
+ * @param[in] a Long dividend.
+ * @param[in] b Long divisor.
+ * @return Resulting long quotient.
+ *
+ */
 I_64 helperCLongDivideLong(I_64 a, I_64 b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 long
-*        values, returns product.
-* @param[in] a Long multiplicand.
-* @param[in] b Long multiplier.
-* @return Resulting long product.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 long
+ *        values, returns product.
+ * @param[in] a Long multiplicand.
+ * @param[in] b Long multiplier.
+ * @return Resulting long product.
+ *
+ */
 I_64 helperCLongMultiplyLong(I_64 a, I_64 b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 long
-*        values, returns remainder.
-* @param[in] a Long dividend.
-* @param[in] b Long divisor.
-* @return Resulting long remainder.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 long
+ *        values, returns remainder.
+ * @param[in] a Long dividend.
+ * @param[in] b Long divisor.
+ * @return Resulting long remainder.
+ *
+ */
 I_64 helperCLongRemainderLong(I_64 a, I_64 b);
-
 
 /* ---------------- eventframe.c ---------------- */
 
 /**
-* @brief
-* @param currentThread
-* @param hadVMAccess
-* @return void
-*/
-void
-popEventFrame(J9VMThread * currentThread, UDATA hadVMAccess);
-
+ * @brief
+ * @param currentThread
+ * @param hadVMAccess
+ * @return void
+ */
+void popEventFrame(J9VMThread* currentThread, UDATA hadVMAccess);
 
 /**
-* @brief
-* @param currentThread
-* @param wantVMAccess
-* @param jniRefSlots
-* @return UDATA
-*/
+ * @brief
+ * @param currentThread
+ * @param wantVMAccess
+ * @param jniRefSlots
+ * @return UDATA
+ */
 UDATA
-pushEventFrame(J9VMThread * currentThread, UDATA wantVMAccess, UDATA jniRefSlots);
-
+pushEventFrame(J9VMThread* currentThread, UDATA wantVMAccess, UDATA jniRefSlots);
 
 /* ---------------- extendedmethodblockaccess.c ---------------- */
 
 /**
-* @brief
-* @param method
-* @return U_8 *
-*/
-U_8 * 
-fetchMethodExtendedFlagsPointer(J9Method* method);
-
+ * @brief
+ * @param method
+ * @return U_8 *
+ */
+U_8* fetchMethodExtendedFlagsPointer(J9Method* method);
 
 /**
-* @brief
-* @param vm
-* @param mtFlag
-* @param flags
-* @return void
-*/
-void
-setExtendedMethodFlags(J9JavaVM * vm, U_8 * mtFlag, U_8 flags);
-
+ * @brief
+ * @param vm
+ * @param mtFlag
+ * @param flags
+ * @return void
+ */
+void setExtendedMethodFlags(J9JavaVM* vm, U_8* mtFlag, U_8 flags);
 
 /**
-* @brief
-* @param vm
-* @param mtFlag
-* @param flags
-* @return void
-*/
-void
-clearExtendedMethodFlags(J9JavaVM * vm, U_8 * mtFlag, U_8 flags);
-
+ * @brief
+ * @param vm
+ * @param mtFlag
+ * @param flags
+ * @return void
+ */
+void clearExtendedMethodFlags(J9JavaVM* vm, U_8* mtFlag, U_8 flags);
 
 /* ---------------- fieldutil.c ---------------- */
 
 extern const U_8 fieldModifiersLookupTable[];
 
 /**
-* @brief
-* @param field
-* @return J9UTF8 *
-*/
-J9UTF8 * romFieldGenericSignature(J9ROMFieldShape * field);
+ * @brief
+ * @param field
+ * @return J9UTF8 *
+ */
+J9UTF8* romFieldGenericSignature(J9ROMFieldShape* field);
 
 /**
-* Get the start of the field annotation data from the ROMclass field (including the 4-byte length)
-* @param field
-* @return pointer to data, or NULL if the field does not contain annotations
-*/
-U_32 * getFieldAnnotationsDataFromROMField(J9ROMFieldShape * field);
+ * Get the start of the field annotation data from the ROMclass field (including the 4-byte length)
+ * @param field
+ * @return pointer to data, or NULL if the field does not contain annotations
+ */
+U_32* getFieldAnnotationsDataFromROMField(J9ROMFieldShape* field);
 
 /**
-* Get the start of the field type annotation data from the ROMclass field (including the 4-byte length)
-* @param field
-* @return pointer to data, or NULL if the field does not contain type annotations
-*/
-U_32 * getFieldTypeAnnotationsDataFromROMField(J9ROMFieldShape * field);
+ * Get the start of the field type annotation data from the ROMclass field (including the 4-byte length)
+ * @param field
+ * @return pointer to data, or NULL if the field does not contain type annotations
+ */
+U_32* getFieldTypeAnnotationsDataFromROMField(J9ROMFieldShape* field);
 
 /**
-* @brief
-* @param field
-* @return U_32 *
-*/
-U_32 * getPackedLengthAnnotationValueFromROMField(J9ROMFieldShape * field);
+ * @brief
+ * @param field
+ * @return U_32 *
+ */
+U_32* getPackedLengthAnnotationValueFromROMField(J9ROMFieldShape* field);
 
 /**
-* @brief
-* @param field
-* @return U_32 *
-*/
-U_32 * romFieldInitialValueAddress(J9ROMFieldShape * field);
-
-
-/**
-* @brief
-* @param modifiers
-* @return UDATA
-*/
-UDATA romFieldSize(J9ROMFieldShape *romField);
-
+ * @brief
+ * @param field
+ * @return U_32 *
+ */
+U_32* romFieldInitialValueAddress(J9ROMFieldShape* field);
 
 /**
-* @brief
-* @param state
-* @return J9ROMFieldShape *
-*/
-J9ROMFieldShape * romFieldsNextDo(J9ROMFieldWalkState* state);
-
+ * @brief
+ * @param modifiers
+ * @return UDATA
+ */
+UDATA romFieldSize(J9ROMFieldShape* romField);
 
 /**
-* @brief
-* @param romClass
-* @param state
-* @return J9ROMFieldShape *
-*/
-J9ROMFieldShape * romFieldsStartDo(J9ROMClass * romClass, J9ROMFieldWalkState* state);
+ * @brief
+ * @param state
+ * @return J9ROMFieldShape *
+ */
+J9ROMFieldShape* romFieldsNextDo(J9ROMFieldWalkState* state);
 
-typedef enum J9WalkFieldAction {
-	J9WalkFieldActionContinue,
-	J9WalkFieldActionStop
-} J9WalkFieldAction;
+/**
+ * @brief
+ * @param romClass
+ * @param state
+ * @return J9ROMFieldShape *
+ */
+J9ROMFieldShape* romFieldsStartDo(J9ROMClass* romClass, J9ROMFieldWalkState* state);
+
+typedef enum J9WalkFieldAction { J9WalkFieldActionContinue, J9WalkFieldActionStop } J9WalkFieldAction;
 
 typedef struct J9WalkFieldHierarchyState {
-	J9WalkFieldAction (*fieldCallback)(J9ROMFieldShape *romField, J9Class *declaringClass, void *userData); /**< callback invoked on each field */
-	void *userData; /**< data passed to fieldCallback */
+    J9WalkFieldAction (*fieldCallback)(
+        J9ROMFieldShape* romField, J9Class* declaringClass, void* userData); /**< callback invoked on each field */
+    void* userData; /**< data passed to fieldCallback */
 } J9WalkFieldHierarchyState;
 
 /**
@@ -373,999 +338,906 @@ typedef struct J9WalkFieldHierarchyState {
  * @param[in] clazz The class.
  * @param[in,out] state Struct containing the callback and other walk info.
  */
-void walkFieldHierarchyDo(J9Class *clazz, J9WalkFieldHierarchyState *state);
+void walkFieldHierarchyDo(J9Class* clazz, J9WalkFieldHierarchyState* state);
 
 #if defined(J9VM_OUT_OF_PROCESS)
 
 /**
-* @brief
-* @param state
-* @return J9ROMFieldShape *
-*/
-J9ROMFieldShape * debugRomFieldsNextDo(J9ROMFieldWalkState *state);
-
+ * @brief
+ * @param state
+ * @return J9ROMFieldShape *
+ */
+J9ROMFieldShape* debugRomFieldsNextDo(J9ROMFieldWalkState* state);
 
 /**
-* @brief
-* @param romClass
-* @param state
-* @return J9ROMFieldShape *
-*/
-J9ROMFieldShape * debugRomFieldsStartDo(J9ROMClass *romClass, J9ROMFieldWalkState *state);
+ * @brief
+ * @param romClass
+ * @param state
+ * @return J9ROMFieldShape *
+ */
+J9ROMFieldShape* debugRomFieldsStartDo(J9ROMClass* romClass, J9ROMFieldWalkState* state);
 
 #endif /* defined(J9VM_OUT_OF_PROCESS) */
 
 /* ---------------- final.c ---------------- */
 
 /**
-* @brief
-* @param nameLength
-* @param name
-* @param sigLength
-* @param sig
-* @return UDATA
-*/
+ * @brief
+ * @param nameLength
+ * @param name
+ * @param sigLength
+ * @param sig
+ * @return UDATA
+ */
 UDATA methodIsFinalInObject(UDATA nameLength, U_8* name, UDATA sigLength, U_8* sig);
-
 
 /* ---------------- fltconv.c ---------------- */
 
-#if (defined(J9VM_INTERP_FLOAT_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_INTERP_FLOAT_SUPPORT)) /* File Level Build Flags */
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts a double precision number to a
-*        floating point value.
-* @param[in] *src Pointer to double value to be converted to floating point.
-* @param[out] *dst Pointer to the resulting floating point value.
-* @return Void. 
-* 
-*/
-void helperConvertDoubleToFloat(jdouble *src, jfloat *dst);
-
-
-/**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts a double precision number to an integer value.
-* @param[in] *src Pointer to double value to be converted to integer.
-* @param[out] *dst Pointer to the resulting integer value.
-* @return Void. 
-* 
-*/
-void helperConvertDoubleToInteger(jdouble *src, I_32 *dst);
-
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts a double precision number to a
+ *        floating point value.
+ * @param[in] *src Pointer to double value to be converted to floating point.
+ * @param[out] *dst Pointer to the resulting floating point value.
+ * @return Void.
+ *
+ */
+void helperConvertDoubleToFloat(jdouble* src, jfloat* dst);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts a double precision number to long value.
-* @param[in] *src Pointer to double value to be converted to long.
-* @param[out] *dst Pointer to the resulting long value.
-* @return Void. 
-* 
-*/
-void helperConvertDoubleToLong(jdouble *src, I_64 *dst);
-
-
-/**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts floating point number to a double 
-*        precision value.
-* @param[in] *src Pointer to floating point value to be converted to double.
-* @param[out] *dst Pointer to the resulting double value.
-* @return Void. 
-* 
-*/
-void helperConvertFloatToDouble(jfloat *src, jdouble *dst);
-
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts a double precision number to an integer value.
+ * @param[in] *src Pointer to double value to be converted to integer.
+ * @param[out] *dst Pointer to the resulting integer value.
+ * @return Void.
+ *
+ */
+void helperConvertDoubleToInteger(jdouble* src, I_32* dst);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts floating point number to an integer value.
-* @param[in] *src Pointer to floating point value to be converted to integer.
-* @param[out] *dst Pointer to the resulting integer value.
-* @return Void. 
-* 
-*/
-void helperConvertFloatToInteger(jfloat *src, I_32 *dst);
-
-
-/**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts floating point number to long value.
-* @param[in] *src Pointer to floating point value to be converted to long.
-* @param[out] *dst Pointer to the resulting long value.
-* @return Void. 
-* 
-*/
-void helperConvertFloatToLong(jfloat *src, I_64 *dst);
-
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts a double precision number to long value.
+ * @param[in] *src Pointer to double value to be converted to long.
+ * @param[out] *dst Pointer to the resulting long value.
+ * @return Void.
+ *
+ */
+void helperConvertDoubleToLong(jdouble* src, I_64* dst);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts an integer number to double.
-* @param[in] *src Pointer to integer value to be converted to double.
-* @param[out] *dst Pointer to the resulting double value.
-* @return Void.
-*
-*/
-void helperConvertIntegerToDouble(I_32 *src, jdouble *dst);
-
-
-/**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts an integer number to floating point.
-* @param[in] *src Pointer to integer value to be converted to floating point.
-* @param[out] *dst Pointer to the resulting floating point value.
-* @return Void.
-*
-*/
-void helperConvertIntegerToFloat(I_32 *src, jfloat *dst);
-
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts floating point number to a double
+ *        precision value.
+ * @param[in] *src Pointer to floating point value to be converted to double.
+ * @param[out] *dst Pointer to the resulting double value.
+ * @return Void.
+ *
+ */
+void helperConvertFloatToDouble(jfloat* src, jdouble* dst);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts a long number to double precision.
-* @param[in] *src Pointer to long value to be converted to doble.
-* @param[out] *dst Pointer to the resulting double value.
-* @return Void.
-*
-*/
-void helperConvertLongToDouble(I_64 *src, jdouble *dst);
-
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts floating point number to an integer value.
+ * @param[in] *src Pointer to floating point value to be converted to integer.
+ * @param[out] *dst Pointer to the resulting integer value.
+ * @return Void.
+ *
+ */
+void helperConvertFloatToInteger(jfloat* src, I_32* dst);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers 
-*        to values. Converts a long number to floating point.
-* @param[in] *src Pointer to long value to be converted to floating point.
-* @param[out] *dst Pointer to the resulting floating point value.
-* @return Void.
-*
-*/
-void helperConvertLongToFloat(I_64 *src, jfloat *dst);
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts floating point number to long value.
+ * @param[in] *src Pointer to floating point value to be converted to long.
+ * @param[out] *dst Pointer to the resulting long value.
+ * @return Void.
+ *
+ */
+void helperConvertFloatToLong(jfloat* src, I_64* dst);
 
+/**
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts an integer number to double.
+ * @param[in] *src Pointer to integer value to be converted to double.
+ * @param[out] *dst Pointer to the resulting double value.
+ * @return Void.
+ *
+ */
+void helperConvertIntegerToDouble(I_32* src, jdouble* dst);
+
+/**
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts an integer number to floating point.
+ * @param[in] *src Pointer to integer value to be converted to floating point.
+ * @param[out] *dst Pointer to the resulting floating point value.
+ * @return Void.
+ *
+ */
+void helperConvertIntegerToFloat(I_32* src, jfloat* dst);
+
+/**
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts a long number to double precision.
+ * @param[in] *src Pointer to long value to be converted to doble.
+ * @param[out] *dst Pointer to the resulting double value.
+ * @return Void.
+ *
+ */
+void helperConvertLongToDouble(I_64* src, jdouble* dst);
+
+/**
+ * @brief Helper function called by VM interpreter, using pointers
+ *        to values. Converts a long number to floating point.
+ * @param[in] *src Pointer to long value to be converted to floating point.
+ * @param[out] *dst Pointer to the resulting floating point value.
+ * @return Void.
+ *
+ */
+void helperConvertLongToFloat(I_64* src, jfloat* dst);
 
 /* ---------------- fltconv.c C-helpers---------------- */
 
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a double number, 
-*        converts it to floating point and returns the 
-*        floating point value.
-* @param[in] src Double number to be converted to floating point.
-* @return Resulting floating point value.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a double number,
+ *        converts it to floating point and returns the
+ *        floating point value.
+ * @param[in] src Double number to be converted to floating point.
+ * @return Resulting floating point value.
+ *
+ */
 jfloat helperCConvertDoubleToFloat(jdouble src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a double number, 
-*        converts it to an integer and returns the 
-*        integer value.
-* @param[in] src Double number to be converted to an integer.
-* @return Resulting integer value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a double number,
+ *        converts it to an integer and returns the
+ *        integer value.
+ * @param[in] src Double number to be converted to an integer.
+ * @return Resulting integer value.
+ *
+ */
 I_32 helperCConvertDoubleToInteger(jdouble src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a double number, 
-*        converts it to a long and returns the 
-*        long value.
-* @param[in] src Double number to be converted to a long.
-* @return Resulting long value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a double number,
+ *        converts it to a long and returns the
+ *        long value.
+ * @param[in] src Double number to be converted to a long.
+ * @return Resulting long value.
+ *
+ */
 I_64 helperCConvertDoubleToLong(jdouble src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a floating point number, 
-*        converts it to a double and returns the 
-*        double value.
-* @param[in] src Floating point number to be converted to a double.
-* @return Resulting double value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a floating point number,
+ *        converts it to a double and returns the
+ *        double value.
+ * @param[in] src Floating point number to be converted to a double.
+ * @return Resulting double value.
+ *
+ */
 jdouble helperCConvertFloatToDouble(jfloat src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a floating point number, 
-*        converts it to an integer and returns the 
-*        integer value.
-* @param[in] src Floating point number to be converted to an integer.
-* @return Resulting integer value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a floating point number,
+ *        converts it to an integer and returns the
+ *        integer value.
+ * @param[in] src Floating point number to be converted to an integer.
+ * @return Resulting integer value.
+ *
+ */
 I_32 helperCConvertFloatToInteger(jfloat src);
 
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given floating point number, 
-*        converts it to long and returns the long value.
-* @param[in] a Floating point number to be converted to long.
-* @return Resulting long value.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given floating point number,
+ *        converts it to long and returns the long value.
+ * @param[in] a Floating point number to be converted to long.
+ * @return Resulting long value.
+ *
+ */
 I_64 helperCConvertFloatToLong(jfloat src);
 
-
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a floating point number, 
-*        converts it to a double and returns the 
-*        double value.
-* @param[in] src Floating point number to be converted to a double.
-* @return Resulting double value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a floating point number,
+ *        converts it to a double and returns the
+ *        double value.
+ * @param[in] src Floating point number to be converted to a double.
+ * @return Resulting double value.
+ *
+ */
 jdouble helperCConvertIntegerToDouble(I_32 src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given an integer number, 
-*        converts it to floating point and returns the 
-*        floating point value.
-* @param[in] src Integer number to be converted to floating point.
-* @return Resulting floating point value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given an integer number,
+ *        converts it to floating point and returns the
+ *        floating point value.
+ * @param[in] src Integer number to be converted to floating point.
+ * @return Resulting floating point value.
+ *
+ */
 jfloat helperCConvertIntegerToFloat(I_32 src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a floating point number, 
-*        converts it to a double and returns the 
-*        double value.
-* @param[in] src Floating point number to be converted to a double.
-* @return Resulting double value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a floating point number,
+ *        converts it to a double and returns the
+ *        double value.
+ * @param[in] src Floating point number to be converted to a double.
+ * @return Resulting double value.
+ *
+ */
 jdouble helperCConvertLongToDouble(I_64 src);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given a long number, 
-*        converts it to floating point and returns the 
-*        floating point value.
-* @param[in] src The long number to be converted to floating point.
-* @return Resulting floating point value.
-*
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given a long number,
+ *        converts it to floating point and returns the
+ *        floating point value.
+ * @param[in] src The long number to be converted to floating point.
+ * @return Resulting floating point value.
+ *
+ */
 jfloat helperCConvertLongToFloat(I_64 src);
 
 #endif /* J9VM_INTERP_FLOAT_SUPPORT */ /* End File Level Build Flags */
 
-
 /* ---------------- fltdmath.c ---------------- */
 
 /**
-* @brief
-* @param u
-* @param v
-* @param *result
-* @return void
-*/
-void addDD( double u, double v, double *result);
-
-
-/**
-* @brief
-* @param f1
-* @param f2
-* @param *rp
-* @return void
-*/
-void addDF(float f1, float f2, float *rp);
-
+ * @brief
+ * @param u
+ * @param v
+ * @param *result
+ * @return void
+ */
+void addDD(double u, double v, double* result);
 
 /**
-* @brief
-* @param d1
-* @param d2
-* @return int
-*/
-int
-compareDD(double d1, double d2);
-
+ * @brief
+ * @param f1
+ * @param f2
+ * @param *rp
+ * @return void
+ */
+void addDF(float f1, float f2, float* rp);
 
 /**
-* @brief
-* @param f1
-* @param f2
-* @return int
-*/
+ * @brief
+ * @param d1
+ * @param d2
+ * @return int
+ */
+int compareDD(double d1, double d2);
+
+/**
+ * @brief
+ * @param f1
+ * @param f2
+ * @return int
+ */
 int compareDF(float f1, float f2);
 
+/**
+ * @brief
+ * @param d
+ * @param *fp
+ * @return int
+ */
+int convertDoubleToFloat(double d, float* fp);
 
 /**
-* @brief
-* @param d
-* @param *fp
-* @return int
-*/
-int convertDoubleToFloat(double d, float *fp);
-
-
-/**
-* @brief
-* @param f
-* @param *dp
-* @return void
-*/
-void convertFloatToDouble(float f, double *dp);
-
+ * @brief
+ * @param f
+ * @param *dp
+ * @return void
+ */
+void convertFloatToDouble(float f, double* dp);
 
 /**
-* @brief
-* @param d1
-* @param d2
-* @param *result
-* @return void
-*/
-void divideDD( double d1, double d2, double *result );
-
-
-/**
-* @brief
-* @param f1
-* @param f2
-* @param *rp
-* @return void
-*/
-void divideDF(float f1, float f2, float *rp);
-
+ * @brief
+ * @param d1
+ * @param d2
+ * @param *result
+ * @return void
+ */
+void divideDD(double d1, double d2, double* result);
 
 /**
-* @brief
-* @param m1
-* @param m2
-* @param *result
-* @return void
-*/
-void multiplyDD( double m1, double m2, double *result );
-
-
-/**
-* @brief
-* @param f1
-* @param f2
-* @param *rp
-* @return void
-*/
-void multiplyDF(float f1, float f2, float *rp);
-
+ * @brief
+ * @param f1
+ * @param f2
+ * @param *rp
+ * @return void
+ */
+void divideDF(float f1, float f2, float* rp);
 
 /**
-* @brief
-* @param d1
-* @param d2
-* @param *rp
-* @return void
-*/
-void remDD(double d1, double d2, double *rp);
-
-
-/**
-* @brief
-* @param f1
-* @param f2
-* @param *rp
-* @return void
-*/
-void remDF(float f1, float f2, float *rp);
-
+ * @brief
+ * @param m1
+ * @param m2
+ * @param *result
+ * @return void
+ */
+void multiplyDD(double m1, double m2, double* result);
 
 /**
-* @brief
-* @param u
-* @param v
-* @param *result
-* @return void
-*/
-void subDD(double u, double v, double *result);
-
+ * @brief
+ * @param f1
+ * @param f2
+ * @param *rp
+ * @return void
+ */
+void multiplyDF(float f1, float f2, float* rp);
 
 /**
-* @brief
-* @param f1
-* @param f2
-* @param *rp
-* @return void
-*/
-void subDF(float f1, float f2, float *rp);
+ * @brief
+ * @param d1
+ * @param d2
+ * @param *rp
+ * @return void
+ */
+void remDD(double d1, double d2, double* rp);
 
+/**
+ * @brief
+ * @param f1
+ * @param f2
+ * @param *rp
+ * @return void
+ */
+void remDF(float f1, float f2, float* rp);
+
+/**
+ * @brief
+ * @param u
+ * @param v
+ * @param *result
+ * @return void
+ */
+void subDD(double u, double v, double* result);
+
+/**
+ * @brief
+ * @param f1
+ * @param f2
+ * @param *rp
+ * @return void
+ */
+void subDF(float f1, float f2, float* rp);
 
 /* ---------------- fltmath.c ---------------- */
 
-#if (defined(J9VM_INTERP_FLOAT_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_INTERP_FLOAT_SUPPORT)) /* File Level Build Flags */
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Given 2 pointers to double values,
-*        returns  flag indicating how the values compare.
-* @param[in] *a Pointer to double value.
-* @param[in] *b Pointer to double value.
-* @return Integer flag: 0 if a=b
-*                       1 if a>b
-*                      -1 if a<b
-* 					   -2 if a or b NaN.
-* 
-*/
-int helperDoubleCompareDouble(jdouble *a, jdouble *b);
-
-
-/**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the quotient of
-*        2 double precision numbers.
-* @param[in] *a Pointer to double dividend.
-* @param[in] *b Pointer to double divisor.
-* @param[out] *c Pointer to double quotient.
-* @return I_32 0.
-*/
-I_32 helperDoubleDivideDouble(jdouble *a, jdouble *b, jdouble *c);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Given 2 pointers to double values,
+ *        returns  flag indicating how the values compare.
+ * @param[in] *a Pointer to double value.
+ * @param[in] *b Pointer to double value.
+ * @return Integer flag: 0 if a=b
+ *                       1 if a>b
+ *                      -1 if a<b
+ * 					   -2 if a or b NaN.
+ *
+ */
+int helperDoubleCompareDouble(jdouble* a, jdouble* b);
 
 /**
-* @brief Helper function called by VM interpreter, using pointers to 
-*        values. Calculates difference of 2 double numbers.
-* @param[in] *a Pointer to double minuend.
-* @param[in] *b Pointer to double subtrahend.
-* @param[out] *c Pointer to double difference.
-* @return I_32 0.
-* 
-*/
-I_32 helperDoubleMinusDouble(jdouble *a, jdouble *b, jdouble *c);
-
-
-/**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the product of
-*        2 double precision numbers.
-* @param[in] *a Pointer to double multiplicand.
-* @param[in] *b Pointer to double multiplier.
-* @param[out] *c Pointer to double product.
-* @return I_32 0.
-*/
-I_32 helperDoubleMultiplyDouble(jdouble *a, jdouble *b, jdouble *c);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the quotient of
+ *        2 double precision numbers.
+ * @param[in] *a Pointer to double dividend.
+ * @param[in] *b Pointer to double divisor.
+ * @param[out] *c Pointer to double quotient.
+ * @return I_32 0.
+ */
+I_32 helperDoubleDivideDouble(jdouble* a, jdouble* b, jdouble* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the sum of
-*        2 double precision numbers.
-* @param[in] *a Pointer to double addend.
-* @param[in] *b Pointer to double addend.
-* @param[out] *c Pointer to double sum.
-* @return I_32 0.
-* 
-*/
-I_32 helperDoublePlusDouble(jdouble *a, jdouble *b, jdouble *c);
-
+ * @brief Helper function called by VM interpreter, using pointers to
+ *        values. Calculates difference of 2 double numbers.
+ * @param[in] *a Pointer to double minuend.
+ * @param[in] *b Pointer to double subtrahend.
+ * @param[out] *c Pointer to double difference.
+ * @return I_32 0.
+ *
+ */
+I_32 helperDoubleMinusDouble(jdouble* a, jdouble* b, jdouble* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Given 2 pointers to floating
-*        point values, returns  flag indicating how the 
-*        values compare.
-* @param[in] *a Pointer to floating point value.
-* @param[in] *b Pointer to floating point value.
-* @return Integer flag: 0 if a=b
-*                       1 if a>b
-*                      -1 if a<b
-* 					   -2 if a or b NaN.
-* 
-*/
-I_32 helperFloatCompareFloat(jfloat *a, jfloat *b);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the product of
+ *        2 double precision numbers.
+ * @param[in] *a Pointer to double multiplicand.
+ * @param[in] *b Pointer to double multiplier.
+ * @param[out] *c Pointer to double product.
+ * @return I_32 0.
+ */
+I_32 helperDoubleMultiplyDouble(jdouble* a, jdouble* b, jdouble* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the quotient of
-*        2 floating point numbers.
-* @param[in] *a Pointer to floating point dividend.
-* @param[in] *b Pointer to floating point divisor.
-* @param[out] *c Pointer to floating point quotient.
-* @return I_32 0.
-*/
-I_32 helperFloatDivideFloat(jfloat *a, jfloat *b, jfloat *c); 
-
-
-/**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the difference of
-*        2 floating point numbers.
-* @param[in] *a Pointer to floating point minuend.
-* @param[in] *b Pointer to floating point subtrahend.
-* @param[out] *c Pointer to floating point difference.
-* @return I_32 0.
-* 
-*/
-I_32 helperFloatMinusFloat(jfloat *a, jfloat *b, jfloat *c);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the sum of
+ *        2 double precision numbers.
+ * @param[in] *a Pointer to double addend.
+ * @param[in] *b Pointer to double addend.
+ * @param[out] *c Pointer to double sum.
+ * @return I_32 0.
+ *
+ */
+I_32 helperDoublePlusDouble(jdouble* a, jdouble* b, jdouble* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the product of
-*        2 floating point numbers.
-* @param[in] *a Pointer to floating point multiplicand.
-* @param[in] *b Pointer to floating point multiplier.
-* @param[out] *c Pointer to floating point product.
-* @return I_32 0.
-*/
-I_32 helperFloatMultiplyFloat(jfloat *a, jfloat *b, jfloat *c);
-
-
-/**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Calculates the sum of
-*        2 floating point numbers.
-* @param[in] *a Pointer to floating point addend.
-* @param[in] *b Pointer to floating point addend.
-* @param[out] *c Pointer to floating point sum.
-* @return I_32 0.
-* 
-*/
-I_32 helperFloatPlusFloat(jfloat *a, jfloat *b, jfloat *c);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Given 2 pointers to floating
+ *        point values, returns  flag indicating how the
+ *        values compare.
+ * @param[in] *a Pointer to floating point value.
+ * @param[in] *b Pointer to floating point value.
+ * @return Integer flag: 0 if a=b
+ *                       1 if a>b
+ *                      -1 if a<b
+ * 					   -2 if a or b NaN.
+ *
+ */
+I_32 helperFloatCompareFloat(jfloat* a, jfloat* b);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Negates a double precision number.
-* @param[in] *a Pointer to double value.
-* @param[in] *b Pointer to double value.
-* @return I_32 0.
-* 
-*/
-I_32 helperNegateDouble(jdouble *a, jdouble *b);
-
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the quotient of
+ *        2 floating point numbers.
+ * @param[in] *a Pointer to floating point dividend.
+ * @param[in] *b Pointer to floating point divisor.
+ * @param[out] *c Pointer to floating point quotient.
+ * @return I_32 0.
+ */
+I_32 helperFloatDivideFloat(jfloat* a, jfloat* b, jfloat* c);
 
 /**
-* @brief Helper function called by VM interpreter, using 
-*        pointers to values. Negates a floating point number.
-* @param[in] *a Pointer to floating point value.
-* @param[in] *b Pointer to floating point negative value.
-* @return I_32 0.
-* 
-*/
-I_32 helperNegateFloat(jfloat *a, jfloat *b);
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the difference of
+ *        2 floating point numbers.
+ * @param[in] *a Pointer to floating point minuend.
+ * @param[in] *b Pointer to floating point subtrahend.
+ * @param[out] *c Pointer to floating point difference.
+ * @return I_32 0.
+ *
+ */
+I_32 helperFloatMinusFloat(jfloat* a, jfloat* b, jfloat* c);
 
+/**
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the product of
+ *        2 floating point numbers.
+ * @param[in] *a Pointer to floating point multiplicand.
+ * @param[in] *b Pointer to floating point multiplier.
+ * @param[out] *c Pointer to floating point product.
+ * @return I_32 0.
+ */
+I_32 helperFloatMultiplyFloat(jfloat* a, jfloat* b, jfloat* c);
+
+/**
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Calculates the sum of
+ *        2 floating point numbers.
+ * @param[in] *a Pointer to floating point addend.
+ * @param[in] *b Pointer to floating point addend.
+ * @param[out] *c Pointer to floating point sum.
+ * @return I_32 0.
+ *
+ */
+I_32 helperFloatPlusFloat(jfloat* a, jfloat* b, jfloat* c);
+
+/**
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Negates a double precision number.
+ * @param[in] *a Pointer to double value.
+ * @param[in] *b Pointer to double value.
+ * @return I_32 0.
+ *
+ */
+I_32 helperNegateDouble(jdouble* a, jdouble* b);
+
+/**
+ * @brief Helper function called by VM interpreter, using
+ *        pointers to values. Negates a floating point number.
+ * @param[in] *a Pointer to floating point value.
+ * @param[in] *b Pointer to floating point negative value.
+ * @return I_32 0.
+ *
+ */
+I_32 helperNegateFloat(jfloat* a, jfloat* b);
 
 /* ---------------- fltmath.c C-helpers---------------- */
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given 2 double values,
-*        returns a flag indicating how the values compare.
-* @param[in] a Double value.
-* @param[in] b Double value.
-* @return Integer flag: 0 if a=b
-*                       1 if a>b
-*                      -1 if a<b
-* 					   -2 if a or b NaN.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given 2 double values,
+ *        returns a flag indicating how the values compare.
+ * @param[in] a Double value.
+ * @param[in] b Double value.
+ * @return Integer flag: 0 if a=b
+ *                       1 if a>b
+ *                      -1 if a<b
+ * 					   -2 if a or b NaN.
+ *
+ */
 I_32 helperCDoubleCompareDouble(jdouble a, jdouble b);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given 2 double values, 
-*        returns quotient.
-* @param[in] a Double dividend.
-* @param[in] b Double divisor.
-* @return Resulting double quotient.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given 2 double values,
+ *        returns quotient.
+ * @param[in] a Double dividend.
+ * @param[in] b Double divisor.
+ * @return Resulting double quotient.
+ *
+ */
 jdouble helperCDoubleDivideDouble(jdouble a, jdouble b);
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given 2 double values, 
-*        returns difference.
-* @param[in] a Double minuend.
-* @param[in] b Double subtrahend.
-* @return Resulting double difference.
-* 
-*/
-jdouble helperCDoubleMinusDouble(jdouble a, jdouble b); 
-
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given 2 double values,
+ *        returns difference.
+ * @param[in] a Double minuend.
+ * @param[in] b Double subtrahend.
+ * @return Resulting double difference.
+ *
+ */
+jdouble helperCDoubleMinusDouble(jdouble a, jdouble b);
 
 /**
-* @brief Helper function used by JIT. Given 2 floating point
-*        values, returns product.
-* @param[in] a Double multiplicand.
-* @param[in] b Double multiplier.
-* @return Resulting double product.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 floating point
+ *        values, returns product.
+ * @param[in] a Double multiplicand.
+ * @param[in] b Double multiplier.
+ * @return Resulting double product.
+ *
+ */
 jdouble helperCDoubleMultiplyDouble(jdouble a, jdouble b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 double
-*        values, returns sum.
-* @param[in] a Double addend.
-* @param[in] b Double addend.
-* @return Resulting double sum.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 double
+ *        values, returns sum.
+ * @param[in] a Double addend.
+ * @param[in] b Double addend.
+ * @return Resulting double sum.
+ *
+ */
 jdouble helperCDoublePlusDouble(jdouble a, jdouble b);
 
-
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given 2 double values,
-*        returns  flag indicating how the values compare.
-* @param[in] a Double value.
-* @param[in] b Double value.
-* @return Integer flag: 0 if a=b
-*                       1 if a>b
-*                      -1 if a<b
-* 					   -2 if a or b NaN.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given 2 double values,
+ *        returns  flag indicating how the values compare.
+ * @param[in] a Double value.
+ * @param[in] b Double value.
+ * @return Integer flag: 0 if a=b
+ *                       1 if a>b
+ *                      -1 if a<b
+ * 					   -2 if a or b NaN.
+ *
+ */
 I_32 helperCFloatCompareFloat(jfloat a, jfloat b);
 
 /**
-* @brief Helper function called by JIT, using standard 
-*        C-calling convention. Given 2 floating point
-*        values, returns quotient.
-* @param[in] a Floating point dividend.
-* @param[in] b Floating point divisor.
-* @return Resulting floating point quotient.
-* 
-*/
+ * @brief Helper function called by JIT, using standard
+ *        C-calling convention. Given 2 floating point
+ *        values, returns quotient.
+ * @param[in] a Floating point dividend.
+ * @param[in] b Floating point divisor.
+ * @return Resulting floating point quotient.
+ *
+ */
 jfloat helperCFloatDivideFloat(jfloat a, jfloat b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 floating point
-*        values, returns difference.
-* @param[in] a Floating point minuend.
-* @param[in] b Floating point subtrahend.
-* @return Resulting floating point difference.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 floating point
+ *        values, returns difference.
+ * @param[in] a Floating point minuend.
+ * @param[in] b Floating point subtrahend.
+ * @return Resulting floating point difference.
+ *
+ */
 jfloat helperCFloatMinusFloat(jfloat a, jfloat b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 floating point
-*        values, returns product.
-* @param[in] a Floating point multiplicand.
-* @param[in] b Floating point multiplier.
-* @return Resulting floating point product.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 floating point
+ *        values, returns product.
+ * @param[in] a Floating point multiplicand.
+ * @param[in] b Floating point multiplier.
+ * @return Resulting floating point product.
+ *
+ */
 jfloat helperCFloatMultiplyFloat(jfloat a, jfloat b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 floating point
-*        values, returns sum.
-* @param[in] a Floating point addend.
-* @param[in] b Floating point addend.
-* @return Resulting floating point addition.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 floating point
+ *        values, returns sum.
+ * @param[in] a Floating point addend.
+ * @param[in] b Floating point addend.
+ * @return Resulting floating point addition.
+ *
+ */
 jfloat helperCFloatPlusFloat(jfloat a, jfloat b);
 
-
 #endif /* J9VM_INTERP_FLOAT_SUPPORT */ /* End File Level Build Flags */
-
 
 /* ---------------- fltodd.c ---------------- */
 
 /**
-* @brief
-* @param d
-* @return int
-*/
+ * @brief
+ * @param d
+ * @return int
+ */
 int isDoubleOdd(double d);
-
 
 /* ---------------- fltrem.c ---------------- */
 
-#if (defined(J9VM_INTERP_FLOAT_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_INTERP_FLOAT_SUPPORT)) /* File Level Build Flags */
 
 /**
-* @brief
-* @param a
-* @param b
-* @param c
-* @return I_32
-*/
-I_32 helperDoubleRemainderDouble(jdouble * a, jdouble * b, jdouble * c);
-
+ * @brief
+ * @param a
+ * @param b
+ * @param c
+ * @return I_32
+ */
+I_32 helperDoubleRemainderDouble(jdouble* a, jdouble* b, jdouble* c);
 
 /**
-* @brief
-* @param a
-* @param b
-* @param c
-* @return I_32
-*/
-I_32 helperFloatRemainderFloat(jfloat * a, jfloat * b, jfloat * c);
-
+ * @brief
+ * @param a
+ * @param b
+ * @param c
+ * @return I_32
+ */
+I_32 helperFloatRemainderFloat(jfloat* a, jfloat* b, jfloat* c);
 
 /* ---------------- fltrem.c C-helpers---------------- */
 
 /**
-* @brief Helper function used by JIT. Given 2 double
-*        values, returns remainder.
-* @param[in] a Double dividend.
-* @param[in] b Double divisor.
-* @return Resulting double remainder.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 double
+ *        values, returns remainder.
+ * @param[in] a Double dividend.
+ * @param[in] b Double divisor.
+ * @return Resulting double remainder.
+ *
+ */
 jdouble helperCDoubleRemainderDouble(jdouble a, jdouble b);
 
-
 /**
-* @brief Helper function used by JIT. Given 2 floating
-*        point values, returns remainder.
-* @param[in] a Floating point dividend.
-* @param[in] b Floating point  divisor.
-* @return Resulting floating point  remainder.
-* 
-*/
+ * @brief Helper function used by JIT. Given 2 floating
+ *        point values, returns remainder.
+ * @param[in] a Floating point dividend.
+ * @param[in] b Floating point  divisor.
+ * @return Resulting floating point  remainder.
+ *
+ */
 jfloat helperCFloatRemainderFloat(jfloat a, jfloat b);
-
 
 #endif /* J9VM_INTERP_FLOAT_SUPPORT */ /* End File Level Build Flags */
 
 /* ---------------- j9crc32.c ---------------- */
 
 /**
-* @brief
-* @param crc
-* @param *bytes
-* @param len
-* @return U_32
-*/
-U_32 j9crc32(U_32 crc, U_8 *bytes, U_32 len);
+ * @brief
+ * @param crc
+ * @param *bytes
+ * @param len
+ * @return U_32
+ */
+U_32 j9crc32(U_32 crc, U_8* bytes, U_32 len);
 
 /**
-* @brief
-* @param crc
-* @param *bytes
-* @param len
-* @param step
-* @return U_32
-*/
-U_32 j9crcSparse32(U_32 crc, U_8 *bytes, U_32 len, U_32 step);
-
+ * @brief
+ * @param crc
+ * @param *bytes
+ * @param len
+ * @param step
+ * @return U_32
+ */
+U_32 j9crcSparse32(U_32 crc, U_8* bytes, U_32 len, U_32 step);
 
 /* ---------------- j9fptr.c ---------------- */
 
 /**
-* @brief
-* @param *fp
-* @return void *
-*/
-void *helperCompatibleFunctionPointer(void *fp);
-
+ * @brief
+ * @param *fp
+ * @return void *
+ */
+void* helperCompatibleFunctionPointer(void* fp);
 
 /* ---------------- jitlook.c ---------------- */
 
-#if (defined(J9VM_INTERP_NATIVE_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_INTERP_NATIVE_SUPPORT)) /* File Level Build Flags */
 
 /**
-* @brief
-* @param *table
-* @param searchValue
-* @return J9JITExceptionTable*
-*/
-J9JITExceptionTable* hash_jit_artifact_search(J9JITHashTable *table, UDATA searchValue);
-
+ * @brief
+ * @param *table
+ * @param searchValue
+ * @return J9JITExceptionTable*
+ */
+J9JITExceptionTable* hash_jit_artifact_search(J9JITHashTable* table, UDATA searchValue);
 
 /**
-* @brief
-* @param *tree
-* @param searchValue
-* @return J9JITExceptionTable*
-*/
-J9JITExceptionTable* jit_artifact_search(J9AVLTree *tree, UDATA searchValue);
-
+ * @brief
+ * @param *tree
+ * @param searchValue
+ * @return J9JITExceptionTable*
+ */
+J9JITExceptionTable* jit_artifact_search(J9AVLTree* tree, UDATA searchValue);
 
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */ /* End File Level Build Flags */
 
-
 /* ---------------- jitresolveframe.c ---------------- */
 
-#if (defined(J9VM_INTERP_NATIVE_SUPPORT)) 
+#if (defined(J9VM_INTERP_NATIVE_SUPPORT))
 /**
-* @brief
-* @param vmThread
-* @param sp
-* @param pc
-* @return J9SFJITResolveFrame*
-*/
-J9SFJITResolveFrame* 
-jitPushResolveFrame(J9VMThread* vmThread, UDATA* sp, U_8* pc);
+ * @brief
+ * @param vmThread
+ * @param sp
+ * @param pc
+ * @return J9SFJITResolveFrame*
+ */
+J9SFJITResolveFrame* jitPushResolveFrame(J9VMThread* vmThread, UDATA* sp, U_8* pc);
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */
-
 
 /* ---------------- jlm.c ---------------- */
 
 /**
-* @brief
-* @param vmThread
-* @return jint
-*/
-jint
-JlmStart(J9VMThread* vmThread);
-
+ * @brief
+ * @param vmThread
+ * @return jint
+ */
+jint JlmStart(J9VMThread* vmThread);
 
 /**
-* @brief
-* @param void
-* @return jint
-*/
-jint 
-JlmStartTimeStamps(void);
-
+ * @brief
+ * @param void
+ * @return jint
+ */
+jint JlmStartTimeStamps(void);
 
 /**
-* @brief
-* @param void
-* @return jint
-*/
-jint 
-JlmStop(void);
-
+ * @brief
+ * @param void
+ * @return jint
+ */
+jint JlmStop(void);
 
 /**
-* @brief
-* @param void
-* @return jint
-*/
-jint 
-JlmStopTimeStamps(void);
-
+ * @brief
+ * @param void
+ * @return jint
+ */
+jint JlmStopTimeStamps(void);
 
 /**
-* @brief
-* @param *env
-* @param *jlmd
-* @param  dump_format
-* @return jint
-*/
-jint 
-request_MonitorJlmDump(jvmtiEnv* env, J9VMJlmDump *jlmd, jint dump_format);
-
+ * @brief
+ * @param *env
+ * @param *jlmd
+ * @param  dump_format
+ * @return jint
+ */
+jint request_MonitorJlmDump(jvmtiEnv* env, J9VMJlmDump* jlmd, jint dump_format);
 
 /**
-* @brief
-* @param *jvm
-* @param *dump_size
-* @param  dump_format
-* @return jint
-*/
-jint request_MonitorJlmDumpSize(J9JavaVM *jvm, UDATA *dump_size, jint dump_format);
-
+ * @brief
+ * @param *jvm
+ * @param *dump_size
+ * @param  dump_format
+ * @return jint
+ */
+jint request_MonitorJlmDumpSize(J9JavaVM* jvm, UDATA* dump_size, jint dump_format);
 
 /* ---------------- moninfo.c ---------------- */
 
 /**
-* @brief
-* @param vm 	the Java VM
-* @param vmThread	the vmThread where the monitor was found
-* @param object
-* @param pcount
-* @return J9VMThread*
-*/
-J9VMThread* 
-getObjectMonitorOwner(J9JavaVM* vm, J9VMThread *vmThread, j9object_t object, UDATA* pcount);
-
+ * @brief
+ * @param vm 	the Java VM
+ * @param vmThread	the vmThread where the monitor was found
+ * @param object
+ * @param pcount
+ * @return J9VMThread*
+ */
+J9VMThread* getObjectMonitorOwner(J9JavaVM* vm, J9VMThread* vmThread, j9object_t object, UDATA* pcount);
 
 /**
-* @brief
-* @param J9VMThread
-* @param object
-* @return UdATA
-*/
+ * @brief
+ * @param J9VMThread
+ * @param object
+ * @return UdATA
+ */
 UDATA
-isObjectStackAllocated(J9VMThread *targetThread, j9object_t aObj);
+isObjectStackAllocated(J9VMThread* targetThread, j9object_t aObj);
 
-#if defined (J9VM_OPT_JAVA_OFFLOAD_SUPPORT)
+#if defined(J9VM_OPT_JAVA_OFFLOAD_SUPPORT)
 /* ---------------- offload.c ---------------- */
 
 /**
-* @brief
-* @param *javaVM
-* @param *library
-* @return void
-*/
-void validateLibrary(J9JavaVM *javaVM, J9NativeLibrary *library);
+ * @brief
+ * @param *javaVM
+ * @param *library
+ * @return void
+ */
+void validateLibrary(J9JavaVM* javaVM, J9NativeLibrary* library);
 #endif
 
 /* ---------------- optinfo.c ---------------- */
 
 /**
-* @brief
-* @param *vm
-* @param *romMethod
-* @param *romClass
-* @param offset
-* @param *classLoader
-* @param relativePC
-* @param *romClass
-* @return UDATA
-*/
+ * @brief
+ * @param *vm
+ * @param *romMethod
+ * @param *romClass
+ * @param offset
+ * @param *classLoader
+ * @param relativePC
+ * @param *romClass
+ * @return UDATA
+ */
 UDATA
-getLineNumberForROMClassFromROMMethod(J9JavaVM *vm, J9ROMMethod *romMethod, J9ROMClass *romClass, UDATA offset, J9ClassLoader *classLoader, UDATA relativePC);
+getLineNumberForROMClassFromROMMethod(J9JavaVM* vm, J9ROMMethod* romMethod, J9ROMClass* romClass, UDATA offset,
+    J9ClassLoader* classLoader, UDATA relativePC);
 
 /**
-* @brief
-* @param *romMethod
-* @return U_32 *
-*/
-U_32 *
-getStackMapInfoForROMMethod(J9ROMMethod *romMethod);
-
-
+ * @brief
+ * @param *romMethod
+ * @return U_32 *
+ */
+U_32* getStackMapInfoForROMMethod(J9ROMMethod* romMethod);
 
 /**
-* @brief
-* @param *romClass
-* @return U_32 *
-*/
-U_32 *
-getClassAnnotationsDataForROMClass(J9ROMClass *romClass);
+ * @brief
+ * @param *romClass
+ * @return U_32 *
+ */
+U_32* getClassAnnotationsDataForROMClass(J9ROMClass* romClass);
 
 /**
-* Get the type annotations attribute for  class
-* @param *romClass
-* @return pointer to the 4 length bytes preceding the actual type annotation attribute
-*/
-U_32 *
-getClassTypeAnnotationsDataForROMClass(J9ROMClass *romClass);
+ * Get the type annotations attribute for  class
+ * @param *romClass
+ * @return pointer to the 4 length bytes preceding the actual type annotation attribute
+ */
+U_32* getClassTypeAnnotationsDataForROMClass(J9ROMClass* romClass);
 
 /**
-* @brief
-* @param *vm
-* @param *classLoader
-* @param *romClass
-* @return J9EnclosingObject *
-*/
-J9EnclosingObject *
-getEnclosingMethodForROMClass(J9JavaVM *vm, J9ClassLoader *classLoader, J9ROMClass *romClass);
-
+ * @brief
+ * @param *vm
+ * @param *classLoader
+ * @param *romClass
+ * @return J9EnclosingObject *
+ */
+J9EnclosingObject* getEnclosingMethodForROMClass(J9JavaVM* vm, J9ClassLoader* classLoader, J9ROMClass* romClass);
 
 /**
-* @brief
-* @param *vm
-* @param *classLoader
-* @param *romClass
-* @return J9UTF8 *
-*/
-J9UTF8 *
-getGenericSignatureForROMClass(J9JavaVM *vm, J9ClassLoader *classLoader, J9ROMClass *romClass);
-
+ * @brief
+ * @param *vm
+ * @param *classLoader
+ * @param *romClass
+ * @return J9UTF8 *
+ */
+J9UTF8* getGenericSignatureForROMClass(J9JavaVM* vm, J9ClassLoader* classLoader, J9ROMClass* romClass);
 
 /**
-* @brief
-* @param *vm
-* @param *method
-* @param relativePC
-* @return UDATA
-*/
+ * @brief
+ * @param *vm
+ * @param *method
+ * @param relativePC
+ * @return UDATA
+ */
 UDATA
-getLineNumberForROMClass(J9JavaVM *vm, J9Method *method, UDATA relativePC);
-
+getLineNumberForROMClass(J9JavaVM* vm, J9Method* method, UDATA relativePC);
 
 /**
  * @brief encode one array of line numbers, will write in the buffer starting at position *buffer for
@@ -1380,198 +1252,180 @@ getLineNumberForROMClass(J9JavaVM *vm, J9Method *method, UDATA relativePC);
  * 		previous lineNumberTableEntry when doing incremental compression.
  * 		Can be NULL when there is no previous lineNumberTableEntry
  * @return BOOLEAN TRUE for success and FALSE for failure
-*/
+ */
 BOOLEAN
-compressLineNumbers(J9CfrLineNumberTableEntry * lineNumberTableEntryArray, U_16 lineNumberTableEntryCount, J9CfrLineNumberTableEntry * lastLineNumberTableEntry, U_8 ** buffer);
+compressLineNumbers(J9CfrLineNumberTableEntry* lineNumberTableEntryArray, U_16 lineNumberTableEntryCount,
+    J9CfrLineNumberTableEntry* lastLineNumberTableEntry, U_8** buffer);
 
 /**
-* @brief decode one line number
-* Fail if the format of one byte can not be recognized, it would happen
-* when trying to decode a byte starting by 1111 for example.
-* @param **currentLineNumber pointer to a line number got from
-* 	getMethodDebugInfoFromROMMethod
-* @param [in|out] *lineNumber Pointer to an object of J9LineNumber, the elements
-* 	lineNumber and location must be initialized to 0, because the function
-* 	will increment the offset given by lineNumber.
-* @return BOOLEAN TRUE for success and FALSE for failure
-*/
+ * @brief decode one line number
+ * Fail if the format of one byte can not be recognized, it would happen
+ * when trying to decode a byte starting by 1111 for example.
+ * @param **currentLineNumber pointer to a line number got from
+ * 	getMethodDebugInfoFromROMMethod
+ * @param [in|out] *lineNumber Pointer to an object of J9LineNumber, the elements
+ * 	lineNumber and location must be initialized to 0, because the function
+ * 	will increment the offset given by lineNumber.
+ * @return BOOLEAN TRUE for success and FALSE for failure
+ */
 BOOLEAN
-getNextLineNumberFromTable(U_8 **currentLineNumber, J9LineNumber *lineNumber);
+getNextLineNumberFromTable(U_8** currentLineNumber, J9LineNumber* lineNumber);
 
 /**
-* @brief compress one local variable table entry
-* @param I_32 deltaIndex
-* @param I_32 deltaStartPC
-* @param I_32 deltaLength
-* @param U_8 *buffer Buffer where to write the compressed data, must be of a size of at least 13 U_8
-* @return UDATA the size of the compressed data between 1 and 13
+ * @brief compress one local variable table entry
+ * @param I_32 deltaIndex
+ * @param I_32 deltaStartPC
+ * @param I_32 deltaLength
+ * @param U_8 *buffer Buffer where to write the compressed data, must be of a size of at least 13 U_8
+ * @return UDATA the size of the compressed data between 1 and 13
  */
 UDATA
-compressLocalVariableTableEntry(I_32 deltaIndex, I_32 deltaStartPC, I_32 deltaLength, U_8 * buffer);
+compressLocalVariableTableEntry(I_32 deltaIndex, I_32 deltaStartPC, I_32 deltaLength, U_8* buffer);
 
 /**
-* @brief
-* @param *methodInfo
-* @return J9LineNumber *
-*/
-U_8 *
-getLineNumberTable(J9MethodDebugInfo *methodInfo);
+ * @brief
+ * @param *methodInfo
+ * @return J9LineNumber *
+ */
+U_8* getLineNumberTable(J9MethodDebugInfo* methodInfo);
 
 /**
-* @brief
-* @param *vm
-* @param *method
-* @return J9MethodDebugInfo *
-*/
-J9MethodDebugInfo *
-getMethodDebugInfoForROMClass(J9JavaVM *vm, J9Method *method);
-
+ * @brief
+ * @param *vm
+ * @param *method
+ * @return J9MethodDebugInfo *
+ */
+J9MethodDebugInfo* getMethodDebugInfoForROMClass(J9JavaVM* vm, J9Method* method);
 
 /**
-* @brief
-* @param *vm
-* @param *classLoader
-* @param *romClass
-* @return J9UTF8 *
-*/
-J9UTF8 *
-getSimpleNameForROMClass(J9JavaVM *vm, J9ClassLoader *classLoader, J9ROMClass *romClass);
-
+ * @brief
+ * @param *vm
+ * @param *classLoader
+ * @param *romClass
+ * @return J9UTF8 *
+ */
+J9UTF8* getSimpleNameForROMClass(J9JavaVM* vm, J9ClassLoader* classLoader, J9ROMClass* romClass);
 
 /**
-* @brief
-* @param *vm
-* @param *classLoader
-* @param *romClass
-* @return J9SourceDebugExtension *
-*/
-J9SourceDebugExtension *
-getSourceDebugExtensionForROMClass(J9JavaVM *vm, J9ClassLoader *classLoader, J9ROMClass *romClass);
-
-
-/**
-* @brief
-* @param *vm
-* @param *classLoader
-* @param *romClass
-* @return J9UTF8 *
-*/
-J9UTF8 *
-getSourceFileNameForROMClass(J9JavaVM *vm, J9ClassLoader *classLoader, J9ROMClass *romClass);
+ * @brief
+ * @param *vm
+ * @param *classLoader
+ * @param *romClass
+ * @return J9SourceDebugExtension *
+ */
+J9SourceDebugExtension* getSourceDebugExtensionForROMClass(
+    J9JavaVM* vm, J9ClassLoader* classLoader, J9ROMClass* romClass);
 
 /**
-* @brief return the line number count for a specific method
-* @param J9MethodDebugInfo *methodInfo
-* @return U_32
-*/
-U_32
-getLineNumberCount(J9MethodDebugInfo *methodInfo);
+ * @brief
+ * @param *vm
+ * @param *classLoader
+ * @param *romClass
+ * @return J9UTF8 *
+ */
+J9UTF8* getSourceFileNameForROMClass(J9JavaVM* vm, J9ClassLoader* classLoader, J9ROMClass* romClass);
 
 /**
-* @brief return the line number info compressed size for a specific method
-* @param J9MethodDebugInfo *methodInfo
-* @return U_32
-*/
-U_32
-getLineNumberCompressedSize(J9MethodDebugInfo *methodInfo);
+ * @brief return the line number count for a specific method
+ * @param J9MethodDebugInfo *methodInfo
+ * @return U_32
+ */
+U_32 getLineNumberCount(J9MethodDebugInfo* methodInfo);
 
 /**
-* @brief
-* @param *methodInfo
-* @return U_8 *
-*/
-U_8 *
-getVariableTableForMethodDebugInfo(J9MethodDebugInfo *methodInfo);
+ * @brief return the line number info compressed size for a specific method
+ * @param J9MethodDebugInfo *methodInfo
+ * @return U_32
+ */
+U_32 getLineNumberCompressedSize(J9MethodDebugInfo* methodInfo);
 
 /**
-* @brief
-* @param *methodInfo
-* @return U_32
-*/
-U_32
-getMethodDebugInfoStructureSize(J9MethodDebugInfo *methodInfo);
+ * @brief
+ * @param *methodInfo
+ * @return U_8 *
+ */
+U_8* getVariableTableForMethodDebugInfo(J9MethodDebugInfo* methodInfo);
 
 /**
-* @brief
-* @param *vm
-* @param *romClass
-* @return void
-*/
-void
-releaseOptInfoBuffer(J9JavaVM *vm, J9ROMClass *romClass);
+ * @brief
+ * @param *methodInfo
+ * @return U_32
+ */
+U_32 getMethodDebugInfoStructureSize(J9MethodDebugInfo* methodInfo);
 
 /**
-* @brief
-* @param *state
-* @return J9VariableInfoValues *
-*/
-J9VariableInfoValues * 
-variableInfoNextDo(J9VariableInfoWalkState *state);
+ * @brief
+ * @param *vm
+ * @param *romClass
+ * @return void
+ */
+void releaseOptInfoBuffer(J9JavaVM* vm, J9ROMClass* romClass);
 
 /**
-* @brief
-* @param variableInfo
-* @param variableInfoCount
-* @param state
-* @param readLocation
-* @return J9VariableInfoValues *
-*/
-J9VariableInfoValues *
-debugVariableInfoStartDo(U_8 * variableInfo, U_32 variableInfoCount, J9VariableInfoWalkState* state, UDATA readLocation);
+ * @brief
+ * @param *state
+ * @return J9VariableInfoValues *
+ */
+J9VariableInfoValues* variableInfoNextDo(J9VariableInfoWalkState* state);
 
 /**
-* @brief
-* @param methodInfo
-* @param state
-* @return J9VariableInfoValues *
-*/
-J9VariableInfoValues * 
-variableInfoStartDo(J9MethodDebugInfo * methodInfo, J9VariableInfoWalkState* state);
+ * @brief
+ * @param variableInfo
+ * @param variableInfoCount
+ * @param state
+ * @param readLocation
+ * @return J9VariableInfoValues *
+ */
+J9VariableInfoValues* debugVariableInfoStartDo(
+    U_8* variableInfo, U_32 variableInfoCount, J9VariableInfoWalkState* state, UDATA readLocation);
 
-
+/**
+ * @brief
+ * @param methodInfo
+ * @param state
+ * @return J9VariableInfoValues *
+ */
+J9VariableInfoValues* variableInfoStartDo(J9MethodDebugInfo* methodInfo, J9VariableInfoWalkState* state);
 
 /* ---------------- rcdump.c ---------------- */
 
 /**
-* @brief
-* @param *romClass
-* @param *portLib
-* @param *translationBuffers
-* @param flags
-* @return IDATA
-*/
-IDATA j9bcutil_dumpRomClass( J9ROMClass *romClass, J9PortLibrary *portLib, J9TranslationBufferSet *translationBuffers, U_32 flags);
-
+ * @brief
+ * @param *romClass
+ * @param *portLib
+ * @param *translationBuffers
+ * @param flags
+ * @return IDATA
+ */
+IDATA j9bcutil_dumpRomClass(
+    J9ROMClass* romClass, J9PortLibrary* portLib, J9TranslationBufferSet* translationBuffers, U_32 flags);
 
 /**
-* @brief
-* @param *romMethod
-* @param *romClass
-* @param *portLib
-* @param flags
-* @param methodIndex
-* @return I_32
-*/
-I_32 j9bcutil_dumpRomMethod( J9ROMMethod *romMethod, J9ROMClass *romClass, J9PortLibrary *portLib, U_32 flags, U_32 methodIndex);
-
+ * @brief
+ * @param *romMethod
+ * @param *romClass
+ * @param *portLib
+ * @param flags
+ * @param methodIndex
+ * @return I_32
+ */
+I_32 j9bcutil_dumpRomMethod(
+    J9ROMMethod* romMethod, J9ROMClass* romClass, J9PortLibrary* portLib, U_32 flags, U_32 methodIndex);
 
 /* ---------------- romclasswalk.c ---------------- */
 
 /**
-* @brief
-* @param romClass
-* @param *slotCallback called on every slot (optional)
-* @param *sectionCallback called on every section (optional)
-* @param *validateRangeCallback called to validate range of traversable memory
-* @param userData
-* @return void
-*/
-void allSlotsInROMClassDo(J9ROMClass* romClass,
-		void(*slotCallback)(J9ROMClass*, U_32, void*, const char*, void*),
-		void(*sectionCallback)(J9ROMClass*, void*, UDATA, const char*, void*),
-		BOOLEAN(*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*),
-		void* userData);
-
+ * @brief
+ * @param romClass
+ * @param *slotCallback called on every slot (optional)
+ * @param *sectionCallback called on every section (optional)
+ * @param *validateRangeCallback called to validate range of traversable memory
+ * @param userData
+ * @return void
+ */
+void allSlotsInROMClassDo(J9ROMClass* romClass, void (*slotCallback)(J9ROMClass*, U_32, void*, const char*, void*),
+    void (*sectionCallback)(J9ROMClass*, void*, UDATA, const char*, void*),
+    BOOLEAN (*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*), void* userData);
 
 /* ---------------- romhelp.c ---------------- */
 
@@ -1582,9 +1436,7 @@ void allSlotsInROMClassDo(J9ROMClass* romClass,
  * @param method The method
  * @return J9ROMMethod *
  */
-J9ROMMethod *
-getOriginalROMMethod(J9Method * method);
-
+J9ROMMethod* getOriginalROMMethod(J9Method* method);
 
 /**
  * Returns the original ROM method.
@@ -1593,52 +1445,46 @@ getOriginalROMMethod(J9Method * method);
  * @param method The method
  * @return J9ROMMethod *
  */
-J9ROMMethod *
-getOriginalROMMethodUnchecked(J9Method * method);
+J9ROMMethod* getOriginalROMMethodUnchecked(J9Method* method);
 
 /* ---------------- sleephelp.c ---------------- */
 
 /**
-* @brief
-* @param sleepTime
-* @return IDATA
-*/
+ * @brief
+ * @param sleepTime
+ * @return IDATA
+ */
 IDATA
 callThreadSleep(IDATA sleepTime);
-
 
 /* ---------------- subclass.c ---------------- */
 
 /**
-* @brief
-* @param subclassState
-* @return J9Class *
-*/
-J9Class *
-allSubclassesNextDo(J9SubclassWalkState * subclassState);
-
+ * @brief
+ * @param subclassState
+ * @return J9Class *
+ */
+J9Class* allSubclassesNextDo(J9SubclassWalkState* subclassState);
 
 /**
-* @brief
-* @param rootClass
-* @param subclassState
-* @param includeRootClass
-* @return J9Class *
-*/
-J9Class *
-allSubclassesStartDo(J9Class * rootClass, J9SubclassWalkState * subclassState, UDATA includeRootClass);
-
+ * @brief
+ * @param rootClass
+ * @param subclassState
+ * @param includeRootClass
+ * @return J9Class *
+ */
+J9Class* allSubclassesStartDo(J9Class* rootClass, J9SubclassWalkState* subclassState, UDATA includeRootClass);
 
 /* ---------------- superclass.c ---------------- */
 
 /**
-* @brief
-* @param superClass
-* @param baseClass
-* @return UDATA
-*/
-UDATA 
-isSameOrSuperClassOf(J9Class * superClass, J9Class * baseClass);
+ * @brief
+ * @param superClass
+ * @param baseClass
+ * @return UDATA
+ */
+UDATA
+isSameOrSuperClassOf(J9Class* superClass, J9Class* baseClass);
 
 /**
  * @brief Determine if baseInterface extends superInterface
@@ -1647,7 +1493,7 @@ isSameOrSuperClassOf(J9Class * superClass, J9Class * baseClass);
  * @return BOOLEAN true if baseInterface is compatible with superInterface,  false otherwise.
  */
 BOOLEAN
-isSameOrSuperInterfaceOf(J9Class *superInterface, J9Class *baseInterface);
+isSameOrSuperInterfaceOf(J9Class* superInterface, J9Class* baseInterface);
 
 /* ---------------- thrhelp.c ---------------- */
 
@@ -1657,111 +1503,108 @@ isSameOrSuperInterfaceOf(J9Class *superInterface, J9Class *baseInterface);
  * @param omrthread
  * @return J9VMThread *
  */
-J9VMThread *
-getVMThreadFromOMRThread(J9JavaVM *vm, omrthread_t omrthread);
+J9VMThread* getVMThreadFromOMRThread(J9JavaVM* vm, omrthread_t omrthread);
 
 /* ---------------- thrinfo.c ---------------- */
 
 /**
-* @brief
-* @param targetThread
-* @param pLockObject
-* @param pLockOwner
-* @param pCount
-* @return UDATA
-*/
+ * @brief
+ * @param targetThread
+ * @param pLockObject
+ * @param pLockOwner
+ * @param pCount
+ * @return UDATA
+ */
 UDATA
-getVMThreadObjectState(J9VMThread *targetThread, j9object_t *pLockObject, J9VMThread **pLockOwner, UDATA *pCount);
+getVMThreadObjectState(J9VMThread* targetThread, j9object_t* pLockObject, J9VMThread** pLockOwner, UDATA* pCount);
 
 /**
-* @brief
-* @param targetThread
-* @param pLockObject
-* @param pLockOwner
-* @param pCount
-* @return UDATA
-*/
+ * @brief
+ * @param targetThread
+ * @param pLockObject
+ * @param pLockOwner
+ * @param pCount
+ * @return UDATA
+ */
 UDATA
-getVMThreadObjectStatesAll(J9VMThread *targetThread, j9object_t *pLockObject, J9VMThread **pLockOwner, UDATA *pCount);
-
+getVMThreadObjectStatesAll(J9VMThread* targetThread, j9object_t* pLockObject, J9VMThread** pLockOwner, UDATA* pCount);
 
 /**
-* @brief
-* @param targetThread
-* @param pLockObject
-* @param pRawLock
-* @param pLockOwner
-* @param pCount
-* @return UDATA
-*/
+ * @brief
+ * @param targetThread
+ * @param pLockObject
+ * @param pRawLock
+ * @param pLockOwner
+ * @param pCount
+ * @return UDATA
+ */
 UDATA
-getVMThreadRawState(J9VMThread *targetThread, j9object_t *pLockObject, omrthread_monitor_t *pRawLock, J9VMThread **pLockOwner, UDATA *pCount);
+getVMThreadRawState(J9VMThread* targetThread, j9object_t* pLockObject, omrthread_monitor_t* pRawLock,
+    J9VMThread** pLockOwner, UDATA* pCount);
 
 /**
-* @brief
-* @param targetThread
-* @param pLockObject
-* @param pRawLock
-* @param pLockOwner
-* @param pCount
-* @return UDATA
-*/
+ * @brief
+ * @param targetThread
+ * @param pLockObject
+ * @param pRawLock
+ * @param pLockOwner
+ * @param pCount
+ * @return UDATA
+ */
 UDATA
-getVMThreadRawStatesAll(J9VMThread *targetThread, j9object_t *pLockObject, omrthread_monitor_t *pRawLock, J9VMThread **pLockOwner, UDATA *pCount);
-
-
-/**
-* @brief
-* @param thread
-* @param pmonitor
-* @param powner
-* @param pcount
-* @return UDATA
-*/
-UDATA getVMThreadStatus_DEPRECATED(J9VMThread* thread, J9ThreadAbstractMonitor** pmonitor, J9VMThread** powner, UDATA* pcount);
+getVMThreadRawStatesAll(J9VMThread* targetThread, j9object_t* pLockObject, omrthread_monitor_t* pRawLock,
+    J9VMThread** pLockOwner, UDATA* pCount);
 
 /**
-* @brief
-* @param vm
-* @param targetVMThread	the vmThread where the monitor was found
-* @param object
-* @param lockWord
-* @return J9ThreadAbstractMonitor *
-*/
-J9ThreadAbstractMonitor *
-getInflatedObjectMonitor(J9JavaVM *vm, J9VMThread *targetVMThread, j9object_t object, j9objectmonitor_t lockWord);
+ * @brief
+ * @param thread
+ * @param pmonitor
+ * @param powner
+ * @param pcount
+ * @return UDATA
+ */
+UDATA getVMThreadStatus_DEPRECATED(
+    J9VMThread* thread, J9ThreadAbstractMonitor** pmonitor, J9VMThread** powner, UDATA* pcount);
+
+/**
+ * @brief
+ * @param vm
+ * @param targetVMThread	the vmThread where the monitor was found
+ * @param object
+ * @param lockWord
+ * @return J9ThreadAbstractMonitor *
+ */
+J9ThreadAbstractMonitor* getInflatedObjectMonitor(
+    J9JavaVM* vm, J9VMThread* targetVMThread, j9object_t object, j9objectmonitor_t lockWord);
 
 /* ---------------- thrname.c ---------------- */
 /**
-* @brief
-* @param currentThread
-* @param vmThread
-* @param name
-* @param nameIsStatic
-* @return void
-*/
-void
-setVMThreadNameWithFlag(J9VMThread *currentThread, J9VMThread *vmThread, char *name, U_8 nameIsStatic);
+ * @brief
+ * @param currentThread
+ * @param vmThread
+ * @param name
+ * @param nameIsStatic
+ * @return void
+ */
+void setVMThreadNameWithFlag(J9VMThread* currentThread, J9VMThread* vmThread, char* name, U_8 nameIsStatic);
 
 /**
-* @brief
-* @param currentThread
-* @param vmThread
-* @param nameObject
-* @return IDATA
-*/
+ * @brief
+ * @param currentThread
+ * @param vmThread
+ * @param nameObject
+ * @return IDATA
+ */
 IDATA
-setVMThreadNameFromString(J9VMThread *currentThread, J9VMThread *vmThread, j9object_t nameObject);
+setVMThreadNameFromString(J9VMThread* currentThread, J9VMThread* vmThread, j9object_t nameObject);
 
 /**
-* @brief
-* @param javaVM
-* @param nameObject
-* @return char*
-*/
-char*
-getVMThreadNameFromString(J9VMThread *vmThread, j9object_t nameObject);
-
+ * @brief
+ * @param javaVM
+ * @param nameObject
+ * @return char*
+ */
+char* getVMThreadNameFromString(J9VMThread* vmThread, j9object_t nameObject);
 
 /* ---------------- utf8hash.c ---------------- */
 
@@ -1772,33 +1615,31 @@ getVMThreadNameFromString(J9VMThread *vmThread, j9object_t nameObject);
  * @return UDATA
  */
 UDATA
-computeHashForUTF8(const U_8 * data, UDATA length);
-
+computeHashForUTF8(const U_8* data, UDATA length);
 
 /* ---------------- wildcard.c ---------------- */
 
 /**
-* @brief
-* @param pattern
-* @param patternLength
-* @param needle
-* @param needleLength
-* @param matchFlag
-* @return IDATA
-*/
+ * @brief
+ * @param pattern
+ * @param patternLength
+ * @param needle
+ * @param needleLength
+ * @param matchFlag
+ * @return IDATA
+ */
 IDATA
-parseWildcard(const char * pattern, UDATA patternLength, const char** needle, UDATA* needleLength, U_32 * matchFlag);
-
+parseWildcard(const char* pattern, UDATA patternLength, const char** needle, UDATA* needleLength, U_32* matchFlag);
 
 /**
-* @brief
-* @param matchFlag
-* @param needle
-* @param needleLength
-* @param haystack
-* @param haystackLength
-* @return IDATA
-*/
+ * @brief
+ * @param matchFlag
+ * @param needle
+ * @param needleLength
+ * @param haystack
+ * @param haystackLength
+ * @return IDATA
+ */
 IDATA
 wildcardMatch(U_32 matchFlag, const char* needle, UDATA needleLength, const char* haystack, UDATA haystackLength);
 
@@ -1815,8 +1656,7 @@ wildcardMatch(U_32 matchFlag, const char* needle, UDATA needleLength, const char
  * @param[out] packageNameLength - the length of the name in bytes
  * @return const U_8* - the package name.
  */
-const U_8*
-getPackageName(J9PackageIDTableEntry* key, UDATA* packageNameLength);
+const U_8* getPackageName(J9PackageIDTableEntry* key, UDATA* packageNameLength);
 
 /**
  * Return the length of the package name part of the class name in bytes.
@@ -1828,7 +1668,6 @@ getPackageName(J9PackageIDTableEntry* key, UDATA* packageNameLength);
  */
 UDATA
 packageNameLength(J9ROMClass* romClass);
-
 
 /* ---------------- sendslot.c ---------------- */
 
@@ -1862,8 +1701,7 @@ getSendSlotsFromSignature(const U_8* signature);
  * @param[out] outData - a returned pointer to beginning of the return type
  * @return U_16 - the first character of the return type, or 0 on error
  */
-U_16
-getReturnTypeFromSignature(U_8 * inData, UDATA inLength, U_8 **outData);
+U_16 getReturnTypeFromSignature(U_8* inData, UDATA inLength, U_8** outData);
 
 /* ---------------- mthutil.c ---------------- */
 
@@ -1877,7 +1715,7 @@ getReturnTypeFromSignature(U_8 * inData, UDATA inLength, U_8 **outData);
  * @return UDATA The iTable index (not including the fixed J9ITable header), or -1 if not found
  */
 UDATA
-getITableIndexForMethod(J9Method * method, J9Class *targetInterface);
+getITableIndexForMethod(J9Method* method, J9Class* targetInterface);
 
 /**
  * Returns the first ROM method following the argument.
@@ -1889,8 +1727,7 @@ getITableIndexForMethod(J9Method * method, J9Class *targetInterface);
  * @param[in] romMethod - the current ROM method
  * @return - the ROM method following the current one
  */
-J9ROMMethod*
-nextROMMethod(J9ROMMethod * romMethod);
+J9ROMMethod* nextROMMethod(J9ROMMethod* romMethod);
 
 /**
  * Returns the index of the specified method.
@@ -1901,8 +1738,7 @@ nextROMMethod(J9ROMMethod * romMethod);
  * @return the index of the method (0-based)
  */
 UDATA
-getMethodIndex(J9Method *method);
-
+getMethodIndex(J9Method* method);
 
 /**
  * Returns the index of the specified method.
@@ -1913,8 +1749,7 @@ getMethodIndex(J9Method *method);
  * @return the index of the method (0-based) or UDATA_MAX
  */
 UDATA
-getMethodIndexUnchecked(J9Method *method);
-
+getMethodIndexUnchecked(J9Method* method);
 
 /* Returns 0 if a and b are have identical fieldName, fieldNameLength, signature, signatureLength.
  * Returns a positive number if a is "greater than" b, and a negative number if a is "less than" b.
@@ -1931,13 +1766,11 @@ getMethodIndexUnchecked(J9Method *method);
  * @param length of sig b
  */
 IDATA
-compareMethodNameAndSignature(
-		U_8 *aNameData, U_16 aNameLength, U_8 *aSigData, U_16 aSigLength,
-		U_8 *bNameData, U_16 bNameLength, U_8 *bSigData, U_16 bSigLength);
+compareMethodNameAndSignature(U_8* aNameData, U_16 aNameLength, U_8* aSigData, U_16 aSigLength, U_8* bNameData,
+    U_16 bNameLength, U_8* bSigData, U_16 bSigLength);
 
-
-/* Returns 0 if a and b are have identical fieldName, fieldNameLength, and the signatures match up to the end of the shorter signature
- * Returns a positive number if a is "greater than" b, and a negative number if a is "less than" b.
+/* Returns 0 if a and b are have identical fieldName, fieldNameLength, and the signatures match up to the end of the
+ * shorter signature Returns a positive number if a is "greater than" b, and a negative number if a is "less than" b.
  * Greater/Less than is determined first by the name length, then signature length, then memcmp on name
  * and lastly memcmp on signature.
  *
@@ -1951,10 +1784,8 @@ compareMethodNameAndSignature(
  * @param length of sig b
  */
 IDATA
-compareMethodNameAndPartialSignature(
-		U_8 *aNameData, U_16 aNameLength, U_8 *aSigData, U_16 aSigLength,
-		U_8 *bNameData, U_16 bNameLength, U_8 *bSigData, U_16 bSigLength);
-
+compareMethodNameAndPartialSignature(U_8* aNameData, U_16 aNameLength, U_8* aSigData, U_16 aSigLength, U_8* bNameData,
+    U_16 bNameLength, U_8* bSigData, U_16 bSigLength);
 
 /* ---------------- extendedHCR.c ---------------- */
 
@@ -1970,7 +1801,7 @@ compareMethodNameAndPartialSignature(
  *	are allowed in the current run configuration.
  */
 UDATA
-areExtensionsEnabled(J9JavaVM * vm);
+areExtensionsEnabled(J9JavaVM* vm);
 
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
 
@@ -1982,25 +1813,25 @@ areExtensionsEnabled(J9JavaVM * vm);
  * of old classes to new classes
  */
 typedef struct J9JVMTIClassPair {
-	J9Class * originalRAMClass;
-	UDATA flags;
-    J9ROMMethod ** methodRemap;              /*<! Keeps track of which original method remaps to which replacement method. */
-    U_32 * methodRemapIndices;
-	union {
-		J9ROMClass * romClass;
-		J9Class * ramClass;
-	} replacementClass;
+    J9Class* originalRAMClass;
+    UDATA flags;
+    J9ROMMethod** methodRemap; /*<! Keeps track of which original method remaps to which replacement method. */
+    U_32* methodRemapIndices;
+    union {
+        J9ROMClass* romClass;
+        J9Class* ramClass;
+    } replacementClass;
 } J9JVMTIClassPair;
 
 /**
  * @brief
- * Struct used in the class loader hotswap hashtable to keep track of 
+ * Struct used in the class loader hotswap hashtable to keep track of
  * replaced classes. We need this data to correctly fix static refs upon
- * redefinition 
+ * redefinition
  */
 typedef struct J9HotswappedClassPair {
-	J9Class * originalClass;
-	J9Class * replacementClass;
+    J9Class* originalClass;
+    J9Class* replacementClass;
 } J9HotswappedClassPair;
 
 #define J9JVMTI_CLASS_PAIR_FLAG_PRUNED 1
@@ -2009,123 +1840,97 @@ typedef struct J9HotswappedClassPair {
 
 /**
  * @brief
- * struct used to map a replaced Classes method address to the method 
- * address in the replacing Class. 
+ * struct used to map a replaced Classes method address to the method
+ * address in the replacing Class.
  */
 typedef struct J9JVMTIMethodPair {
-	J9Method * oldMethod;
-	J9Method * newMethod;
+    J9Method* oldMethod;
+    J9Method* newMethod;
 } J9JVMTIMethodPair;
 
 /**
- *  Helper structure used while creating the jit class redefinition event data 
+ *  Helper structure used while creating the jit class redefinition event data
  */
 typedef struct J9JVMTIHCRJitEventData {
-	UDATA * dataCursor;      /*!< cursor into the data buffer */
-	UDATA * data;            /*!< data buffer containing the jit class redefinition event data */
-	UDATA classCount;        /*!< number of classes in the data buffer */
-	UDATA initialized;       /*!< indicates that the strucutre has been initialized and is ready for use and dealloc */
+    UDATA* dataCursor; /*!< cursor into the data buffer */
+    UDATA* data; /*!< data buffer containing the jit class redefinition event data */
+    UDATA classCount; /*!< number of classes in the data buffer */
+    UDATA initialized; /*!< indicates that the strucutre has been initialized and is ready for use and dealloc */
 } J9JVMTIHCRJitEventData;
 
-void
-jitEventFree(J9JavaVM * vm, J9JVMTIHCRJitEventData * eventData);
+void jitEventFree(J9JavaVM* vm, J9JVMTIHCRJitEventData* eventData);
 
-void
-fixStaticRefs(J9VMThread * currentThread, J9HashTable * classPairs, UDATA extensionsUsed);
+void fixStaticRefs(J9VMThread* currentThread, J9HashTable* classPairs, UDATA extensionsUsed);
 
-void
-hshelpUTRegister(J9JavaVM *vm);
+void hshelpUTRegister(J9JavaVM* vm);
 
 UDATA
-areMethodsEquivalent (J9ROMMethod * method1, J9ROMClass * romClass1, J9ROMMethod * method2, J9ROMClass * romClass2);
+areMethodsEquivalent(J9ROMMethod* method1, J9ROMClass* romClass1, J9ROMMethod* method2, J9ROMClass* romClass2);
 
-void
-fixSubclassHierarchy (J9VMThread * currentThread, J9HashTable* classHashTable);
+void fixSubclassHierarchy(J9VMThread* currentThread, J9HashTable* classHashTable);
 
-void
-fixITables(J9VMThread * currentThread, J9HashTable* classHashTable);
+void fixITables(J9VMThread* currentThread, J9HashTable* classHashTable);
 
-void
-fixITablesForFastHCR(J9VMThread *currentThread, J9HashTable *classHashTable);
+void fixITablesForFastHCR(J9VMThread* currentThread, J9HashTable* classHashTable);
 
-void
-fixArrayClasses(J9VMThread * currentThread, J9HashTable* classHashTable);
+void fixArrayClasses(J9VMThread* currentThread, J9HashTable* classHashTable);
 
-void
-fixJNIRefs (J9VMThread * currentThread, J9HashTable* classHashTable, BOOLEAN fastHCR, UDATA extensionsUsed);
+void fixJNIRefs(J9VMThread* currentThread, J9HashTable* classHashTable, BOOLEAN fastHCR, UDATA extensionsUsed);
 
-void
-fixConstantPoolsForFastHCR(J9VMThread *currentThread, J9HashTable *classPairs, J9HashTable *methodPair);
+void fixConstantPoolsForFastHCR(J9VMThread* currentThread, J9HashTable* classPairs, J9HashTable* methodPair);
 
-void
-unresolveAllClasses (J9VMThread * currentThread, J9HashTable * classPairs, J9HashTable * methodPairs, UDATA extensionsUsed);
+void unresolveAllClasses(
+    J9VMThread* currentThread, J9HashTable* classPairs, J9HashTable* methodPairs, UDATA extensionsUsed);
 
-void
-fixHeapRefs (J9JavaVM * vm, J9HashTable * classPairs);
+void fixHeapRefs(J9JavaVM* vm, J9HashTable* classPairs);
 
-void
-fixDirectHandles(J9VMThread * currentThread, J9HashTable * classHashTable, J9HashTable * methodHashTable);
+void fixDirectHandles(J9VMThread* currentThread, J9HashTable* classHashTable, J9HashTable* methodHashTable);
 
-void
-copyPreservedValues (J9VMThread * currentThread, J9HashTable* classHashTable, UDATA extensionsUsed);
+void copyPreservedValues(J9VMThread* currentThread, J9HashTable* classHashTable, UDATA extensionsUsed);
 
-void
-fixReturnsInUnsafeMethods(J9VMThread * currentThread, J9HashTable * classPairs);
+void fixReturnsInUnsafeMethods(J9VMThread* currentThread, J9HashTable* classPairs);
 
-enum jvmtiError
-recreateRAMClasses (J9VMThread * currentThread, J9HashTable* classHashTable, J9HashTable * methodHashTable, UDATA extensionsUsed, BOOLEAN fastHCR);
+enum jvmtiError recreateRAMClasses(J9VMThread* currentThread, J9HashTable* classHashTable, J9HashTable* methodHashTable,
+    UDATA extensionsUsed, BOOLEAN fastHCR);
 
-enum jvmtiError
-determineClassesToRecreate (J9VMThread * currentThread, jint class_count, J9JVMTIClassPair * specifiedClasses, J9HashTable ** classPairsPtr,
-	J9HashTable ** methodPairs, J9JVMTIHCRJitEventData * jitEventData, BOOLEAN fastHCR);
+enum jvmtiError determineClassesToRecreate(J9VMThread* currentThread, jint class_count,
+    J9JVMTIClassPair* specifiedClasses, J9HashTable** classPairsPtr, J9HashTable** methodPairs,
+    J9JVMTIHCRJitEventData* jitEventData, BOOLEAN fastHCR);
 
-enum jvmtiError
-verifyClassesAreCompatible (J9VMThread * currentThread, jint class_count, J9JVMTIClassPair * classPairs, UDATA extensionsEnabled, UDATA * extensionsUsed);
+enum jvmtiError verifyClassesAreCompatible(J9VMThread* currentThread, jint class_count, J9JVMTIClassPair* classPairs,
+    UDATA extensionsEnabled, UDATA* extensionsUsed);
 
-enum jvmtiError
-verifyClassesCanBeReplaced (J9VMThread * currentThread, jint class_count, const struct jvmtiClassDefinition * class_definitions);
+enum jvmtiError verifyClassesCanBeReplaced(
+    J9VMThread* currentThread, jint class_count, const struct jvmtiClassDefinition* class_definitions);
 
-enum jvmtiError
-reloadROMClasses (J9VMThread * currentThread, jint class_count, const struct jvmtiClassDefinition * class_definitions, J9JVMTIClassPair * classPairs, UDATA options);
+enum jvmtiError reloadROMClasses(J9VMThread* currentThread, jint class_count,
+    const struct jvmtiClassDefinition* class_definitions, J9JVMTIClassPair* classPairs, UDATA options);
 
-enum jvmtiError
-verifyNewClasses (J9VMThread * currentThread, jint class_count, J9JVMTIClassPair * classPairs);
+enum jvmtiError verifyNewClasses(J9VMThread* currentThread, jint class_count, J9JVMTIClassPair* classPairs);
 
-jvmtiError
-fixMethodEquivalences(J9VMThread * currentThread, 
-	J9HashTable * classPairs,
-	J9JVMTIHCRJitEventData * eventData,
-	BOOLEAN fastHCR, J9HashTable ** methodEquivalences,
-	UDATA extensionsUsed);
+jvmtiError fixMethodEquivalences(J9VMThread* currentThread, J9HashTable* classPairs, J9JVMTIHCRJitEventData* eventData,
+    BOOLEAN fastHCR, J9HashTable** methodEquivalences, UDATA extensionsUsed);
 
-jboolean
-classIsModifiable(J9JavaVM * vm, J9Class * clazz);
+jboolean classIsModifiable(J9JavaVM* vm, J9Class* clazz);
 
-void
-classesRedefinedEvent(J9VMThread * currentThread, jint classCount, J9HashTable * classHashTable, UDATA * jitEventData,
-					  J9Method * (*getMethodEquivalence)(J9VMThread * currentThread, J9Method * method));
+void classesRedefinedEvent(J9VMThread* currentThread, jint classCount, J9HashTable* classHashTable, UDATA* jitEventData,
+    J9Method* (*getMethodEquivalence)(J9VMThread* currentThread, J9Method* method));
 
-void
-fixVTables_forExtendedRedefine(J9VMThread * currentThread, J9HashTable * classPairs, J9HashTable * methodPairs);
+void fixVTables_forExtendedRedefine(J9VMThread* currentThread, J9HashTable* classPairs, J9HashTable* methodPairs);
 
-void
-fixVTables_forNormalRedefine(J9VMThread * currentThread, J9HashTable * classPairs, J9HashTable * methodPairs,
-							 BOOLEAN fastHCR, J9HashTable ** methodEquivalences);
+void fixVTables_forNormalRedefine(J9VMThread* currentThread, J9HashTable* classPairs, J9HashTable* methodPairs,
+    BOOLEAN fastHCR, J9HashTable** methodEquivalences);
 
-void
-flushClassLoaderReflectCache(J9VMThread * currentThread, J9HashTable * classPairs);
+void flushClassLoaderReflectCache(J9VMThread* currentThread, J9HashTable* classPairs);
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-void
-jitClassRedefineEvent(J9VMThread * currentThread, J9JVMTIHCRJitEventData * jitEventData, UDATA extensionsEnabled);
+void jitClassRedefineEvent(J9VMThread* currentThread, J9JVMTIHCRJitEventData* jitEventData, UDATA extensionsEnabled);
 #endif
 
-void
-notifyGCOfClassReplacement(J9VMThread * currentThread, J9HashTable * classPairs, UDATA isFastHCR);
+void notifyGCOfClassReplacement(J9VMThread* currentThread, J9HashTable* classPairs, UDATA isFastHCR);
 
 #if defined(J9VM_OPT_VALHALLA_NESTMATES)
-void
-fixNestMembers(J9VMThread * currentThread, J9HashTable * classPairs);
+void fixNestMembers(J9VMThread* currentThread, J9HashTable* classPairs);
 #endif /* defined(J9VM_OPT_VALHALLA_NESTMATES) */
 
 #endif /* J9VM_INTERP_HOT_CODE_REPLACEMENT */
@@ -2133,56 +1938,52 @@ fixNestMembers(J9VMThread * currentThread, J9HashTable * classPairs);
 /* ---------------- filecache.c ---------------- */
 
 /**
-* @brief write data to a file that was opened using the cached_file_open function.
-* @param *portLibrary
-* @param fd
-* @param *buf
-* @param nbytes
-* @return IDATA
-*/
+ * @brief write data to a file that was opened using the cached_file_open function.
+ * @param *portLibrary
+ * @param fd
+ * @param *buf
+ * @param nbytes
+ * @return IDATA
+ */
 IDATA
-j9cached_file_write(struct J9PortLibrary *portLibrary, IDATA fd, const void *buf, const IDATA nbytes);
+j9cached_file_write(struct J9PortLibrary* portLibrary, IDATA fd, const void* buf, const IDATA nbytes);
 
 /**
-* @brief open a file for writing through a caching mechanism.
-* @param *portLibrary
-* @param *path
-* @param flags
-* @param mode
-* @return IDATA
-*/
+ * @brief open a file for writing through a caching mechanism.
+ * @param *portLibrary
+ * @param *path
+ * @param flags
+ * @param mode
+ * @return IDATA
+ */
 IDATA
-j9cached_file_open(struct J9PortLibrary *portLibrary, const char *path, I_32 flags, I_32 mode);
+j9cached_file_open(struct J9PortLibrary* portLibrary, const char* path, I_32 flags, I_32 mode);
 
 /**
-* @brief close a file that was opened by the cached_file_open function.
-* @param *portLibrary
-* @param fd
-* @return I_32
-*/
-I_32
-j9cached_file_close(struct J9PortLibrary *portLibrary, IDATA fd);
+ * @brief close a file that was opened by the cached_file_open function.
+ * @param *portLibrary
+ * @param fd
+ * @return I_32
+ */
+I_32 j9cached_file_close(struct J9PortLibrary* portLibrary, IDATA fd);
 
 /**
-* @brief perform a file seek on a file that was opened using the cached_file_open function.
-* @param *portLibrary
-* @param fd
-* @param offset
-* @param whence
-* @return I_64
-*/
-I_64
-j9cached_file_seek(struct J9PortLibrary *portLibrary, IDATA fd, I_64 offset, I_32 whence);
+ * @brief perform a file seek on a file that was opened using the cached_file_open function.
+ * @param *portLibrary
+ * @param fd
+ * @param offset
+ * @param whence
+ * @return I_64
+ */
+I_64 j9cached_file_seek(struct J9PortLibrary* portLibrary, IDATA fd, I_64 offset, I_32 whence);
 
 /**
-* @brief perform a file sync on a file that was opened using the cached_file_open function.
-* @param *portLibrary
-* @param fd
-* @return I_32
-*/
-I_32
-j9cached_file_sync(struct J9PortLibrary *portLibrary, IDATA fd);
-
+ * @brief perform a file sync on a file that was opened using the cached_file_open function.
+ * @param *portLibrary
+ * @param fd
+ * @return I_32
+ */
+I_32 j9cached_file_sync(struct J9PortLibrary* portLibrary, IDATA fd);
 
 /* ---------------- shchelp_j9.c ---------------- */
 
@@ -2193,8 +1994,7 @@ j9cached_file_sync(struct J9PortLibrary *portLibrary, IDATA fd);
  * @param [in] j2seVersion  The j2se version the JVM is running
  * @param [out] result  The struct to populate
  */
-void
-setCurrentCacheVersion(J9JavaVM *vm, UDATA j2seVersion, J9PortShcVersion* result);
+void setCurrentCacheVersion(J9JavaVM* vm, UDATA j2seVersion, J9PortShcVersion* result);
 
 /**
  * Get the running JVM feature
@@ -2202,30 +2002,27 @@ setCurrentCacheVersion(J9JavaVM *vm, UDATA j2seVersion, J9PortShcVersion* result
  * @param [in] vm  pointer to J9JavaVM structure.*
  * @return U_32
  */
-U_32
-getJVMFeature(J9JavaVM *vm);
+U_32 getJVMFeature(J9JavaVM* vm);
 
 /**
  * Get the OpenJ9 SHA
  *
  * @return uint64_t The OpenJ9 SHA
  */
-uint64_t
-getOpenJ9Sha();
+uint64_t getOpenJ9Sha();
 
 /* ---------------- cphelp.c ---------------- */
 
 /**
-* @brief copy the classPathEntry at a specified index from a classLoader
-* @param *currentThread
-* @param *classLoader
-* @param cpIndex
-* @param *cpEntry
-* @return UDATA
-*/
+ * @brief copy the classPathEntry at a specified index from a classLoader
+ * @param *currentThread
+ * @param *classLoader
+ * @param cpIndex
+ * @param *cpEntry
+ * @return UDATA
+ */
 UDATA
-getClassPathEntry(J9VMThread * currentThread, J9ClassLoader * classLoader, IDATA cpIndex, J9ClassPathEntry * cpEntry);
-
+getClassPathEntry(J9VMThread* currentThread, J9ClassLoader* classLoader, IDATA cpIndex, J9ClassPathEntry* cpEntry);
 
 /**
  * Returns location from where the class has been loaded.
@@ -2235,10 +2032,9 @@ getClassPathEntry(J9VMThread * currentThread, J9ClassLoader * classLoader, IDATA
  * @param [in] currentThread Current J9VMThread
  * @param [in] clazz pointer to J9Class
  * @param [out] length length of the string returned
- * @return string representing the location from which class has been loaded 
+ * @return string representing the location from which class has been loaded
  */
-U_8 *
-getClassLocation(J9VMThread * currentThread, J9Class * clazz, UDATA *length);
+U_8* getClassLocation(J9VMThread* currentThread, J9Class* clazz, UDATA* length);
 
 /**
  * Composes jrt URL for the give module and adds it to the hashtable with module as the key.
@@ -2246,10 +2042,9 @@ getClassLocation(J9VMThread * currentThread, J9Class * clazz, UDATA *length);
  * @param [in] currentThread Current J9VMThread
  * @param [in] module module for which jrt URL is needed
  *
- * @return pointer to J9UTF8 representing jrt URL for the module. Returns NULL if any error occurs 
+ * @return pointer to J9UTF8 representing jrt URL for the module. Returns NULL if any error occurs
  */
-J9UTF8 *
-getModuleJRTURL(J9VMThread *currentThread, J9ClassLoader *classLoader, J9Module *module);
+J9UTF8* getModuleJRTURL(J9VMThread* currentThread, J9ClassLoader* classLoader, J9Module* module);
 
 /**
  * Append a single path segment to the bootstrap class loader
@@ -2261,25 +2056,24 @@ getModuleJRTURL(J9VMThread *currentThread, J9ClassLoader *classLoader, J9Module 
  * 			Returning value 0 indicates an error has occurred.
  */
 UDATA
-addJarToSystemClassLoaderClassPathEntries(J9JavaVM *vm, const char *filename);
+addJarToSystemClassLoaderClassPathEntries(J9JavaVM* vm, const char* filename);
 
 /* ---------------- genericSignalHander.c ---------------- */
 
 /**
-* @brief generic signal handler that dumps the registers contents from the time of crash and aborts.
-*
-* @param *portLibrary	the port library
-* @param *gpType		the port library defined signal
-* @param *gpInfo		opaque cookie needed by the port library signal handling mechanism
-* @param *userData		not used.  
-* @return UDATA
-*/
+ * @brief generic signal handler that dumps the registers contents from the time of crash and aborts.
+ *
+ * @param *portLibrary	the port library
+ * @param *gpType		the port library defined signal
+ * @param *gpInfo		opaque cookie needed by the port library signal handling mechanism
+ * @param *userData		not used.
+ * @return UDATA
+ */
 UDATA genericSignalHandler(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* userData);
 
-
 typedef struct J9PropsFile {
-	J9PortLibrary* portLibrary;
-	J9HashTable* properties; 
+    J9PortLibrary* portLibrary;
+    J9HashTable* properties;
 } J9PropsFile, *j9props_file_t;
 
 /**
@@ -2290,7 +2084,7 @@ typedef struct J9PropsFile {
  * @param userData Opaque data.
  * @return TRUE to keep walking, FALSE to terminate the walk.
  */
-typedef BOOLEAN (j9props_file_iterator)(j9props_file_t file, const char* key, const char* value, void* userData);
+typedef BOOLEAN(j9props_file_iterator)(j9props_file_t file, const char* key, const char* value, void* userData);
 
 /**
  * Opens and parses the specified props file.
@@ -2325,8 +2119,6 @@ const char* props_file_get(j9props_file_t file, const char* key);
  */
 void props_file_do(j9props_file_t file, j9props_file_iterator iterator, void* userData);
 
-
-
 /* ----------------- zosversion.c ---------------- */
 
 /**
@@ -2348,8 +2140,6 @@ void props_file_do(j9props_file_t file, j9props_file_iterator iterator, void* us
 BOOLEAN
 zos_version_at_least(double min_release, double min_version);
 
-
-
 /* ----------------- ObjectHash.cpp ---------------- */
 /**
  * Hash an UDATA via murmur3 algorithm
@@ -2358,7 +2148,7 @@ zos_version_at_least(double min_release, double min_version);
  * @param value 	an UDATA Value
  * @return hash 	an I_32 that may be negative or zero
  */
-I_32 convertValueToHash(J9JavaVM *vm, UDATA value);
+I_32 convertValueToHash(J9JavaVM* vm, UDATA value);
 
 /**
  * Compute hashcode of an objectPointer via murmur3 algorithm
@@ -2369,8 +2159,7 @@ I_32 convertValueToHash(J9JavaVM *vm, UDATA value);
  * @param objectPointer 	a valid object reference.
  * @return value			an I_32 that may be negative or zero
  */
-I_32 computeObjectAddressToHash(J9JavaVM *vm, j9object_t objectPointer);
-
+I_32 computeObjectAddressToHash(J9JavaVM* vm, j9object_t objectPointer);
 
 /**
  * Fetch objectPointer's hashcode
@@ -2381,7 +2170,7 @@ I_32 computeObjectAddressToHash(J9JavaVM *vm, j9object_t objectPointer);
  * @param objectPointer 	a valid object reference.
  * @return hash value		a I_32 that may be negative or zero
  */
-I_32 objectHashCode(J9JavaVM *vm, j9object_t objectPointer);
+I_32 objectHashCode(J9JavaVM* vm, j9object_t objectPointer);
 
 #if defined(WIN32)
 /* ---------------- openlibrary.c ---------------- */
@@ -2397,10 +2186,9 @@ I_32 objectHashCode(J9JavaVM *vm, j9object_t objectPointer);
  * @return 0 if success, Windows error code on failure
  */
 UDATA
-j9util_open_system_library(char *name, UDATA *descriptor, UDATA flags);
+j9util_open_system_library(char* name, UDATA* descriptor, UDATA flags);
 
 #endif /*if defined(WIN32)*/
-
 
 #if defined(J9VM_JIT_FREE_SYSTEM_STACK_POINTER)
 /* ---------------- freessp.c ---------------- */
@@ -2415,24 +2203,22 @@ j9util_open_system_library(char *name, UDATA *descriptor, UDATA flags);
  *
  * @param[in] currentThread The current J9VMThread to enable freeSSP on.
  */
-void registerSystemStackPointerThreadOffset(J9VMThread *currentThread);
+void registerSystemStackPointerThreadOffset(J9VMThread* currentThread);
 
 #endif /*if defined(J9VM_JIT_FREE_SYSTEM_STACK_POINTER)*/
-
-
 
 #if defined(AIXPPC)
 
 /* ---------------- sethwprefetch.c ---------------- */
 
-/** 
- * HWPrefetch value on AIX, corresponding to 
+/**
+ * HWPrefetch value on AIX, corresponding to
  * DPFD_DEFAULT
  */
 #define XXSETHWPREFETCH_OS_DEFAULT_VALUE 0
 
-/** 
- * HWPrefetch value on AIX, corresponding to 
+/**
+ * HWPrefetch value on AIX, corresponding to
  * DPFD_NONE
  */
 #define XXSETHWPREFETCH_NONE_VALUE 1
@@ -2440,15 +2226,15 @@ void registerSystemStackPointerThreadOffset(J9VMThread *currentThread);
 /**
  * Set hardware prefetch value on AIX.
  *
- * @param[in] value Valid values are: 
- * 	DPFD_DEFAULT 0 
- * 	DPFD_NONE 1 
- * 	DPFD_SHALLOWEST 2 
- * 	DPFD_SHALLOW 3 
- * 	DPFD_MEDIUM 4 
- * 	DPFD_DEEP 5 
- * 	DPFD_DEEPER 6 
- * 	DPFD_DEEPEST 7 
+ * @param[in] value Valid values are:
+ * 	DPFD_DEFAULT 0
+ * 	DPFD_NONE 1
+ * 	DPFD_SHALLOWEST 2
+ * 	DPFD_SHALLOW 3
+ * 	DPFD_MEDIUM 4
+ * 	DPFD_DEEP 5
+ * 	DPFD_DEEPER 6
+ * 	DPFD_DEEPEST 7
  * 	DSCR_SSE 8
  *
  * @return 0 on success, -1 on error
@@ -2458,7 +2244,6 @@ void registerSystemStackPointerThreadOffset(J9VMThread *currentThread);
 IDATA setHWPrefetch(UDATA value);
 
 #endif /*if defined(AIXPPC)*/
-
 
 #if defined(LINUX)
 /* ---------------- osinfo.c ---------------- */
@@ -2472,8 +2257,7 @@ IDATA setHWPrefetch(UDATA value);
  * @return A char representing the value of /proc/sys/kernel/sched_compat_yield or
  * 		   a whitespace char (' ') if the file does not exist or an error occurred.
  */
-char
-j9util_sched_compat_yield_value(J9JavaVM *javaVM);
+char j9util_sched_compat_yield_value(J9JavaVM* javaVM);
 
 #endif /*if defined(LINUX)*/
 
@@ -2501,8 +2285,7 @@ jint omrErrorCodeToJniErrorCode(omr_error_t omrError);
  * @return The result of the protected function.
  */
 UDATA
-gpProtectAndRun(protected_fn function, JNIEnv * env, void *args);
-
+gpProtectAndRun(protected_fn function, JNIEnv* env, void* args);
 
 /* ---------------- resolvehelp.c ---------------- */
 
@@ -2517,8 +2300,8 @@ gpProtectAndRun(protected_fn function, JNIEnv * env, void *args);
  *
  * @return the J9Method for the super send or the passed in the J9Method if this is not a super send.
  */
-J9Method *
-getMethodForSpecialSend(J9VMThread *vmStruct, J9Class *currentClass, J9Class *resolvedClass, J9Method *method, UDATA lookupOptions);
+J9Method* getMethodForSpecialSend(
+    J9VMThread* vmStruct, J9Class* currentClass, J9Class* resolvedClass, J9Method* method, UDATA lookupOptions);
 
 /**
  * JVMS 4.9.2: If resolvedClass is an interface, ensure that it is a DIRECT superinterface of currentClass,
@@ -2531,24 +2314,22 @@ getMethodForSpecialSend(J9VMThread *vmStruct, J9Class *currentClass, J9Class *re
  * @return TRUE if resolvedClass is a direct superinterface of (or equal to) currentClass, and FALSE otherwise.
  */
 BOOLEAN
-isDirectSuperInterface(J9VMThread *vmStruct, J9Class *resolvedClass, J9Class *currentClass);
+isDirectSuperInterface(J9VMThread* vmStruct, J9Class* resolvedClass, J9Class* currentClass);
 
 /**
- * Error message helper for throwing IncompatibleClassChangeError for invalid supersends (target not direct superinterface)
+ * Error message helper for throwing IncompatibleClassChangeError for invalid supersends (target not direct
+ * superinterface)
  *
  * @param vmStruct the current vmThread
  * @param currentClass the class that contains the invokespecial
  * @param resolvedClass the class resolved from the MethodRef in the constantpool
  */
-void
-setIncompatibleClassChangeErrorInvalidDefenderSupersend(J9VMThread *vmStruct, J9Class *resolvedClass, J9Class *currentClass);
+void setIncompatibleClassChangeErrorInvalidDefenderSupersend(
+    J9VMThread* vmStruct, J9Class* resolvedClass, J9Class* currentClass);
 
+void printModifiers(J9PortLibrary* portLib, U_32 modifiers, modifierScope modScope, modifierSource modifierSrc);
 
-void
-printModifiers(J9PortLibrary *portLib, U_32 modifiers, modifierScope modScope, modifierSource modifierSrc);
-
-void
-j9_printClassExtraModifiers(J9PortLibrary *portLib, U_32 modifiers);
+void j9_printClassExtraModifiers(J9PortLibrary* portLib, U_32 modifiers);
 
 /* ---------------- vmstate.c ---------------- */
 
@@ -2561,17 +2342,17 @@ j9_printClassExtraModifiers(J9PortLibrary *portLib, U_32 modifiers);
  * @return the previous vmState value
  */
 UDATA
-setVMState(J9VMThread *currentThread, UDATA newState);
+setVMState(J9VMThread* currentThread, UDATA newState);
 
 /* ---------------- modularityHelper.c ---------------- */
-#define ERRCODE_SUCCESS                             0
-#define ERRCODE_GENERAL_FAILURE                     1
-#define ERRCODE_PACKAGE_ALREADY_DEFINED             2
-#define ERRCODE_MODULE_ALREADY_DEFINED              3
-#define ERRCODE_HASHTABLE_OPERATION_FAILED          4
-#define ERRCODE_DUPLICATE_PACKAGE_IN_LIST           5
-#define ERRCODE_MODULE_WASNT_FOUND                  6
-#define ERRCODE_PACKAGE_WASNT_FOUND                 7
+#define ERRCODE_SUCCESS 0
+#define ERRCODE_GENERAL_FAILURE 1
+#define ERRCODE_PACKAGE_ALREADY_DEFINED 2
+#define ERRCODE_MODULE_ALREADY_DEFINED 3
+#define ERRCODE_HASHTABLE_OPERATION_FAILED 4
+#define ERRCODE_DUPLICATE_PACKAGE_IN_LIST 5
+#define ERRCODE_MODULE_WASNT_FOUND 6
+#define ERRCODE_PACKAGE_WASNT_FOUND 7
 
 /** Helper function to identify unnamed module. A module is unnamed if the
  *  name field is NULL
@@ -2584,7 +2365,7 @@ setVMState(J9VMThread *currentThread, UDATA newState);
  *
  */
 BOOLEAN
-isModuleUnnamed(J9VMThread * currentThread, j9object_t moduleObject);
+isModuleUnnamed(J9VMThread* currentThread, j9object_t moduleObject);
 
 /**
  * Determine if fromModule has read access to toModule
@@ -2597,7 +2378,7 @@ isModuleUnnamed(J9VMThread * currentThread, j9object_t moduleObject);
  * @return a boolean value to indicate if the access is granted
  */
 BOOLEAN
-isAllowedReadAccessToModule(J9VMThread * currentThread, J9Module * fromModule, J9Module * toModule, UDATA * errCode);
+isAllowedReadAccessToModule(J9VMThread* currentThread, J9Module* fromModule, J9Module* toModule, UDATA* errCode);
 
 /**
  * Determine if fromModule has been defined
@@ -2608,7 +2389,7 @@ isAllowedReadAccessToModule(J9VMThread * currentThread, J9Module * fromModule, J
  * @return a boolean value to indicate if the module has been defined
  */
 BOOLEAN
-isModuleDefined(J9VMThread * currentThread, J9Module * fromModule);
+isModuleDefined(J9VMThread* currentThread, J9Module* fromModule);
 
 /**
  * Determine if a package within fromModule is exported to toModule
@@ -2624,7 +2405,8 @@ isModuleDefined(J9VMThread * currentThread, J9Module * fromModule);
  * @return true if the package is exported to toModule, false if otherwise
  */
 BOOLEAN
-isPackageExportedToModuleWithName(J9VMThread *currentThread, J9Module *fromModule, U_8 *packageName, U_16 len, J9Module *toModule, BOOLEAN toUnnamed, UDATA *errCode);
+isPackageExportedToModuleWithName(J9VMThread* currentThread, J9Module* fromModule, U_8* packageName, U_16 len,
+    J9Module* toModule, BOOLEAN toUnnamed, UDATA* errCode);
 
 /**
  * Get a package definition
@@ -2638,9 +2420,9 @@ isPackageExportedToModuleWithName(J9VMThread *currentThread, J9Module *fromModul
  */
 J9Package*
 #if J9VM_JAVA9_BUILD >= 156
-getPackageDefinition(J9VMThread * currentThread, J9Module * fromModule, const char *packageName, UDATA * errCode);
+getPackageDefinition(J9VMThread* currentThread, J9Module* fromModule, const char* packageName, UDATA* errCode);
 #else /* J9VM_JAVA9_BUILD >= 156 */
-getPackageDefinition(J9VMThread * currentThread, J9Module * fromModule, j9object_t packageName, UDATA * errCode);
+getPackageDefinition(J9VMThread* currentThread, J9Module* fromModule, j9object_t packageName, UDATA* errCode);
 #endif /* J9VM_JAVA9_BUILD >= 156 */
 /**
  * Get a pointer to J9Package structure associated with incoming classloader and package name
@@ -2653,9 +2435,9 @@ getPackageDefinition(J9VMThread * currentThread, J9Module * fromModule, j9object
  */
 J9Package*
 #if J9VM_JAVA9_BUILD >= 156
-hashPackageTableAt(J9VMThread * currentThread, J9ClassLoader * classLoader, const char *packageName);
+hashPackageTableAt(J9VMThread* currentThread, J9ClassLoader* classLoader, const char* packageName);
 #else /* J9VM_JAVA9_BUILD >= 156 */
-hashPackageTableAt(J9VMThread * currentThread, J9ClassLoader * classLoader, j9object_t packageName);
+hashPackageTableAt(J9VMThread* currentThread, J9ClassLoader* classLoader, j9object_t packageName);
 #endif /* J9VM_JAVA9_BUILD >= 156 */
 /**
  * Add UTF package name to construct a J9Package for hashtable query
@@ -2670,11 +2452,10 @@ hashPackageTableAt(J9VMThread * currentThread, J9ClassLoader * classLoader, j9ob
  */
 BOOLEAN
 #if J9VM_JAVA9_BUILD >= 156
-addUTFNameToPackage(J9VMThread *currentThread, J9Package *j9package, const char *packageName, U_8 *buf, UDATA bufLen);
+addUTFNameToPackage(J9VMThread* currentThread, J9Package* j9package, const char* packageName, U_8* buf, UDATA bufLen);
 #else /* J9VM_JAVA9_BUILD >= 156 */
-addUTFNameToPackage(J9VMThread *currentThread, J9Package *j9package, j9object_t packageName, U_8 *buf, UDATA bufLen);
+addUTFNameToPackage(J9VMThread* currentThread, J9Package* j9package, j9object_t packageName, U_8* buf, UDATA bufLen);
 #endif /* J9VM_JAVA9_BUILD >= 156 */
-
 
 /**
  * Find the J9Package with given package name. Caller needs to hold the
@@ -2688,8 +2469,8 @@ addUTFNameToPackage(J9VMThread *currentThread, J9Package *j9package, j9object_t 
  *
  * @return J9Package, NULL otherwise with errCode set
  */
-J9Package*
-getPackageDefinitionWithName(J9VMThread *currentThread, J9Module *fromModule, U_8 *packageName, U_16 len, UDATA *errCode);
+J9Package* getPackageDefinitionWithName(
+    J9VMThread* currentThread, J9Module* fromModule, U_8* packageName, U_16 len, UDATA* errCode);
 
 /* ---------------- strhelp.c ---------------- */
 /* This function searches for the last occurrence of the character c in a string given its length
@@ -2700,8 +2481,7 @@ getPackageDefinitionWithName(J9VMThread *currentThread, J9Module *fromModule, U_
  *
  * @return The last occurrence of the character c, or null if c is not found
  */
-char*
-strnrchrHelper(const char *str, char c, UDATA len);
+char* strnrchrHelper(const char* str, char c, UDATA len);
 #ifdef __cplusplus
 }
 #endif

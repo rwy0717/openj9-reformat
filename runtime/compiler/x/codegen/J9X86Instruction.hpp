@@ -25,119 +25,89 @@
 
 #include "codegen/OMRX86Instruction.hpp"
 
-namespace TR { class Node; }
+namespace TR {
+class Node;
+}
 
-namespace TR { class MemoryReference; }
-namespace TR { class CodeGenerator; }
-namespace TR { class Snippet; }
-namespace TR { class UnresolvedDataSnippet; }
+namespace TR {
+class MemoryReference;
+}
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Snippet;
+}
+namespace TR {
+class UnresolvedDataSnippet;
+}
 
 namespace TR {
 
-class X86MemImmSnippetInstruction : public TR::X86MemImmInstruction
-   {
-   TR::UnresolvedDataSnippet *_unresolvedSnippet;
+class X86MemImmSnippetInstruction : public TR::X86MemImmInstruction {
+    TR::UnresolvedDataSnippet* _unresolvedSnippet;
 
-   public:
+public:
+    X86MemImmSnippetInstruction(TR_X86OpCodes op, TR::Node* node, TR::MemoryReference* mr, int32_t imm,
+        TR::UnresolvedDataSnippet* us, TR::CodeGenerator* cg);
 
-   X86MemImmSnippetInstruction(TR_X86OpCodes op,
-                               TR::Node *node,
-                               TR::MemoryReference *mr,
-                               int32_t imm,
-                               TR::UnresolvedDataSnippet *us,
-                               TR::CodeGenerator *cg);
+    X86MemImmSnippetInstruction(TR::Instruction* precedingInstruction, TR_X86OpCodes op, TR::MemoryReference* mr,
+        int32_t imm, TR::UnresolvedDataSnippet* us, TR::CodeGenerator* cg);
 
-   X86MemImmSnippetInstruction(TR::Instruction *precedingInstruction,
-                               TR_X86OpCodes op,
-                               TR::MemoryReference *mr,
-                               int32_t imm,
-                               TR::UnresolvedDataSnippet *us,
-                               TR::CodeGenerator *cg);
+    virtual char* description() { return "X86MemImmSnippet"; }
 
-   virtual char *description() { return "X86MemImmSnippet"; }
+    virtual Kind getKind() { return IsMemImmSnippet; }
 
-   virtual Kind getKind() { return IsMemImmSnippet; }
+    TR::UnresolvedDataSnippet* getUnresolvedSnippet() { return _unresolvedSnippet; }
+    TR::UnresolvedDataSnippet* setUnresolvedSnippet(TR::UnresolvedDataSnippet* us) { return (_unresolvedSnippet = us); }
 
-   TR::UnresolvedDataSnippet *getUnresolvedSnippet() {return _unresolvedSnippet;}
-   TR::UnresolvedDataSnippet *setUnresolvedSnippet(TR::UnresolvedDataSnippet *us)
-      {
-      return (_unresolvedSnippet = us);
-      }
+    virtual TR::Snippet* getSnippetForGC();
+    virtual void assignRegisters(TR_RegisterKinds kindsToBeAssigned);
+    virtual uint8_t* generateBinaryEncoding();
+};
 
-   virtual TR::Snippet *getSnippetForGC();
-   virtual void assignRegisters(TR_RegisterKinds kindsToBeAssigned);
-   virtual uint8_t *generateBinaryEncoding();
+class X86CheckAsyncMessagesMemRegInstruction : public TR::X86MemRegInstruction {
+public:
+    X86CheckAsyncMessagesMemRegInstruction(
+        TR::Node* node, TR_X86OpCodes op, TR::MemoryReference* mr, TR::Register* valueReg, TR::CodeGenerator* cg);
 
-   };
+    virtual char* description() { return "X86CheckAsyncMessagesMemReg"; }
 
+    virtual uint8_t* generateBinaryEncoding();
+};
 
-class X86CheckAsyncMessagesMemRegInstruction : public TR::X86MemRegInstruction
-   {
-   public:
+class X86CheckAsyncMessagesMemImmInstruction : public TR::X86MemImmInstruction {
+public:
+    X86CheckAsyncMessagesMemImmInstruction(
+        TR::Node* node, TR_X86OpCodes op, TR::MemoryReference* mr, int32_t value, TR::CodeGenerator* cg);
 
-   X86CheckAsyncMessagesMemRegInstruction(TR::Node *node, TR_X86OpCodes op, TR::MemoryReference *mr, TR::Register *valueReg, TR::CodeGenerator *cg);
+    virtual char* description() { return "X86CheckAsyncMessagesMemImm"; }
 
-   virtual char *description() { return "X86CheckAsyncMessagesMemReg"; }
+    virtual uint8_t* generateBinaryEncoding();
+};
 
-   virtual uint8_t *generateBinaryEncoding();
+class X86StackOverflowCheckInstruction : public TR::X86RegMemInstruction {
+public:
+    X86StackOverflowCheckInstruction(TR::Instruction* precedingInstruction, TR_X86OpCodes op, TR::Register* cmpRegister,
+        TR::MemoryReference* mr, TR::CodeGenerator* cg);
 
-   };
+    virtual char* description() { return "X86StackOverflowCheck"; }
 
+    virtual uint8_t* generateBinaryEncoding();
+};
 
-class X86CheckAsyncMessagesMemImmInstruction : public TR::X86MemImmInstruction
-   {
-   public:
+} // namespace TR
 
-   X86CheckAsyncMessagesMemImmInstruction(TR::Node *node, TR_X86OpCodes op, TR::MemoryReference *mr, int32_t value, TR::CodeGenerator *cg);
+TR::X86MemImmSnippetInstruction* generateMemImmSnippetInstruction(TR_X86OpCodes op, TR::Node*, TR::MemoryReference* mr,
+    int32_t imm, TR::UnresolvedDataSnippet*, TR::CodeGenerator* cg);
 
-   virtual char *description() { return "X86CheckAsyncMessagesMemImm"; }
+TR::X86CheckAsyncMessagesMemImmInstruction* generateCheckAsyncMessagesInstruction(
+    TR::Node* node, TR_X86OpCodes op, TR::MemoryReference* mr, int32_t value, TR::CodeGenerator* cg);
 
-   virtual uint8_t *generateBinaryEncoding();
+TR::X86CheckAsyncMessagesMemRegInstruction* generateCheckAsyncMessagesInstruction(
+    TR::Node* node, TR_X86OpCodes op, TR::MemoryReference* mr, TR::Register* reg, TR::CodeGenerator* cg);
 
-   };
-
-
-class X86StackOverflowCheckInstruction : public TR::X86RegMemInstruction
-   {
-   public:
-
-   X86StackOverflowCheckInstruction(
-      TR::Instruction        *precedingInstruction,
-      TR_X86OpCodes          op,
-      TR::Register           *cmpRegister,
-      TR::MemoryReference *mr,
-      TR::CodeGenerator      *cg);
-
-   virtual char *description() { return "X86StackOverflowCheck"; }
-
-   virtual uint8_t *generateBinaryEncoding();
-
-   };
-
-}
-
-
-TR::X86MemImmSnippetInstruction * generateMemImmSnippetInstruction(TR_X86OpCodes op, TR::Node *, TR::MemoryReference *mr, int32_t imm, TR::UnresolvedDataSnippet *, TR::CodeGenerator *cg);
-
-TR::X86CheckAsyncMessagesMemImmInstruction *generateCheckAsyncMessagesInstruction(
-   TR::Node               *node,
-   TR_X86OpCodes          op,
-   TR::MemoryReference *mr,
-   int32_t                value,
-   TR::CodeGenerator      *cg);
-
-TR::X86CheckAsyncMessagesMemRegInstruction *generateCheckAsyncMessagesInstruction(
-   TR::Node               *node,
-   TR_X86OpCodes          op,
-   TR::MemoryReference *mr,
-   TR::Register           *reg,
-   TR::CodeGenerator      *cg);
-
-TR::X86StackOverflowCheckInstruction *generateStackOverflowCheckInstruction(
-   TR::Instruction        *precedingInstruction,
-   TR_X86OpCodes          op,
-   TR::Register           *cmpRegister,
-   TR::MemoryReference *mr,
-   TR::CodeGenerator      *cg);
+TR::X86StackOverflowCheckInstruction* generateStackOverflowCheckInstruction(TR::Instruction* precedingInstruction,
+    TR_X86OpCodes op, TR::Register* cmpRegister, TR::MemoryReference* mr, TR::CodeGenerator* cg);
 
 #endif

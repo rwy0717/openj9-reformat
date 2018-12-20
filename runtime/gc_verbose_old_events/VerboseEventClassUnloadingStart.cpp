@@ -20,23 +20,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventClassUnloadingStart.hpp"
 
 /**
  * Create an new instance of a MM_VerboseEventClassUnloadingStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventClassUnloadingStart::newInstance(MM_ClassUnloadingStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventClassUnloadingStart::newInstance(
+    MM_ClassUnloadingStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventClassUnloadingStart *eventObject;
-			
-	eventObject = (MM_VerboseEventClassUnloadingStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventClassUnloadingStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventClassUnloadingStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventClassUnloadingStart* eventObject;
+
+    eventObject = (MM_VerboseEventClassUnloadingStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventClassUnloadingStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventClassUnloadingStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -44,16 +45,10 @@ MM_VerboseEventClassUnloadingStart::newInstance(MM_ClassUnloadingStartEvent *eve
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventClassUnloadingStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventClassUnloadingStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventClassUnloadingStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventClassUnloadingStart::formattedOutput(MM_VerboseOutputAgent* agent) {}

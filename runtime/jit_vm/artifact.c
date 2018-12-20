@@ -24,71 +24,67 @@
 #include "j9protos.h"
 #include "jithash.h"
 
-
-
-
-
-UDATA jit_artifact_insert(J9PortLibrary * portLibrary, J9AVLTree * tree, J9JITExceptionTable * dataToInsert)
+UDATA jit_artifact_insert(J9PortLibrary* portLibrary, J9AVLTree* tree, J9JITExceptionTable* dataToInsert)
 {
-	J9JITHashTable *foundTable = NULL;
+    J9JITHashTable* foundTable = NULL;
 
-	/* find the correct hash table */
-	foundTable = (J9JITHashTable *) avl_search(tree, (UDATA) dataToInsert->startPC);
+    /* find the correct hash table */
+    foundTable = (J9JITHashTable*)avl_search(tree, (UDATA)dataToInsert->startPC);
 
-	if (!foundTable)
-		return (UDATA) 2;
+    if (!foundTable)
+        return (UDATA)2;
 
-	/* insert the element */
-	return (UDATA) hash_jit_artifact_insert(portLibrary, foundTable, dataToInsert);
+    /* insert the element */
+    return (UDATA)hash_jit_artifact_insert(portLibrary, foundTable, dataToInsert);
 }
 
-UDATA jit_artifact_remove(J9PortLibrary * portLibrary, J9AVLTree * tree, J9JITExceptionTable * dataToDelete)
+UDATA jit_artifact_remove(J9PortLibrary* portLibrary, J9AVLTree* tree, J9JITExceptionTable* dataToDelete)
 {
-	J9JITHashTable *foundTable = NULL;
+    J9JITHashTable* foundTable = NULL;
 
-	/* find the correct hash table */
-	foundTable = (J9JITHashTable *) avl_search(tree, (UDATA) dataToDelete);
+    /* find the correct hash table */
+    foundTable = (J9JITHashTable*)avl_search(tree, (UDATA)dataToDelete);
 
-	if (!foundTable)
-		return (UDATA) 1;
+    if (!foundTable)
+        return (UDATA)1;
 
-	/* delete the element */
-	return (UDATA) hash_jit_artifact_remove(portLibrary, foundTable, dataToDelete);
+    /* delete the element */
+    return (UDATA)hash_jit_artifact_remove(portLibrary, foundTable, dataToDelete);
 }
 
-J9JITHashTable *jit_artifact_add_code_cache(J9PortLibrary * portLibrary, J9AVLTree * tree, J9MemorySegment * cacheToInsert, J9JITHashTable *optionalHashTable)
+J9JITHashTable* jit_artifact_add_code_cache(
+    J9PortLibrary* portLibrary, J9AVLTree* tree, J9MemorySegment* cacheToInsert, J9JITHashTable* optionalHashTable)
 {
-	if(optionalHashTable) {
-		avl_insert(tree, (J9AVLTreeNode *) optionalHashTable);
-		return optionalHashTable;
-	} else {
-		J9JITHashTable *newTable;
+    if (optionalHashTable) {
+        avl_insert(tree, (J9AVLTreeNode*)optionalHashTable);
+        return optionalHashTable;
+    } else {
+        J9JITHashTable* newTable;
 
-		/* register the code cache we've created */
-		newTable = hash_jit_allocate(portLibrary, (UDATA) cacheToInsert->heapBase, (UDATA) cacheToInsert->heapTop);
+        /* register the code cache we've created */
+        newTable = hash_jit_allocate(portLibrary, (UDATA)cacheToInsert->heapBase, (UDATA)cacheToInsert->heapTop);
 
-		if (!newTable)
-			return NULL;
+        if (!newTable)
+            return NULL;
 
-		avl_insert(tree, (J9AVLTreeNode *) newTable);
+        avl_insert(tree, (J9AVLTreeNode*)newTable);
 
-		return newTable;
-	}
+        return newTable;
+    }
 }
 
-J9JITHashTable *
-jit_artifact_protected_add_code_cache(J9JavaVM * vm, J9AVLTree * tree, J9MemorySegment * cacheToInsert, J9JITHashTable *optionalHashTable)
+J9JITHashTable* jit_artifact_protected_add_code_cache(
+    J9JavaVM* vm, J9AVLTree* tree, J9MemorySegment* cacheToInsert, J9JITHashTable* optionalHashTable)
 {
-	J9JITHashTable * table;
-	J9VMThread * currentThread = vm->internalVMFunctions->currentVMThread(vm);
+    J9JITHashTable* table;
+    J9VMThread* currentThread = vm->internalVMFunctions->currentVMThread(vm);
 
-	if (currentThread != NULL) {
-		vm->internalVMFunctions->acquireExclusiveVMAccess(currentThread);
-	}
-	table = jit_artifact_add_code_cache(vm->portLibrary, tree, cacheToInsert, optionalHashTable);
-	if (currentThread != NULL) {
-		vm->internalVMFunctions->releaseExclusiveVMAccess(currentThread);
-	}
-	return table;
+    if (currentThread != NULL) {
+        vm->internalVMFunctions->acquireExclusiveVMAccess(currentThread);
+    }
+    table = jit_artifact_add_code_cache(vm->portLibrary, tree, cacheToInsert, optionalHashTable);
+    if (currentThread != NULL) {
+        vm->internalVMFunctions->releaseExclusiveVMAccess(currentThread);
+    }
+    return table;
 }
-

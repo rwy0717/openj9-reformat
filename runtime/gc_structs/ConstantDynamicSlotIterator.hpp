@@ -32,27 +32,21 @@
 #include "j9.h"
 #include "ModronAssertions.h"
 
-
 /**
  * Iterate over a constant dynamic object reference within the constant pool of a class.
- * 
+ *
  * @see GC_ConstantPoolClassSlotIterator
  * @ingroup GC_Structs
  */
 class GC_ConstantDynamicSlotIterator {
 private:
-	typedef enum {
-		condy_slot_value,
-		condy_slot_exception,
-		condy_slot_terminator
-	} CondySlotState;
-	CondySlotState _condySlotState;
-    
-public:
-	GC_ConstantDynamicSlotIterator() :
-		_condySlotState(condy_slot_value)
-	{ };
+    typedef enum { condy_slot_value, condy_slot_exception, condy_slot_terminator } CondySlotState;
+    CondySlotState _condySlotState;
 
-	j9object_t *nextSlot(j9object_t *slotPtr);
+public:
+    GC_ConstantDynamicSlotIterator()
+        : _condySlotState(condy_slot_value) {};
+
+    j9object_t* nextSlot(j9object_t* slotPtr);
 };
 #endif /* CONSTANTDYNAMICSLOTITERATOR_HPP_ */

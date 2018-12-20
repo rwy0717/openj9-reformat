@@ -23,16 +23,15 @@
 #include "Check.hpp"
 #include "CheckEngine.hpp"
 
-void
-GC_Check::run(bool shouldCheck, bool shouldPrint)
+void GC_Check::run(bool shouldCheck, bool shouldPrint)
 {
-	_engine->startNewCheck(this);
-	
-	if(shouldCheck) {
-		check();
-	}
+    _engine->startNewCheck(this);
 
-	if(shouldPrint) {
-		print();
-	}
+    if (shouldCheck) {
+        check();
+    }
+
+    if (shouldPrint) {
+        print();
+    }
 }

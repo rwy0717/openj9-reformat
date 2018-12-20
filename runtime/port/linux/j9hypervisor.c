@@ -40,14 +40,12 @@
  *
  * @return - Zero, indicating success. Non-zero, indicating failure.
  */
-intptr_t
-detect_hypervisor(struct J9PortLibrary *portLibrary)
+intptr_t detect_hypervisor(struct J9PortLibrary* portLibrary)
 {
 #if defined(J9X86) || defined(J9HAMMER)
-	/* Calling the common function for x86 Hypervisor Detection */
-   return detect_hypervisor_i386(portLibrary);
+    /* Calling the common function for x86 Hypervisor Detection */
+    return detect_hypervisor_i386(portLibrary);
 #else
-   return J9PORT_ERROR_HYPERVISOR_UNSUPPORTED;
+    return J9PORT_ERROR_HYPERVISOR_UNSUPPORTED;
 #endif
 }
-

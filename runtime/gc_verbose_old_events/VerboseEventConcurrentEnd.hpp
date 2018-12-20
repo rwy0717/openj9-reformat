@@ -34,27 +34,24 @@
  * Stores the data relating to the end of a concurrent collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentEnd : public MM_VerboseEventGCEnd
-{
+class MM_VerboseEventConcurrentEnd : public MM_VerboseEventGCEnd {
 private:
-	/* Passed Data */
-	U_64	_exclusiveAccessTime; /**< time taken to get exclusive access */
-	
-	/* Consumed Data */
-	U_64	_conStartTime;
-		
+    /* Passed Data */
+    U_64 _exclusiveAccessTime; /**< time taken to get exclusive access */
+
+    /* Consumed Data */
+    U_64 _conStartTime;
+
 public:
-		
-	static MM_VerboseEvent *newInstance(MM_ConcurrentCollectionEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-	
-	MM_VerboseEventConcurrentEnd(MM_ConcurrentCollectionEndEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface),
-	_exclusiveAccessTime(event->exclusiveAccessTime),
-	_conStartTime(0)
-	{};
+    static MM_VerboseEvent* newInstance(MM_ConcurrentCollectionEndEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MM_VerboseEventConcurrentEnd(MM_ConcurrentCollectionEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface)
+        , _exclusiveAccessTime(event->exclusiveAccessTime)
+        , _conStartTime(0) {};
 };
 
 #endif /* EVENT_CON_END_HPP_ */

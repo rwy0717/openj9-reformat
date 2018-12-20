@@ -29,7 +29,6 @@
 #ifndef J9HYPERVISOR_SYSTEMZ_H_
 #define J9HYPERVISOR_SYSTEMZ_H_
 
-intptr_t
-systemz_startup(struct J9PortLibrary *portLibrary);
+intptr_t systemz_startup(struct J9PortLibrary* portLibrary);
 
 #endif

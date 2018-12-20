@@ -35,32 +35,31 @@
  * @return the next slot in the thread which contains an object reference
  * @return NULL if no more such slots exist
  */
-j9object_t *
-GC_VMThreadSlotIterator::nextSlot() 
+j9object_t* GC_VMThreadSlotIterator::nextSlot()
 {
-	switch (_scanIndex++) {
-	case 0:
-		return &(_vmThread->jitException);
-	case 1:
-		return &(_vmThread->currentException);
-	case 2:
-		return &(_vmThread->threadObject);
-	case 3:
-		return &(_vmThread->stopThrowable);
-	case 4:
-		return &(_vmThread->outOfMemoryError);
-	case 5:
-		return &(_vmThread->blockingEnterObject);
-	case 6:
-		return &(_vmThread->forceEarlyReturnObjectSlot);
-	case 7:
-		return &(_vmThread->javaLangThreadLocalCache);
-	case 8:
-		return (j9object_t *)&(_vmThread->omrVMThread->_savedObject1);
-	case 9:
-		return (j9object_t *)&(_vmThread->omrVMThread->_savedObject2);
-	default:
-		break;
-	}
-	return NULL;
+    switch (_scanIndex++) {
+    case 0:
+        return &(_vmThread->jitException);
+    case 1:
+        return &(_vmThread->currentException);
+    case 2:
+        return &(_vmThread->threadObject);
+    case 3:
+        return &(_vmThread->stopThrowable);
+    case 4:
+        return &(_vmThread->outOfMemoryError);
+    case 5:
+        return &(_vmThread->blockingEnterObject);
+    case 6:
+        return &(_vmThread->forceEarlyReturnObjectSlot);
+    case 7:
+        return &(_vmThread->javaLangThreadLocalCache);
+    case 8:
+        return (j9object_t*)&(_vmThread->omrVMThread->_savedObject1);
+    case 9:
+        return (j9object_t*)&(_vmThread->omrVMThread->_savedObject2);
+    default:
+        break;
+    }
+    return NULL;
 }

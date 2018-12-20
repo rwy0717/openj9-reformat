@@ -21,27 +21,26 @@
  *******************************************************************************/
 
 #ifndef UNSAFEFASTPATH_INCL
-#define UNSAFEFASTPATH_INCL 
+#define UNSAFEFASTPATH_INCL
 
-#include <stdint.h>                           // for int32_t, uint32_t, etc
-#include "il/Node.hpp"                        // for Node
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t, uint32_t, etc
+#include "il/Node.hpp" // for Node
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-class TR_UnsafeFastPath : public TR::Optimization
-   {
-   public:
+class TR_UnsafeFastPath : public TR::Optimization {
+public:
+    TR_UnsafeFastPath(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {}
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_UnsafeFastPath(manager);
+    }
 
-   TR_UnsafeFastPath(TR::OptimizationManager *manager)
-      : TR::Optimization(manager)
-      {}
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_UnsafeFastPath(manager);
-      }
-
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
-   bool tryTransformUnsafeAtomicCallInVarHandleAccessMethod(TR::TreeTop* callTree, TR::RecognizedMethod callerMethod, TR::RecognizedMethod calleeMethod);
-   };
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
+    bool tryTransformUnsafeAtomicCallInVarHandleAccessMethod(
+        TR::TreeTop* callTree, TR::RecognizedMethod callerMethod, TR::RecognizedMethod calleeMethod);
+};
 #endif

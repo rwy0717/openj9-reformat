@@ -25,12 +25,11 @@
 
 extern J9PortLibrary* g_PortLibrary;
 
-void Test_Dummy_00(CuTest *tc) {
-	PORT_ACCESS_FROM_PORT(g_PortLibrary);
-}
+void Test_Dummy_00(CuTest* tc) { PORT_ACCESS_FROM_PORT(g_PortLibrary); }
 
-CuSuite* GetTestSuite() {
-	CuSuite* suite = CuSuiteNew();
-	SUITE_ADD_TEST(suite, Test_Dummy_00);
-	return suite;
+CuSuite* GetTestSuite()
+{
+    CuSuite* suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, Test_Dummy_00);
+    return suite;
 }

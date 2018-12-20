@@ -23,7 +23,7 @@
 
 #if !defined(TRACE_OUTPUT_HPP_)
 #define TRACE_OUTPUT_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 
@@ -32,30 +32,31 @@
 /**
  * Ouptut agent which directs verbosegc output to a tracepoint.
  */
-class MM_VerboseTraceOutput : public MM_VerboseOutputAgent
-{
+class MM_VerboseTraceOutput : public MM_VerboseOutputAgent {
 private:
+    bool initialize(MM_EnvironmentBase* env);
 
-	bool initialize(MM_EnvironmentBase *env);
-	
-	bool _componentLoaded; /**< has the trace component been initialized? */
-	
+    bool _componentLoaded; /**< has the trace component been initialized? */
+
 public:
-	virtual bool reconfigure(MM_EnvironmentBase *env, const char *filename, UDATA fileCount, UDATA iterations) { return true; };
+    virtual bool reconfigure(MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations)
+    {
+        return true;
+    };
 
-	/* Output Routine */
-	virtual void formatAndOutput(J9VMThread *vmThread, UDATA indent, const char *format, ...);
-	
-	virtual void endOfCycle(J9VMThread *vmThread);
-	
-	virtual void closeStream(MM_EnvironmentBase *env);
-	
-	static MM_VerboseTraceOutput *newInstance(MM_EnvironmentBase *env);
+    /* Output Routine */
+    virtual void formatAndOutput(J9VMThread* vmThread, UDATA indent, const char* format, ...);
 
-	MM_VerboseTraceOutput(MM_EnvironmentBase *env) :
-		MM_VerboseOutputAgent(env, TRACE),
-		_componentLoaded(false)
-	{}
+    virtual void endOfCycle(J9VMThread* vmThread);
+
+    virtual void closeStream(MM_EnvironmentBase* env);
+
+    static MM_VerboseTraceOutput* newInstance(MM_EnvironmentBase* env);
+
+    MM_VerboseTraceOutput(MM_EnvironmentBase* env)
+        : MM_VerboseOutputAgent(env, TRACE)
+        , _componentLoaded(false)
+    {}
 };
 
 #endif /* TRACE_OUTPUT_HPP_ */

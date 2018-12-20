@@ -28,98 +28,77 @@
 
 #include "codegen/RegisterDependency.hpp" // @@@@
 
-namespace TR
-{
+namespace TR {
 class Instruction;
 
-class OMR_EXTENSIBLE Instruction : public J9::InstructionConnector
-   {
+class OMR_EXTENSIBLE Instruction : public J9::InstructionConnector {
 
-   public:
+public:
+    // TODO: need to fix the InstOpCode initialization
+    inline Instruction(TR::Node* node, TR::CodeGenerator* cg);
 
-   // TODO: need to fix the InstOpCode initialization
-   inline Instruction(TR::Node *node, TR::CodeGenerator *cg);
+    inline Instruction(TR_ARMOpCodes op, TR::Node* node, TR::CodeGenerator* cg);
 
-   inline Instruction(TR_ARMOpCodes op, TR::Node *node, TR::CodeGenerator *cg);
+    inline Instruction(TR::Instruction* precedingInstruction, TR_ARMOpCodes op, TR::Node* node, TR::CodeGenerator* cg);
 
-   inline Instruction(TR::Instruction   *precedingInstruction,
-               TR_ARMOpCodes     op,
-               TR::Node          *node,
-               TR::CodeGenerator *cg);
+    inline Instruction(TR_ARMOpCodes op, TR::Node* node, TR::RegisterDependencyConditions* cond, TR::CodeGenerator* cg);
 
-   inline Instruction(TR_ARMOpCodes                       op,
-               TR::Node                            *node,
-               TR::RegisterDependencyConditions    *cond,
-               TR::CodeGenerator                   *cg);
+    inline Instruction(TR::Instruction* precedingInstruction, TR_ARMOpCodes op, TR::Node* node,
+        TR::RegisterDependencyConditions* cond, TR::CodeGenerator* cg);
+};
 
-   inline Instruction(TR::Instruction                     *precedingInstruction,
-               TR_ARMOpCodes                       op,
-               TR::Node                            *node,
-               TR::RegisterDependencyConditions    *cond,
-               TR::CodeGenerator                   *cg);
-   };
-
-}
+} // namespace TR
 
 #include "codegen/J9Instruction_inlines.hpp"
 
-TR::Instruction::Instruction(TR::Node *node, TR::CodeGenerator *cg)
-   : J9::InstructionConnector(cg, InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(ARMOp_bad);
-   self()->setConditionCode(ARMConditionCodeAL);
-   self()->setDependencyConditions(NULL);
-   }
+TR::Instruction::Instruction(TR::Node* node, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(ARMOp_bad);
+    self()->setConditionCode(ARMConditionCodeAL);
+    self()->setDependencyConditions(NULL);
+}
 
-TR::Instruction::Instruction(TR_ARMOpCodes op, TR::Node *node, TR::CodeGenerator *cg)
-   : J9::InstructionConnector(cg, InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->setConditionCode(ARMConditionCodeAL);
-   self()->setDependencyConditions(NULL);
-   }
+TR::Instruction::Instruction(TR_ARMOpCodes op, TR::Node* node, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->setConditionCode(ARMConditionCodeAL);
+    self()->setDependencyConditions(NULL);
+}
 
-TR::Instruction::Instruction(TR::Instruction   *precedingInstruction,
-                         TR_ARMOpCodes     op,
-                         TR::Node          *node,
-                         TR::CodeGenerator *cg)
-   : J9::InstructionConnector(cg, precedingInstruction, InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->setConditionCode(ARMConditionCodeAL);
-   self()->setDependencyConditions(NULL);
-   }
+TR::Instruction::Instruction(
+    TR::Instruction* precedingInstruction, TR_ARMOpCodes op, TR::Node* node, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, precedingInstruction, InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->setConditionCode(ARMConditionCodeAL);
+    self()->setDependencyConditions(NULL);
+}
 
-TR::Instruction::Instruction(TR_ARMOpCodes                       op,
-                         TR::Node                            *node,
-                         TR::RegisterDependencyConditions    *cond,
-                         TR::CodeGenerator                   *cg)
-   : J9::InstructionConnector(cg, InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->setConditionCode(ARMConditionCodeAL);
-   self()->setDependencyConditions(cond);
-   if (cond)
-      cond->incRegisterTotalUseCounts(cg);
-   }
+TR::Instruction::Instruction(
+    TR_ARMOpCodes op, TR::Node* node, TR::RegisterDependencyConditions* cond, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->setConditionCode(ARMConditionCodeAL);
+    self()->setDependencyConditions(cond);
+    if (cond)
+        cond->incRegisterTotalUseCounts(cg);
+}
 
+TR::Instruction::Instruction(TR::Instruction* precedingInstruction, TR_ARMOpCodes op, TR::Node* node,
+    TR::RegisterDependencyConditions* cond, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, precedingInstruction, InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->setConditionCode(ARMConditionCodeAL);
+    self()->setDependencyConditions(cond);
+    if (cond)
+        cond->incRegisterTotalUseCounts(cg);
+}
 
-TR::Instruction::Instruction(TR::Instruction                     *precedingInstruction,
-                         TR_ARMOpCodes                       op,
-                         TR::Node                            *node,
-                         TR::RegisterDependencyConditions    *cond,
-                         TR::CodeGenerator                   *cg)
-   : J9::InstructionConnector(cg, precedingInstruction, InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->setConditionCode(ARMConditionCodeAL);
-   self()->setDependencyConditions(cond);
-   if (cond)
-      cond->incRegisterTotalUseCounts(cg);
-   }
-
-
-//TODO: these downcasts everywhere need to be removed
-inline uint32_t        * toARMCursor(uint8_t *i) { return (uint32_t *)i; }
+// TODO: these downcasts everywhere need to be removed
+inline uint32_t* toARMCursor(uint8_t* i) { return (uint32_t*)i; }
 
 #endif

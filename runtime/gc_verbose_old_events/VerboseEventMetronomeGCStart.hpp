@@ -36,28 +36,27 @@
  * Stores the data relating to the start of a global garbage collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventMetronomeGCStart : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeGCStart : public MM_VerboseEvent {
 private:
-	void initialize(MM_MetronomeIncrementStartEvent *event);
+    void initialize(MM_MetronomeIncrementStartEvent* event);
 
-public:	
-	UDATA _startPriority; /**< The priority of the thread creating the event */
-	U_64 _exclusiveAccessTime;		  /**< Time GC master thread spent stopping GC mutators */	
+public:
+    UDATA _startPriority; /**< The priority of the thread creating the event */
+    U_64 _exclusiveAccessTime; /**< Time GC master thread spent stopping GC mutators */
 
-	static MM_VerboseEvent *newInstance(MM_MetronomeIncrementStartEvent *event, J9HookInterface** hookInterface);
+    static MM_VerboseEvent* newInstance(MM_MetronomeIncrementStartEvent* event, J9HookInterface** hookInterface);
 
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; }
-	MMINLINE virtual bool endsEventChain() { return false; }
-	
-	MM_VerboseEventMetronomeGCStart(MM_MetronomeIncrementStartEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_startPriority(0),
-		_exclusiveAccessTime(event->exclusiveAccessTime)
-	{}
+    MMINLINE virtual bool definesOutputRoutine() { return true; }
+    MMINLINE virtual bool endsEventChain() { return false; }
+
+    MM_VerboseEventMetronomeGCStart(MM_MetronomeIncrementStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _startPriority(0)
+        , _exclusiveAccessTime(event->exclusiveAccessTime)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

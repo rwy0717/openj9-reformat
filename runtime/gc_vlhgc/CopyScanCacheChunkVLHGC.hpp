@@ -30,7 +30,7 @@
 #define COPYSCANCACHECHUNKVLHGC_HPP_
 
 #include "BaseVirtual.hpp"
-#include "EnvironmentVLHGC.hpp" 
+#include "EnvironmentVLHGC.hpp"
 
 class MM_CopyScanCacheVLHGC;
 
@@ -38,34 +38,33 @@ class MM_CopyScanCacheVLHGC;
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_CopyScanCacheChunkVLHGC : public MM_BaseVirtual
-{
+class MM_CopyScanCacheChunkVLHGC : public MM_BaseVirtual {
 private:
-	MM_CopyScanCacheVLHGC *_baseCache;
-	MM_CopyScanCacheChunkVLHGC *_nextChunk;
+    MM_CopyScanCacheVLHGC* _baseCache;
+    MM_CopyScanCacheChunkVLHGC* _nextChunk;
+
 public:
+    MMINLINE MM_CopyScanCacheVLHGC* getBase() const { return _baseCache; }
+    MMINLINE MM_CopyScanCacheChunkVLHGC* getNext() const { return _nextChunk; }
+    MMINLINE void setNext(MM_CopyScanCacheChunkVLHGC* newNext) { _nextChunk = newNext; }
 
-	MMINLINE MM_CopyScanCacheVLHGC *getBase() const { return _baseCache; }
-	MMINLINE MM_CopyScanCacheChunkVLHGC *getNext() const { return _nextChunk; }
-	MMINLINE void setNext(MM_CopyScanCacheChunkVLHGC *newNext) { _nextChunk = newNext; }
-	
-	static MM_CopyScanCacheChunkVLHGC *newInstance(MM_EnvironmentVLHGC *env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk);
-	virtual void kill(MM_EnvironmentVLHGC *env);
-	bool initialize(MM_EnvironmentVLHGC *env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk);
-	virtual void tearDown(MM_EnvironmentVLHGC *env);
+    static MM_CopyScanCacheChunkVLHGC* newInstance(MM_EnvironmentVLHGC* env, UDATA cacheEntryCount,
+        MM_CopyScanCacheVLHGC** nextCacheAddr, MM_CopyScanCacheChunkVLHGC* nextChunk);
+    virtual void kill(MM_EnvironmentVLHGC* env);
+    bool initialize(MM_EnvironmentVLHGC* env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC** nextCacheAddr,
+        MM_CopyScanCacheChunkVLHGC* nextChunk);
+    virtual void tearDown(MM_EnvironmentVLHGC* env);
 
-	/**
-	 * Create a CopyScanCacheChunk object.
-	 */
-	MM_CopyScanCacheChunkVLHGC() :
-		MM_BaseVirtual(),
-		_baseCache(NULL),
-		_nextChunk(NULL)
-	{
-		_typeId = __FUNCTION__;
-	};
-	
+    /**
+     * Create a CopyScanCacheChunk object.
+     */
+    MM_CopyScanCacheChunkVLHGC()
+        : MM_BaseVirtual()
+        , _baseCache(NULL)
+        , _nextChunk(NULL)
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* COPYSCANCACHECHUNKVLHGC_HPP_ */
-

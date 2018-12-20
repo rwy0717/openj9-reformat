@@ -38,89 +38,91 @@
  * Implementation of SH_ROMClassManager
  *
  * The ROMClass manager has the job of indexing, locating and comparing ROMClasses in the shared class cache.
- * 
+ *
  * ROMClasses are keyed (indexed) by class name, a UTF8 string.
  * The hashtable is a HashLinkedList (HLL) table, implemented in SH_Manager. Each entry in the HLL table
  * is a linked list of ROMClasses that have the same name, but different or unknown classpaths.
- * 
+ *
  * Multiple class names may have the same hint value.
- * 
+ *
  * @ingroup Shared_Common
  */
-class SH_ROMClassManagerImpl : public SH_ROMClassManager
-{
+class SH_ROMClassManagerImpl : public SH_ROMClassManager {
 public:
-	SH_ROMClassManagerImpl();
+    SH_ROMClassManagerImpl();
 
-	~SH_ROMClassManagerImpl();
+    ~SH_ROMClassManagerImpl();
 
-	static SH_ROMClassManagerImpl* newInstance(J9JavaVM* vm, SH_SharedCache* cache, SH_TimestampManager* tsm, SH_ROMClassManagerImpl* memForConstructor);
+    static SH_ROMClassManagerImpl* newInstance(
+        J9JavaVM* vm, SH_SharedCache* cache, SH_TimestampManager* tsm, SH_ROMClassManagerImpl* memForConstructor);
 
-	static UDATA getRequiredConstrBytes(void);
+    static UDATA getRequiredConstrBytes(void);
 
-	virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
+    virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
 
-	virtual UDATA locateROMClass(J9VMThread* currentThread, const char* path, U_16 pathLen, ClasspathItem* cp, I_16 cpeIndex, IDATA confirmedEntries, IDATA callerHelperID, 
-					const J9ROMClass* cachedROMClass, const J9UTF8* partition, const J9UTF8* modContext, LocateROMClassResult* result);
+    virtual UDATA locateROMClass(J9VMThread* currentThread, const char* path, U_16 pathLen, ClasspathItem* cp,
+        I_16 cpeIndex, IDATA confirmedEntries, IDATA callerHelperID, const J9ROMClass* cachedROMClass,
+        const J9UTF8* partition, const J9UTF8* modContext, LocateROMClassResult* result);
 
-	virtual const J9ROMClass* findNextExisting(J9VMThread* currentThread, void * &findNextIterator, void * &firstFound, U_16 classnameLength, const char* classnameData);
+    virtual const J9ROMClass* findNextExisting(J9VMThread* currentThread, void*& findNextIterator, void*& firstFound,
+        U_16 classnameLength, const char* classnameData);
 
-	virtual UDATA existsClassForName(J9VMThread* currentThread, const char* path, UDATA pathLen);
+    virtual UDATA existsClassForName(J9VMThread* currentThread, const char* path, UDATA pathLen);
 
-	void runExitCode(void) {};	
+    void runExitCode(void) {};
 
 protected:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
-	IDATA localPostStartup(J9VMThread* currentThread) { return 0; };
+    IDATA localPostStartup(J9VMThread* currentThread) { return 0; };
 
-	void localPostCleanup(J9VMThread* currentThread) {};
+    void localPostCleanup(J9VMThread* currentThread) {};
 
-	virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
+    virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
 
-	virtual IDATA localInitializePools(J9VMThread* currentThread);
+    virtual IDATA localInitializePools(J9VMThread* currentThread);
 
-	virtual void localTearDownPools(J9VMThread* currentThread);
-	
-	virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);	
+    virtual void localTearDownPools(J9VMThread* currentThread);
 
-	HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor) {
-		return new(memForConstructor) HashLinkedListImpl();
-	}
+    virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
+
+    HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor)
+    {
+        return new (memForConstructor) HashLinkedListImpl();
+    }
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	virtual bool canCreateHints();
-	virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
-	virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
+    virtual bool canCreateHints();
+    virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
+    virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
 #endif
-	
+
 private:
-	SH_TimestampManager* _tsm;
-	
-	/**
-	 * Circular linked list for storing local ROMClass information.
-	 *
-	 * Local hashtable (_hashTable) has an entry for each known ROMClass name.
-	 * Key is the fully-qualified string name of the ROMClass
-	 * Value is a HashLinkedListImpl list of ROMClasses stored under that name
-	 * A HashLinkedListImpl is a reference to a ROMClass in the cache.
-	 * Thus, given a ROMClass name, it is quick and easy to walk all known
-	 * ROMClasses in the cache stored under that name.
-	 *
-	 * @ingroup Shared_Common
-	 */
-	J9Pool* _linkedListImplPool;
+    SH_TimestampManager* _tsm;
 
+    /**
+     * Circular linked list for storing local ROMClass information.
+     *
+     * Local hashtable (_hashTable) has an entry for each known ROMClass name.
+     * Key is the fully-qualified string name of the ROMClass
+     * Value is a HashLinkedListImpl list of ROMClasses stored under that name
+     * A HashLinkedListImpl is a reference to a ROMClass in the cache.
+     * Thus, given a ROMClass name, it is quick and easy to walk all known
+     * ROMClasses in the cache stored under that name.
+     *
+     * @ingroup Shared_Common
+     */
+    J9Pool* _linkedListImplPool;
 
-	bool checkTimestamp(J9VMThread* currentThread, const char* path, UDATA pathLen, ROMClassWrapper* wrapper, const ShcItem* item);
+    bool checkTimestamp(
+        J9VMThread* currentThread, const char* path, UDATA pathLen, ROMClassWrapper* wrapper, const ShcItem* item);
 
-	bool reuniteOrphan(J9VMThread* currentThread, const char* romClassName, UDATA nameLen, const ShcItem* item, const J9ROMClass* romClassPtr);
+    bool reuniteOrphan(J9VMThread* currentThread, const char* romClassName, UDATA nameLen, const ShcItem* item,
+        const J9ROMClass* romClassPtr);
 
-	void initialize(J9JavaVM* vm, SH_SharedCache* cache, SH_TimestampManager* tsm, BlockPtr memForConstructor);
+    void initialize(J9JavaVM* vm, SH_SharedCache* cache, SH_TimestampManager* tsm, BlockPtr memForConstructor);
 
-	static UDATA customCountItemsInList(void* node, void* countData);
+    static UDATA customCountItemsInList(void* node, void* countData);
 };
 
 #endif /* ROMCLASSMANAGERIMPL_H_INCLUDED */
-
-

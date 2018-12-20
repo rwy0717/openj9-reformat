@@ -23,20 +23,20 @@
 #define j9portpg_h
 /* @ddr_namespace: map_to_type=J9PortpgConstants */
 typedef struct STFLEFacilities {
-	uint64_t dw1;
-	uint64_t dw2;
-	uint64_t dw3;
+    uint64_t dw1;
+    uint64_t dw2;
+    uint64_t dw3;
 } STFLEFacilities;
 
 typedef struct J9STFLECache {
-	uintptr_t lastDoubleWord;
-	STFLEFacilities facilities;
+    uintptr_t lastDoubleWord;
+    STFLEFacilities facilities;
 } J9STFLECache;
 
 typedef struct J9PortPlatformGlobals {
-	J9STFLECache stfleCache;
-	const void * j9csrsiSession;
-	int32_t j9csrsiRetCode;
+    J9STFLECache stfleCache;
+    const void* j9csrsiSession;
+    int32_t j9csrsiRetCode;
 } J9PortPlatformGlobals;
 
 #define PPG_stfleCache (portLibrary->portGlobals->platformGlobals.stfleCache)
@@ -45,4 +45,3 @@ typedef struct J9PortPlatformGlobals {
 #define PPG_j9csrsi_ret_code (portLibrary->portGlobals->platformGlobals.j9csrsiRetCode)
 
 #endif /* j9portpg_h */
-

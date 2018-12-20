@@ -30,23 +30,24 @@
 
 /*j9shsem_baseFileFormat is only used for opening deprecated (aka old format) control file*/
 typedef struct j9shsem_baseFileFormat {
-	int32_t version;
-	int32_t modlevel;
-	int32_t timeout;
-	int32_t proj_id;
-	key_t ftok_key;
-	int32_t semid;
-	int32_t creator_pid;
-	int32_t semsetSize;
+    int32_t version;
+    int32_t modlevel;
+    int32_t timeout;
+    int32_t proj_id;
+    key_t ftok_key;
+    int32_t semid;
+    int32_t creator_pid;
+    int32_t semsetSize;
 } j9shsem_baseFileFormat;
 
 typedef struct j9shsem_handle {
-	int32_t semid;
-	int32_t nsems;
-	char* baseFile;
-	int64_t timestamp;
- 	uint32_t deleteBasefile : 1; /* delete the base file (used to generate the semaphore key) when destroying the semaphore */
-	/* int32_t baseFilefd deleted: it is never assigned or used. */
+    int32_t semid;
+    int32_t nsems;
+    char* baseFile;
+    int64_t timestamp;
+    uint32_t deleteBasefile : 1; /* delete the base file (used to generate the semaphore key) when destroying the
+                                    semaphore */
+    /* int32_t baseFilefd deleted: it is never assigned or used. */
 } j9shsem_handle;
 
 #define J9SHSEM_SEMFLAGS (IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR)
@@ -59,6 +60,4 @@ typedef struct j9shsem_handle {
 #define __errno2() 0
 #endif
 
-#endif     /* j9shsem_h */
-
-
+#endif /* j9shsem_h */

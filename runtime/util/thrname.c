@@ -26,15 +26,15 @@
 #include "j9protos.h"
 #include "omrutil.h"
 
-char*
-getVMThreadNameFromString(J9VMThread *vmThread, j9object_t nameObject)
+char* getVMThreadNameFromString(J9VMThread* vmThread, j9object_t nameObject)
 {
-	J9JavaVM *javaVM = vmThread->javaVM;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
+    J9JavaVM* javaVM = vmThread->javaVM;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	char* result = javaVM->internalVMFunctions->copyStringToUTF8WithMemAlloc(vmThread, nameObject, J9_STR_NULL_TERMINATE_RESULT, "", 0, NULL, 0, NULL);
+    char* result = javaVM->internalVMFunctions->copyStringToUTF8WithMemAlloc(
+        vmThread, nameObject, J9_STR_NULL_TERMINATE_RESULT, "", 0, NULL, 0, NULL);
 
-	return result;
+    return result;
 }
 
 /*
@@ -42,37 +42,36 @@ getVMThreadNameFromString(J9VMThread *vmThread, j9object_t nameObject)
  * Thread.setName() can be invoked on a thread other than the current thread.
  */
 IDATA
-setVMThreadNameFromString(J9VMThread *currentThread, J9VMThread *vmThread, j9object_t nameObject)
+setVMThreadNameFromString(J9VMThread* currentThread, J9VMThread* vmThread, j9object_t nameObject)
 {
-	char *name = getVMThreadNameFromString(currentThread, nameObject);
-	if(name != NULL) {
-		setOMRVMThreadNameWithFlag(currentThread->omrVMThread, vmThread->omrVMThread, name, 0);
+    char* name = getVMThreadNameFromString(currentThread, nameObject);
+    if (name != NULL) {
+        setOMRVMThreadNameWithFlag(currentThread->omrVMThread, vmThread->omrVMThread, name, 0);
 #if defined(J9VM_THR_ASYNC_NAME_UPDATE)
-		if (currentThread != vmThread) {
-			J9JavaVM *vm = currentThread->javaVM;
-			vm->internalVMFunctions->J9SignalAsyncEvent(vm, vmThread, vm->threadNameHandlerKey);
-		} else
+        if (currentThread != vmThread) {
+            J9JavaVM* vm = currentThread->javaVM;
+            vm->internalVMFunctions->J9SignalAsyncEvent(vm, vmThread, vm->threadNameHandlerKey);
+        } else
 #endif /* J9VM_THR_ASYNC_NAME_UPDATE */
-		{
+        {
 #if defined(LINUX)
-			pid_t pid = getpid();
-			UDATA tid = omrthread_get_ras_tid();
-			if ((UDATA)pid == tid) {
-				return 0;
-			}
+            pid_t pid = getpid();
+            UDATA tid = omrthread_get_ras_tid();
+            if ((UDATA)pid == tid) {
+                return 0;
+            }
 #endif /* defined(LINUX) */
-			omrthread_set_name(vmThread->osThread, name);
-		}
-		return 0;
-	}
-	return -1;
+            omrthread_set_name(vmThread->osThread, name);
+        }
+        return 0;
+    }
+    return -1;
 }
 
 /*
  * This wrapper function is maintained for the JIT. The JIT uses nameIsStatic=1.
  */
-void
-setVMThreadNameWithFlag(J9VMThread *currentThread, J9VMThread *vmThread, char* name, U_8 nameIsStatic)
+void setVMThreadNameWithFlag(J9VMThread* currentThread, J9VMThread* vmThread, char* name, U_8 nameIsStatic)
 {
-	setOMRVMThreadNameWithFlag(currentThread->omrVMThread, vmThread->omrVMThread, name, nameIsStatic);
+    setOMRVMThreadNameWithFlag(currentThread->omrVMThread, vmThread->omrVMThread, name, nameIsStatic);
 }

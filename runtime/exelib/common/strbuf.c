@@ -26,62 +26,61 @@
 
 #define MIN_GROWTH 128
 
-J9StringBuffer* strBufferCat(struct J9PortLibrary *portLibrary, J9StringBuffer* buffer, const char* string) {
-	UDATA len = strlen(string);
+J9StringBuffer* strBufferCat(struct J9PortLibrary* portLibrary, J9StringBuffer* buffer, const char* string)
+{
+    UDATA len = strlen(string);
 
-	buffer = strBufferEnsure(portLibrary, buffer, len);
-	if (buffer) {
-		strcat(buffer->data, string);
-		buffer->remaining -= len;
-	}
+    buffer = strBufferEnsure(portLibrary, buffer, len);
+    if (buffer) {
+        strcat(buffer->data, string);
+        buffer->remaining -= len;
+    }
 
-	return buffer;
+    return buffer;
 }
 
+J9StringBuffer* strBufferEnsure(struct J9PortLibrary* portLibrary, J9StringBuffer* buffer, UDATA len)
+{
 
-J9StringBuffer* strBufferEnsure(struct J9PortLibrary *portLibrary, J9StringBuffer* buffer, UDATA len) {
+    if (buffer == NULL) {
+        PORT_ACCESS_FROM_PORT(portLibrary);
+        UDATA newSize = len > MIN_GROWTH ? len : MIN_GROWTH;
+        buffer = j9mem_allocate_memory(newSize + 1 + sizeof(UDATA), OMRMEM_CATEGORY_VM); /* 1 for null terminator */
+        if (buffer != NULL) {
+            buffer->remaining = newSize;
+            buffer->data[0] = '\0';
+        }
+        return buffer;
+    }
 
-	if (buffer == NULL) {
-		PORT_ACCESS_FROM_PORT(portLibrary);
-		UDATA newSize = len > MIN_GROWTH ? len : MIN_GROWTH;
-		buffer = j9mem_allocate_memory( newSize + 1 + sizeof(UDATA), OMRMEM_CATEGORY_VM);	/* 1 for null terminator */
-		if (buffer != NULL) {
-			buffer->remaining = newSize;
-			buffer->data[0] = '\0';
-		}
-		return buffer;
-	}
+    if (len > buffer->remaining) {
+        PORT_ACCESS_FROM_PORT(portLibrary);
+        UDATA newSize = len > MIN_GROWTH ? len : MIN_GROWTH;
+        J9StringBuffer* new = j9mem_allocate_memory(
+            strlen((const char*)buffer->data) + newSize + sizeof(UDATA) + 1, OMRMEM_CATEGORY_VM);
+        if (new) {
+            new->remaining = newSize;
+            strcpy(new->data, (const char*)buffer->data);
+        }
+        j9mem_free_memory(buffer);
+        return new;
+    }
 
-	if (len > buffer->remaining) {
-		PORT_ACCESS_FROM_PORT(portLibrary);
-		UDATA newSize = len > MIN_GROWTH ? len : MIN_GROWTH;
-		J9StringBuffer* new = j9mem_allocate_memory(strlen((const char*)buffer->data) + newSize + sizeof(UDATA) + 1 , OMRMEM_CATEGORY_VM);
-		if (new) {
-			new->remaining = newSize;
-			strcpy(new->data, (const char *)buffer->data);
-		}
-		j9mem_free_memory(buffer);
-		return new;
-	}
-
-	return buffer;
+    return buffer;
 }
 
+J9StringBuffer* strBufferPrepend(struct J9PortLibrary* portLibrary, J9StringBuffer* buffer, char* string)
+{
+    UDATA len = strlen(string);
 
-J9StringBuffer* strBufferPrepend(struct J9PortLibrary *portLibrary, J9StringBuffer* buffer, char* string) {
-	UDATA len = strlen(string);
+    buffer = strBufferEnsure(portLibrary, buffer, len);
+    if (buffer) {
+        memmove(buffer->data + len, buffer->data, strlen((const char*)buffer->data) + 1);
+        strncpy(buffer->data, string, len);
+        buffer->remaining -= len;
+    }
 
-	buffer = strBufferEnsure(portLibrary, buffer, len);
-	if (buffer) {
-		memmove(buffer->data + len, buffer->data, strlen((const char*)buffer->data) + 1);
-		strncpy(buffer->data, string, len);
-		buffer->remaining -= len;
-	}
-
-	return buffer;
+    return buffer;
 }
 
-
-char* strBufferData(J9StringBuffer* buffer) {
-	return buffer ? buffer->data : NULL;
-}
+char* strBufferData(J9StringBuffer* buffer) { return buffer ? buffer->data : NULL; }

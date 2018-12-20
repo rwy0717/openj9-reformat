@@ -31,6 +31,6 @@
 
 #include "j9.h"
 
-bool tgcProjectedStatsInitialize(J9JavaVM *javaVM);
+bool tgcProjectedStatsInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCPROJECTEDSTATS_HPP_ */

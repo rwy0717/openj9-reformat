@@ -33,14 +33,14 @@
 #include "ClasspathItem.hpp"
 
 struct LocateROMClassResult {
-	ROMClassWrapper* known;
-	const ShcItem* knownItem;
-	IDATA foundAtIndex;
-	ClasspathEntryItem* staleCPEI;
+    ROMClassWrapper* known;
+    const ShcItem* knownItem;
+    IDATA foundAtIndex;
+    ClasspathEntryItem* staleCPEI;
 };
 
 /* result flags */
-#define LOCATE_ROMCLASS_RETURN_FOUND	 1
+#define LOCATE_ROMCLASS_RETURN_FOUND 1
 #define LOCATE_ROMCLASS_RETURN_NOTFOUND 0
 
 /* action flags */
@@ -57,20 +57,20 @@ struct LocateROMClassResult {
  * @see SH_ROMClassManagerImpl.hpp
  * @ingroup Shared_Common
  */
-class SH_ROMClassManager : public SH_Manager
-{
+class SH_ROMClassManager : public SH_Manager {
 public:
-	typedef char* BlockPtr;
+    typedef char* BlockPtr;
 
-	virtual UDATA locateROMClass(J9VMThread* currentThread, const char* path, U_16 pathLen, ClasspathItem* cp, I_16 cpeIndex, IDATA confirmedEntries, IDATA callerHelperID, 
-					const J9ROMClass* cachedROMClass, const J9UTF8* partition, const J9UTF8* modContext, LocateROMClassResult* result) = 0;
+    virtual UDATA locateROMClass(J9VMThread* currentThread, const char* path, U_16 pathLen, ClasspathItem* cp,
+        I_16 cpeIndex, IDATA confirmedEntries, IDATA callerHelperID, const J9ROMClass* cachedROMClass,
+        const J9UTF8* partition, const J9UTF8* modContext, LocateROMClassResult* result)
+        = 0;
 
-	virtual const J9ROMClass* findNextExisting(J9VMThread* currentThread, void * &findNextIterator, void * &firstFound, U_16 classnameLength, const char* classnameData) = 0;
+    virtual const J9ROMClass* findNextExisting(J9VMThread* currentThread, void*& findNextIterator, void*& firstFound,
+        U_16 classnameLength, const char* classnameData)
+        = 0;
 
-	virtual UDATA existsClassForName(J9VMThread* currentThread, const char* path, UDATA pathLen) = 0;
-	
+    virtual UDATA existsClassForName(J9VMThread* currentThread, const char* path, UDATA pathLen) = 0;
 };
 
 #endif /* !defined(ROMCLASSMANAGER_HPP_INCLUDED) */
-
-

@@ -37,31 +37,31 @@
 /**
  * Report Allocation Context statistics prior to a collection
  */
-static void
-tgcHookReportAllocationContextStatistics(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookReportAllocationContextStatistics(
+    J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
-	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(event->currentThread);
+    MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
 
-	MM_GCExtensions::getExtensions(env)->globalAllocationManager->printAllocationContextStats(env, eventNum, hook);
+    MM_GCExtensions::getExtensions(env)->globalAllocationManager->printAllocationContextStats(env, eventNum, hook);
 }
-
 
 /**
  * Initialize AC tgc tracing.
  * Attaches hooks to the appropriate functions handling events used by AC tgc tracing.
  */
-bool
-tgcAllocationContextInitialize(J9JavaVM *javaVM)
+bool tgcAllocationContextInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
-	
-	J9HookInterface** hooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*hooks)->J9HookRegisterWithCallSite(hooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookReportAllocationContextStatistics, OMR_GET_CALLSITE(), NULL);
-	(*hooks)->J9HookRegisterWithCallSite(hooks, J9HOOK_MM_OMR_GLOBAL_GC_END, tgcHookReportAllocationContextStatistics, OMR_GET_CALLSITE(), NULL);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	return result;
+    J9HookInterface** hooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*hooks)->J9HookRegisterWithCallSite(
+        hooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookReportAllocationContextStatistics, OMR_GET_CALLSITE(), NULL);
+    (*hooks)->J9HookRegisterWithCallSite(
+        hooks, J9HOOK_MM_OMR_GLOBAL_GC_END, tgcHookReportAllocationContextStatistics, OMR_GET_CALLSITE(), NULL);
+
+    return result;
 }
 
 #endif /* J9VM_GC_VLHGC */

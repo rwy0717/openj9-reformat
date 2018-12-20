@@ -29,70 +29,66 @@
 #include "ModronTypes.hpp"
 #include "ScanFormatter.hpp"
 
-GC_Check *
-GC_CheckMonitorTable::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckMonitorTable::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckMonitorTable *check = (GC_CheckMonitorTable *) forge->allocate(sizeof(GC_CheckMonitorTable), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckMonitorTable(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckMonitorTable* check = (GC_CheckMonitorTable*)forge->allocate(
+        sizeof(GC_CheckMonitorTable), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckMonitorTable(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckMonitorTable::kill()
+void GC_CheckMonitorTable::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckMonitorTable::check()
+void GC_CheckMonitorTable::check()
 {
-	J9ObjectMonitor *objectMonitor = NULL;
-	J9MonitorTableListEntry *monitorTableList = _javaVM->monitorTableList;
-	while (NULL != monitorTableList) {
-		J9HashTable *table = monitorTableList->monitorTable;
-		if (NULL != table) {
-			GC_HashTableIterator iterator(table);
-			while (NULL != (objectMonitor = (J9ObjectMonitor*)iterator.nextSlot())) {
-				J9ThreadAbstractMonitor * monitor = (J9ThreadAbstractMonitor *)objectMonitor->monitor;
-				J9Object **slotPtr = (J9Object**)&monitor->userData;
-				if(_engine->checkSlotPool(_javaVM, slotPtr, table) != J9MODRON_SLOT_ITERATOR_OK ) {
-					return;
-				}
-			}
-		}
-		monitorTableList = monitorTableList->next;
-	}
+    J9ObjectMonitor* objectMonitor = NULL;
+    J9MonitorTableListEntry* monitorTableList = _javaVM->monitorTableList;
+    while (NULL != monitorTableList) {
+        J9HashTable* table = monitorTableList->monitorTable;
+        if (NULL != table) {
+            GC_HashTableIterator iterator(table);
+            while (NULL != (objectMonitor = (J9ObjectMonitor*)iterator.nextSlot())) {
+                J9ThreadAbstractMonitor* monitor = (J9ThreadAbstractMonitor*)objectMonitor->monitor;
+                J9Object** slotPtr = (J9Object**)&monitor->userData;
+                if (_engine->checkSlotPool(_javaVM, slotPtr, table) != J9MODRON_SLOT_ITERATOR_OK) {
+                    return;
+                }
+            }
+        }
+        monitorTableList = monitorTableList->next;
+    }
 }
 
-void
-GC_CheckMonitorTable::print()
+void GC_CheckMonitorTable::print()
 {
-	J9ObjectMonitor *objectMonitor = NULL;
-	J9MonitorTableListEntry *monitorTableList = _javaVM->monitorTableList;
+    J9ObjectMonitor* objectMonitor = NULL;
+    J9MonitorTableListEntry* monitorTableList = _javaVM->monitorTableList;
 
-	GC_ScanFormatter formatter(_portLibrary, "MonitorTableList", (void *)monitorTableList);
+    GC_ScanFormatter formatter(_portLibrary, "MonitorTableList", (void*)monitorTableList);
 
+    while (NULL != monitorTableList) {
+        J9HashTable* table = monitorTableList->monitorTable;
+        if (NULL != table) {
+            formatter.section("MonitorTable", (void*)table);
 
-	while (NULL != monitorTableList) {
-		J9HashTable *table = monitorTableList->monitorTable;
-		if (NULL != table) {
-			formatter.section("MonitorTable", (void *)table);
+            GC_HashTableIterator iterator(table);
+            while (NULL != (objectMonitor = (J9ObjectMonitor*)iterator.nextSlot())) {
+                J9ThreadAbstractMonitor* monitor = (J9ThreadAbstractMonitor*)objectMonitor->monitor;
+                J9Object* objectPtr = (J9Object*)monitor->userData;
+                formatter.entry((void*)objectPtr);
+            }
+            formatter.endSection();
+        }
+        monitorTableList = monitorTableList->next;
+    }
 
-			GC_HashTableIterator iterator(table);
-			while (NULL != (objectMonitor = (J9ObjectMonitor*)iterator.nextSlot())) {
-				J9ThreadAbstractMonitor * monitor = (J9ThreadAbstractMonitor *)objectMonitor->monitor;
-				J9Object *objectPtr = (J9Object *)monitor->userData;
-				formatter.entry((void *) objectPtr);
-			}
-			formatter.endSection();
-		}
-		monitorTableList = monitorTableList->next;
-	}
-
-	formatter.end("MonitorTableList", (void *)monitorTableList);
+    formatter.end("MonitorTableList", (void*)monitorTableList);
 }

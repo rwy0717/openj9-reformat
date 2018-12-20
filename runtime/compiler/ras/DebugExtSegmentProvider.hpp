@@ -28,26 +28,21 @@
 #include "env/SegmentProvider.hpp"
 #include "env/jittypes.h"
 
-
 namespace J9 {
 
-class DebugSegmentProvider : public TR::SegmentProvider
-   {
+class DebugSegmentProvider : public TR::SegmentProvider {
 public:
-   DebugSegmentProvider(
-      size_t segmentSize,
-      void* (*dbgMalloc)(uintptrj_t size, void *originalAddress),
-      void  (*dbgFree)(void *addr)
-   );
+    DebugSegmentProvider(
+        size_t segmentSize, void* (*dbgMalloc)(uintptrj_t size, void* originalAddress), void (*dbgFree)(void* addr));
 
-   virtual TR::MemorySegment &request(size_t requiredSize);
-   virtual void release(TR::MemorySegment &segment) throw();
-   virtual size_t bytesAllocated() const throw();
+    virtual TR::MemorySegment& request(size_t requiredSize);
+    virtual void release(TR::MemorySegment& segment) throw();
+    virtual size_t bytesAllocated() const throw();
 
 private:
-   void* (*_dbgMalloc)(uintptrj_t size, void *originalAddress);
-   void  (*_dbgFree)(void *addr);
-   };
+    void* (*_dbgMalloc)(uintptrj_t size, void* originalAddress);
+    void (*_dbgFree)(void* addr);
+};
 
 } // namespace J9
 

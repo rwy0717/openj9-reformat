@@ -31,52 +31,46 @@
 #include "UnfinalizedObjectBufferStandard.hpp"
 #include "UnfinalizedObjectList.hpp"
 
-MM_UnfinalizedObjectBufferStandard::MM_UnfinalizedObjectBufferStandard(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
-	,_unfinalizedObjectListIndex(0)
+MM_UnfinalizedObjectBufferStandard::MM_UnfinalizedObjectBufferStandard(
+    MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
+    , _unfinalizedObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_UnfinalizedObjectBufferStandard *
-MM_UnfinalizedObjectBufferStandard::newInstance(MM_EnvironmentBase *env)
+MM_UnfinalizedObjectBufferStandard* MM_UnfinalizedObjectBufferStandard::newInstance(MM_EnvironmentBase* env)
 {
-	MM_UnfinalizedObjectBufferStandard *unfinalizedObjectBuffer = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_UnfinalizedObjectBufferStandard* unfinalizedObjectBuffer = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferStandard *)env->getForge()->allocate(sizeof(MM_UnfinalizedObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != unfinalizedObjectBuffer) {
-		new(unfinalizedObjectBuffer) MM_UnfinalizedObjectBufferStandard(extensions, extensions->objectListFragmentCount);
-		if (!unfinalizedObjectBuffer->initialize(env)) {
-			unfinalizedObjectBuffer->kill(env);
-			unfinalizedObjectBuffer = NULL;
-		}
-	}
+    unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferStandard*)env->getForge()->allocate(
+        sizeof(MM_UnfinalizedObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != unfinalizedObjectBuffer) {
+        new (unfinalizedObjectBuffer)
+            MM_UnfinalizedObjectBufferStandard(extensions, extensions->objectListFragmentCount);
+        if (!unfinalizedObjectBuffer->initialize(env)) {
+            unfinalizedObjectBuffer->kill(env);
+            unfinalizedObjectBuffer = NULL;
+        }
+    }
 
-	return unfinalizedObjectBuffer;
+    return unfinalizedObjectBuffer;
 }
 
-bool
-MM_UnfinalizedObjectBufferStandard::initialize(MM_EnvironmentBase *base)
-{
-	return true;
-}
+bool MM_UnfinalizedObjectBufferStandard::initialize(MM_EnvironmentBase* base) { return true; }
 
-void
-MM_UnfinalizedObjectBufferStandard::tearDown(MM_EnvironmentBase *base)
-{
+void MM_UnfinalizedObjectBufferStandard::tearDown(MM_EnvironmentBase* base) {}
 
-}
-
-void 
-MM_UnfinalizedObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
+void MM_UnfinalizedObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
 {
-	MM_HeapRegionDescriptorStandard *region = (MM_HeapRegionDescriptorStandard*)_region;
-	MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-	MM_UnfinalizedObjectList *list = &regionExtension->_unfinalizedObjectLists[_unfinalizedObjectListIndex];
-	list->addAll(env, _head, _tail);
-	_unfinalizedObjectListIndex += 1;
-	if (regionExtension->_maxListIndex == _unfinalizedObjectListIndex) {
-		_unfinalizedObjectListIndex = 0;
-	}
+    MM_HeapRegionDescriptorStandard* region = (MM_HeapRegionDescriptorStandard*)_region;
+    MM_HeapRegionDescriptorStandardExtension* regionExtension
+        = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+    MM_UnfinalizedObjectList* list = &regionExtension->_unfinalizedObjectLists[_unfinalizedObjectListIndex];
+    list->addAll(env, _head, _tail);
+    _unfinalizedObjectListIndex += 1;
+    if (regionExtension->_maxListIndex == _unfinalizedObjectListIndex) {
+        _unfinalizedObjectListIndex = 0;
+    }
 }

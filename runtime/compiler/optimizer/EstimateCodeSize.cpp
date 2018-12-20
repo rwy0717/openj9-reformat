@@ -23,141 +23,133 @@
 #include "env/StackMemoryRegion.hpp"
 #include "optimizer/EstimateCodeSize.hpp"
 
-#include "codegen/FrontEnd.hpp"                // for TR_FrontEnd
-#include "compile/Compilation.hpp"             // for Compilation
-#include "il/symbol/ResolvedMethodSymbol.hpp"  // for ResolvedMethodSymbol
-#include "infra/Assert.hpp"                    // for TR_ASSERT
-#include "optimizer/CallInfo.hpp"              // for TR_CallSite, etc
-#include "ras/LogTracer.hpp"                   // for heuristicTrace
+#include "codegen/FrontEnd.hpp" // for TR_FrontEnd
+#include "compile/Compilation.hpp" // for Compilation
+#include "il/symbol/ResolvedMethodSymbol.hpp" // for ResolvedMethodSymbol
+#include "infra/Assert.hpp" // for TR_ASSERT
+#include "optimizer/CallInfo.hpp" // for TR_CallSite, etc
+#include "ras/LogTracer.hpp" // for heuristicTrace
 #include "env/VMJ9.h"
 #include "runtime/J9Profiler.hpp"
 
-TR_EstimateCodeSize *
-TR_EstimateCodeSize::get(TR_InlinerBase * inliner, TR_InlinerTracer *tracer, int32_t sizeThreshold)
-   {
-   TR::Compilation *comp = inliner->comp();
-   TR_EstimateCodeSize *estimator = comp->fej9()->getCodeEstimator(comp);
+TR_EstimateCodeSize* TR_EstimateCodeSize::get(TR_InlinerBase* inliner, TR_InlinerTracer* tracer, int32_t sizeThreshold)
+{
+    TR::Compilation* comp = inliner->comp();
+    TR_EstimateCodeSize* estimator = comp->fej9()->getCodeEstimator(comp);
 
-   estimator->_inliner = inliner;
-   estimator->_tracer = tracer;
+    estimator->_inliner = inliner;
+    estimator->_tracer = tracer;
 
-   estimator->_isLeaf = false;
-   estimator->_foundThrow = false;
-   estimator->_hasExceptionHandlers = false;
-   estimator->_throwCount = 0;
-   estimator->_mayHaveVirtualCallProfileInfo = false;
+    estimator->_isLeaf = false;
+    estimator->_foundThrow = false;
+    estimator->_hasExceptionHandlers = false;
+    estimator->_throwCount = 0;
+    estimator->_mayHaveVirtualCallProfileInfo = false;
 
-   TR_CatchBlockProfileInfo * catchInfo = TR_CatchBlockProfileInfo::get(comp);
-   estimator->_aggressivelyInlineThrows = catchInfo && catchInfo->getCatchCounter()
-         >= TR_CatchBlockProfileInfo::EDOThreshold;
+    TR_CatchBlockProfileInfo* catchInfo = TR_CatchBlockProfileInfo::get(comp);
+    estimator->_aggressivelyInlineThrows
+        = catchInfo && catchInfo->getCatchCounter() >= TR_CatchBlockProfileInfo::EDOThreshold;
 
-   estimator->_recursionDepth = 0;
-   estimator->_recursedTooDeep = false;
+    estimator->_recursionDepth = 0;
+    estimator->_recursedTooDeep = false;
 
-   estimator->_sizeThreshold = sizeThreshold;
-   estimator->_realSize = 0;
-   estimator->_error = 0;
+    estimator->_sizeThreshold = sizeThreshold;
+    estimator->_realSize = 0;
+    estimator->_error = 0;
 
-   estimator->_numOfEstimatedCalls = 0;
-   estimator->_hasNonColdCalls = true;
+    estimator->_numOfEstimatedCalls = 0;
+    estimator->_hasNonColdCalls = true;
 
-   estimator->_totalBCSize = 0;
+    estimator->_totalBCSize = 0;
 
-   return estimator;
-   }
+    return estimator;
+}
 
-void
-TR_EstimateCodeSize::release(TR_EstimateCodeSize *estimator)
-   {
-   TR::Compilation *comp = estimator->_inliner->comp();
-   comp->fej9()->releaseCodeEstimator(comp, estimator);
-   }
+void TR_EstimateCodeSize::release(TR_EstimateCodeSize* estimator)
+{
+    TR::Compilation* comp = estimator->_inliner->comp();
+    comp->fej9()->releaseCodeEstimator(comp, estimator);
+}
 
+void TR_EstimateCodeSize::markIsCold(flags8_t* flags, int32_t i)
+{
+    _isLeaf = false;
+    flags[i].set(isCold);
+}
 
-void
-TR_EstimateCodeSize::markIsCold(flags8_t * flags, int32_t i)
-   {
-   _isLeaf = false;
-   flags[i].set(isCold);
-   }
+bool TR_EstimateCodeSize::calculateCodeSize(TR_CallTarget* calltarget, TR_CallStack* callStack, bool recurseDown)
+{
+    TR_InlinerDelimiter delimiter(tracer(), "calculateCodeSize");
 
-bool
-TR_EstimateCodeSize::calculateCodeSize(TR_CallTarget *calltarget, TR_CallStack *callStack, bool recurseDown)
-   {
-   TR_InlinerDelimiter delimiter(tracer(), "calculateCodeSize");
+    _isLeaf = true;
+    _foundThrow = false;
+    _hasExceptionHandlers = false;
+    _throwCount = 0;
 
-   _isLeaf = true;
-   _foundThrow = false;
-   _hasExceptionHandlers = false;
-   _throwCount = 0;
+    _mayHaveVirtualCallProfileInfo = (TR_ValueProfileInfoManager::get(comp()) != NULL);
 
-   _mayHaveVirtualCallProfileInfo = (TR_ValueProfileInfoManager::get(comp()) != NULL);
+    bool retval = false;
 
-   bool retval = false;
+    {
+        TR::StackMemoryRegion stackMemoryRegion(*comp()->trMemory());
+        retval = estimateCodeSize(calltarget, callStack, recurseDown);
+    } // Stack memory region scope
 
-   {
-   TR::StackMemoryRegion stackMemoryRegion(*comp()->trMemory());
-   retval = estimateCodeSize(calltarget, callStack, recurseDown);
-   } // Stack memory region scope
+    if (_inliner->getPolicy()->tryToInline(calltarget, callStack, true)) {
+        heuristicTrace(tracer(), "tryToInline pattern matched.  Assuming zero size for %s\n",
+            tracer()->traceSignature(calltarget->_calleeSymbol));
+        _realSize = 0;
+        retval = true;
+    }
 
-   if (_inliner->getPolicy()->tryToInline(calltarget, callStack, true))
-      {
-      heuristicTrace(tracer(),"tryToInline pattern matched.  Assuming zero size for %s\n", tracer()->traceSignature(calltarget->_calleeSymbol));
-      _realSize = 0;
-      retval = true;
-      }
+    if (!retval && _inliner->forceInline(calltarget))
+        retval = true;
 
-   if (!retval && _inliner->forceInline(calltarget))
-      retval = true;
+    return retval;
+}
 
-   return retval;
-   }
+bool TR_EstimateCodeSize::isInlineable(TR_CallStack* prevCallStack, TR_CallSite* callsite)
+{
+    TR_ASSERT(callsite, "Estimate Code Size: callsite is null!");
 
-bool
-TR_EstimateCodeSize::isInlineable(TR_CallStack * prevCallStack, TR_CallSite *callsite)
-   {
-   TR_ASSERT(callsite, "Estimate Code Size: callsite is null!");
+    heuristicTrace(tracer(),
+        "Depth %d: Created Call Site %p for call found at bc index %d. Signature %s  Looking for call targets.",
+        _recursionDepth, callsite, callsite->_byteCodeIndex, tracer()->traceSignature(callsite));
 
-   heuristicTrace(tracer(),"Depth %d: Created Call Site %p for call found at bc index %d. Signature %s  Looking for call targets.",
-                             _recursionDepth, callsite, callsite->_byteCodeIndex, tracer()->traceSignature(callsite));
+    callsite->findCallSiteTarget(prevCallStack, _inliner);
+    _inliner->applyPolicyToTargets(prevCallStack, callsite);
 
-   callsite->findCallSiteTarget(prevCallStack, _inliner);
-   _inliner->applyPolicyToTargets(prevCallStack, callsite);
+    if (callsite->numTargets() <= 0) {
+        if (tracer()->debugLevel())
+            tracer()->dumpCallSite(callsite,
+                "Call About to be Dumped returned false from findInlineTargets in partialCodeSize estimation");
 
+        heuristicTrace(tracer(),
+            "Depth %d: Did not find any targets to be inlined in callsite %p bc index %d. Signature %s",
+            _recursionDepth, callsite, callsite->_byteCodeIndex, tracer()->traceSignature(callsite));
 
-   if (callsite->numTargets() <= 0)
-      {
-      if (tracer()->debugLevel())
-         tracer()->dumpCallSite(
-               callsite,
-               "Call About to be Dumped returned false from findInlineTargets in partialCodeSize estimation");
+        _isLeaf = false;
+        return false;
+    }
 
-      heuristicTrace(tracer(),"Depth %d: Did not find any targets to be inlined in callsite %p bc index %d. Signature %s",
-                                _recursionDepth, callsite, callsite->_byteCodeIndex, tracer()->traceSignature(callsite));
+    if (tracer()->debugLevel())
+        tracer()->dumpCallSite(
+            callsite, "Call About to be Dumped returns true from findInlineTargets in partialCodeSize estimation");
 
-      _isLeaf = false;
-      return false;
-      }
+    heuristicTrace(tracer(), "Depth %d: Found %d targets to inline for callsite %p bc index %d. Signature %s",
+        _recursionDepth, callsite->numTargets(), callsite, callsite->_byteCodeIndex,
+        tracer()->traceSignature(callsite));
 
-   if (tracer()->debugLevel())
-      tracer()->dumpCallSite(
-            callsite,
-            "Call About to be Dumped returns true from findInlineTargets in partialCodeSize estimation");
+    return true;
+}
 
-   heuristicTrace(tracer(),"Depth %d: Found %d targets to inline for callsite %p bc index %d. Signature %s",
-                            _recursionDepth, callsite->numTargets(),callsite, callsite->_byteCodeIndex, tracer()->traceSignature(callsite));
-
-   return true;
-   }
-
-bool
-TR_EstimateCodeSize::returnCleanup(int32_t anerrno)
-   {
-   _error = anerrno;
-   if (_mayHaveVirtualCallProfileInfo)
-      _inliner->comp()->decInlineDepth(true);
-   if (anerrno > 0)
-      return false;
-   else
-      return true;
-   }
+bool TR_EstimateCodeSize::returnCleanup(int32_t anerrno)
+{
+    _error = anerrno;
+    if (_mayHaveVirtualCallProfileInfo)
+        _inliner->comp()->decInlineDepth(true);
+    if (anerrno > 0)
+        return false;
+    else
+        return true;
+}

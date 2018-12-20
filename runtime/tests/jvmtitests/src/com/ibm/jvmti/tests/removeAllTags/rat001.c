@@ -25,117 +25,108 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;
-static jvmtiExtensionFunction removeAllTags  = NULL;
+static agentEnv* env;
+static jvmtiExtensionFunction removeAllTags = NULL;
 
-jint JNICALL
-rat001(agentEnv * agent_env, char * args)
+jint JNICALL rat001(agentEnv* agent_env, char* args)
 {
-	jvmtiCapabilities  caps;
-	jvmtiError         err;
+    jvmtiCapabilities caps;
+    jvmtiError err;
 
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	env = agent_env;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    env = agent_env;
 
-	/* Add can_tag_objects capability */
+    /* Add can_tag_objects capability */
 
-	memset(&caps, 0, sizeof(jvmtiCapabilities));
-	caps.can_tag_objects = 1;
+    memset(&caps, 0, sizeof(jvmtiCapabilities));
+    caps.can_tag_objects = 1;
 
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &caps);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "AddCapabilities failed");
-		return JNI_ERR;
-	}
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &caps);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "AddCapabilities failed");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_removeAllTags_rat001_tryRemoveAllTags(JNIEnv * jni_env,
-																		   jclass clazz,
-																		   jclass klass,
-																		   jobject klassObject, 
-																		   jchar className)
+jboolean JNICALL Java_com_ibm_jvmti_tests_removeAllTags_rat001_tryRemoveAllTags(
+    JNIEnv* jni_env, jclass clazz, jclass klass, jobject klassObject, jchar className)
 {
-	jint                         extensionCount;
-	jvmtiExtensionFunctionInfo * extensionFunctions;
-	jvmtiError                   err;
-	int                          i;
-	jvmtiEnv                   * jvmti_env = env->jvmtiEnv;
-	jlong                        tag;
-	
+    jint extensionCount;
+    jvmtiExtensionFunctionInfo* extensionFunctions;
+    jvmtiError err;
+    int i;
+    jvmtiEnv* jvmti_env = env->jvmtiEnv;
+    jlong tag;
 
-	err = (*jvmti_env)->GetExtensionFunctions(jvmti_env, &extensionCount, &extensionFunctions);
-	if ( JVMTI_ERROR_NONE != err ) {
-		error(env, err, "Failed GetExtensionFunctions");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->GetExtensionFunctions(jvmti_env, &extensionCount, &extensionFunctions);
+    if (JVMTI_ERROR_NONE != err) {
+        error(env, err, "Failed GetExtensionFunctions");
+        return JNI_FALSE;
+    }
 
-	for (i = 0; i < extensionCount; i++) {
-		if (strcmp(extensionFunctions[i].id, COM_IBM_REMOVE_ALL_TAGS) == 0) {
-			removeAllTags = extensionFunctions[i].func;
-		}
-	}
+    for (i = 0; i < extensionCount; i++) {
+        if (strcmp(extensionFunctions[i].id, COM_IBM_REMOVE_ALL_TAGS) == 0) {
+            removeAllTags = extensionFunctions[i].func;
+        }
+    }
 
-	err = (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)extensionFunctions);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to Deallocate extension functions");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)extensionFunctions);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to Deallocate extension functions");
+        return JNI_FALSE;
+    }
 
-	if (removeAllTags == NULL) {
-		error(env, JVMTI_ERROR_NOT_FOUND, "removeAllTags extension was not found");            
-		return JNI_FALSE;
-	}
+    if (removeAllTags == NULL) {
+        error(env, JVMTI_ERROR_NOT_FOUND, "removeAllTags extension was not found");
+        return JNI_FALSE;
+    }
 
+    /* Let's set & get the object tag */
 
-	/* Let's set & get the object tag */
+    err = (*jvmti_env)->SetTag(jvmti_env, klassObject, 111);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "SetTag() failed");
+        return JNI_FALSE;
+    }
 
-	err = (*jvmti_env)->SetTag(jvmti_env, klassObject, 111);
-	if ( err != JVMTI_ERROR_NONE ) {
-		error(env, err, "SetTag() failed");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->GetTag(jvmti_env, klassObject, &tag);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "GetTag() failed");
+        return JNI_FALSE;
+    }
 
-	err = (*jvmti_env)->GetTag(jvmti_env, klassObject, &tag);
-	if ( err != JVMTI_ERROR_NONE ) {
-		error(env, err, "GetTag() failed");
-		return JNI_FALSE;
-	}
+    if (tag != 111) {
+        error(env, JVMTI_ERROR_NONE, "GetTag() failed");
+        return JNI_FALSE;
+    }
 
-	if (tag != 111) {
-		error(env, JVMTI_ERROR_NONE, "GetTag() failed");
-		return JNI_FALSE;
-	}
+    /* Now remove all tags */
 
-	/* Now remove all tags */
+    err = (removeAllTags)(jvmti_env);
 
-	err = (removeAllTags)(jvmti_env);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "RemoveAllTags failed");
+        return JNI_FALSE;
+    }
 
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "RemoveAllTags failed");
-		return JNI_FALSE;
-	} 
+    /* Try to get the tag again - should be 0 */
 
-	/* Try to get the tag again - should be 0 */
+    tag = 555;
 
-	tag = 555;
+    err = (*jvmti_env)->GetTag(jvmti_env, klassObject, &tag);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "GetTag() failed");
+        return JNI_FALSE;
+    }
 
-	err = (*jvmti_env)->GetTag(jvmti_env, klassObject, &tag);
-	if ( err != JVMTI_ERROR_NONE ) {
-		error(env, err, "GetTag() failed");
-		return JNI_FALSE;
-	}
+    tprintf(env, 1, "tag %lld\n", tag);
 
-	tprintf(env, 1, "tag %lld\n", tag);
+    if (tag != 0) {
+        error(env, JVMTI_ERROR_NONE, "RemoveAllTags did not remove tags");
+        return JNI_FALSE;
+    }
 
-	if (tag != 0) {
-		error(env, JVMTI_ERROR_NONE, "RemoveAllTags did not remove tags");
-		return JNI_FALSE;
-	}
-
-
-	return JNI_TRUE;
+    return JNI_TRUE;
 }

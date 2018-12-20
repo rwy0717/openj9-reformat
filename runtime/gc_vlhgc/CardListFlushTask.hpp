@@ -41,63 +41,60 @@ class MM_CycleState;
 class MM_HeapRegionManager;
 class MM_InterRegionRememberedSet;
 
-
 /**
  * @}
  */
-
 
 /**
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_CardListFlushTask : public MM_ParallelTask
-{
-	/* Data Members */
+class MM_CardListFlushTask : public MM_ParallelTask {
+    /* Data Members */
 private:
-	MM_HeapRegionManager * const _regionManager;
-	MM_InterRegionRememberedSet * const _interRegionRememberedSet;
-	MM_CycleState * const _cycleState;
+    MM_HeapRegionManager* const _regionManager;
+    MM_InterRegionRememberedSet* const _interRegionRememberedSet;
+    MM_CycleState* const _cycleState;
+
 protected:
 public:
-
-	/* Member Functions */
+    /* Member Functions */
 private:
 protected:
 public:
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_MARK; }
-	
-	virtual void run(MM_EnvironmentBase *env);
-	virtual void setup(MM_EnvironmentBase *env);
-	virtual void cleanup(MM_EnvironmentBase *env);
-	
-	void masterSetup(MM_EnvironmentBase *env);
-	void masterCleanup(MM_EnvironmentBase *env);
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_MARK; }
 
-	/**
-	 * Checks the state of the given card and updates its content based on what state it should transition the old one from, given that we want
-	 * the resultant state to also describe that a card from a card list was flushed to it.
-	 * This is used in Marking and Compact scheme when we flush RSCL into CardTable.
-	 * @param card[in/out] The card which will be used as the input and output of the state machine function
-	 * @param gmpIsActive[in] True if there is currently a GMP in progress during this PGC
-	 */
-	static void writeFlushToCardState(Card *card, bool gmpIsActive);
+    virtual void run(MM_EnvironmentBase* env);
+    virtual void setup(MM_EnvironmentBase* env);
+    virtual void cleanup(MM_EnvironmentBase* env);
+
+    void masterSetup(MM_EnvironmentBase* env);
+    void masterCleanup(MM_EnvironmentBase* env);
+
+    /**
+     * Checks the state of the given card and updates its content based on what state it should transition the old one
+     * from, given that we want the resultant state to also describe that a card from a card list was flushed to it.
+     * This is used in Marking and Compact scheme when we flush RSCL into CardTable.
+     * @param card[in/out] The card which will be used as the input and output of the state machine function
+     * @param gmpIsActive[in] True if there is currently a GMP in progress during this PGC
+     */
+    static void writeFlushToCardState(Card* card, bool gmpIsActive);
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
-	virtual void synchronizeGCThreads(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase *env, const char *id);
+    virtual void synchronizeGCThreads(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase* env, const char* id);
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 
-	MM_CardListFlushTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_HeapRegionManager *manager, MM_InterRegionRememberedSet *remset)
-		: MM_ParallelTask(env, dispatcher)
-		, _regionManager(manager)
-		, _interRegionRememberedSet(remset)
-		, _cycleState(env->_cycleState)
-	{
-		_typeId = __FUNCTION__;
-	}
+    MM_CardListFlushTask(MM_EnvironmentBase* env, MM_Dispatcher* dispatcher, MM_HeapRegionManager* manager,
+        MM_InterRegionRememberedSet* remset)
+        : MM_ParallelTask(env, dispatcher)
+        , _regionManager(manager)
+        , _interRegionRememberedSet(remset)
+        , _cycleState(env->_cycleState)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 #endif /* CARDLISTFLUSHTASK_HPP_ */
-

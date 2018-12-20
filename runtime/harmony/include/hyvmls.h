@@ -23,8 +23,7 @@
 #define HY_VMLS_H
 
 #if defined(__cplusplus)
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "j9comp.h"
@@ -32,14 +31,12 @@ extern "C"
 
 #define HY_VMLS_MAX_KEYS 256
 
-typedef struct HyVMLSFunctionTable
-{
-	UDATA (JNICALL * HYVMLSAllocKeys) (JNIEnv * env, UDATA * pInitCount, ...);
-	void (JNICALL * HYVMLSFreeKeys) (JNIEnv * env, UDATA * pInitCount, ...);
-	void *(JNICALL * HyVMLSGet) (JNIEnv * env, void *key);
-	void *(JNICALL * HyVMLSSet) (JNIEnv * env, void **pKey, void *value);
+typedef struct HyVMLSFunctionTable {
+    UDATA(JNICALL* HYVMLSAllocKeys)(JNIEnv* env, UDATA* pInitCount, ...);
+    void(JNICALL* HYVMLSFreeKeys)(JNIEnv* env, UDATA* pInitCount, ...);
+    void*(JNICALL* HyVMLSGet)(JNIEnv* env, void* key);
+    void*(JNICALL* HyVMLSSet)(JNIEnv* env, void** pKey, void* value);
 } HyVMLSFunctionTable;
-
 
 #if defined(__cplusplus)
 }

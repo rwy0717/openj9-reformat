@@ -20,54 +20,38 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef bcvcfr_h
 #define bcvcfr_h
 
-/* Provide a endian aware version of the NNSRP_GET macro.  
+/* Provide a endian aware version of the NNSRP_GET macro.
    This permits the bytecode verifier to be endian neutral when using
-	 the SRP macros */
+         the SRP macros */
 
 #include "j9comp.h"
 
 /* Must appear before the j9.h include */
-#define NNSRP_GET(field, type) ((type) (((U_8 *) &(field)) + ((I_32) (field))))
+#define NNSRP_GET(field, type) ((type)(((U_8*)&(field)) + ((I_32)(field))))
 
 #include "j9.h"
 
-#define PARAM_8(index, offset) \
-	((index)[offset])
+#define PARAM_8(index, offset) ((index)[offset])
 
 #ifdef J9VM_ENV_LITTLE_ENDIAN
-#define PARAM_16(index, offset)	\
-	( ( ((U_16) (index)[offset])			)	\
-	| ( ((U_16) (index)[offset + 1]) << 8)	\
-	)
+#define PARAM_16(index, offset) ((((U_16)(index)[offset])) | (((U_16)(index)[offset + 1]) << 8))
 #else
-#define PARAM_16(index, offset)	\
-	( ( ((U_16) (index)[offset]) << 8)	\
-	| ( ((U_16) (index)[offset + 1])			)	\
-	)
+#define PARAM_16(index, offset) ((((U_16)(index)[offset]) << 8) | (((U_16)(index)[offset + 1])))
 #endif
 
 #ifdef J9VM_ENV_LITTLE_ENDIAN
-#define PARAM_32(index, offset)						\
-	( ( ((U_32) (index)[offset])					)	\
-	| ( ((U_32) (index)[offset + 1]) << 8 )	\
-	| ( ((U_32) (index)[offset + 2]) << 16)	\
-	| ( ((U_32) (index)[offset + 3]) << 24)	\
-	)
+#define PARAM_32(index, offset)                                                                           \
+    ((((U_32)(index)[offset])) | (((U_32)(index)[offset + 1]) << 8) | (((U_32)(index)[offset + 2]) << 16) \
+        | (((U_32)(index)[offset + 3]) << 24))
 #else
-#define PARAM_32(index, offset)						\
-	( ( ((U_32) (index)[offset])		 << 24)	\
-	| ( ((U_32) (index)[offset + 1]) << 16)	\
-	| ( ((U_32) (index)[offset + 2]) << 8 )	\
-	| ( ((U_32) (index)[offset + 3])			)	\
-	)
+#define PARAM_32(index, offset)                                                                                 \
+    ((((U_32)(index)[offset]) << 24) | (((U_32)(index)[offset + 1]) << 16) | (((U_32)(index)[offset + 2]) << 8) \
+        | (((U_32)(index)[offset + 3])))
 #endif
 
 #include "rommeth.h"
 
-#endif     /* bcvcfr_h */
-
-
+#endif /* bcvcfr_h */

@@ -32,71 +32,69 @@
 #include "TgcExtensions.hpp"
 #include "VMThreadListIterator.hpp"
 
-static void printCardCleaningStats(OMR_VMThread *omrVMThread);
+static void printCardCleaningStats(OMR_VMThread* omrVMThread);
 static void tgcHookGlobalGcCycleEnd(J9HookInterface** hook, UDATA eventNumber, void* eventData, void* userData);
 
 UDATA
-tgcCardCleaningInitialize(J9JavaVM *javaVM)
+tgcCardCleaningInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
 
-	J9HookInterface** mmOmrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*mmOmrHooks)->J9HookRegisterWithCallSite(mmOmrHooks, J9HOOK_MM_OMR_GC_CYCLE_END, tgcHookGlobalGcCycleEnd, OMR_GET_CALLSITE(), NULL);
+    J9HookInterface** mmOmrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*mmOmrHooks)
+        ->J9HookRegisterWithCallSite(
+            mmOmrHooks, J9HOOK_MM_OMR_GC_CYCLE_END, tgcHookGlobalGcCycleEnd, OMR_GET_CALLSITE(), NULL);
 
-	return 0;
+    return 0;
 }
 
-static void 
-printCardCleaningStats(OMR_VMThread *omrVMThread)
+static void printCardCleaningStats(OMR_VMThread* omrVMThread)
 {
-	J9VMThread *currentThread = (J9VMThread *)MM_EnvironmentBase::getEnvironment(omrVMThread)->getLanguageVMThread();
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(currentThread);
-	PORT_ACCESS_FROM_VMC(currentThread);
-	char timestamp[32];
-	
-	U_64 totalTime = 0;
-	UDATA totalCardsCleaned = 0;
-	
-	j9str_ftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S %Y", j9time_current_time_millis());
-	tgcExtensions->printf("<cardcleaning timestamp=\"%s\">\n", timestamp);
-	
-	GC_VMThreadListIterator threadIterator(currentThread);
-	J9VMThread* thread = NULL;
-	while (NULL != (thread = threadIterator.nextVMThread())) {
-		MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(thread->omrVMThread);
+    J9VMThread* currentThread = (J9VMThread*)MM_EnvironmentBase::getEnvironment(omrVMThread)->getLanguageVMThread();
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(currentThread);
+    PORT_ACCESS_FROM_VMC(currentThread);
+    char timestamp[32];
 
-		if ((GC_SLAVE_THREAD == env->getThreadType()) || (thread == currentThread)) {
-			U_64 cleanTimeInMicros = j9time_hires_delta(0, env->_cardCleaningStats._cardCleaningTime, J9PORT_TIME_DELTA_IN_MICROSECONDS);
-			tgcExtensions->printf("\t<thread id=\"%zu\" cardcleaningtime=\"%llu.%03.3llu\" cardscleaned=\"%zu\" />\n", 
-					env->getSlaveID(),
-					cleanTimeInMicros / 1000,
-					cleanTimeInMicros % 1000,
-					env->_cardCleaningStats._cardsCleaned);
-			
-			totalTime += env->_cardCleaningStats._cardCleaningTime;
-			totalCardsCleaned += env->_cardCleaningStats._cardsCleaned;
-			
-			/* Clear card cleaning statistics collected for this thread, so data printed during this pass will not be duplicated */ 
-			env->_cardCleaningStats.clear();
-		}
-	}
-	
-	/* Print totals for each root scanner entity */ 
-	U_64 totalTimeInMicros = j9time_hires_delta(0, totalTime, J9PORT_TIME_DELTA_IN_MICROSECONDS);
-	tgcExtensions->printf("\t<total cardcleaningtime=\"%llu.%03.3llu\" cardscleaned=\"%zu\" />\n", 
-			totalTimeInMicros / 1000,
-			totalTimeInMicros % 1000,
-			totalCardsCleaned);
-	
-	tgcExtensions->printf("</cardcleaning>\n");
+    U_64 totalTime = 0;
+    UDATA totalCardsCleaned = 0;
+
+    j9str_ftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S %Y", j9time_current_time_millis());
+    tgcExtensions->printf("<cardcleaning timestamp=\"%s\">\n", timestamp);
+
+    GC_VMThreadListIterator threadIterator(currentThread);
+    J9VMThread* thread = NULL;
+    while (NULL != (thread = threadIterator.nextVMThread())) {
+        MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(thread->omrVMThread);
+
+        if ((GC_SLAVE_THREAD == env->getThreadType()) || (thread == currentThread)) {
+            U_64 cleanTimeInMicros
+                = j9time_hires_delta(0, env->_cardCleaningStats._cardCleaningTime, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+            tgcExtensions->printf("\t<thread id=\"%zu\" cardcleaningtime=\"%llu.%03.3llu\" cardscleaned=\"%zu\" />\n",
+                env->getSlaveID(), cleanTimeInMicros / 1000, cleanTimeInMicros % 1000,
+                env->_cardCleaningStats._cardsCleaned);
+
+            totalTime += env->_cardCleaningStats._cardCleaningTime;
+            totalCardsCleaned += env->_cardCleaningStats._cardsCleaned;
+
+            /* Clear card cleaning statistics collected for this thread, so data printed during this pass will not be
+             * duplicated */
+            env->_cardCleaningStats.clear();
+        }
+    }
+
+    /* Print totals for each root scanner entity */
+    U_64 totalTimeInMicros = j9time_hires_delta(0, totalTime, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+    tgcExtensions->printf("\t<total cardcleaningtime=\"%llu.%03.3llu\" cardscleaned=\"%zu\" />\n",
+        totalTimeInMicros / 1000, totalTimeInMicros % 1000, totalCardsCleaned);
+
+    tgcExtensions->printf("</cardcleaning>\n");
 }
 
-static void
-tgcHookGlobalGcCycleEnd(J9HookInterface** hook, UDATA eventNumber, void* eventData, void* userData)
+static void tgcHookGlobalGcCycleEnd(J9HookInterface** hook, UDATA eventNumber, void* eventData, void* userData)
 {
-	MM_GCCycleEndEvent* event = (MM_GCCycleEndEvent*) eventData;
-	
-	printCardCleaningStats(event->omrVMThread);
+    MM_GCCycleEndEvent* event = (MM_GCCycleEndEvent*)eventData;
+
+    printCardCleaningStats(event->omrVMThread);
 }
 
 #endif /* defined(J9VM_GC_HEAP_CARD_TABLE) */

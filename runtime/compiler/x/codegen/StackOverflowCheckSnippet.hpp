@@ -28,34 +28,38 @@
 #include <stdint.h>
 #include "env/jittypes.h"
 
-namespace TR { class CodeGenerator; }
-namespace TR { class LabelSymbol; }
-namespace TR { class Node; }
-namespace TR { class SymbolReference; }
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class LabelSymbol;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class SymbolReference;
+}
 
 namespace TR {
 
-class X86StackOverflowCheckSnippet : public TR::X86HelperCallSnippet
-   {
-   uintptrj_t _scratchArg;
+class X86StackOverflowCheckSnippet : public TR::X86HelperCallSnippet {
+    uintptrj_t _scratchArg;
 
-   public:
+public:
+    X86StackOverflowCheckSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab,
+        TR::LabelSymbol* snippetlab, TR::SymbolReference* helper, uintptrj_t scratchArg,
+        int32_t stackPointerAdjustment = 0)
+        : _scratchArg(scratchArg)
+        , TR::X86HelperCallSnippet(cg, node, restartlab, snippetlab, helper, stackPointerAdjustment)
+    {}
 
-   X86StackOverflowCheckSnippet(TR::CodeGenerator   *cg,
-                                TR::Node            *node,
-                                TR::LabelSymbol      *restartlab,
-                                TR::LabelSymbol      *snippetlab,
-                                TR::SymbolReference *helper,
-                                uintptrj_t          scratchArg,
-                                int32_t             stackPointerAdjustment=0)
-      :_scratchArg(scratchArg), TR::X86HelperCallSnippet(cg, node, restartlab, snippetlab, helper, stackPointerAdjustment){}
+    uintptrj_t getScratchArg() { return _scratchArg; }
 
-   uintptrj_t getScratchArg(){ return _scratchArg; }
-
-   virtual uint8_t *genHelperCall(uint8_t *buffer);
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE* pOutFile, TR_Debug* debug);
-   };
-}
+    virtual uint8_t* genHelperCall(uint8_t* buffer);
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE* pOutFile, TR_Debug* debug);
+};
+} // namespace TR
 
 #endif

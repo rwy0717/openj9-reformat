@@ -28,8 +28,12 @@
  */
 #ifndef J9_OBJECTMODEL_CONNECTOR
 #define J9_OBJECTMODEL_CONNECTOR
-namespace J9 { class ObjectModel; }
-namespace J9 { typedef J9::ObjectModel ObjectModelConnector; }
+namespace J9 {
+class ObjectModel;
+}
+namespace J9 {
+typedef J9::ObjectModel ObjectModelConnector;
+}
 #endif
 
 #include "env/OMRObjectModel.hpp"
@@ -37,104 +41,106 @@ namespace J9 { typedef J9::ObjectModel ObjectModelConnector; }
 #include <stdint.h>
 #include "env/jittypes.h"
 
-namespace TR { class Node; }
-namespace TR { class Compilation; }
+namespace TR {
+class Node;
+}
+namespace TR {
+class Compilation;
+}
 
-namespace J9
-{
+namespace J9 {
 
-class ObjectModel : public OMR::ObjectModelConnector
-   {
+class ObjectModel : public OMR::ObjectModelConnector {
 public:
+    ObjectModel()
+        : OMR::ObjectModelConnector()
+        , _usesDiscontiguousArraylets(false)
+    {}
 
-   ObjectModel() :
-         OMR::ObjectModelConnector(),
-      _usesDiscontiguousArraylets(false) {}
+    void initialize();
 
-   void initialize();
+    bool mayRequireSpineChecks();
 
-   bool mayRequireSpineChecks();
+    int32_t sizeofReferenceField();
+    uintptrj_t elementSizeOfBooleanArray();
+    uint32_t getSizeOfArrayElement(TR::Node* node);
+    int64_t maxArraySizeInElementsForAllocation(TR::Node* newArray, TR::Compilation* comp);
+    int64_t maxArraySizeInElements(int32_t knownMinElementSize, TR::Compilation* comp);
 
-   int32_t sizeofReferenceField();
-   uintptrj_t elementSizeOfBooleanArray();
-   uint32_t getSizeOfArrayElement(TR::Node *node);
-   int64_t maxArraySizeInElementsForAllocation(TR::Node *newArray, TR::Compilation *comp);
-   int64_t maxArraySizeInElements(int32_t knownMinElementSize, TR::Compilation *comp);
+    int32_t maxContiguousArraySizeInBytes();
 
-   int32_t maxContiguousArraySizeInBytes();
+    uintptrj_t contiguousArrayHeaderSizeInBytes();
 
-   uintptrj_t contiguousArrayHeaderSizeInBytes();
+    uintptrj_t discontiguousArrayHeaderSizeInBytes();
 
-   uintptrj_t discontiguousArrayHeaderSizeInBytes();
+    // For array access
+    bool isDiscontiguousArray(int32_t sizeInBytes);
+    bool isDiscontiguousArray(int32_t sizeInElements, int32_t elementSize);
+    bool isDiscontiguousArray(TR::Compilation* comp, uintptrj_t objectPointer);
+    intptrj_t getArrayLengthInElements(TR::Compilation* comp, uintptrj_t objectPointer);
+    uintptrj_t getArrayLengthInBytes(TR::Compilation* comp, uintptrj_t objectPointer);
+    uintptrj_t getArrayElementWidthInBytes(TR::DataType type);
+    uintptrj_t getArrayElementWidthInBytes(TR::Compilation* comp, uintptrj_t objectPointer);
+    uintptrj_t getAddressOfElement(TR::Compilation* comp, uintptrj_t objectPointer, int64_t offset);
+    uintptrj_t decompressReference(TR::Compilation* comp, uintptrj_t compressedReference);
 
-   // For array access
-   bool isDiscontiguousArray(int32_t sizeInBytes);
-   bool isDiscontiguousArray(int32_t sizeInElements, int32_t elementSize);
-   bool isDiscontiguousArray(TR::Compilation* comp, uintptrj_t objectPointer);
-   intptrj_t getArrayLengthInElements(TR::Compilation* comp, uintptrj_t objectPointer);
-   uintptrj_t getArrayLengthInBytes(TR::Compilation* comp, uintptrj_t objectPointer);
-   uintptrj_t getArrayElementWidthInBytes(TR::DataType type);
-   uintptrj_t getArrayElementWidthInBytes(TR::Compilation* comp, uintptrj_t objectPointer);
-   uintptrj_t getAddressOfElement(TR::Compilation* comp, uintptrj_t objectPointer, int64_t offset);
-   uintptrj_t decompressReference(TR::Compilation* comp, uintptrj_t compressedReference);
+    bool generateCompressedObjectHeaders();
 
-   bool generateCompressedObjectHeaders();
+    bool usesDiscontiguousArraylets() { return _usesDiscontiguousArraylets; }
+    bool canGenerateArraylets() { return usesDiscontiguousArraylets(); }
+    bool useHybridArraylets() { return usesDiscontiguousArraylets(); }
+    int32_t arrayletLeafSize() { return _arrayLetLeafSize; }
+    int32_t arrayletLeafLogSize() { return _arrayLetLeafLogSize; }
 
-   bool usesDiscontiguousArraylets() { return _usesDiscontiguousArraylets; }
-   bool canGenerateArraylets() { return usesDiscontiguousArraylets(); }
-   bool useHybridArraylets() { return usesDiscontiguousArraylets(); }
-   int32_t arrayletLeafSize() { return _arrayLetLeafSize; }
-   int32_t arrayletLeafLogSize() { return _arrayLetLeafLogSize; }
+    int32_t compressedReferenceShiftOffset();
+    int32_t compressedReferenceShift();
 
-   int32_t compressedReferenceShiftOffset();
-   int32_t compressedReferenceShift();
+    bool nativeAddressesCanChangeSize();
 
-   bool nativeAddressesCanChangeSize();
+    uintptrj_t offsetOfObjectVftField();
 
-   uintptrj_t offsetOfObjectVftField();
+    uintptrj_t offsetOfHeaderFlags();
 
-   uintptrj_t offsetOfHeaderFlags();
+    uintptrj_t maskOfObjectVftField();
 
-   uintptrj_t maskOfObjectVftField();
+    int32_t arraySpineShift(int32_t width);
+    int32_t arrayletMask(int32_t width);
+    int32_t arrayletLeafIndex(int32_t index, int32_t elementSize);
+    int32_t objectAlignmentInBytes();
+    uintptrj_t offsetOfContiguousArraySizeField();
+    uintptrj_t offsetOfDiscontiguousArraySizeField();
+    uintptrj_t objectHeaderSizeInBytes();
+    uintptrj_t offsetOfIndexableSizeField();
 
-   int32_t arraySpineShift(int32_t width);
-   int32_t arrayletMask(int32_t width);
-   int32_t arrayletLeafIndex(int32_t index, int32_t elementSize);
-   int32_t objectAlignmentInBytes();
-   uintptrj_t offsetOfContiguousArraySizeField();
-   uintptrj_t offsetOfDiscontiguousArraySizeField();
-   uintptrj_t objectHeaderSizeInBytes();
-   uintptrj_t offsetOfIndexableSizeField();
+    /**
+     * \brief: Determines whether the code generator should generate read barriers for loads of object references from
+     * the heap
+     *
+     * Instead of reaching into the VM each time, for the performance' sake,
+     * this value is cached here once at the JIT startup
+     * (since it does not change throughout the lifetime of the JIT).
+     *
+     * \return
+     *     true if concurrent scavenge of objects during garbage collection is enabled.
+     */
+    bool shouldGenerateReadBarriersForFieldLoads();
 
-   /**
-   * \brief: Determines whether the code generator should generate read barriers for loads of object references from the heap
-   *
-   * Instead of reaching into the VM each time, for the performance' sake,
-   * this value is cached here once at the JIT startup
-   * (since it does not change throughout the lifetime of the JIT).
-   *
-   * \return
-   *     true if concurrent scavenge of objects during garbage collection is enabled.
-   */
-   bool shouldGenerateReadBarriersForFieldLoads();
-
-   /**
-    * \brief Determine whether to replace guarded loads with software read barrier sequence
-    *
-    * \return
-    *     true if debug gc option -XXgc:softwareRangeCheckReadBarrier is used
-    */
-   bool shouldReplaceGuardedLoadWithSoftwareReadBarrier();
+    /**
+     * \brief Determine whether to replace guarded loads with software read barrier sequence
+     *
+     * \return
+     *     true if debug gc option -XXgc:softwareRangeCheckReadBarrier is used
+     */
+    bool shouldReplaceGuardedLoadWithSoftwareReadBarrier();
 
 private:
+    bool _usesDiscontiguousArraylets;
+    int32_t _arrayLetLeafSize;
+    int32_t _arrayLetLeafLogSize;
+    bool _shouldGenerateReadBarriersForFieldLoads;
+    bool _shouldReplaceGuardedLoadWithSoftwareReadBarrier;
+};
 
-   bool _usesDiscontiguousArraylets;
-   int32_t _arrayLetLeafSize;
-   int32_t _arrayLetLeafLogSize;
-   bool _shouldGenerateReadBarriersForFieldLoads;
-   bool _shouldReplaceGuardedLoadWithSoftwareReadBarrier;
-   };
-
-}
+} // namespace J9
 
 #endif

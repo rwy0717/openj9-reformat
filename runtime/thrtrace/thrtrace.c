@@ -26,27 +26,25 @@
 #include "j9port.h"
 #include "j9.h"
 
-void JNICALL Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv *env, jobject recv);
+void JNICALL Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv* env, jobject recv);
 
-
-void JNICALL 
-Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv *env, jobject recv)
+void JNICALL Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv* env, jobject recv)
 {
-	J9VMThread* vmstruct = (J9VMThread*)env;
+    J9VMThread* vmstruct = (J9VMThread*)env;
 
 #ifndef OMR_THR_TRACING
-	PORT_ACCESS_FROM_VMC(vmstruct);
-	j9tty_err_printf(PORTLIB, "Warning: com.ibm.oti.vm.thread.Tracing.reset() called, but OMR_THR_TRACING is not enabled\n");
+    PORT_ACCESS_FROM_VMC(vmstruct);
+    j9tty_err_printf(
+        PORTLIB, "Warning: com.ibm.oti.vm.thread.Tracing.reset() called, but OMR_THR_TRACING is not enabled\n");
 #else /* OMR_THR_TRACING */
-	/* bring all threads to a safe point. This won't help for native threads, but it's better than nothing */
-	vmstruct->javaVM->internalVMFunctions->internalAcquireVMAccess(vmstruct);
-	vmstruct->javaVM->internalVMFunctions->acquireExclusiveVMAccess(vmstruct);
+    /* bring all threads to a safe point. This won't help for native threads, but it's better than nothing */
+    vmstruct->javaVM->internalVMFunctions->internalAcquireVMAccess(vmstruct);
+    vmstruct->javaVM->internalVMFunctions->acquireExclusiveVMAccess(vmstruct);
 
-	omrthread_reset_tracing();
+    omrthread_reset_tracing();
 
-	vmstruct->javaVM->internalVMFunctions->releaseExclusiveVMAccess(vmstruct);
-	vmstruct->javaVM->internalVMFunctions->internalExitVMToJNI(vmstruct);
+    vmstruct->javaVM->internalVMFunctions->releaseExclusiveVMAccess(vmstruct);
+    vmstruct->javaVM->internalVMFunctions->internalExitVMToJNI(vmstruct);
 #endif /* OMR_THR_TRACING */
-	return ;
+    return;
 }
-

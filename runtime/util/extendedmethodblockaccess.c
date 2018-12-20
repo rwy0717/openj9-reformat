@@ -24,31 +24,24 @@
 #include "j9cp.h"
 #include "util_internal.h"
 
-
-U_8 * 
-fetchMethodExtendedFlagsPointer(J9Method* method)
+U_8* fetchMethodExtendedFlagsPointer(J9Method* method)
 {
-	J9Class* clazz = J9_CLASS_FROM_METHOD(method);
-	UDATA index = method - clazz->ramMethods;
+    J9Class* clazz = J9_CLASS_FROM_METHOD(method);
+    UDATA index = method - clazz->ramMethods;
 
-	return ((U_8 *) clazz->ramMethods) - 1 - index;
+    return ((U_8*)clazz->ramMethods) - 1 - index;
 }
 
-
-void
-setExtendedMethodFlags(J9JavaVM * vm, U_8 * mtFlag, U_8 flags)
+void setExtendedMethodFlags(J9JavaVM* vm, U_8* mtFlag, U_8 flags)
 {
-	omrthread_monitor_enter(vm->extendedMethodFlagsMutex);
-	*mtFlag |= flags;
-	omrthread_monitor_exit(vm->extendedMethodFlagsMutex);
+    omrthread_monitor_enter(vm->extendedMethodFlagsMutex);
+    *mtFlag |= flags;
+    omrthread_monitor_exit(vm->extendedMethodFlagsMutex);
 }
 
-
-void
-clearExtendedMethodFlags(J9JavaVM * vm, U_8 * mtFlag, U_8 flags)
+void clearExtendedMethodFlags(J9JavaVM* vm, U_8* mtFlag, U_8 flags)
 {
-	omrthread_monitor_enter(vm->extendedMethodFlagsMutex);
-	*mtFlag &= ~flags;
-	omrthread_monitor_exit(vm->extendedMethodFlagsMutex);
+    omrthread_monitor_enter(vm->extendedMethodFlagsMutex);
+    *mtFlag &= ~flags;
+    omrthread_monitor_exit(vm->extendedMethodFlagsMutex);
 }
-

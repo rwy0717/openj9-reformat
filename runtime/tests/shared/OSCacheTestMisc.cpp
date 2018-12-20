@@ -35,79 +35,79 @@ extern "C" {
 
 #define OSCACHETEST_GET_CACHE_DIR_NAME "testGetCacheDir"
 
-
 IDATA
 SH_OSCacheTestMisc::testGetCacheDir(J9JavaVM* vm)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	IDATA rc = FAIL;
-	const char *testDirPaths[] = {
-		"c:\\Documents and Settings\\LocalService\\Local Settings\\Application Data\\javasharedresources",
-		"c:\\javasharedresources\\foo\\bar"
-	};
-	char cacheDir[J9SH_MAXPATH];
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    IDATA rc = FAIL;
+    const char* testDirPaths[]
+        = { "c:\\Documents and Settings\\LocalService\\Local Settings\\Application Data\\javasharedresources",
+              "c:\\javasharedresources\\foo\\bar" };
+    char cacheDir[J9SH_MAXPATH];
 
-	J9SharedClassConfig* sharedConfig = (J9SharedClassConfig*)j9mem_allocate_memory(sizeof(J9SharedClassConfig) + sizeof(J9SharedClassCacheDescriptor), J9MEM_CATEGORY_CLASSES);
-	if (sharedConfig == 0) {
-		return 1;
-	}
+    J9SharedClassConfig* sharedConfig = (J9SharedClassConfig*)j9mem_allocate_memory(
+        sizeof(J9SharedClassConfig) + sizeof(J9SharedClassCacheDescriptor), J9MEM_CATEGORY_CLASSES);
+    if (sharedConfig == 0) {
+        return 1;
+    }
 
-	j9shmem_shutdown();
+    j9shmem_shutdown();
 
-	for (UDATA i = 0; i < sizeof(testDirPaths)/sizeof(testDirPaths[0]); i++) {
-		j9shmem_startup();
+    for (UDATA i = 0; i < sizeof(testDirPaths) / sizeof(testDirPaths[0]); i++) {
+        j9shmem_startup();
 
-		/* Important to clean the sharedConfig for each tests */
-		memset(sharedConfig, 0, sizeof(J9SharedClassConfig));
+        /* Important to clean the sharedConfig for each tests */
+        memset(sharedConfig, 0, sizeof(J9SharedClassConfig));
 
-		sharedConfig->ctrlDirName = testDirPaths[i];
+        sharedConfig->ctrlDirName = testDirPaths[i];
 
-		if (0 != SH_OSCache::getCacheDir(vm, sharedConfig->ctrlDirName, cacheDir, sizeof(cacheDir), J9PORT_SHR_CACHE_TYPE_PERSISTENT)) {
-			j9tty_printf(PORTLIB, "testGetCacheDir: failed: SH_OSCache::getCacheDir() did not return 0\n");
-			goto done;
-		}
+        if (0
+            != SH_OSCache::getCacheDir(
+                   vm, sharedConfig->ctrlDirName, cacheDir, sizeof(cacheDir), J9PORT_SHR_CACHE_TYPE_PERSISTENT)) {
+            j9tty_printf(PORTLIB, "testGetCacheDir: failed: SH_OSCache::getCacheDir() did not return 0\n");
+            goto done;
+        }
 
-		/* Strip any trailing dir separators. */
-		for (UDATA j = strlen(cacheDir) - 1; (j != (UDATA)-1) && (cacheDir[j] == DIR_SEPARATOR); j--) {
-			cacheDir[j] = '\0';
-		}
+        /* Strip any trailing dir separators. */
+        for (UDATA j = strlen(cacheDir) - 1; (j != (UDATA)-1) && (cacheDir[j] == DIR_SEPARATOR); j--) {
+            cacheDir[j] = '\0';
+        }
 
-		if (strcmp(cacheDir, testDirPaths[i])) {
-			j9tty_printf(PORTLIB, "testGetCacheDir: failed: '%s' did not match '%s'\n", cacheDir, testDirPaths[i]);
-			goto done;
-		}
+        if (strcmp(cacheDir, testDirPaths[i])) {
+            j9tty_printf(PORTLIB, "testGetCacheDir: failed: '%s' did not match '%s'\n", cacheDir, testDirPaths[i]);
+            goto done;
+        }
 
-		j9shmem_shutdown();
-	}
+        j9shmem_shutdown();
+    }
 
-	j9shmem_startup();
+    j9shmem_startup();
 
-	rc = PASS;
+    rc = PASS;
 
 done:
-	j9tty_printf(PORTLIB, "testGetCacheDir: %s\n", PASS==rc?"PASS":"FAIL");
-	return rc;
+    j9tty_printf(PORTLIB, "testGetCacheDir: %s\n", PASS == rc ? "PASS" : "FAIL");
+    return rc;
 }
 
 IDATA
-SH_OSCacheTestMisc::runTests(J9JavaVM* vm, struct j9cmdlineOptions *arg, const char *cmdline)
+SH_OSCacheTestMisc::runTests(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char* cmdline)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	IDATA rc = PASS;
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    IDATA rc = PASS;
 
-	/* Detect children */
-	if (NULL != cmdline) {
-		/* We are using strstr, so we need to put the longer string first */
-		if (NULL != strstr(cmdline, OSCACHETEST_GET_CACHE_DIR_NAME)) {
-			return testGetCacheDir(vm);
-		}
-	}
+    /* Detect children */
+    if (NULL != cmdline) {
+        /* We are using strstr, so we need to put the longer string first */
+        if (NULL != strstr(cmdline, OSCACHETEST_GET_CACHE_DIR_NAME)) {
+            return testGetCacheDir(vm);
+        }
+    }
 
-	j9tty_printf(PORTLIB, "OSCacheTestMisc begin\n");
+    j9tty_printf(PORTLIB, "OSCacheTestMisc begin\n");
 
-	j9tty_printf(PORTLIB, "testGetCacheDir begin\n");
-	rc |= testGetCacheDir(vm);
+    j9tty_printf(PORTLIB, "testGetCacheDir begin\n");
+    rc |= testGetCacheDir(vm);
 
-	return rc;
+    return rc;
 }
-

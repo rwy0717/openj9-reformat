@@ -37,11 +37,10 @@
  * subclasses, so that space (on stack or in other structures/classes) can be reserved for in-place
  * instantiation.
  */
-typedef union GC_ObjectScannerState
-{
-	uint8_t mixed[sizeof(GC_MixedObjectScanner)];
-	uint8_t reference[sizeof(GC_ReferenceObjectScanner)];
-	uint8_t pointerArray[sizeof(GC_PointerArrayObjectScanner)];
+typedef union GC_ObjectScannerState {
+    uint8_t mixed[sizeof(GC_MixedObjectScanner)];
+    uint8_t reference[sizeof(GC_ReferenceObjectScanner)];
+    uint8_t pointerArray[sizeof(GC_PointerArrayObjectScanner)];
 } GC_ObjectScannerState;
 
 #endif /* OBJECTSCANNERSTATE_HPP_ */

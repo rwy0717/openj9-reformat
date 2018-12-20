@@ -35,45 +35,42 @@ class GC_HeapRegionIteratorVLHGC : public GC_HeapRegionIterator {
 private:
 private:
 protected:
-	
 public:
-	
-	/**
-	 * Construct a HeapRegionIterator for the specified heap.
-	 * 
-	 * @param manager The versions of the regions returned will come from this manager
-	 */
-	GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager *manager) 
-		: GC_HeapRegionIterator(manager)
-		{ }
+    /**
+     * Construct a HeapRegionIterator for the specified heap.
+     *
+     * @param manager The versions of the regions returned will come from this manager
+     */
+    GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager* manager)
+        : GC_HeapRegionIterator(manager)
+    {}
 
-	/**
-	 * Construct a HeapRegionIterator for the regions which belong to the specified memory space.
-	 * 
-	 * @param manager The versions of the regions returned will come from this manager
-	 * @param space the memory space whose regions should be walked
-	 */
-	GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager *manager, MM_MemorySpace* space)
-		: GC_HeapRegionIterator(manager, space)
-		{ }
-	
-	/**
-	 * @param manager The versions of the regions returned will come from this manager
-	 * @param includedRegionsMask A bitmap of the HeapRegionDescriptor properties of the regions that should be included in the iterator
-	 */
-	GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager *manager, U_32 includedRegionsMask)
-		: GC_HeapRegionIterator(manager, includedRegionsMask)
-		{}
+    /**
+     * Construct a HeapRegionIterator for the regions which belong to the specified memory space.
+     *
+     * @param manager The versions of the regions returned will come from this manager
+     * @param space the memory space whose regions should be walked
+     */
+    GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager* manager, MM_MemorySpace* space)
+        : GC_HeapRegionIterator(manager, space)
+    {}
 
-	/**
-	 * @return the next region in the heap, or NULL if there are no more regions
-	 */
-	MM_HeapRegionDescriptorVLHGC *nextRegion() 
-	{
-		return (MM_HeapRegionDescriptorVLHGC*)GC_HeapRegionIterator::nextRegion();
-	}
+    /**
+     * @param manager The versions of the regions returned will come from this manager
+     * @param includedRegionsMask A bitmap of the HeapRegionDescriptor properties of the regions that should be included
+     * in the iterator
+     */
+    GC_HeapRegionIteratorVLHGC(MM_HeapRegionManager* manager, U_32 includedRegionsMask)
+        : GC_HeapRegionIterator(manager, includedRegionsMask)
+    {}
 
+    /**
+     * @return the next region in the heap, or NULL if there are no more regions
+     */
+    MM_HeapRegionDescriptorVLHGC* nextRegion()
+    {
+        return (MM_HeapRegionDescriptorVLHGC*)GC_HeapRegionIterator::nextRegion();
+    }
 };
-
 
 #endif /* HEAPREGIONITERATORVLHGC_HPP */

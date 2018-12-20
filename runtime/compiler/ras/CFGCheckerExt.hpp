@@ -26,11 +26,11 @@
 #include "ras/CFGChecker.hpp"
 #include "ras/InternalFunctionsExt.hpp"
 
-class TR_CFGCheckerExt : public TR_CFGChecker
-   {
-   public:
-   void *operator new (size_t s, TR_Malloc_t dxMalloc) { return dxMalloc(s, NULL); }
-   TR_CFGCheckerExt( TR::CFG *cfg, TR::FILE *pOutFile) : TR_CFGChecker(cfg, pOutFile) { };
-   };
+class TR_CFGCheckerExt : public TR_CFGChecker {
+public:
+    void* operator new(size_t s, TR_Malloc_t dxMalloc) { return dxMalloc(s, NULL); }
+    TR_CFGCheckerExt(TR::CFG* cfg, TR::FILE* pOutFile)
+        : TR_CFGChecker(cfg, pOutFile) {};
+};
 
 #endif

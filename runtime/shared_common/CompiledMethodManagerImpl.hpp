@@ -28,34 +28,33 @@
 #include "j9protos.h"
 #include "j9.h"
 
-class SH_CompiledMethodManagerImpl : public SH_CompiledMethodManager
-{
+class SH_CompiledMethodManagerImpl : public SH_CompiledMethodManager {
 public:
-	typedef char* BlockPtr;
-	
-	SH_CompiledMethodManagerImpl();
+    typedef char* BlockPtr;
 
-	~SH_CompiledMethodManagerImpl();
+    SH_CompiledMethodManagerImpl();
 
-	static SH_CompiledMethodManagerImpl* newInstance(J9JavaVM* vm, SH_SharedCache* cache, SH_CompiledMethodManagerImpl* memForConstructor);
+    ~SH_CompiledMethodManagerImpl();
 
-	static UDATA getRequiredConstrBytes(void);
+    static SH_CompiledMethodManagerImpl* newInstance(
+        J9JavaVM* vm, SH_SharedCache* cache, SH_CompiledMethodManagerImpl* memForConstructor);
+
+    static UDATA getRequiredConstrBytes(void);
 
 protected:
-	virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
+    virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
 
-	virtual UDATA getKeyForItem(const ShcItem* cacheItem);
-	
+    virtual UDATA getKeyForItem(const ShcItem* cacheItem);
+
 #if defined(J9SHR_CACHELET_SUPPORT)
-	virtual bool canCreateHints() { return true; }
+    virtual bool canCreateHints() { return true; }
 #endif
 private:
-	/* Copy prevention */
-	SH_CompiledMethodManagerImpl(const SH_CompiledMethodManagerImpl&);
-	SH_CompiledMethodManagerImpl& operator=(const SH_CompiledMethodManagerImpl&);
+    /* Copy prevention */
+    SH_CompiledMethodManagerImpl(const SH_CompiledMethodManagerImpl&);
+    SH_CompiledMethodManagerImpl& operator=(const SH_CompiledMethodManagerImpl&);
 
-	void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
+    void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
 };
 
 #endif
-

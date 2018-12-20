@@ -25,24 +25,22 @@
 
 #pragma once
 
-enum TR_CompilationOperations
-   {
-   OP_Empty,
-   OP_HasAcquiredCompilationMonitor,
-   OP_WillReleaseCompilationMonitor,
-   OP_WillNotifyCompilationMonitor,
-   OP_WillWaitOnCompilationMonitor,
-   OP_HasFinishedWaitingOnCompilationMonitor,
-   OP_StateChange,
-   OP_WillWaitOnSlotMonitorAfterCompMonRelease, // This entry will appear out-of-order
-   OP_CompileOnSeparateThreadEnter,
-   OP_WillStopCompilationThreads,
-   // If adding new entries, please add names as well in CompilationThread.cpp and DebugExt.cpp - OperationNames
-   OP_LastValidOperation
-   };
+enum TR_CompilationOperations {
+    OP_Empty,
+    OP_HasAcquiredCompilationMonitor,
+    OP_WillReleaseCompilationMonitor,
+    OP_WillNotifyCompilationMonitor,
+    OP_WillWaitOnCompilationMonitor,
+    OP_HasFinishedWaitingOnCompilationMonitor,
+    OP_StateChange,
+    OP_WillWaitOnSlotMonitorAfterCompMonRelease, // This entry will appear out-of-order
+    OP_CompileOnSeparateThreadEnter,
+    OP_WillStopCompilationThreads,
+    // If adding new entries, please add names as well in CompilationThread.cpp and DebugExt.cpp - OperationNames
+    OP_LastValidOperation
+};
 #if (OP_LastValidOperation > 255)
 #error "cannot have more than 255 operations because we use 8 bits to store then"
 #endif
 
 #endif // COMPILATIONOPERATIONS_HPP
-

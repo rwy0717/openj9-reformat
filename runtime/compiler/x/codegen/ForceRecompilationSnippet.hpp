@@ -27,28 +27,23 @@
 
 namespace TR {
 
-class X86ForceRecompilationSnippet  : public TR::X86RestartSnippet
-   {
+class X86ForceRecompilationSnippet : public TR::X86RestartSnippet {
 
-   public:
+public:
+    X86ForceRecompilationSnippet(
+        TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab, TR::LabelSymbol* snippetlab)
+        : TR::X86RestartSnippet(cg, node, restartlab, snippetlab, false)
+    {
+        setForceLongRestartJump(); // So startPC offset is at known location
+    }
 
-   X86ForceRecompilationSnippet(TR::CodeGenerator  * cg,
-                                TR::Node *           node,
-                                TR::LabelSymbol      *restartlab,
-                                TR::LabelSymbol      *snippetlab)
-      : TR::X86RestartSnippet(cg, node, restartlab, snippetlab, false)
-      {
-      setForceLongRestartJump(); // So startPC offset is at known location
-      }
+    virtual Kind getKind() { return IsForceRecompilation; }
 
-   virtual Kind getKind() { return IsForceRecompilation; }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-
-   };
-
-}
+} // namespace TR
 
 #endif

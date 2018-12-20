@@ -35,42 +35,40 @@
  * @return the next slot containing an object reference
  * @return NULL if there are no more such slots
  */
-j9object_t *
-GC_VMThreadIterator::nextSlot()
+j9object_t* GC_VMThreadIterator::nextSlot()
 {
-	j9object_t *slotPtr;
+    j9object_t* slotPtr;
 
-	switch(_state) {
-	case vmthreaditerator_state_start:
-		_state += 1;
+    switch (_state) {
+    case vmthreaditerator_state_start:
+        _state += 1;
 
-	case vmthreaditerator_state_slots:
-		slotPtr = _threadSlotIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
-		_state += 1;
-		
-	case vmthreaditerator_state_jni_slots:
-		slotPtr = _jniSlotIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
+    case vmthreaditerator_state_slots:
+        slotPtr = _threadSlotIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
+        _state += 1;
+
+    case vmthreaditerator_state_jni_slots:
+        slotPtr = _jniSlotIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
-		_state += 1;
-		
-	case vmthreaditerator_state_monitor_records:
-		slotPtr = _monitorRecordSlotIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
+        _state += 1;
+
+    case vmthreaditerator_state_monitor_records:
+        slotPtr = _monitorRecordSlotIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
 #endif
-		_state += 1;
+        _state += 1;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	return NULL;
+    return NULL;
 }
-

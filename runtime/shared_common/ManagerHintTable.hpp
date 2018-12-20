@@ -29,39 +29,39 @@
 
 class SH_CompositeCache;
 
-class ManagerHintTable
-{
+class ManagerHintTable {
 public:
-	ManagerHintTable() :
-		_hinthash(NULL) /*, _lock(NULL) */{
-	}
-	bool initialize(J9PortLibrary* portLib);
-	void destroy();
-	bool addHint(J9VMThread* currentThread, UDATA hashValue, SH_CompositeCache* cachelet);
-	void removeHint(J9VMThread* currentThread, UDATA hashValue, SH_CompositeCache* cachelet);
-	SH_CompositeCache* findHint(J9VMThread* currentThread, UDATA hashValue);
+    ManagerHintTable()
+        : _hinthash(NULL) /*, _lock(NULL) */
+    {}
+    bool initialize(J9PortLibrary* portLib);
+    void destroy();
+    bool addHint(J9VMThread* currentThread, UDATA hashValue, SH_CompositeCache* cachelet);
+    void removeHint(J9VMThread* currentThread, UDATA hashValue, SH_CompositeCache* cachelet);
+    SH_CompositeCache* findHint(J9VMThread* currentThread, UDATA hashValue);
 
 private:
-	struct HintItem {
-		UDATA _hashValue;
-		SH_CompositeCache* _cachelet;
+    struct HintItem {
+        UDATA _hashValue;
+        SH_CompositeCache* _cachelet;
 
-		HintItem(UDATA hashValue_, SH_CompositeCache* cachelet_) :
-			_hashValue(hashValue_), _cachelet(cachelet_) {
-		}
-	};
+        HintItem(UDATA hashValue_, SH_CompositeCache* cachelet_)
+            : _hashValue(hashValue_)
+            , _cachelet(cachelet_)
+        {}
+    };
 
-	J9HashTable* _hinthash;
+    J9HashTable* _hinthash;
 
-	static UDATA hashFn(void* item, void *userData);
-	static UDATA hashEqualFn(void* left, void* right, void *userData);
+    static UDATA hashFn(void* item, void* userData);
+    static UDATA hashEqualFn(void* left, void* right, void* userData);
 
-	/* to populate a hint:
-	 * while (findHint()) {
-	 *   removeHint()
-	 *   add hint to real table
-	 * }
-	 */
+    /* to populate a hint:
+     * while (findHint()) {
+     *   removeHint()
+     *   add hint to real table
+     * }
+     */
 };
 
 #endif /* MANAGER_HINT_TABLE_H_INCLUDED */

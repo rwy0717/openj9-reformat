@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef WDBGGLUE_H
 #define WDBGGLUE_H
 
@@ -44,8 +43,8 @@
 #include "zip_api.h"
 #endif
 
-#define DECLARE_API(s) void s(IDATA hCurrentProcess,IDATA hCurrentThread,UDATA dwCurrentPc,UDATA dwProcessor,char* args)
-
+#define DECLARE_API(s) \
+    void s(IDATA hCurrentProcess, IDATA hCurrentThread, UDATA dwCurrentPc, UDATA dwProcessor, char* args)
 
 DECLARE_API(j9help);
 

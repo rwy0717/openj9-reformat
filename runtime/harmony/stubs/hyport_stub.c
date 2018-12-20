@@ -21,50 +21,24 @@
  *******************************************************************************/
 #include "hyport.h"
 
-HY_CFUNC I_32 
-hyport_create_library (struct HyPortLibrary *portLibrary, 
-		struct HyPortLibraryVersion *version,
-		UDATA size)
+HY_CFUNC I_32 hyport_create_library(struct HyPortLibrary* portLibrary, struct HyPortLibraryVersion* version, UDATA size)
 {
-	return -1;
+    return -1;
 }
-HY_CFUNC I_32 
-hyport_init_library (struct HyPortLibrary *portLibrary,
-		struct HyPortLibraryVersion *version,
-		UDATA size)
+HY_CFUNC I_32 hyport_init_library(struct HyPortLibrary* portLibrary, struct HyPortLibraryVersion* version, UDATA size)
 {
-	return -1;
+    return -1;
 }
 
+HY_CFUNC I_32 hyport_startup_library(struct HyPortLibrary* portLibrary) { return -1; }
 
-HY_CFUNC I_32 
-hyport_startup_library (struct HyPortLibrary *portLibrary)
+HY_CFUNC I_32 hyport_allocate_library(struct HyPortLibraryVersion* expectedVersion, struct HyPortLibrary** portLibrary)
 {
-	return -1;
+    return -1;
 }
 
-HY_CFUNC I_32 
-hyport_allocate_library (struct HyPortLibraryVersion *expectedVersion,
-		struct HyPortLibrary **portLibrary)
-{
-	return -1;
-}
+HY_CFUNC UDATA hyport_getSize(struct HyPortLibraryVersion* version) { return 0; }
 
-HY_CFUNC UDATA 
-hyport_getSize (struct HyPortLibraryVersion *version)
-{
-	return 0;
-}
+HY_CFUNC I_32 hyport_getVersion(struct HyPortLibrary* portLibrary, struct HyPortLibraryVersion* version) { return -1; }
 
-HY_CFUNC I_32 
-hyport_getVersion (struct HyPortLibrary *portLibrary,
-		struct HyPortLibraryVersion *version)
-{
-	return -1;
-}
-
-HY_CFUNC I_32 
-hyport_isCompatible (struct HyPortLibraryVersion *expectedVersion)
-{
-	return -1;
-}
+HY_CFUNC I_32 hyport_isCompatible(struct HyPortLibraryVersion* expectedVersion) { return -1; }

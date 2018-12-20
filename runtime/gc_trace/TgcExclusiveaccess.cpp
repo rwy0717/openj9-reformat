@@ -35,46 +35,45 @@
 /**
  * @todo Provide function documentation
  */
-static void
-printExclusiveAccessTimes(J9VMThread *vmThread)
+static void printExclusiveAccessTimes(J9VMThread* vmThread)
 {
-	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(vmThread->omrVMThread);
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(vmThread);
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(vmThread->omrVMThread);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(vmThread);
 
-	U_64 exlusiveAccessTime = j9time_hires_delta(0, env->getExclusiveAccessTime(), J9PORT_TIME_DELTA_IN_MICROSECONDS);
-	/* Note that these values were not being calculated in the GC and have been returning 0 for some time. */
-	U_64 preAquireExclusiveTime = (U_64)0;
-	U_64 postAquireExclusiveTime = (U_64)0;
+    U_64 exlusiveAccessTime = j9time_hires_delta(0, env->getExclusiveAccessTime(), J9PORT_TIME_DELTA_IN_MICROSECONDS);
+    /* Note that these values were not being calculated in the GC and have been returning 0 for some time. */
+    U_64 preAquireExclusiveTime = (U_64)0;
+    U_64 postAquireExclusiveTime = (U_64)0;
 
-	tgcExtensions->printf("ExclusiveAccess Time(ms): total=\"%llu.%03.3llu\", preAcquire=\"%llu.%03.3llu\", postAcquire=\"%llu.%03.3llu\"\n",
-		exlusiveAccessTime /1000, exlusiveAccessTime % 1000,
-		preAquireExclusiveTime /1000, preAquireExclusiveTime % 1000,
-		postAquireExclusiveTime /1000, postAquireExclusiveTime % 1000);
+    tgcExtensions->printf("ExclusiveAccess Time(ms): total=\"%llu.%03.3llu\", preAcquire=\"%llu.%03.3llu\", "
+                          "postAcquire=\"%llu.%03.3llu\"\n",
+        exlusiveAccessTime / 1000, exlusiveAccessTime % 1000, preAquireExclusiveTime / 1000,
+        preAquireExclusiveTime % 1000, postAquireExclusiveTime / 1000, postAquireExclusiveTime % 1000);
 }
 
 /**
  * @todo Provide function documentation
  */
-static void
-tgcHookExclusiveAccess(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookExclusiveAccess(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_ExclusiveAccessEvent* event = (MM_ExclusiveAccessEvent*)eventData;
-	J9VMThread* vmThread = static_cast<J9VMThread*>(event->currentThread->_language_vmthread);
-	printExclusiveAccessTimes(vmThread);
+    MM_ExclusiveAccessEvent* event = (MM_ExclusiveAccessEvent*)eventData;
+    J9VMThread* vmThread = static_cast<J9VMThread*>(event->currentThread->_language_vmthread);
+    printExclusiveAccessTimes(vmThread);
 }
 
 /**
  * @todo Provide function documentation
  */
-bool
-tgcExclusiveAccessInitialize(J9JavaVM *javaVM)
+bool tgcExclusiveAccessInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
-	(*privateHooks)->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS, tgcHookExclusiveAccess, OMR_GET_CALLSITE(), NULL);
+    J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
+    (*privateHooks)
+        ->J9HookRegisterWithCallSite(
+            privateHooks, J9HOOK_MM_PRIVATE_EXCLUSIVE_ACCESS, tgcHookExclusiveAccess, OMR_GET_CALLSITE(), NULL);
 
-	return result;
+    return result;
 }

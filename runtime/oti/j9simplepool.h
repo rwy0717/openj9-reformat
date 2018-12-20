@@ -27,25 +27,23 @@
 extern "C" {
 #endif
 
-
 /*		DO NOT DIRECTLY INCLUDE THIS FILE 	*/
 /*		Include simplepool_api.h instead					*/
-
 
 #include "j9nongenerated.h"
 
 typedef struct J9SimplePoolFreeList {
-	J9SRP next;
-	J9SRP simplePool;
+    J9SRP next;
+    J9SRP simplePool;
 } J9SimplePoolFreeList;
 
 typedef struct J9SimplePool {
-	uint32_t numElements;
-	uint32_t elementSize;
-	J9SRP freeList;
-	J9SRP firstFreeSlot;
-	J9SRP blockEnd;
-	uint32_t flags;
+    uint32_t numElements;
+    uint32_t elementSize;
+    J9SRP freeList;
+    J9SRP firstFreeSlot;
+    J9SRP blockEnd;
+    uint32_t flags;
 } J9SimplePool;
 
 #undef J9SRP

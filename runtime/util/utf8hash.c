@@ -33,16 +33,16 @@
  */
 
 UDATA
-computeHashForUTF8(const U_8 * data, UDATA length)
+computeHashForUTF8(const U_8* data, UDATA length)
 {
-	UDATA hash = 0;
-	const U_8 * end = data + length;
+    UDATA hash = 0;
+    const U_8* end = data + length;
 
-	while (data < end) {
-		U_16 c;
+    while (data < end) {
+        U_16 c;
 
-		data += decodeUTF8Char(data, &c);
-		hash = (hash << 5) - hash + c;
-	}
-	return hash;
+        data += decodeUTF8Char(data, &c);
+        hash = (hash << 5) - hash + c;
+    }
+    return hash;
 }

@@ -24,45 +24,44 @@
 #include "jclglob.h"
 #include "jclprots.h"
 
-
 /**
-  * This will convert all separators to the proper platform separator
-  * and remove duplicates on non POSIX platforms.
-  */
-void ioh_convertToPlatform(char *path)
+ * This will convert all separators to the proper platform separator
+ * and remove duplicates on non POSIX platforms.
+ */
+void ioh_convertToPlatform(char* path)
 {
-	char * pathIndex;
-	int length = (int)strlen(path);
+    char* pathIndex;
+    int length = (int)strlen(path);
 
-	/* Convert all separators to the same type */
-	pathIndex = path;
-	while (*pathIndex != '\0') {
-		if ((*pathIndex == '\\' || *pathIndex == '/') && (*pathIndex != jclSeparator))
-			*pathIndex = jclSeparator;
-		pathIndex++;
-	}
+    /* Convert all separators to the same type */
+    pathIndex = path;
+    while (*pathIndex != '\0') {
+        if ((*pathIndex == '\\' || *pathIndex == '/') && (*pathIndex != jclSeparator))
+            *pathIndex = jclSeparator;
+        pathIndex++;
+    }
 
-	/* Remove duplicate separators */
-	if (jclSeparator == '/') return; /* Do not do POSIX platforms */
+    /* Remove duplicate separators */
+    if (jclSeparator == '/')
+        return; /* Do not do POSIX platforms */
 
-	/* Remove duplicate initial separators */
-	pathIndex = path;
-	while ((*pathIndex != '\0') && (*pathIndex == jclSeparator)) {
-		pathIndex++;
-	}
-	if ((pathIndex > path) && (length > (pathIndex - path)) && (*(pathIndex + 1) == ':')) {
-		/* For Example '////c:/_*' ('_' added to silence compiler warning) */
-		int newlen = (int)(length - (pathIndex - path));
-		memmove(path, pathIndex, newlen);
-		path[newlen] = '\0';
-	} else {
-		if ((pathIndex - path > 3) && (length > (pathIndex - path))) {
-			/* For Example '////serverName/_*' ('_' added to silence compiler warning) */
-			int newlen = (int)(length - (pathIndex - path) + 2);
-			memmove(path, pathIndex - 2, newlen);
-			path[newlen] = '\0';
-		}
-	}
-	/* This will have to handle extra \'s but currently doesn't */
-	
+    /* Remove duplicate initial separators */
+    pathIndex = path;
+    while ((*pathIndex != '\0') && (*pathIndex == jclSeparator)) {
+        pathIndex++;
+    }
+    if ((pathIndex > path) && (length > (pathIndex - path)) && (*(pathIndex + 1) == ':')) {
+        /* For Example '////c:/_*' ('_' added to silence compiler warning) */
+        int newlen = (int)(length - (pathIndex - path));
+        memmove(path, pathIndex, newlen);
+        path[newlen] = '\0';
+    } else {
+        if ((pathIndex - path > 3) && (length > (pathIndex - path))) {
+            /* For Example '////serverName/_*' ('_' added to silence compiler warning) */
+            int newlen = (int)(length - (pathIndex - path) + 2);
+            memmove(path, pathIndex - 2, newlen);
+            path[newlen] = '\0';
+        }
+    }
+    /* This will have to handle extra \'s but currently doesn't */
 }

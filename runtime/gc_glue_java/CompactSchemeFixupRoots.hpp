@@ -33,75 +33,73 @@
 
 class MM_CompactSchemeFixupRoots : public MM_RootScanner {
 private:
-	MM_CompactScheme* _compactScheme;
+    MM_CompactScheme* _compactScheme;
 
 public:
-	MM_CompactSchemeFixupRoots(MM_EnvironmentBase *env, MM_CompactScheme* compactScheme) :
-		MM_RootScanner(env),
-		_compactScheme(compactScheme)
-	{
-		setIncludeStackFrameClassReferences(false);
-	}
+    MM_CompactSchemeFixupRoots(MM_EnvironmentBase* env, MM_CompactScheme* compactScheme)
+        : MM_RootScanner(env)
+        , _compactScheme(compactScheme)
+    {
+        setIncludeStackFrameClassReferences(false);
+    }
 
-	virtual void doSlot(omrobjectptr_t* slot)
-	{
-		*slot = _compactScheme->getForwardingPtr(*slot);
-	}
+    virtual void doSlot(omrobjectptr_t* slot) { *slot = _compactScheme->getForwardingPtr(*slot); }
 
-	virtual void doClass(J9Class *clazz)
-	{
-		/* We MUST NOT store the forwarded class object back into the clazz since forwarding can
-		 * only happen once and will be taken care of by the code below. ie: the classObject slot
-		 * is part of the GC_ClassIterator.
-		 */
-		GC_ClassIterator classIterator(_env, clazz);
-		while (volatile omrobjectptr_t *slot = classIterator.nextSlot()) {
-			/* discard volatile since we must be in stop-the-world mode */
-			doSlot((omrobjectptr_t*)slot);
-		}
-	}
+    virtual void doClass(J9Class* clazz)
+    {
+        /* We MUST NOT store the forwarded class object back into the clazz since forwarding can
+         * only happen once and will be taken care of by the code below. ie: the classObject slot
+         * is part of the GC_ClassIterator.
+         */
+        GC_ClassIterator classIterator(_env, clazz);
+        while (volatile omrobjectptr_t* slot = classIterator.nextSlot()) {
+            /* discard volatile since we must be in stop-the-world mode */
+            doSlot((omrobjectptr_t*)slot);
+        }
+    }
 
-	virtual void doClassLoader(J9ClassLoader *classLoader)
-	{
-		if (J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
-			doSlot(&classLoader->classLoaderObject);
-			scanModularityObjects(classLoader);
-		}
-	}
+    virtual void doClassLoader(J9ClassLoader* classLoader)
+    {
+        if (J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
+            doSlot(&classLoader->classLoaderObject);
+            scanModularityObjects(classLoader);
+        }
+    }
 
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void scanUnfinalizedObjects(MM_EnvironmentBase *env) {
-		/* allow the compact scheme to handle this */
-		reportScanningStarted(RootScannerEntity_UnfinalizedObjects);
-		MM_CompactSchemeFixupObject fixupObject(env, _compactScheme);
-		fixupUnfinalizedObjects(env);
-		reportScanningEnded(RootScannerEntity_UnfinalizedObjects);
-	}
+    virtual void scanUnfinalizedObjects(MM_EnvironmentBase* env)
+    {
+        /* allow the compact scheme to handle this */
+        reportScanningStarted(RootScannerEntity_UnfinalizedObjects);
+        MM_CompactSchemeFixupObject fixupObject(env, _compactScheme);
+        fixupUnfinalizedObjects(env);
+        reportScanningEnded(RootScannerEntity_UnfinalizedObjects);
+    }
 #endif
 
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void doFinalizableObject(omrobjectptr_t object) {
-		Assert_MM_unreachable();
-	}
+    virtual void doFinalizableObject(omrobjectptr_t object) { Assert_MM_unreachable(); }
 
-	virtual void scanFinalizableObjects(MM_EnvironmentBase *env) {
-		if (_singleThread || J9MODRON_HANDLE_NEXT_WORK_UNIT(env)) {
-			reportScanningStarted(RootScannerEntity_FinalizableObjects);
-			MM_CompactSchemeFixupObject fixupObject(env, _compactScheme);
-			fixupFinalizableObjects(env);
-			reportScanningEnded(RootScannerEntity_FinalizableObjects);
-		}
-	}
+    virtual void scanFinalizableObjects(MM_EnvironmentBase* env)
+    {
+        if (_singleThread || J9MODRON_HANDLE_NEXT_WORK_UNIT(env)) {
+            reportScanningStarted(RootScannerEntity_FinalizableObjects);
+            MM_CompactSchemeFixupObject fixupObject(env, _compactScheme);
+            fixupFinalizableObjects(env);
+            reportScanningEnded(RootScannerEntity_FinalizableObjects);
+        }
+    }
 #endif /* J9VM_GC_FINALIZATION */
 
-	virtual void scanOwnableSynchronizerObjects(MM_EnvironmentBase *env) {
-		/* empty, move ownable synchronizer processing in fixupObject */
-	}
+    virtual void scanOwnableSynchronizerObjects(MM_EnvironmentBase* env)
+    {
+        /* empty, move ownable synchronizer processing in fixupObject */
+    }
 
 private:
 #if defined(J9VM_GC_FINALIZATION)
-	void fixupFinalizableObjects(MM_EnvironmentBase *env);
-	void fixupUnfinalizedObjects(MM_EnvironmentBase *env);
+    void fixupFinalizableObjects(MM_EnvironmentBase* env);
+    void fixupUnfinalizedObjects(MM_EnvironmentBase* env);
 #endif
 };
 #endif /* FIXUPROOTS_HPP_ */

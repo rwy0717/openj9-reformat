@@ -23,27 +23,27 @@
 #define j9portpg_h
 /* @ddr_namespace: map_to_type=J9PortpgConstants */
 typedef struct STFLEFacilities {
-	uint64_t dw1;
-	uint64_t dw2;
-	uint64_t dw3;
+    uint64_t dw1;
+    uint64_t dw2;
+    uint64_t dw3;
 } STFLEFacilities;
 
 typedef struct J9STFLECache {
-	uintptr_t lastDoubleWord;
-	STFLEFacilities facilities;
+    uintptr_t lastDoubleWord;
+    STFLEFacilities facilities;
 } J9STFLECache;
 
 typedef struct J9PortPlatformGlobals {
 #if defined(AIXPPC)
-	int pageProtectionPossible;
+    int pageProtectionPossible;
 #endif
-#if !(defined(RS6000) || defined (LINUXPPC) || defined (PPC))
-	int si_l1DCacheLineSize;
+#if !(defined(RS6000) || defined(LINUXPPC) || defined(PPC))
+    int si_l1DCacheLineSize;
 #endif
-	J9STFLECache stfleCache;
+    J9STFLECache stfleCache;
 } J9PortPlatformGlobals;
 
-#if !(defined(RS6000) || defined (LINUXPPC) || defined (PPC))
+#if !(defined(RS6000) || defined(LINUXPPC) || defined(PPC))
 #define PPG_sysL1DCacheLineSize (portLibrary->portGlobals->platformGlobals.si_l1DCacheLineSize)
 #endif
 #if defined(AIXPPC)
@@ -56,4 +56,3 @@ typedef struct J9PortPlatformGlobals {
 #define PPG_stfleCache (portLibrary->portGlobals->platformGlobals.stfleCache)
 
 #endif /* j9portpg_h */
-

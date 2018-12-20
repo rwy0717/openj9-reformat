@@ -37,16 +37,16 @@ extern "C" {
 #include "j9consts.h"
 #include "bcnames.h"
 
-#define UNTAG2(source, type) ((type) (((UDATA) (source)) & ~3))
+#define UNTAG2(source, type) ((type)(((UDATA)(source)) & ~3))
 
 #define UNTAGGED_METHOD_CP(method) J9_CP_FROM_METHOD(method)
 
-#define UNTAGGED_A0(fp) UNTAG2((fp)->savedA0, UDATA *)
+#define UNTAGGED_A0(fp) UNTAG2((fp)->savedA0, UDATA*)
 
 #ifdef J9VM_INTERP_GROWABLE_STACKS
-#define CONVERT_TO_RELATIVE_STACK_OFFSET(vmThread, ptr) ((UDATA *) (((U_8 *) (vmThread)->stackObject->end) - (U_8 *) (ptr)))
+#define CONVERT_TO_RELATIVE_STACK_OFFSET(vmThread, ptr) ((UDATA*)(((U_8*)(vmThread)->stackObject->end) - (U_8*)(ptr)))
 #else
-#define CONVERT_TO_RELATIVE_STACK_OFFSET(vmThread, ptr) ((UDATA *) (ptr))
+#define CONVERT_TO_RELATIVE_STACK_OFFSET(vmThread, ptr) ((UDATA*)(ptr))
 #endif
 #define CONVERT_FROM_RELATIVE_STACK_OFFSET(vmThread, ptr) CONVERT_TO_RELATIVE_STACK_OFFSET(vmThread, ptr)
 
@@ -54,7 +54,8 @@ extern "C" {
 #define WALK_NAMED_INDIRECT_O_SLOT(slot, ind, tag) swWalkObjectSlot(walkState, (slot), (ind), (tag))
 #define WALK_NAMED_INDIRECT_I_SLOT(slot, ind, tag) swWalkIntSlot(walkState, (slot), (ind), (tag))
 #else
-#define WALK_NAMED_INDIRECT_O_SLOT(slot, ind, tag) walkState->objectSlotWalkFunction(walkState->currentThread, walkState, (slot), REMOTE_ADDR(slot))
+#define WALK_NAMED_INDIRECT_O_SLOT(slot, ind, tag) \
+    walkState->objectSlotWalkFunction(walkState->currentThread, walkState, (slot), REMOTE_ADDR(slot))
 #define WALK_NAMED_INDIRECT_I_SLOT(slot, ind, tag)
 #endif
 #define WALK_INDIRECT_O_SLOT(slot, ind) WALK_NAMED_INDIRECT_O_SLOT((slot), (ind), NULL)
@@ -76,8 +77,8 @@ extern "C" {
 #define READ_OBJECT(remoteObject) dbgReadObject(remoteObject)
 #define READ_UDATA(addr) dbgReadUDATA(addr)
 #else
-#define LOCAL_ADDR(remoteAddr) ((void *) (remoteAddr))
-#define REMOTE_ADDR(localAddr) ((void *) (localAddr))
+#define LOCAL_ADDR(remoteAddr) ((void*)(remoteAddr))
+#define REMOTE_ADDR(localAddr) ((void*)(localAddr))
 #define READ_BYTE(addr) (*(addr))
 #define READ_METHOD(remoteMethod) (remoteMethod)
 #define READ_CP(remoteCP) (remoteCP)
@@ -92,9 +93,9 @@ extern "C" {
 #define MARK_SLOT_AS_OBJECT(walkState, slot)
 #endif
 
-#define IS_SPECIAL_FRAME_PC(pc) ( (UDATA)(pc) <= J9SF_MAX_SPECIAL_FRAME_TYPE )
+#define IS_SPECIAL_FRAME_PC(pc) ((UDATA)(pc) <= J9SF_MAX_SPECIAL_FRAME_TYPE)
 
-#define IS_JNI_CALLIN_FRAME_PC(pc) ( *(U_8*)(pc) == JBimpdep2 )
+#define IS_JNI_CALLIN_FRAME_PC(pc) (*(U_8*)(pc) == JBimpdep2)
 
 #ifdef J9VM_INTERP_STACKWALK_TRACING
 #define SWALK_PRINT_CLASS_OF_RUNNING_METHOD(walkState) swPrintf((walkState), 4, "\tClass of running method\n")
@@ -103,22 +104,22 @@ extern "C" {
 #endif
 
 #if defined(J9VM_ARCH_S390) && !defined(J9VM_ENV_DATA64)
-#define MASK_PC(pc) ((U_8 *) (((UDATA) (pc)) & 0x7FFFFFFF))
+#define MASK_PC(pc) ((U_8*)(((UDATA)(pc)) & 0x7FFFFFFF))
 #else
-#define MASK_PC(pc) ((U_8 *) (pc))
+#define MASK_PC(pc) ((U_8*)(pc))
 #endif
 
-#define WALK_METHOD_CLASS(walkState) \
-	do { \
-		if ((walkState)->flags & J9_STACKWALK_ITERATE_METHOD_CLASS_SLOTS) { \
-			j9object_t classObject; \
-			SWALK_PRINT_CLASS_OF_RUNNING_METHOD(walkState); \
-			(walkState)->slotType = J9_STACKWALK_SLOT_TYPE_INTERNAL; \
-			(walkState)->slotIndex = -1; \
-			classObject = J9VM_J9CLASS_TO_HEAPCLASS((walkState)->constantPool->ramClass); \
-			WALK_O_SLOT( &classObject ); \
-		} \
-	} while(0)
+#define WALK_METHOD_CLASS(walkState)                                                      \
+    do {                                                                                  \
+        if ((walkState)->flags & J9_STACKWALK_ITERATE_METHOD_CLASS_SLOTS) {               \
+            j9object_t classObject;                                                       \
+            SWALK_PRINT_CLASS_OF_RUNNING_METHOD(walkState);                               \
+            (walkState)->slotType = J9_STACKWALK_SLOT_TYPE_INTERNAL;                      \
+            (walkState)->slotIndex = -1;                                                  \
+            classObject = J9VM_J9CLASS_TO_HEAPCLASS((walkState)->constantPool->ramClass); \
+            WALK_O_SLOT(&classObject);                                                    \
+        }                                                                                 \
+    } while (0)
 
 #define J9SW_JIT_RETURN_TABLE_SIZE 0x9
 
@@ -172,9 +173,9 @@ extern "C" {
 
 /* @ddr_namespace: map_to_type=J9StackWalkFlags */
 
-#undef  J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
-#undef  J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
-#undef  J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
+#undef J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
+#undef J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
+#undef J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
 #define J9SW_REGISTER_MAP_WALK_REGISTERS_LOW_TO_HIGH
 
 /* @ddr_namespace: map_to_type=J9StackWalkConstants */
@@ -194,13 +195,14 @@ extern "C" {
 
 #define J9SW_ARGUMENT_REGISTER_COUNT 0x4
 #define J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT 0x8
-#define JIT_RESOLVE_PARM(parmNumber) (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber) - 1]])
+#define JIT_RESOLVE_PARM(parmNumber) \
+    (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber)-1]])
 #define J9SW_POTENTIAL_SAVED_REGISTERS 0x10
 #define J9SW_REGISTER_MAP_MASK 0xFFFF
 #define J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER 0x3
 #define J9SW_JIT_CALLEE_PRESERVED_SIZE 8
-#undef  J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
-#undef  J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
 #define J9SW_LOWEST_MEMORY_PRESERVED_REGISTER jit_rbx
 
 #else /* J9VM_ENV_DATA64 */
@@ -209,20 +211,20 @@ extern "C" {
 
 /* @ddr_namespace: map_to_type=J9StackWalkFlags */
 
-#undef  J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
+#undef J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
 #define J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
 #define J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
-#undef  J9SW_NEEDS_JIT_2_INTERP_THUNKS
-#undef  J9SW_PARAMETERS_IN_REGISTERS
+#undef J9SW_NEEDS_JIT_2_INTERP_THUNKS
+#undef J9SW_PARAMETERS_IN_REGISTERS
 
 /* @ddr_namespace: map_to_type=J9StackWalkConstants */
 
-#undef  J9SW_ARGUMENT_REGISTER_COUNT
-#undef  J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT
+#undef J9SW_ARGUMENT_REGISTER_COUNT
+#undef J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT
 #define JIT_RESOLVE_PARM(parmNumber) (walkState->bp[parmNumber])
 #define J9SW_POTENTIAL_SAVED_REGISTERS 0x7
 #define J9SW_REGISTER_MAP_MASK 0x7F
-#undef  J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER
+#undef J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER
 #define J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER 0x0
 #define J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER 0x0
 #define J9SW_JIT_CALLEE_PRESERVED_SIZE 3
@@ -237,23 +239,24 @@ extern "C" {
 /* @ddr_namespace: map_to_type=J9StackWalkFlags */
 
 #define J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
-#undef  J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
-#undef  J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
+#undef J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
+#undef J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
 #define J9SW_NEEDS_JIT_2_INTERP_THUNKS
 #define J9SW_PARAMETERS_IN_REGISTERS
-#undef  J9SW_REGISTER_MAP_WALK_REGISTERS_LOW_TO_HIGH
+#undef J9SW_REGISTER_MAP_WALK_REGISTERS_LOW_TO_HIGH
 
 /* @ddr_namespace: map_to_type=J9StackWalkConstants */
 
 #define J9SW_ARGUMENT_REGISTER_COUNT 0x8
 #define J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT 0x8
-#define JIT_RESOLVE_PARM(parmNumber) (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber) - 1]])
+#define JIT_RESOLVE_PARM(parmNumber) \
+    (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber)-1]])
 #define J9SW_JIT_STACK_SLOTS_USED_BY_CALL 0x0
 #define J9SW_POTENTIAL_SAVED_REGISTERS 0x20
 #define J9SW_REGISTER_MAP_MASK 0xFFFFFFFF
 #define J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER 0x3
-#undef  J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
-#undef  J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
 #define J9SW_LOWEST_MEMORY_PRESERVED_REGISTER jit_r31
 
 #if defined(J9VM_ENV_DATA64)
@@ -276,9 +279,9 @@ extern "C" {
 
 /* @ddr_namespace: map_to_type=J9StackWalkFlags */
 
-#undef  J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
-#undef  J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
-#undef  J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
+#undef J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
+#undef J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
+#undef J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
 #define J9SW_NEEDS_JIT_2_INTERP_THUNKS
 #define J9SW_PARAMETERS_IN_REGISTERS
 #define J9SW_REGISTER_MAP_WALK_REGISTERS_LOW_TO_HIGH
@@ -287,10 +290,11 @@ extern "C" {
 
 #define J9SW_ARGUMENT_REGISTER_COUNT 0x3
 #define J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT 0x4
-#define JIT_RESOLVE_PARM(parmNumber) (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber) - 1]])
+#define JIT_RESOLVE_PARM(parmNumber) \
+    (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber)-1]])
 #define J9SW_JIT_STACK_SLOTS_USED_BY_CALL 0x0
-#undef  J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
-#undef  J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
 #define J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER 0x1
 
 #if defined(J9VM_ENV_DATA64)
@@ -319,9 +323,9 @@ extern "C" {
 
 /* @ddr_namespace: map_to_type=J9StackWalkFlags */
 
-#undef  J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
-#undef  J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
-#undef  J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
+#undef J9SW_JIT_FLOATS_PASSED_AS_DOUBLES
+#undef J9SW_JIT_HELPERS_PASS_PARAMETERS_ON_STACK
+#undef J9SW_NEEDS_JIT_2_INTERP_CALLEE_ARG_POP
 #define J9SW_NEEDS_JIT_2_INTERP_THUNKS
 #define J9SW_PARAMETERS_IN_REGISTERS
 #define J9SW_REGISTER_MAP_WALK_REGISTERS_LOW_TO_HIGH
@@ -329,14 +333,15 @@ extern "C" {
 /* @ddr_namespace: map_to_type=J9StackWalkConstants */
 
 #define J9SW_ARGUMENT_REGISTER_COUNT 0x4
-#undef  J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT
-#define JIT_RESOLVE_PARM(parmNumber) (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber) - 1]])
+#undef J9SW_JIT_FLOAT_ARGUMENT_REGISTER_COUNT
+#define JIT_RESOLVE_PARM(parmNumber) \
+    (walkState->walkedEntryLocalStorage->jitGlobalStorageBase[jitArgumentRegisterNumbers[(parmNumber)-1]])
 #define J9SW_JIT_STACK_SLOTS_USED_BY_CALL 0x0
 #define J9SW_POTENTIAL_SAVED_REGISTERS 0xC
 #define J9SW_REGISTER_MAP_MASK 0xFFFFFFFF
 #define J9SW_JIT_FIRST_RESOLVE_PARM_REGISTER 0x0
-#undef  J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
-#undef  J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_LOOKUP_INTERFACE_RESOLVE_OFFSET_TO_SAVED_RECEIVER
+#undef J9SW_JIT_VIRTUAL_METHOD_RESOLVE_OFFSET_TO_SAVED_RECEIVER
 #define J9SW_LOWEST_MEMORY_PRESERVED_REGISTER jit_r10
 #define J9SW_JIT_CALLEE_PRESERVED_SIZE 3
 

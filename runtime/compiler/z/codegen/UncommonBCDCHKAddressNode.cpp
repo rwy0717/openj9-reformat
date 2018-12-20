@@ -22,67 +22,57 @@
 
 #include "codegen/UncommonBCDCHKAddressNode.hpp"
 
-#include <stddef.h>                    // for NULL
-#include <stdint.h>                    // for int64_t
-#include <string.h>                    // for strcmp
-#include "compile/Compilation.hpp"     // for LexicalTimer, etc
+#include <stddef.h> // for NULL
+#include <stdint.h> // for int64_t
+#include <string.h> // for strcmp
+#include "compile/Compilation.hpp" // for LexicalTimer, etc
 #include "env/VMJ9.h"
-#include "il/ILOpCodes.hpp"            // for ILOpCodes::pdSetSign, etc
-#include "il/ILOps.hpp"                // for ILOpCode
-#include "il/Node.hpp"                 // for Node
-#include "il/Node_inlines.hpp"         // for Node::getType, etc
-#include "il/TreeTop.hpp"              // for TreeTop
-#include "il/TreeTop_inlines.hpp"      // for TreeTop::getNode, etc
-#include "infra/Assert.hpp"            // for TR_ASSERT
-
+#include "il/ILOpCodes.hpp" // for ILOpCodes::pdSetSign, etc
+#include "il/ILOps.hpp" // for ILOpCode
+#include "il/Node.hpp" // for Node
+#include "il/Node_inlines.hpp" // for Node::getType, etc
+#include "il/TreeTop.hpp" // for TreeTop
+#include "il/TreeTop_inlines.hpp" // for TreeTop::getNode, etc
+#include "infra/Assert.hpp" // for TR_ASSERT
 
 #define OPT_DETAILS "O^O UNCOMMON BCDCHK ADDRESS NODE: "
 
-void
-UncommonBCDCHKAddressNode::perform()
-   {
-   traceMsg(comp(), "Performing UncommonBCDCHKAddressNode\n");
+void UncommonBCDCHKAddressNode::perform()
+{
+    traceMsg(comp(), "Performing UncommonBCDCHKAddressNode\n");
 
-   for(TR::TreeTop* tt = comp()->getStartTree(); tt; tt = tt->getNextTreeTop())
-      {
-      TR::Node* node = tt->getNode();
+    for (TR::TreeTop* tt = comp()->getStartTree(); tt; tt = tt->getNextTreeTop()) {
+        TR::Node* node = tt->getNode();
 
-      if(node && node->getOpCodeValue() == TR::BCDCHK && node->getSymbol() && node->getSymbol()->getResolvedMethodSymbol())
-         {
-         TR::RecognizedMethod method = node->getSymbol()->getResolvedMethodSymbol()->getRecognizedMethod();
-         if(method == TR::com_ibm_dataaccess_DecimalData_convertIntegerToPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_DecimalData_convertLongToPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_addPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_subtractPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_multiplyPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_dividePackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_remainderPackedDecimal_||
-            method == TR::com_ibm_dataaccess_PackedDecimal_shiftLeftPackedDecimal_ ||
-            method == TR::com_ibm_dataaccess_PackedDecimal_shiftRightPackedDecimal_)
-            {
-            TR::Node* pdOpNode = node->getFirstChild();
-            TR::Node* oldAddressNode = node->getSecondChild();
-            TR_ASSERT(pdOpNode && oldAddressNode, "Unexpected null PD opNode or address node under BCDCHK");
-            TR_ASSERT(oldAddressNode->getNumChildren() == 2, "Expecting 2 children under address node of BCDCHK.");
+        if (node && node->getOpCodeValue() == TR::BCDCHK && node->getSymbol()
+            && node->getSymbol()->getResolvedMethodSymbol()) {
+            TR::RecognizedMethod method = node->getSymbol()->getResolvedMethodSymbol()->getRecognizedMethod();
+            if (method == TR::com_ibm_dataaccess_DecimalData_convertIntegerToPackedDecimal_
+                || method == TR::com_ibm_dataaccess_DecimalData_convertLongToPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_addPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_subtractPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_multiplyPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_dividePackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_remainderPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_shiftLeftPackedDecimal_
+                || method == TR::com_ibm_dataaccess_PackedDecimal_shiftRightPackedDecimal_) {
+                TR::Node* pdOpNode = node->getFirstChild();
+                TR::Node* oldAddressNode = node->getSecondChild();
+                TR_ASSERT(pdOpNode && oldAddressNode, "Unexpected null PD opNode or address node under BCDCHK");
+                TR_ASSERT(oldAddressNode->getNumChildren() == 2, "Expecting 2 children under address node of BCDCHK.");
 
-            TR::ILOpCodes addressOp = oldAddressNode->getOpCodeValue();
-            TR_ASSERT((addressOp == TR::aladd || addressOp == TR::aiadd), "Unexpected addressNode opcode");
+                TR::ILOpCodes addressOp = oldAddressNode->getOpCodeValue();
+                TR_ASSERT((addressOp == TR::aladd || addressOp == TR::aiadd), "Unexpected addressNode opcode");
 
-            if(oldAddressNode->getReferenceCount() > 1)
-               {
-               TR::Node* newAddressNode = TR::Node::create(node, addressOp, 2,
-                                                           oldAddressNode->getFirstChild(),
-                                                           oldAddressNode->getSecondChild());
-               node->setAndIncChild(1, newAddressNode);
-               oldAddressNode->decReferenceCount();
-               traceMsg(comp(), "%sReplacing node %s [%p] with [%p]\n",
-                        OPT_DETAILS,
-                        oldAddressNode->getOpCode().getName(),
-                        oldAddressNode,
-                        newAddressNode);
-               }
+                if (oldAddressNode->getReferenceCount() > 1) {
+                    TR::Node* newAddressNode = TR::Node::create(
+                        node, addressOp, 2, oldAddressNode->getFirstChild(), oldAddressNode->getSecondChild());
+                    node->setAndIncChild(1, newAddressNode);
+                    oldAddressNode->decReferenceCount();
+                    traceMsg(comp(), "%sReplacing node %s [%p] with [%p]\n", OPT_DETAILS,
+                        oldAddressNode->getOpCode().getName(), oldAddressNode, newAddressNode);
+                }
             }
-         }
-      }
-   }
-
+        }
+    }
+}

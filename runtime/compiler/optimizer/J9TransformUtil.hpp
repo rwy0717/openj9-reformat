@@ -28,129 +28,140 @@
  */
 #ifndef J9_TRANSFORMUTIL_CONNECTOR
 #define J9_TRANSFORMUTIL_CONNECTOR
-namespace J9 { class TransformUtil; }
-namespace J9 { typedef J9::TransformUtil TransformUtilConnector; }
+namespace J9 {
+class TransformUtil;
+}
+namespace J9 {
+typedef J9::TransformUtil TransformUtilConnector;
+}
 #endif
 
 #include "optimizer/OMRTransformUtil.hpp"
 #include "optimizer/Optimization.hpp"
 #include "control/RecompilationInfo.hpp"
 
-namespace TR { class Compilation; }
-namespace TR { class Node; }
-namespace TR { class Block; }
+namespace TR {
+class Compilation;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class Block;
+}
 
-namespace J9
-{
+namespace J9 {
 
-class OMR_EXTENSIBLE TransformUtil : public OMR::TransformUtilConnector
-   {
+class OMR_EXTENSIBLE TransformUtil : public OMR::TransformUtilConnector {
 public:
-   static TR::TreeTop *generateRetranslateCallerWithPrepTrees(TR::Node *node, TR_PersistentMethodInfo::InfoBits reason, TR::Compilation *comp);
-   static int32_t getLoopNestingDepth(TR::Compilation *comp, TR::Block *block);
-   static bool foldFinalFieldsIn(TR_OpaqueClassBlock *clazz, char *className, int32_t classNameLength, bool isStatic, TR::Compilation *comp);
+    static TR::TreeTop* generateRetranslateCallerWithPrepTrees(
+        TR::Node* node, TR_PersistentMethodInfo::InfoBits reason, TR::Compilation* comp);
+    static int32_t getLoopNestingDepth(TR::Compilation* comp, TR::Block* block);
+    static bool foldFinalFieldsIn(
+        TR_OpaqueClassBlock* clazz, char* className, int32_t classNameLength, bool isStatic, TR::Compilation* comp);
 
-   static TR::Node *generateArrayElementShiftAmountTrees(
-         TR::Compilation *comp,
-         TR::Node *object);
+    static TR::Node* generateArrayElementShiftAmountTrees(TR::Compilation* comp, TR::Node* object);
 
-   static TR::Node *transformStringIndexOfCall( TR::Compilation *, TR::Node *callNode);
-   
-   static TR::Node *transformIndirectLoad(TR::Compilation *, TR::Node *node);
-   static bool transformDirectLoad(TR::Compilation *, TR::Node *node);
-   /**
-    * \brief
-    *    Fold direct load of a reliable static final field. A reliable static final field
-    *    is a field on which midification after initialization is not expected because it's
-    *    initial value critical to VM functionality and performance.
-    *
-    *    See J9::TransformUtil::canFoldStaticFinalField for the list of reliable static final
-    *    field.
-    *
-    * \parm comp
-    *    The compilation object
-    *
-    * \parm node
-    *    The node which is a direct load
-    *
-    * \return
-    *    True if the field has been folded
-    */
-   static bool foldReliableStaticFinalField(TR::Compilation *, TR::Node *node);
-   /**
-    * \brief
-    *    Fold direct load of a static final field assuming there is protection for the folding.
-    *    This will fold both the reliable ones as well as those we have no prior knowledge about.
-    *    Folding of the latter requires protection in order to get out of the jitted body when
-    *    the field gets modified. The onus is on the caller to ensure such protection is added.
-    *
-    * \parm comp
-    *    The compilation object
-    *
-    * \parm node
-    *    The node which is a direct load
-    *
-    * \return
-    *    True if the field has been folded
-    */
-   static bool foldStaticFinalFieldAssumingProtection(TR::Compilation *, TR::Node *node);
+    static TR::Node* transformStringIndexOfCall(TR::Compilation*, TR::Node* callNode);
 
-   /**
-    * \brief
-    *    Answers if a static final field can be folded
-    *
-    * \parm comp
-    *    The compilation object
-    *
-    * \parm node
-    *    The node which is a load direct of static final field
-    *
-    * \return
-    *    TR_yes    If the final field is reliable, then we can trust it. Modifying such field
-    *              after initialization is not expected and is very likely to cause VM
-    *              functional or performance issue.
-    *    TR_no     If the final field is known to change, e.g. fields in java/lang/System
-    *    TR_maybe  If we don't have any prior knowledge about this field, it can be folded
-    *              with guard
-    */
-   static TR_YesNoMaybe canFoldStaticFinalField(TR::Compilation *comp, TR::Node *node);
+    static TR::Node* transformIndirectLoad(TR::Compilation*, TR::Node* node);
+    static bool transformDirectLoad(TR::Compilation*, TR::Node* node);
+    /**
+     * \brief
+     *    Fold direct load of a reliable static final field. A reliable static final field
+     *    is a field on which midification after initialization is not expected because it's
+     *    initial value critical to VM functionality and performance.
+     *
+     *    See J9::TransformUtil::canFoldStaticFinalField for the list of reliable static final
+     *    field.
+     *
+     * \parm comp
+     *    The compilation object
+     *
+     * \parm node
+     *    The node which is a direct load
+     *
+     * \return
+     *    True if the field has been folded
+     */
+    static bool foldReliableStaticFinalField(TR::Compilation*, TR::Node* node);
+    /**
+     * \brief
+     *    Fold direct load of a static final field assuming there is protection for the folding.
+     *    This will fold both the reliable ones as well as those we have no prior knowledge about.
+     *    Folding of the latter requires protection in order to get out of the jitted body when
+     *    the field gets modified. The onus is on the caller to ensure such protection is added.
+     *
+     * \parm comp
+     *    The compilation object
+     *
+     * \parm node
+     *    The node which is a direct load
+     *
+     * \return
+     *    True if the field has been folded
+     */
+    static bool foldStaticFinalFieldAssumingProtection(TR::Compilation*, TR::Node* node);
 
-   static bool transformIndirectLoadChain(TR::Compilation *, TR::Node *node, TR::Node *baseExpression, TR::KnownObjectTable::Index baseKnownObject, TR::Node **removedNode);
-   static bool transformIndirectLoadChainAt(TR::Compilation *, TR::Node *node, TR::Node *baseExpression, uintptrj_t *baseReferenceLocation, TR::Node **removedNode);
-   static bool transformIndirectLoadChainImpl( TR::Compilation *, TR::Node *node, TR::Node *baseExpression, void *baseAddress, TR::Node **removedNode);
+    /**
+     * \brief
+     *    Answers if a static final field can be folded
+     *
+     * \parm comp
+     *    The compilation object
+     *
+     * \parm node
+     *    The node which is a load direct of static final field
+     *
+     * \return
+     *    TR_yes    If the final field is reliable, then we can trust it. Modifying such field
+     *              after initialization is not expected and is very likely to cause VM
+     *              functional or performance issue.
+     *    TR_no     If the final field is known to change, e.g. fields in java/lang/System
+     *    TR_maybe  If we don't have any prior knowledge about this field, it can be folded
+     *              with guard
+     */
+    static TR_YesNoMaybe canFoldStaticFinalField(TR::Compilation* comp, TR::Node* node);
 
-   static bool fieldShouldBeCompressed(TR::Node *node, TR::Compilation *comp);
+    static bool transformIndirectLoadChain(TR::Compilation*, TR::Node* node, TR::Node* baseExpression,
+        TR::KnownObjectTable::Index baseKnownObject, TR::Node** removedNode);
+    static bool transformIndirectLoadChainAt(TR::Compilation*, TR::Node* node, TR::Node* baseExpression,
+        uintptrj_t* baseReferenceLocation, TR::Node** removedNode);
+    static bool transformIndirectLoadChainImpl(
+        TR::Compilation*, TR::Node* node, TR::Node* baseExpression, void* baseAddress, TR::Node** removedNode);
 
-   static TR::Block *insertNewFirstBlockForCompilation(TR::Compilation *comp);
-   static TR::Node *calculateOffsetFromIndexInContiguousArray(TR::Compilation *, TR::Node * index, TR::DataType type);
-   static TR::Node *calculateElementAddress(TR::Compilation *, TR::Node *array, TR::Node * index, TR::DataType type);
-   static TR::Node *calculateIndexFromOffsetInContiguousArray(TR::Compilation *, TR::Node * offset, TR::DataType type);
+    static bool fieldShouldBeCompressed(TR::Node* node, TR::Compilation* comp);
 
-   static TR::Node* saveNodeToTempSlot(TR::Compilation* comp, TR::Node* node, TR::TreeTop* insertTreeTop);
-   static void createTempsForCall(TR::Optimization* opt, TR::TreeTop *callTree);
-   static void createDiamondForCall(TR::Optimization* opt, TR::TreeTop *callTree, TR::TreeTop *compareTree, TR::TreeTop *ifTree, TR::TreeTop *elseTree, bool changeBlockExtensions = false, bool markCold = false);
+    static TR::Block* insertNewFirstBlockForCompilation(TR::Compilation* comp);
+    static TR::Node* calculateOffsetFromIndexInContiguousArray(TR::Compilation*, TR::Node* index, TR::DataType type);
+    static TR::Node* calculateElementAddress(TR::Compilation*, TR::Node* array, TR::Node* index, TR::DataType type);
+    static TR::Node* calculateIndexFromOffsetInContiguousArray(TR::Compilation*, TR::Node* offset, TR::DataType type);
 
-   static void prohibitOSROverRange(TR::Compilation* comp, TR::TreeTop* start, TR::TreeTop* end);
-   static void removePotentialOSRPointHelperCalls(TR::Compilation* comp, TR::TreeTop* start, TR::TreeTop* end);
+    static TR::Node* saveNodeToTempSlot(TR::Compilation* comp, TR::Node* node, TR::TreeTop* insertTreeTop);
+    static void createTempsForCall(TR::Optimization* opt, TR::TreeTop* callTree);
+    static void createDiamondForCall(TR::Optimization* opt, TR::TreeTop* callTree, TR::TreeTop* compareTree,
+        TR::TreeTop* ifTree, TR::TreeTop* elseTree, bool changeBlockExtensions = false, bool markCold = false);
+
+    static void prohibitOSROverRange(TR::Compilation* comp, TR::TreeTop* start, TR::TreeTop* end);
+    static void removePotentialOSRPointHelperCalls(TR::Compilation* comp, TR::TreeTop* start, TR::TreeTop* end);
 
 protected:
-   /**
-    * \brief
-    *    Fold a load of static final field to a constant or improve its symbol reference
-    *
-    * \parm comp
-    *    The compilation object
-    *
-    * \parm node
-    *    The node which is a load direct of static final field
-    *
-    * \return
-    *    True if the field is folded
-    */
-   static bool foldStaticFinalFieldImpl(TR::Compilation *, TR::Node *node);
+    /**
+     * \brief
+     *    Fold a load of static final field to a constant or improve its symbol reference
+     *
+     * \parm comp
+     *    The compilation object
+     *
+     * \parm node
+     *    The node which is a load direct of static final field
+     *
+     * \return
+     *    True if the field is folded
+     */
+    static bool foldStaticFinalFieldImpl(TR::Compilation*, TR::Node* node);
+};
 
-   };
-
-}
+} // namespace J9
 
 #endif

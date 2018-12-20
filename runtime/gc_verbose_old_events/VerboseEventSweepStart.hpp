@@ -34,22 +34,18 @@
  * Stores the data relating to the start of a sweep phase.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventSweepStart : public MM_VerboseEvent
-{
+class MM_VerboseEventSweepStart : public MM_VerboseEvent {
 public:
+    static MM_VerboseEvent* newInstance(MM_SweepStartEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_SweepStartEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-	
-	MMINLINE virtual bool definesOutputRoutine() { return false; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventSweepStart(MM_SweepStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{
-	};
+    MMINLINE virtual bool definesOutputRoutine() { return false; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventSweepStart(MM_SweepStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface) {};
 };
 
 #endif /* EVENT_SWEEP_START_HPP_ */

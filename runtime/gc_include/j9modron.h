@@ -40,16 +40,16 @@ extern "C" {
  * @{
  */
 typedef enum {
-	j9gc_modron_wrtbar_illegal = gc_modron_wrtbar_illegal,
-	j9gc_modron_wrtbar_none = gc_modron_wrtbar_none,
-	j9gc_modron_wrtbar_always = gc_modron_wrtbar_always,
-	j9gc_modron_wrtbar_oldcheck = gc_modron_wrtbar_oldcheck,
-	j9gc_modron_wrtbar_cardmark = gc_modron_wrtbar_cardmark,
-	j9gc_modron_wrtbar_cardmark_incremental = gc_modron_wrtbar_cardmark_incremental,
-	j9gc_modron_wrtbar_cardmark_and_oldcheck = gc_modron_wrtbar_cardmark_and_oldcheck,
-	j9gc_modron_wrtbar_satb = gc_modron_wrtbar_satb,
-	j9gc_modron_wrtbar_satb_and_oldcheck = gc_modron_wrtbar_satb_and_oldcheck,
-	j9gc_modron_wrtbar_count = gc_modron_wrtbar_count
+    j9gc_modron_wrtbar_illegal = gc_modron_wrtbar_illegal,
+    j9gc_modron_wrtbar_none = gc_modron_wrtbar_none,
+    j9gc_modron_wrtbar_always = gc_modron_wrtbar_always,
+    j9gc_modron_wrtbar_oldcheck = gc_modron_wrtbar_oldcheck,
+    j9gc_modron_wrtbar_cardmark = gc_modron_wrtbar_cardmark,
+    j9gc_modron_wrtbar_cardmark_incremental = gc_modron_wrtbar_cardmark_incremental,
+    j9gc_modron_wrtbar_cardmark_and_oldcheck = gc_modron_wrtbar_cardmark_and_oldcheck,
+    j9gc_modron_wrtbar_satb = gc_modron_wrtbar_satb,
+    j9gc_modron_wrtbar_satb_and_oldcheck = gc_modron_wrtbar_satb_and_oldcheck,
+    j9gc_modron_wrtbar_count = gc_modron_wrtbar_count
 } J9WriteBarrierType;
 
 /**
@@ -58,54 +58,64 @@ typedef enum {
  * @{
  */
 typedef enum {
-	j9gc_modron_readbar_illegal = gc_modron_readbar_illegal,
-	j9gc_modron_readbar_none = gc_modron_readbar_none,
-	j9gc_modron_readbar_range_check = gc_modron_readbar_range_check,
-	j9gc_modron_readbar_always = gc_modron_readbar_always,
-	j9gc_modron_readbar_count = gc_modron_readbar_count
+    j9gc_modron_readbar_illegal = gc_modron_readbar_illegal,
+    j9gc_modron_readbar_none = gc_modron_readbar_none,
+    j9gc_modron_readbar_range_check = gc_modron_readbar_range_check,
+    j9gc_modron_readbar_always = gc_modron_readbar_always,
+    j9gc_modron_readbar_count = gc_modron_readbar_count
 } J9ReadBarrierType;
 
 typedef enum {
-	j9gc_modron_allocation_type_illegal = OMR_GC_ALLOCATION_TYPE_ILLEGAL,
-	j9gc_modron_allocation_type_tlh = OMR_GC_ALLOCATION_TYPE_TLH,
-	j9gc_modron_allocation_type_segregated = OMR_GC_ALLOCATION_TYPE_SEGREGATED,
-	j9gc_modron_allocation_type_count /* Total number of write barriers */
+    j9gc_modron_allocation_type_illegal = OMR_GC_ALLOCATION_TYPE_ILLEGAL,
+    j9gc_modron_allocation_type_tlh = OMR_GC_ALLOCATION_TYPE_TLH,
+    j9gc_modron_allocation_type_segregated = OMR_GC_ALLOCATION_TYPE_SEGREGATED,
+    j9gc_modron_allocation_type_count /* Total number of write barriers */
 } J9GCAllocationType;
 
 /**
  * GC Feature type definitions (used by "j9gc_modron_isFeatureSupported")
  */
 typedef enum {
-	j9gc_modron_feature_none = 0,
-	j9gc_modron_feature_inline_reference_get,
-	j9gc_modron_feature_count /* Total number of known features */
+    j9gc_modron_feature_none = 0,
+    j9gc_modron_feature_inline_reference_get,
+    j9gc_modron_feature_count /* Total number of known features */
 } J9GCFeatureType;
 
 /**
  * GC Configuration type definitions (used by "j9gc_modron_getConfigurationValueForKey")
  */
 typedef enum {
-	j9gc_modron_configuration_none = 0,
-	j9gc_modron_configuration_heapAddressToCardAddressShift,	/* a UDATA representing the shift amount to convert from heap granularity to card table granularity */
-	j9gc_modron_configuration_heapBaseForBarrierRange0_isVariable,	/* a UDATA (TRUE or FALSE) representing whether or not the J9VMThread->heapBaseForBarrierRange0 can change during the run (FALSE implies constant) */
-	j9gc_modron_configuration_activeCardTableBase_isVariable,	/* a UDATA (TRUE or FALSE) representing whether or not the J9VMThread->activeCardTableBase can change during the run (FALSE implies constant) */
-	j9gc_modron_configuration_heapSizeForBarrierRange0_isVariable,	/* a UDATA (TRUE or FALSE) representing whether or not the J9VMThread->heapSizeForBarrierRange0 can change during the run (FALSE implies constant) */
-	j9gc_modron_configuration_minimumObjectSize, /* a UDATA representing the minimum object size */
-	j9gc_modron_configuration_allocationType, /* a UDATA representing the allocation type see J9GCAllocationType enum for possible types */
-	j9gc_modron_configuration_discontiguousArraylets,  /* a UDATA (TRUE or FALSE) representing whether or not discontiguousArraylets are enabled */
-	j9gc_modron_configuration_gcThreadCount,  /* a UDATA representing the MAX number of GC threads being used */
-	j9gc_modron_configuration_objectAlignment, /* a UDATA representing the alignment of the object in heap */
-	/* Add new values before this comment */
-	j9gc_modron_configuration_count /* Total number of known configuration keys */
+    j9gc_modron_configuration_none = 0,
+    j9gc_modron_configuration_heapAddressToCardAddressShift, /* a UDATA representing the shift amount to convert from
+                                                                heap granularity to card table granularity */
+    j9gc_modron_configuration_heapBaseForBarrierRange0_isVariable, /* a UDATA (TRUE or FALSE) representing whether or
+                                                                      not the J9VMThread->heapBaseForBarrierRange0 can
+                                                                      change during the run (FALSE implies constant) */
+    j9gc_modron_configuration_activeCardTableBase_isVariable, /* a UDATA (TRUE or FALSE) representing whether or not the
+                                                                 J9VMThread->activeCardTableBase can change during the
+                                                                 run (FALSE implies constant) */
+    j9gc_modron_configuration_heapSizeForBarrierRange0_isVariable, /* a UDATA (TRUE or FALSE) representing whether or
+                                                                      not the J9VMThread->heapSizeForBarrierRange0 can
+                                                                      change during the run (FALSE implies constant) */
+    j9gc_modron_configuration_minimumObjectSize, /* a UDATA representing the minimum object size */
+    j9gc_modron_configuration_allocationType, /* a UDATA representing the allocation type see J9GCAllocationType enum
+                                                 for possible types */
+    j9gc_modron_configuration_discontiguousArraylets, /* a UDATA (TRUE or FALSE) representing whether or not
+                                                         discontiguousArraylets are enabled */
+    j9gc_modron_configuration_gcThreadCount, /* a UDATA representing the MAX number of GC threads being used */
+    j9gc_modron_configuration_objectAlignment, /* a UDATA representing the alignment of the object in heap */
+    /* Add new values before this comment */
+    j9gc_modron_configuration_count /* Total number of known configuration keys */
 } J9GCConfigurationKey;
-
 
 /**
  * Signature for the callback function passed to <code>MM_ReferenceChainWalker</code>
  */
-typedef jvmtiIterationControl J9MODRON_REFERENCE_CHAIN_WALKER_CALLBACK(J9Object **slotPtr, J9Object *sourcePtr, void *userData, IDATA type, IDATA index, IDATA wasReportedBefore);
+typedef jvmtiIterationControl J9MODRON_REFERENCE_CHAIN_WALKER_CALLBACK(
+    J9Object** slotPtr, J9Object* sourcePtr, void* userData, IDATA type, IDATA index, IDATA wasReportedBefore);
 
-#define J9GC_ROOT_TYPE_UNKNOWN 1 /**< root that fell through a default state in an iterator, or called via non abstracted doSlot() */
+#define J9GC_ROOT_TYPE_UNKNOWN \
+    1 /**< root that fell through a default state in an iterator, or called via non abstracted doSlot() */
 #define J9GC_ROOT_TYPE_CLASS 2
 #define J9GC_ROOT_TYPE_JNI_LOCAL 3
 #define J9GC_ROOT_TYPE_JNI_GLOBAL 4
@@ -129,10 +139,10 @@ typedef jvmtiIterationControl J9MODRON_REFERENCE_CHAIN_WALKER_CALLBACK(J9Object 
 #define J9GC_ROOT_TYPE_OWNABLE_SYNCHRONIZER_OBJECT 22
 
 #define J9GC_REFERENCE_TYPE_UNKNOWN -1 /**< reference to an object that fell through a default state in an iterator */
-#define J9GC_REFERENCE_TYPE_FIELD -2	/**< field reference to an object */
-#define J9GC_REFERENCE_TYPE_STATIC -3	/**< static field reference to an object */
-#define J9GC_REFERENCE_TYPE_CLASS -4	/**< reference to an object's class */
-#define J9GC_REFERENCE_TYPE_ARRAY -5	/**< reference to an object from an array */
+#define J9GC_REFERENCE_TYPE_FIELD -2 /**< field reference to an object */
+#define J9GC_REFERENCE_TYPE_STATIC -3 /**< static field reference to an object */
+#define J9GC_REFERENCE_TYPE_CLASS -4 /**< reference to an object's class */
+#define J9GC_REFERENCE_TYPE_ARRAY -5 /**< reference to an object from an array */
 #define J9GC_REFERENCE_TYPE_WEAK_REFERENCE -6 /**< field reference to an object from a weak reference */
 #define J9GC_REFERENCE_TYPE_CONSTANT_POOL -7 /**< reference to an object in a constant pool */
 #define J9GC_REFERENCE_TYPE_PROTECTION_DOMAIN -8 /**< reference to a class' protection domain */
@@ -161,16 +171,15 @@ typedef jvmtiIterationControl J9MODRON_REFERENCE_CHAIN_WALKER_CALLBACK(J9Object 
  * @ingroup GC_Include
  * @{
  */
-#define DEFERRED_RS_REMOVE_FLAG 			0x1	
+#define DEFERRED_RS_REMOVE_FLAG 0x1
 /**
  * @}
  */
 
-
 /**
  * @ingroup GC_Include
  * @name Class loader flags
- * Borrowed from builder - should be made collector specific 
+ * Borrowed from builder - should be made collector specific
  * @{
  */
 /* TODO Should these be deleted? or changed? */
@@ -194,32 +203,30 @@ typedef jvmtiIterationControl J9MODRON_REFERENCE_CHAIN_WALKER_CALLBACK(J9Object 
 #define J9_GC_METRONOME_UTILIZATION_COMPONENT_JIT 2
 /** @} */
 
-
 #define J9GC_HASH_SALT_COUNT_STANDARD 1
 #define J9GC_HASH_SALT_NURSERY_INDEX 0
 
-#define J9_GC_MANAGEMENT_POOL_JAVAHEAP	 				0x1
-#define J9_GC_MANAGEMENT_POOL_TENURED 				0x2
-#define J9_GC_MANAGEMENT_POOL_TENURED_SOA 			0x4
-#define J9_GC_MANAGEMENT_POOL_TENURED_LOA 			0x8
-#define J9_GC_MANAGEMENT_POOL_NURSERY_ALLOCATE		0x10
-#define J9_GC_MANAGEMENT_POOL_NURSERY_SURVIVOR		0x20
-#define J9_GC_MANAGEMENT_POOL_REGION_OLD 				0x40
-#define J9_GC_MANAGEMENT_POOL_REGION_EDEN 				0x80
-#define J9_GC_MANAGEMENT_POOL_REGION_SURVIVOR 			0x100
-#define J9_GC_MANAGEMENT_POOL_REGION_RESERVED 			0x200
-#define J9_GC_MANAGEMENT_MAX_POOL						10
+#define J9_GC_MANAGEMENT_POOL_JAVAHEAP 0x1
+#define J9_GC_MANAGEMENT_POOL_TENURED 0x2
+#define J9_GC_MANAGEMENT_POOL_TENURED_SOA 0x4
+#define J9_GC_MANAGEMENT_POOL_TENURED_LOA 0x8
+#define J9_GC_MANAGEMENT_POOL_NURSERY_ALLOCATE 0x10
+#define J9_GC_MANAGEMENT_POOL_NURSERY_SURVIVOR 0x20
+#define J9_GC_MANAGEMENT_POOL_REGION_OLD 0x40
+#define J9_GC_MANAGEMENT_POOL_REGION_EDEN 0x80
+#define J9_GC_MANAGEMENT_POOL_REGION_SURVIVOR 0x100
+#define J9_GC_MANAGEMENT_POOL_REGION_RESERVED 0x200
+#define J9_GC_MANAGEMENT_MAX_POOL 10
 
-#define J9_GC_MANAGEMENT_COLLECTOR_SCAVENGE 			0x1
-#define J9_GC_MANAGEMENT_COLLECTOR_GLOBAL 				0x2
-#define J9_GC_MANAGEMENT_COLLECTOR_PGC 					0x4
-#define J9_GC_MANAGEMENT_COLLECTOR_GGC 					0x8
-#define J9_GC_MANAGEMENT_COLLECTOR_EPSILON				0x10
-#define J9_GC_MANAGEMENT_MAX_COLLECTOR 					5
+#define J9_GC_MANAGEMENT_COLLECTOR_SCAVENGE 0x1
+#define J9_GC_MANAGEMENT_COLLECTOR_GLOBAL 0x2
+#define J9_GC_MANAGEMENT_COLLECTOR_PGC 0x4
+#define J9_GC_MANAGEMENT_COLLECTOR_GGC 0x8
+#define J9_GC_MANAGEMENT_COLLECTOR_EPSILON 0x10
+#define J9_GC_MANAGEMENT_MAX_COLLECTOR 5
 
 #ifdef __cplusplus
 } /* extern "C" { */
 #endif /* __cplusplus */
 
 #endif /* J9MODRON_H__ */
-

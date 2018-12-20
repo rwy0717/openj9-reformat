@@ -27,26 +27,23 @@
 #include "j9generated.h"
 #include "SCAbstractAPI.h"
 
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#if defined (J9VM_SHRTEST) && defined (J9SHR_CACHELET_SUPPORT)
+#if defined(J9VM_SHRTEST) && defined(J9SHR_CACHELET_SUPPORT)
 /*This function is not used from shrtest -Xrealtime */
 #else
-static BOOLEAN
-j9shr_Query_IsCacheFull(J9JavaVM *vm)
+static BOOLEAN j9shr_Query_IsCacheFull(J9JavaVM* vm)
 {
-	BOOLEAN retval = TRUE;
-	if (vm != NULL && vm->sharedClassConfig != NULL) {
-		SCAbstractAPI * sharedapi = (SCAbstractAPI *)(vm->sharedClassConfig->sharedAPIObject);
-		if (sharedapi != NULL && sharedapi->isCacheFull != NULL) {
-			retval = sharedapi->isCacheFull(vm);
-		}
-	}
-	return retval;
+    BOOLEAN retval = TRUE;
+    if (vm != NULL && vm->sharedClassConfig != NULL) {
+        SCAbstractAPI* sharedapi = (SCAbstractAPI*)(vm->sharedClassConfig->sharedAPIObject);
+        if (sharedapi != NULL && sharedapi->isCacheFull != NULL) {
+            retval = sharedapi->isCacheFull(vm);
+        }
+    }
+    return retval;
 }
 #endif
 
@@ -67,41 +64,39 @@ j9shr_Query_IsCacheFull(J9JavaVM *vm)
  * @param Length of the memory segment.
  * @return TRUE if memory segment is in any cache, FALSE otherwise.
  */
-#if defined (J9VM_SHRTEST) && defined (J9SHR_CACHELET_SUPPORT)
+#if defined(J9VM_SHRTEST) && defined(J9SHR_CACHELET_SUPPORT)
 /*This function is not used from shrtest -Xrealtime */
 #else
-static BOOLEAN
-j9shr_Query_IsAddressInCache(J9JavaVM *vm, void *address, UDATA length)
+static BOOLEAN j9shr_Query_IsAddressInCache(J9JavaVM* vm, void* address, UDATA length)
 {
-	BOOLEAN retval = FALSE;
-	if ((NULL != vm) && (NULL != vm->sharedClassConfig)) {
-		SCAbstractAPI * sharedapi = (SCAbstractAPI *)(vm->sharedClassConfig->sharedAPIObject);
-		if ((NULL != sharedapi) && (NULL != sharedapi->isAddressInCache)) {
-			retval = sharedapi->isAddressInCache(vm, address, length);
-		}
-	}
-	return retval;
+    BOOLEAN retval = FALSE;
+    if ((NULL != vm) && (NULL != vm->sharedClassConfig)) {
+        SCAbstractAPI* sharedapi = (SCAbstractAPI*)(vm->sharedClassConfig->sharedAPIObject);
+        if ((NULL != sharedapi) && (NULL != sharedapi->isAddressInCache)) {
+            retval = sharedapi->isAddressInCache(vm, address, length);
+        }
+    }
+    return retval;
 }
 #endif
 
-#if !defined (J9VM_SHRTEST)
-static void
-j9shr_Query_PopulatePreinitConfigDefaults(J9JavaVM *vm, J9SharedClassPreinitConfig *updatedWithDefaults)
+#if !defined(J9VM_SHRTEST)
+static void j9shr_Query_PopulatePreinitConfigDefaults(J9JavaVM* vm, J9SharedClassPreinitConfig* updatedWithDefaults)
 {
-	if ((NULL != vm) && (NULL != vm->sharedClassConfig)) {
-		SCAbstractAPI * sharedapi = (SCAbstractAPI *)(vm->sharedClassConfig->sharedAPIObject);
-		if ((NULL != sharedapi) && (NULL != sharedapi->populatePreinitConfigDefaults)) {
-			sharedapi->populatePreinitConfigDefaults(vm, updatedWithDefaults);
-		}
-	} else {
-		/*If shared classes is disabled all the values in 'updatedWithDefaults' are 0 bytes*/
-		memset(updatedWithDefaults,0,sizeof(J9SharedClassPreinitConfig));
-	}
+    if ((NULL != vm) && (NULL != vm->sharedClassConfig)) {
+        SCAbstractAPI* sharedapi = (SCAbstractAPI*)(vm->sharedClassConfig->sharedAPIObject);
+        if ((NULL != sharedapi) && (NULL != sharedapi->populatePreinitConfigDefaults)) {
+            sharedapi->populatePreinitConfigDefaults(vm, updatedWithDefaults);
+        }
+    } else {
+        /*If shared classes is disabled all the values in 'updatedWithDefaults' are 0 bytes*/
+        memset(updatedWithDefaults, 0, sizeof(J9SharedClassPreinitConfig));
+    }
 }
 #endif
 
 #ifdef __cplusplus
-}/*extern "C"*/
+} /*extern "C"*/
 #endif
 
 #endif /* J9SC_SCQUERYFUNCTIONS_H */

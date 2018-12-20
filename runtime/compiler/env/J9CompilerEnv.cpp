@@ -26,40 +26,31 @@
 #include "env/CPU.hpp"
 #include "j9.h"
 
-J9::CompilerEnv::CompilerEnv(J9JavaVM *vm, TR::RawAllocator raw, const TR::PersistentAllocatorKit &persistentAllocatorKit) :
-   OMR::CompilerEnvConnector(raw, persistentAllocatorKit),
-   portLib(vm->portLibrary),
-   javaVM(vm)
-   {
-   }
+J9::CompilerEnv::CompilerEnv(
+    J9JavaVM* vm, TR::RawAllocator raw, const TR::PersistentAllocatorKit& persistentAllocatorKit)
+    : OMR::CompilerEnvConnector(raw, persistentAllocatorKit)
+    , portLib(vm->portLibrary)
+    , javaVM(vm)
+{}
 
-
-void
-J9::CompilerEnv::initializeTargetEnvironment()
-   {
-   OMR::CompilerEnvConnector::initializeTargetEnvironment();
-   }
+void J9::CompilerEnv::initializeTargetEnvironment() { OMR::CompilerEnvConnector::initializeTargetEnvironment(); }
 
 /**
- * \brief Determines whether methods are compiled and the generated code simply 
+ * \brief Determines whether methods are compiled and the generated code simply
  *        "tossed" without execution.
  * \return true if compiles have been requested to be tossed; false otherwise.
  */
-bool
-J9::CompilerEnv::isCodeTossed()
-   {
-   J9JITConfig *jitConfig = javaVM->jitConfig;
+bool J9::CompilerEnv::isCodeTossed()
+{
+    J9JITConfig* jitConfig = javaVM->jitConfig;
 
-   if (jitConfig == NULL)
-      {
-      return false;
-      }
+    if (jitConfig == NULL) {
+        return false;
+    }
 
-   if ((jitConfig->runtimeFlags & J9JIT_TOSS_CODE) ||
-       (jitConfig->runtimeFlags & J9JIT_TESTMODE))
-      {
-      return true;
-      }
+    if ((jitConfig->runtimeFlags & J9JIT_TOSS_CODE) || (jitConfig->runtimeFlags & J9JIT_TESTMODE)) {
+        return true;
+    }
 
-   return false;
-   }
+    return false;
+}

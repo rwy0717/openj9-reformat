@@ -49,48 +49,43 @@
  * changing the type of that argument in every subclass, we
  * do this instead.
  */
-class GC_StringTableIncrementalIterator : public GC_HashTableIterator
-{
+class GC_StringTableIncrementalIterator : public GC_HashTableIterator {
 private:
-	typedef enum {
-		ITERATE_NODE_POOL = 0,
-		ITERATE_TREE_POOL
-	} IterateState ;
+    typedef enum { ITERATE_NODE_POOL = 0, ITERATE_TREE_POOL } IterateState;
 
-	J9HashTable *_hashTable; /**< The string table (currently implemented as a hash table) */
-	J9Pool* _currentIteratePool; /**< Pool that is currently being iterated over iterating */
-	J9Pool* _stringTableTreeNodePool; /**< The string table tree node pool */
-	J9PoolPuddle *_currentPuddle; /**< Puddle that is currently being iterated over */
-	J9PoolPuddle *_nextPuddle; /**< Next puddle to iterate over -- prefetched in case the current puddle is deleted */
-	pool_state _poolState; /**< State of the iteration over the pool */
-	void *_nextNode; /**< Node to be used for the next call to nextSlot() */
-	void *_lastNode; /**< Node to be used for the last call to nextSlot() -- required right now to implement deletion */
-	void **_lastSlot; /**< Slot used for the last call to nextSlot() -- required for hashtable removes */
-	IterateState _iterateState;
-
+    J9HashTable* _hashTable; /**< The string table (currently implemented as a hash table) */
+    J9Pool* _currentIteratePool; /**< Pool that is currently being iterated over iterating */
+    J9Pool* _stringTableTreeNodePool; /**< The string table tree node pool */
+    J9PoolPuddle* _currentPuddle; /**< Puddle that is currently being iterated over */
+    J9PoolPuddle* _nextPuddle; /**< Next puddle to iterate over -- prefetched in case the current puddle is deleted */
+    pool_state _poolState; /**< State of the iteration over the pool */
+    void* _nextNode; /**< Node to be used for the next call to nextSlot() */
+    void* _lastNode; /**< Node to be used for the last call to nextSlot() -- required right now to implement deletion */
+    void** _lastSlot; /**< Slot used for the last call to nextSlot() -- required for hashtable removes */
+    IterateState _iterateState;
 
 private:
-	void getNext();
+    void getNext();
+
 public:
-	void **nextSlot();
-	virtual void removeSlot();
+    void** nextSlot();
+    virtual void removeSlot();
 
-	bool nextIncrement();
+    bool nextIncrement();
 
-	GC_StringTableIncrementalIterator(J9HashTable *hashTable) :
-		GC_HashTableIterator(hashTable),
-		_hashTable(hashTable),
-		_currentIteratePool(hashTable->listNodePool),
-		_stringTableTreeNodePool(hashTable->treeNodePool),
-		_currentPuddle(NULL),
-		_nextPuddle(J9POOLPUDDLELIST_NEXTPUDDLE(J9POOL_PUDDLELIST(hashTable->listNodePool))),
-		_poolState(),
-		_nextNode(NULL),
-		_lastNode(NULL),
-		_lastSlot(NULL),
-		_iterateState(ITERATE_NODE_POOL)
-	{}
+    GC_StringTableIncrementalIterator(J9HashTable* hashTable)
+        : GC_HashTableIterator(hashTable)
+        , _hashTable(hashTable)
+        , _currentIteratePool(hashTable->listNodePool)
+        , _stringTableTreeNodePool(hashTable->treeNodePool)
+        , _currentPuddle(NULL)
+        , _nextPuddle(J9POOLPUDDLELIST_NEXTPUDDLE(J9POOL_PUDDLELIST(hashTable->listNodePool)))
+        , _poolState()
+        , _nextNode(NULL)
+        , _lastNode(NULL)
+        , _lastSlot(NULL)
+        , _iterateState(ITERATE_NODE_POOL)
+    {}
 };
 
 #endif /* STRINGTABLEINCREMENTALITERATOR_HPP_ */
-

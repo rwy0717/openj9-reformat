@@ -30,12 +30,12 @@
  * @file
  * @ingroup PortTest
  * @brief Verify port library signal handling.
- * 
- * Exercise the API for port library signal handling.  These functions 
- * can be found in the file @ref j9signal.c  
- * 
+ *
+ * Exercise the API for port library signal handling.  These functions
+ * can be found in the file @ref j9signal.c
+ *
  */
- 
+
 #include "testHelpers.h"
 #include "testProcessHelpers.h"
 #include "j9port.h"
@@ -45,33 +45,30 @@
 #include "atoe.h"
 #endif
 
-
 static U_32 portTestOptionsGlobal;
 
-static I_32 j9ri_test0(struct J9PortLibrary *portLibrary);
+static I_32 j9ri_test0(struct J9PortLibrary* portLibrary);
 
 /**
  * Verify port library runtime instrumentation.
- * 
+ *
  * @param[in] portLibrary 	the port library under test
- * 
+ *
  * @return 0 on success, -1 on failure
  */
-I_32 
-j9ri_runTests(struct J9PortLibrary *portLibrary)
+I_32 j9ri_runTests(struct J9PortLibrary* portLibrary)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	I_32 rc;
-	
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    I_32 rc;
 
-	/* Display unit under test */
-	HEADING(portLibrary, "Runtime Instrumentation test");
+    /* Display unit under test */
+    HEADING(portLibrary, "Runtime Instrumentation test");
 
-	rc = j9ri_test0(portLibrary);
+    rc = j9ri_test0(portLibrary);
 
-	/* Output results */
-	j9tty_printf(PORTLIB, "Runtime Instrumentation test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
-	return TEST_PASS == rc ? 0 : -1;
+    /* Output results */
+    j9tty_printf(PORTLIB, "Runtime Instrumentation test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
+    return TEST_PASS == rc ? 0 : -1;
 }
 
 /**
@@ -79,39 +76,37 @@ j9ri_runTests(struct J9PortLibrary *portLibrary)
  * Does not check the results of the calls.
  * @return 0 on success.
  */
-static I_32
-j9ri_test0(struct J9PortLibrary *portLibrary)
+static I_32 j9ri_test0(struct J9PortLibrary* portLibrary)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	const char* testName = "j9ri_test0";
-	struct riControlBlock testControlBlock;
-	struct J9RIParameters riParams;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    const char* testName = "j9ri_test0";
+    struct riControlBlock testControlBlock;
+    struct J9RIParameters riParams;
 #if defined(J9VM_PORT_RUNTIME_INSTRUMENTATION)
-	U_32 initializeIteration;
+    U_32 initializeIteration;
 #endif
 
-	memset(&testControlBlock, 0, sizeof(testControlBlock));
-	memset(&riParams, 0xDEADBEEF, sizeof(riParams)); /* put crud in to ensure j9ri_params_init() does its job */
-	reportTestEntry(portLibrary, testName);
+    memset(&testControlBlock, 0, sizeof(testControlBlock));
+    memset(&riParams, 0xDEADBEEF, sizeof(riParams)); /* put crud in to ensure j9ri_params_init() does its job */
+    reportTestEntry(portLibrary, testName);
 #if defined(J9VM_PORT_RUNTIME_INSTRUMENTATION)
-	j9ri_params_init(&riParams, &testControlBlock);
-	for (initializeIteration = 0; initializeIteration < 2; ++initializeIteration) {
-		U_32 enableIteration;
+    j9ri_params_init(&riParams, &testControlBlock);
+    for (initializeIteration = 0; initializeIteration < 2; ++initializeIteration) {
+        U_32 enableIteration;
 
-		outputComment(portLibrary, "j9ri_test0 initialize\n");
-		j9ri_initialize(&riParams);
-		for (enableIteration = 0; enableIteration < 2; ++enableIteration) {
-			outputComment(portLibrary, "j9ri_test0 enable\n");
-			j9ri_enable(&riParams);
-			outputComment(portLibrary, "j9ri_test0 disable\n");
-			j9ri_disable(&riParams);
-		}
-		outputComment(portLibrary, "j9ri_test0 deinitialize\n");
-		j9ri_deinitialize(&riParams);
-	}
+        outputComment(portLibrary, "j9ri_test0 initialize\n");
+        j9ri_initialize(&riParams);
+        for (enableIteration = 0; enableIteration < 2; ++enableIteration) {
+            outputComment(portLibrary, "j9ri_test0 enable\n");
+            j9ri_enable(&riParams);
+            outputComment(portLibrary, "j9ri_test0 disable\n");
+            j9ri_disable(&riParams);
+        }
+        outputComment(portLibrary, "j9ri_test0 deinitialize\n");
+        j9ri_deinitialize(&riParams);
+    }
 #else
-	outputComment(portLibrary, "j9ri_test0 not yet implemented on this platform\n");
+    outputComment(portLibrary, "j9ri_test0 not yet implemented on this platform\n");
 #endif
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
-

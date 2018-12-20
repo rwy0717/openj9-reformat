@@ -33,43 +33,39 @@
 class TR_Debug;
 class TR_DebugExt;
 
-#define   CLASSLOADERTABLE_SIZE   2053
+#define CLASSLOADERTABLE_SIZE 2053
 
 struct TR_ClassLoaderInfo;
 
-class TR_PersistentClassLoaderTable
-   {
-   public:
+class TR_PersistentClassLoaderTable {
+public:
+    TR_ALLOC(TR_Memory::PersistentCHTable)
+    TR_PersistentClassLoaderTable(TR_PersistentMemory*);
 
-   TR_ALLOC(TR_Memory::PersistentCHTable)
-   TR_PersistentClassLoaderTable(TR_PersistentMemory *);
+    void associateClassLoaderWithClass(void* classLoaderPointer, TR_OpaqueClassBlock* clazz);
+    void* lookupClassLoaderAssociatedWithClassChain(void* classChainPointer);
+    void* lookupClassChainAssociatedWithClassLoader(void* classLoaderPointer);
+    void removeClassLoader(void* classLoaderPointer);
 
-   void associateClassLoaderWithClass(void *classLoaderPointer, TR_OpaqueClassBlock *clazz);
-   void *lookupClassLoaderAssociatedWithClassChain(void *classChainPointer);
-   void *lookupClassChainAssociatedWithClassLoader(void *classLoaderPointer);
-   void removeClassLoader(void *classLoaderPointer);
+    void setSharedCache(TR_SharedCache* sharedCache) { _sharedCache = sharedCache; }
 
-   void setSharedCache(TR_SharedCache *sharedCache) { _sharedCache = sharedCache; }
+private:
+    friend class TR_Debug;
+    friend class TR_DebugExt;
 
-   private:
+    TR_PersistentMemory* trPersistentMemory() { return _trPersistentMemory; }
 
-   friend class TR_Debug;
-   friend class TR_DebugExt;
+    int32_t hashLoader(void* classLoaderPointer);
+    int32_t hashClassChain(void* classChain);
 
-   TR_PersistentMemory *trPersistentMemory() { return _trPersistentMemory; }
+    TR_ClassLoaderInfo* _loaderTable[CLASSLOADERTABLE_SIZE];
+    TR_ClassLoaderInfo* _classChainTable[CLASSLOADERTABLE_SIZE];
+    TR_PersistentMemory* _trPersistentMemory;
 
+    TR_SharedCache* sharedCache() { return _sharedCache; }
+    TR_SharedCache* _sharedCache;
 
-   int32_t hashLoader(void *classLoaderPointer);
-   int32_t hashClassChain(void *classChain);
-
-   TR_ClassLoaderInfo * _loaderTable[CLASSLOADERTABLE_SIZE];
-   TR_ClassLoaderInfo * _classChainTable[CLASSLOADERTABLE_SIZE];
-   TR_PersistentMemory *_trPersistentMemory;
-
-   TR_SharedCache *sharedCache() { return _sharedCache; }
-   TR_SharedCache *_sharedCache;
-
-   static int32_t _numClassLoaders;
-   };
+    static int32_t _numClassLoaders;
+};
 
 #endif

@@ -33,27 +33,26 @@
  * Stores the data relating to the reporting of memory usage
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventReportMemoryUsage : public MM_VerboseEvent
-{
-/* Data Members */
+class MM_VerboseEventReportMemoryUsage : public MM_VerboseEvent {
+    /* Data Members */
 private:
-	MM_MemoryStatistics* _statistics;
-	
-/* Function Members */
-public:
-	virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+    MM_MemoryStatistics* _statistics;
 
-	MMINLINE virtual void consumeEvents() { };
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-	
-	static MM_VerboseEvent *newInstance(MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface);
-	
+    /* Function Members */
+public:
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual void consumeEvents() {};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    static MM_VerboseEvent* newInstance(MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface);
+
 protected:
-	MM_VerboseEventReportMemoryUsage(MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_statistics(event->statistics)
-	{ }
+    MM_VerboseEventReportMemoryUsage(MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _statistics(event->statistics)
+    {}
 };
 
 #endif /*EVENTREPORTMEMORYUSAGE_HPP_*/

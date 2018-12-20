@@ -28,19 +28,18 @@
 
 #include "CheckReporter.hpp"
 
-void 
-GC_CheckReporter::reportGenericType(GC_CheckError *error, GC_CheckElement reference, const char *prefix)
+void GC_CheckReporter::reportGenericType(GC_CheckError* error, GC_CheckElement reference, const char* prefix)
 {
-	switch (reference.type) {
-		case GC_CheckElement::type_object:
-			reportObjectHeader(error, reference.u.object, prefix);
-			break;
-		case GC_CheckElement::type_class:
-			reportClass(error, reference.u.clazz, prefix);
-			break;
-		case GC_CheckElement::type_none:
-		default:
-			// do nothing
-			break;
-	}	
+    switch (reference.type) {
+    case GC_CheckElement::type_object:
+        reportObjectHeader(error, reference.u.object, prefix);
+        break;
+    case GC_CheckElement::type_class:
+        reportClass(error, reference.u.clazz, prefix);
+        break;
+    case GC_CheckElement::type_none:
+    default:
+        // do nothing
+        break;
+    }
 }

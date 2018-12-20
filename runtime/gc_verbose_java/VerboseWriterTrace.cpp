@@ -30,70 +30,59 @@
 #include "EnvironmentBase.hpp"
 #include "GCExtensions.hpp"
 
-#define _UTE_STATIC_                  
+#define _UTE_STATIC_
 #include "ut_j9vgc.h"
 
-MM_VerboseWriterTrace::MM_VerboseWriterTrace(MM_EnvironmentBase *env) :
-	MM_VerboseWriter(VERBOSE_WRITER_TRACE)
-	 ,_componentLoaded(false)
+MM_VerboseWriterTrace::MM_VerboseWriterTrace(MM_EnvironmentBase* env)
+    : MM_VerboseWriter(VERBOSE_WRITER_TRACE)
+    , _componentLoaded(false)
 {
-	/* no implementation */
+    /* no implementation */
 }
 
 /**
  * Create a new MM_VerboseWriterTrace instance.
  * @return Pointer to the new MM_VerboseWriterTrace.
  */
-MM_VerboseWriterTrace *
-MM_VerboseWriterTrace::newInstance(MM_EnvironmentBase *env)
+MM_VerboseWriterTrace* MM_VerboseWriterTrace::newInstance(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
-	
-	MM_VerboseWriterTrace *agent = (MM_VerboseWriterTrace *)extensions->getForge()->allocate(sizeof(MM_VerboseWriterTrace), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if (agent) {
-		new(agent) MM_VerboseWriterTrace(env);
-		if(!agent->initialize(env)){
-			agent->kill(env);
-			agent = NULL;
-		}
-	}
-	return agent;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+
+    MM_VerboseWriterTrace* agent = (MM_VerboseWriterTrace*)extensions->getForge()->allocate(
+        sizeof(MM_VerboseWriterTrace), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (agent) {
+        new (agent) MM_VerboseWriterTrace(env);
+        if (!agent->initialize(env)) {
+            agent->kill(env);
+            agent = NULL;
+        }
+    }
+    return agent;
 }
 
 /**
  * Initializes the MM_VerboseWriterTrace instance.
  */
-bool
-MM_VerboseWriterTrace::initialize(MM_EnvironmentBase *env)
-{
-	return MM_VerboseWriter::initialize(env);
-}
+bool MM_VerboseWriterTrace::initialize(MM_EnvironmentBase* env) { return MM_VerboseWriter::initialize(env); }
 
 /**
  */
-void
-MM_VerboseWriterTrace::endOfCycle(MM_EnvironmentBase *env)
-{
-}
+void MM_VerboseWriterTrace::endOfCycle(MM_EnvironmentBase* env) {}
 
 /**
  * Closes the agents output stream.
  */
-void
-MM_VerboseWriterTrace::closeStream(MM_EnvironmentBase *env)
-{
-}
+void MM_VerboseWriterTrace::closeStream(MM_EnvironmentBase* env) {}
 
-void
-MM_VerboseWriterTrace::outputString(MM_EnvironmentBase *env, const char* string)
+void MM_VerboseWriterTrace::outputString(MM_EnvironmentBase* env, const char* string)
 {
-	if(!_componentLoaded) {
-		/* If this is the first time in, we have to load the j9vgc trace component.
-		 * Can't do it at startup because the trace engine initializes too late */
-		UT_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)env->getLanguageVM()));
-		_componentLoaded = true;
-	}
+    if (!_componentLoaded) {
+        /* If this is the first time in, we have to load the j9vgc trace component.
+         * Can't do it at startup because the trace engine initializes too late */
+        UT_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM*)env->getLanguageVM()));
+        _componentLoaded = true;
+    }
 
-	/* Call the tracepoint that outputs the line of verbosegc */
-	Trc_VGC_Verbosegc(env->getLanguageVMThread(), string);
+    /* Call the tracepoint that outputs the line of verbosegc */
+    Trc_VGC_Verbosegc(env->getLanguageVMThread(), string);
 }

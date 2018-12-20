@@ -34,28 +34,27 @@ struct J9MemorySegment;
 
 namespace J9 {
 
-class J9SegmentProvider
-   {
+class J9SegmentProvider {
 public:
-   virtual J9MemorySegment& request(size_t requiredSize) = 0;
-   virtual void release(J9MemorySegment& segment) throw() = 0;
-   virtual size_t getPreferredSegmentSize() { return 0; }
+    virtual J9MemorySegment& request(size_t requiredSize) = 0;
+    virtual void release(J9MemorySegment& segment) throw() = 0;
+    virtual size_t getPreferredSegmentSize() { return 0; }
 
 protected:
-   J9SegmentProvider();
-   J9SegmentProvider(const J9SegmentProvider &other);
+    J9SegmentProvider();
+    J9SegmentProvider(const J9SegmentProvider& other);
 
-   /*
-    * Require knowledge of the concrete class in order to destroy SegmentProviders
-    */
-   virtual ~J9SegmentProvider() throw();
-   };
+    /*
+     * Require knowledge of the concrete class in order to destroy SegmentProviders
+     */
+    virtual ~J9SegmentProvider() throw();
+};
 
 } // namespace J9
 
-void *operator new(size_t, J9MemorySegment &) throw();
-void *operator new[](size_t, J9MemorySegment &) throw();
-void operator delete(void *, J9MemorySegment &) throw();
-void operator delete[](void *, J9MemorySegment &) throw();
+void* operator new(size_t, J9MemorySegment&) throw();
+void* operator new[](size_t, J9MemorySegment&) throw();
+void operator delete(void*, J9MemorySegment&)throw();
+void operator delete[](void*, J9MemorySegment&) throw();
 
 #endif // J9_SEGMENT_PROVIDER

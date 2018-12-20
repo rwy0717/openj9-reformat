@@ -22,80 +22,74 @@
 
 #include "jnitest_internal.h"
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_deletedLocalRef(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_deletedLocalRef(JNIEnv* env, jobject caller)
 {
-	jobject ref = NULL;
-	jobject ref2 = NULL;	
+    jobject ref = NULL;
+    jobject ref2 = NULL;
 
-	ref = (*env)->NewLocalRef(env, caller);
-	(*env)->DeleteLocalRef(env, ref);
+    ref = (*env)->NewLocalRef(env, caller);
+    (*env)->DeleteLocalRef(env, ref);
 
-	ref2 = (*env)->NewLocalRef(env, caller);
-	(*env)->DeleteLocalRef(env, ref2);
-	
-	return ref;
+    ref2 = (*env)->NewLocalRef(env, caller);
+    (*env)->DeleteLocalRef(env, ref2);
+
+    return ref;
 }
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_validLocalRef(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_validLocalRef(JNIEnv* env, jobject caller)
 {
-	jobject ref = NULL;
-	jobject ref2 = NULL;	
+    jobject ref = NULL;
+    jobject ref2 = NULL;
 
-	ref = (*env)->NewLocalRef(env, caller);
+    ref = (*env)->NewLocalRef(env, caller);
 
-	ref2 = (*env)->NewLocalRef(env, caller);
-	(*env)->DeleteLocalRef(env, ref2);
-	
-	return ref;
+    ref2 = (*env)->NewLocalRef(env, caller);
+    (*env)->DeleteLocalRef(env, ref2);
+
+    return ref;
 }
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_localRefFromPoppedFrame(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_localRefFromPoppedFrame(JNIEnv* env, jobject caller)
 {
-	jobject ref = NULL;
-	jobject result = NULL;	
+    jobject ref = NULL;
+    jobject result = NULL;
 
-	(*env)->PushLocalFrame(env, 5);
-	ref = (*env)->NewLocalRef(env, caller);
+    (*env)->PushLocalFrame(env, 5);
+    ref = (*env)->NewLocalRef(env, caller);
 
-	(*env)->PopLocalFrame(env, result);
-		
-	return ref;
+    (*env)->PopLocalFrame(env, result);
+
+    return ref;
 }
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_explicitReturnOfNull(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_explicitReturnOfNull(JNIEnv* env, jobject caller)
 {
-	return NULL;
+    return NULL;
 }
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_deletedGlobalRef(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_deletedGlobalRef(JNIEnv* env, jobject caller)
 {
-	jobject ref = NULL;
-	jobject ref2 = NULL;
+    jobject ref = NULL;
+    jobject ref2 = NULL;
 
-	ref = (*env)->NewGlobalRef(env, caller);
-	ref2 = (*env)->NewGlobalRef(env, caller);
-	
-	(*env)->DeleteGlobalRef(env, ref);
-	(*env)->DeleteGlobalRef(env, ref2);
-	
-	return ref;
+    ref = (*env)->NewGlobalRef(env, caller);
+    ref2 = (*env)->NewGlobalRef(env, caller);
+
+    (*env)->DeleteGlobalRef(env, ref);
+    (*env)->DeleteGlobalRef(env, ref2);
+
+    return ref;
 }
 
-jobject JNICALL 
-Java_j9vm_test_jnichk_ReturnInvalidReference_validGlobalRef(JNIEnv * env, jobject caller)
+jobject JNICALL Java_j9vm_test_jnichk_ReturnInvalidReference_validGlobalRef(JNIEnv* env, jobject caller)
 {
-	jobject ref = NULL;
-	jobject ref2 = NULL;
+    jobject ref = NULL;
+    jobject ref2 = NULL;
 
-	ref = (*env)->NewGlobalRef(env, caller);
-	ref2 = (*env)->NewGlobalRef(env, caller);
-	
-	(*env)->DeleteGlobalRef(env, ref2);
-	
-	return ref;
+    ref = (*env)->NewGlobalRef(env, caller);
+    ref2 = (*env)->NewGlobalRef(env, caller);
+
+    (*env)->DeleteGlobalRef(env, ref2);
+
+    return ref;
 }

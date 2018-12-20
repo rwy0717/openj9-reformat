@@ -23,42 +23,41 @@
 #ifndef LIVEVARS_INCL
 #define LIVEVARS_INCL
 
-#include <stdint.h>                           // for int32_t
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
 class TR_BitVector;
-namespace TR { class Block; }
+namespace TR {
+class Block;
+}
 
-class TR_LocalLiveVariablesForGC : public TR::Optimization
-   {
+class TR_LocalLiveVariablesForGC : public TR::Optimization {
 public:
-   TR_LocalLiveVariablesForGC(TR::OptimizationManager *manager);
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_LocalLiveVariablesForGC(manager);
-      }
+    TR_LocalLiveVariablesForGC(TR::OptimizationManager* manager);
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_LocalLiveVariablesForGC(manager);
+    }
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
 
 private:
-   void findGCPointInBlock(TR::Block *block, TR_BitVector &localsToBeInitialized);
-   int32_t      _numLocals;
-   };
+    void findGCPointInBlock(TR::Block* block, TR_BitVector& localsToBeInitialized);
+    int32_t _numLocals;
+};
 
-class TR_GlobalLiveVariablesForGC : public TR::Optimization
-   {
+class TR_GlobalLiveVariablesForGC : public TR::Optimization {
 public:
-   TR_GlobalLiveVariablesForGC(TR::OptimizationManager *manager);
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_GlobalLiveVariablesForGC(manager);
-      }
+    TR_GlobalLiveVariablesForGC(TR::OptimizationManager* manager);
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_GlobalLiveVariablesForGC(manager);
+    }
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
-
-   };
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
+};
 
 #endif

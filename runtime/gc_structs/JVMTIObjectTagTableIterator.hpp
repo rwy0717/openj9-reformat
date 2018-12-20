@@ -37,25 +37,21 @@
 
 /**
  * Iterate over all the object slots in a J9HashTable containing J9JVMTIObjectTag's.
- * 
+ *
  * @ingroup GC_Structs
  */
-class GC_JVMTIObjectTagTableIterator
-{
-	GC_HashTableIterator _hashTableIterator;
-	void *_lastTag;	
+class GC_JVMTIObjectTagTableIterator {
+    GC_HashTableIterator _hashTableIterator;
+    void* _lastTag;
 
 public:
+    GC_JVMTIObjectTagTableIterator(J9HashTable* hashTable)
+        : _hashTableIterator(hashTable)
+        , _lastTag(NULL)
+    {}
 
-	GC_JVMTIObjectTagTableIterator(J9HashTable *hashTable) :
-		_hashTableIterator(hashTable),
-		_lastTag(NULL)
-	{}
-
-	void **nextSlot();
-	void removeSlot();
+    void** nextSlot();
+    void removeSlot();
 };
 
 #endif /* JVMTIOBJECTTAGTABLEITERATOR_HPP_ */
-
-

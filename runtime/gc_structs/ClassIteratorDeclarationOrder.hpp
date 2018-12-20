@@ -38,94 +38,87 @@
 #include "ClassStaticsDeclarationOrderIterator.hpp"
 #include "GCExtensionsBase.hpp"
 
-/** 
- * Iterate through <i>all</i> slots in the class which contain an object reference 
+/**
+ * Iterate through <i>all</i> slots in the class which contain an object reference
  * in the order declared in the class where applicable.
- * 
+ *
  * @see GC_ClassIterator
  * @ingroup GC_Structs
  */
-class GC_ClassIteratorDeclarationOrder : public GC_ClassIterator
-{
+class GC_ClassIteratorDeclarationOrder : public GC_ClassIterator {
 protected:
-	GC_ClassStaticsDeclarationOrderIterator _classStaticsDeclarationOrderIterator;
+    GC_ClassStaticsDeclarationOrderIterator _classStaticsDeclarationOrderIterator;
 
 public:
+    GC_ClassIteratorDeclarationOrder(J9JavaVM* jvm, J9Class* clazz, bool shouldPreindexInterfaceFields)
+        : GC_ClassIterator(MM_GCExtensionsBase::getExtensions(jvm->omrVM), clazz)
+        , _classStaticsDeclarationOrderIterator(jvm, clazz, shouldPreindexInterfaceFields) {};
 
-	GC_ClassIteratorDeclarationOrder(J9JavaVM *jvm, J9Class *clazz, bool shouldPreindexInterfaceFields) 
-		: GC_ClassIterator(MM_GCExtensionsBase::getExtensions(jvm->omrVM), clazz)
-		, _classStaticsDeclarationOrderIterator(jvm, clazz, shouldPreindexInterfaceFields)
-	{};
+    /**
+     * Gets the current index corresponding to the current state.
+     * @return current index of the current state where appropriate.
+     * @return -1 if the current state is not indexed.
+     */
+    MMINLINE IDATA getIndex()
+    {
+        switch (getState()) {
+        case classiterator_state_statics:
+            return _classStaticsDeclarationOrderIterator.getIndex();
 
+        case classiterator_state_constant_pool:
+            return _constantPoolObjectSlotIterator.getIndex();
 
-	/**
-	 * Gets the current index corresponding to the current state.
-	 * @return current index of the current state where appropriate.
-	 * @return -1 if the current state is not indexed.
-	 */
-	MMINLINE IDATA getIndex()
-	{
-		switch (getState()) {
-			case classiterator_state_statics:
-				return _classStaticsDeclarationOrderIterator.getIndex();
-				
-			case classiterator_state_constant_pool:
-				return _constantPoolObjectSlotIterator.getIndex();
+        case classiterator_state_slots:
+            return (IDATA)_scanIndex;
 
-			case classiterator_state_slots:
-				return (IDATA)_scanIndex;
-		
-			case classiterator_state_callsites:
-				return _callSitesIterator.getIndex();
+        case classiterator_state_callsites:
+            return _callSitesIterator.getIndex();
 
-			default:
-				return -1;
-		}			
-	}
+        default:
+            return -1;
+        }
+    }
 
-	/**
-	 * Gets the reference type of the slot referred to for the current state
-	 * @return 
-	 */
-	MMINLINE IDATA getSlotReferenceType()
-	{
-		IDATA refType = J9GC_REFERENCE_TYPE_UNKNOWN;
-		
-		switch (getState()) {
-			case classiterator_state_statics:
-				refType = J9GC_REFERENCE_TYPE_STATIC;
-				break;
-			case classiterator_state_constant_pool:
-				refType = J9GC_REFERENCE_TYPE_CONSTANT_POOL;
-				break;
-			case classiterator_state_slots: 
-				{
-					/* NOTE: asking for index after nextSlot, so 1 larger than actual index in offset array */
-					switch (_scanIndex) {
-						case 1: 
-							refType = J9GC_REFERENCE_TYPE_PROTECTION_DOMAIN;
-							break;
-						case 2:
-							refType = J9GC_REFERENCE_TYPE_CLASS_NAME_STRING;
-							break;
-						default:		
-							refType = J9GC_REFERENCE_TYPE_UNKNOWN;
-							break;
-					}
-				}
-				break;
-			case classiterator_state_callsites:
-				refType = J9GC_REFERENCE_TYPE_CALL_SITE;
-				break;
-			default:
-				refType = J9GC_REFERENCE_TYPE_UNKNOWN;
-				break;
-		}
-		return refType;
-	}
+    /**
+     * Gets the reference type of the slot referred to for the current state
+     * @return
+     */
+    MMINLINE IDATA getSlotReferenceType()
+    {
+        IDATA refType = J9GC_REFERENCE_TYPE_UNKNOWN;
 
-	virtual volatile j9object_t *nextSlot();
+        switch (getState()) {
+        case classiterator_state_statics:
+            refType = J9GC_REFERENCE_TYPE_STATIC;
+            break;
+        case classiterator_state_constant_pool:
+            refType = J9GC_REFERENCE_TYPE_CONSTANT_POOL;
+            break;
+        case classiterator_state_slots: {
+            /* NOTE: asking for index after nextSlot, so 1 larger than actual index in offset array */
+            switch (_scanIndex) {
+            case 1:
+                refType = J9GC_REFERENCE_TYPE_PROTECTION_DOMAIN;
+                break;
+            case 2:
+                refType = J9GC_REFERENCE_TYPE_CLASS_NAME_STRING;
+                break;
+            default:
+                refType = J9GC_REFERENCE_TYPE_UNKNOWN;
+                break;
+            }
+        } break;
+        case classiterator_state_callsites:
+            refType = J9GC_REFERENCE_TYPE_CALL_SITE;
+            break;
+        default:
+            refType = J9GC_REFERENCE_TYPE_UNKNOWN;
+            break;
+        }
+        return refType;
+    }
+
+    virtual volatile j9object_t* nextSlot();
 };
 
 #endif /* CLASSITERATORDECLARATIONORDER_HPP_ */
-

@@ -27,62 +27,63 @@
 extern "C" {
 #endif
 
-
 /* Prototypes for terminal functions */
-void JNICALL callVirtualVoidMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-void JNICALL callVirtualVoidMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-void JNICALL callVirtualVoidMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-jobject JNICALL callVirtualObjectMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-jobject JNICALL callVirtualObjectMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-jobject JNICALL callVirtualObjectMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-jint JNICALL callVirtualIntMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-jint JNICALL callVirtualIntMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-jint JNICALL callVirtualIntMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-jlong JNICALL callVirtualLongMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-jlong JNICALL callVirtualLongMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-jlong JNICALL callVirtualLongMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-jfloat JNICALL callVirtualFloatMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-jfloat JNICALL callVirtualFloatMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-jfloat JNICALL callVirtualFloatMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-jdouble JNICALL callVirtualDoubleMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...);
-jdouble JNICALL callVirtualDoubleMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va);
-jdouble JNICALL callVirtualDoubleMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args);
-void JNICALL callNonvirtualVoidMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-void JNICALL callNonvirtualVoidMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-void JNICALL callNonvirtualVoidMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-jobject JNICALL callNonvirtualObjectMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-jobject JNICALL callNonvirtualObjectMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-jobject JNICALL callNonvirtualObjectMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-jint JNICALL callNonvirtualIntMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-jint JNICALL callNonvirtualIntMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-jint JNICALL callNonvirtualIntMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-jlong JNICALL callNonvirtualLongMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-jlong JNICALL callNonvirtualLongMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-jlong JNICALL callNonvirtualLongMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-jfloat JNICALL callNonvirtualFloatMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-jfloat JNICALL callNonvirtualFloatMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-jfloat JNICALL callNonvirtualFloatMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-jdouble JNICALL callNonvirtualDoubleMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...);
-jdouble JNICALL callNonvirtualDoubleMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
-jdouble JNICALL callNonvirtualDoubleMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args);
-void JNICALL callStaticVoidMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-void JNICALL callStaticVoidMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-void JNICALL callStaticVoidMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
-jobject JNICALL callStaticObjectMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-jobject JNICALL callStaticObjectMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-jobject JNICALL callStaticObjectMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
-jint JNICALL callStaticIntMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-jint JNICALL callStaticIntMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-jint JNICALL callStaticIntMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
-jlong JNICALL callStaticLongMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-jlong JNICALL callStaticLongMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-jlong JNICALL callStaticLongMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
-jfloat JNICALL callStaticFloatMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-jfloat JNICALL callStaticFloatMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-jfloat JNICALL callStaticFloatMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
-jdouble JNICALL callStaticDoubleMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...);
-jdouble JNICALL callStaticDoubleMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va);
-jdouble JNICALL callStaticDoubleMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args);
+void JNICALL callVirtualVoidMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+void JNICALL callVirtualVoidMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+void JNICALL callVirtualVoidMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+jobject JNICALL callVirtualObjectMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+jobject JNICALL callVirtualObjectMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+jobject JNICALL callVirtualObjectMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+jint JNICALL callVirtualIntMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+jint JNICALL callVirtualIntMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+jint JNICALL callVirtualIntMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+jlong JNICALL callVirtualLongMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+jlong JNICALL callVirtualLongMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+jlong JNICALL callVirtualLongMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+jfloat JNICALL callVirtualFloatMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+jfloat JNICALL callVirtualFloatMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+jfloat JNICALL callVirtualFloatMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+jdouble JNICALL callVirtualDoubleMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...);
+jdouble JNICALL callVirtualDoubleMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va);
+jdouble JNICALL callVirtualDoubleMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args);
+void JNICALL callNonvirtualVoidMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+void JNICALL callNonvirtualVoidMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+void JNICALL callNonvirtualVoidMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+jobject JNICALL callNonvirtualObjectMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+jobject JNICALL callNonvirtualObjectMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+jobject JNICALL callNonvirtualObjectMethodA(
+    JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+jint JNICALL callNonvirtualIntMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+jint JNICALL callNonvirtualIntMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+jint JNICALL callNonvirtualIntMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+jlong JNICALL callNonvirtualLongMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+jlong JNICALL callNonvirtualLongMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+jlong JNICALL callNonvirtualLongMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+jfloat JNICALL callNonvirtualFloatMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+jfloat JNICALL callNonvirtualFloatMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+jfloat JNICALL callNonvirtualFloatMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+jdouble JNICALL callNonvirtualDoubleMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...);
+jdouble JNICALL callNonvirtualDoubleMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va);
+jdouble JNICALL callNonvirtualDoubleMethodA(
+    JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args);
+void JNICALL callStaticVoidMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+void JNICALL callStaticVoidMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+void JNICALL callStaticVoidMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
+jobject JNICALL callStaticObjectMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+jobject JNICALL callStaticObjectMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+jobject JNICALL callStaticObjectMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
+jint JNICALL callStaticIntMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+jint JNICALL callStaticIntMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+jint JNICALL callStaticIntMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
+jlong JNICALL callStaticLongMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+jlong JNICALL callStaticLongMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+jlong JNICALL callStaticLongMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
+jfloat JNICALL callStaticFloatMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+jfloat JNICALL callStaticFloatMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+jfloat JNICALL callStaticFloatMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
+jdouble JNICALL callStaticDoubleMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...);
+jdouble JNICALL callStaticDoubleMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va);
+jdouble JNICALL callStaticDoubleMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args);
 
 /* Macros to populate tables */
 #define CALL_VIRTUAL_VOID_METHOD callVirtualVoidMethod
@@ -103,18 +104,30 @@ jdouble JNICALL callStaticDoubleMethodA (JNIEnv *env, jclass cls, jmethodID meth
 #define CALL_VIRTUAL_DOUBLE_METHOD callVirtualDoubleMethod
 #define CALL_VIRTUAL_DOUBLE_METHOD_V callVirtualDoubleMethodV
 #define CALL_VIRTUAL_DOUBLE_METHOD_A callVirtualDoubleMethodA
-#define CALL_VIRTUAL_BOOLEAN_METHOD (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
-#define CALL_VIRTUAL_BOOLEAN_METHOD_V (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
-#define CALL_VIRTUAL_BOOLEAN_METHOD_A (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)) callVirtualIntMethodA
-#define CALL_VIRTUAL_BYTE_METHOD (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
-#define CALL_VIRTUAL_BYTE_METHOD_V (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
-#define CALL_VIRTUAL_BYTE_METHOD_A (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)) callVirtualIntMethodA
-#define CALL_VIRTUAL_CHAR_METHOD (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
-#define CALL_VIRTUAL_CHAR_METHOD_V (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
-#define CALL_VIRTUAL_CHAR_METHOD_A (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)) callVirtualIntMethodA
-#define CALL_VIRTUAL_SHORT_METHOD (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
-#define CALL_VIRTUAL_SHORT_METHOD_V (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
-#define CALL_VIRTUAL_SHORT_METHOD_A (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)) callVirtualIntMethodA
+#define CALL_VIRTUAL_BOOLEAN_METHOD \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
+#define CALL_VIRTUAL_BOOLEAN_METHOD_V \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
+#define CALL_VIRTUAL_BOOLEAN_METHOD_A \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, jvalue * args)) callVirtualIntMethodA
+#define CALL_VIRTUAL_BYTE_METHOD \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
+#define CALL_VIRTUAL_BYTE_METHOD_V \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
+#define CALL_VIRTUAL_BYTE_METHOD_A \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, jvalue * args)) callVirtualIntMethodA
+#define CALL_VIRTUAL_CHAR_METHOD \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
+#define CALL_VIRTUAL_CHAR_METHOD_V \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
+#define CALL_VIRTUAL_CHAR_METHOD_A \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, jvalue * args)) callVirtualIntMethodA
+#define CALL_VIRTUAL_SHORT_METHOD \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, ...)) callVirtualIntMethod
+#define CALL_VIRTUAL_SHORT_METHOD_V \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, va_list va)) callVirtualIntMethodV
+#define CALL_VIRTUAL_SHORT_METHOD_A \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jmethodID methodID, jvalue * args)) callVirtualIntMethodA
 #define CALL_NONVIRTUAL_VOID_METHOD callNonvirtualVoidMethod
 #define CALL_NONVIRTUAL_VOID_METHOD_V callNonvirtualVoidMethodV
 #define CALL_NONVIRTUAL_VOID_METHOD_A callNonvirtualVoidMethodA
@@ -133,18 +146,38 @@ jdouble JNICALL callStaticDoubleMethodA (JNIEnv *env, jclass cls, jmethodID meth
 #define CALL_NONVIRTUAL_DOUBLE_METHOD callNonvirtualDoubleMethod
 #define CALL_NONVIRTUAL_DOUBLE_METHOD_V callNonvirtualDoubleMethodV
 #define CALL_NONVIRTUAL_DOUBLE_METHOD_A callNonvirtualDoubleMethodA
-#define CALL_NONVIRTUAL_BOOLEAN_METHOD (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
-#define CALL_NONVIRTUAL_BOOLEAN_METHOD_V (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) callNonvirtualIntMethodV
-#define CALL_NONVIRTUAL_BOOLEAN_METHOD_A (jboolean (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)) callNonvirtualIntMethodA
-#define CALL_NONVIRTUAL_BYTE_METHOD (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
-#define CALL_NONVIRTUAL_BYTE_METHOD_V (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) callNonvirtualIntMethodV
-#define CALL_NONVIRTUAL_BYTE_METHOD_A (jbyte (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)) callNonvirtualIntMethodA
-#define CALL_NONVIRTUAL_CHAR_METHOD (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
-#define CALL_NONVIRTUAL_CHAR_METHOD_V (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) callNonvirtualIntMethodV
-#define CALL_NONVIRTUAL_CHAR_METHOD_A (jchar (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)) callNonvirtualIntMethodA
-#define CALL_NONVIRTUAL_SHORT_METHOD (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
-#define CALL_NONVIRTUAL_SHORT_METHOD_V (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) callNonvirtualIntMethodV
-#define CALL_NONVIRTUAL_SHORT_METHOD_A (jshort (JNICALL *) (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)) callNonvirtualIntMethodA
+#define CALL_NONVIRTUAL_BOOLEAN_METHOD \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
+#define CALL_NONVIRTUAL_BOOLEAN_METHOD_V                                                             \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) \
+        callNonvirtualIntMethodV
+#define CALL_NONVIRTUAL_BOOLEAN_METHOD_A                                                                \
+    (jboolean(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, jvalue * args)) \
+        callNonvirtualIntMethodA
+#define CALL_NONVIRTUAL_BYTE_METHOD \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
+#define CALL_NONVIRTUAL_BYTE_METHOD_V                                                             \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) \
+        callNonvirtualIntMethodV
+#define CALL_NONVIRTUAL_BYTE_METHOD_A                                                                \
+    (jbyte(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, jvalue * args)) \
+        callNonvirtualIntMethodA
+#define CALL_NONVIRTUAL_CHAR_METHOD \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
+#define CALL_NONVIRTUAL_CHAR_METHOD_V                                                             \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) \
+        callNonvirtualIntMethodV
+#define CALL_NONVIRTUAL_CHAR_METHOD_A                                                                \
+    (jchar(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, jvalue * args)) \
+        callNonvirtualIntMethodA
+#define CALL_NONVIRTUAL_SHORT_METHOD \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, ...)) callNonvirtualIntMethod
+#define CALL_NONVIRTUAL_SHORT_METHOD_V                                                             \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, va_list va)) \
+        callNonvirtualIntMethodV
+#define CALL_NONVIRTUAL_SHORT_METHOD_A                                                                \
+    (jshort(JNICALL*)(JNIEnv * env, jobject receiver, jclass cls, jmethodID methodID, jvalue * args)) \
+        callNonvirtualIntMethodA
 #define CALL_STATIC_VOID_METHOD callStaticVoidMethod
 #define CALL_STATIC_VOID_METHOD_V callStaticVoidMethodV
 #define CALL_STATIC_VOID_METHOD_A callStaticVoidMethodA
@@ -163,18 +196,28 @@ jdouble JNICALL callStaticDoubleMethodA (JNIEnv *env, jclass cls, jmethodID meth
 #define CALL_STATIC_DOUBLE_METHOD callStaticDoubleMethod
 #define CALL_STATIC_DOUBLE_METHOD_V callStaticDoubleMethodV
 #define CALL_STATIC_DOUBLE_METHOD_A callStaticDoubleMethodA
-#define CALL_STATIC_BOOLEAN_METHOD (jboolean (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
-#define CALL_STATIC_BOOLEAN_METHOD_V (jboolean (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
-#define CALL_STATIC_BOOLEAN_METHOD_A (jboolean (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)) callStaticIntMethodA
-#define CALL_STATIC_BYTE_METHOD (jbyte (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
-#define CALL_STATIC_BYTE_METHOD_V (jbyte (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
-#define CALL_STATIC_BYTE_METHOD_A (jbyte (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)) callStaticIntMethodA
-#define CALL_STATIC_CHAR_METHOD (jchar (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
-#define CALL_STATIC_CHAR_METHOD_V (jchar (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
-#define CALL_STATIC_CHAR_METHOD_A (jchar (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)) callStaticIntMethodA
-#define CALL_STATIC_SHORT_METHOD (jshort (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
-#define CALL_STATIC_SHORT_METHOD_V (jshort (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
-#define CALL_STATIC_SHORT_METHOD_A (jshort (JNICALL *) (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)) callStaticIntMethodA
+#define CALL_STATIC_BOOLEAN_METHOD \
+    (jboolean(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
+#define CALL_STATIC_BOOLEAN_METHOD_V \
+    (jboolean(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
+#define CALL_STATIC_BOOLEAN_METHOD_A \
+    (jboolean(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, jvalue * args)) callStaticIntMethodA
+#define CALL_STATIC_BYTE_METHOD (jbyte(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
+#define CALL_STATIC_BYTE_METHOD_V \
+    (jbyte(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
+#define CALL_STATIC_BYTE_METHOD_A \
+    (jbyte(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, jvalue * args)) callStaticIntMethodA
+#define CALL_STATIC_CHAR_METHOD (jchar(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
+#define CALL_STATIC_CHAR_METHOD_V \
+    (jchar(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
+#define CALL_STATIC_CHAR_METHOD_A \
+    (jchar(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, jvalue * args)) callStaticIntMethodA
+#define CALL_STATIC_SHORT_METHOD \
+    (jshort(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, ...)) callStaticIntMethod
+#define CALL_STATIC_SHORT_METHOD_V \
+    (jshort(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, va_list va)) callStaticIntMethodV
+#define CALL_STATIC_SHORT_METHOD_A \
+    (jshort(JNICALL*)(JNIEnv * env, jclass cls, jmethodID methodID, jvalue * args)) callStaticIntMethodA
 #ifdef __cplusplus
 }
 #endif

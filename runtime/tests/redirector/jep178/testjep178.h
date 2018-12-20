@@ -22,7 +22,7 @@
 
 /**
  * @file testjep178.h
- * @brief Provide common definitions for JEP178 tests. 
+ * @brief Provide common definitions for JEP178 tests.
  */
 
 #if !defined(_testjep178_h_)

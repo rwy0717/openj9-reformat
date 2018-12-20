@@ -32,50 +32,43 @@
 #include "ReferenceObjectList.hpp"
 
 MM_ReferenceObjectBufferStandard::MM_ReferenceObjectBufferStandard(UDATA maxObjectCount)
-	: MM_ReferenceObjectBuffer(maxObjectCount)
-	,_referenceObjectListIndex(0)
+    : MM_ReferenceObjectBuffer(maxObjectCount)
+    , _referenceObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_ReferenceObjectBufferStandard *
-MM_ReferenceObjectBufferStandard::newInstance(MM_EnvironmentBase *env)
+MM_ReferenceObjectBufferStandard* MM_ReferenceObjectBufferStandard::newInstance(MM_EnvironmentBase* env)
 {
-	MM_ReferenceObjectBufferStandard *referenceObjectBuffer = NULL;
+    MM_ReferenceObjectBufferStandard* referenceObjectBuffer = NULL;
 
-	referenceObjectBuffer = (MM_ReferenceObjectBufferStandard *)env->getForge()->allocate(sizeof(MM_ReferenceObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != referenceObjectBuffer) {
-		new(referenceObjectBuffer) MM_ReferenceObjectBufferStandard(MM_GCExtensions::getExtensions(env)->objectListFragmentCount);
-		if (!referenceObjectBuffer->initialize(env)) {
-			referenceObjectBuffer->kill(env);
-			referenceObjectBuffer = NULL;
-		}
-	}
+    referenceObjectBuffer = (MM_ReferenceObjectBufferStandard*)env->getForge()->allocate(
+        sizeof(MM_ReferenceObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != referenceObjectBuffer) {
+        new (referenceObjectBuffer)
+            MM_ReferenceObjectBufferStandard(MM_GCExtensions::getExtensions(env)->objectListFragmentCount);
+        if (!referenceObjectBuffer->initialize(env)) {
+            referenceObjectBuffer->kill(env);
+            referenceObjectBuffer = NULL;
+        }
+    }
 
-	return referenceObjectBuffer;
+    return referenceObjectBuffer;
 }
 
-bool
-MM_ReferenceObjectBufferStandard::initialize(MM_EnvironmentBase *base)
-{
-	return true;
-}
+bool MM_ReferenceObjectBufferStandard::initialize(MM_EnvironmentBase* base) { return true; }
 
-void
-MM_ReferenceObjectBufferStandard::tearDown(MM_EnvironmentBase *base)
-{
+void MM_ReferenceObjectBufferStandard::tearDown(MM_EnvironmentBase* base) {}
 
-}
-
-void 
-MM_ReferenceObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
+void MM_ReferenceObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
 {
-	MM_HeapRegionDescriptorStandard *region = (MM_HeapRegionDescriptorStandard*)_region;
-	MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-	MM_ReferenceObjectList *list = &regionExtension->_referenceObjectLists[_referenceObjectListIndex];
-	list->addAll(env, _referenceObjectType, _head, _tail);
-	_referenceObjectListIndex += 1;
-	if (regionExtension->_maxListIndex == _referenceObjectListIndex) {
-		_referenceObjectListIndex = 0;
-	}
+    MM_HeapRegionDescriptorStandard* region = (MM_HeapRegionDescriptorStandard*)_region;
+    MM_HeapRegionDescriptorStandardExtension* regionExtension
+        = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+    MM_ReferenceObjectList* list = &regionExtension->_referenceObjectLists[_referenceObjectListIndex];
+    list->addAll(env, _referenceObjectType, _head, _tail);
+    _referenceObjectListIndex += 1;
+    if (regionExtension->_maxListIndex == _referenceObjectListIndex) {
+        _referenceObjectListIndex = 0;
+    }
 }

@@ -27,65 +27,62 @@
 
 #if defined(J9VM_GC_GENERATIONAL)
 
-GC_Check *
-GC_CheckRememberedSet::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckRememberedSet::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckRememberedSet *check = (GC_CheckRememberedSet *) forge->allocate(sizeof(GC_CheckRememberedSet), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckRememberedSet(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckRememberedSet* check = (GC_CheckRememberedSet*)forge->allocate(
+        sizeof(GC_CheckRememberedSet), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckRememberedSet(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckRememberedSet::kill()
+void GC_CheckRememberedSet::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckRememberedSet::check()
+void GC_CheckRememberedSet::check()
 {
-	J9Object **slotPtr;
-	MM_SublistPuddle *puddle;	
-	GC_RememberedSetIterator remSetIterator(&_extensions->rememberedSet);
-	
-	/* no point checking if the scavenger wasn't turned on */
-	if(!_extensions->scavengerEnabled) {
-		return;
-	}
+    J9Object** slotPtr;
+    MM_SublistPuddle* puddle;
+    GC_RememberedSetIterator remSetIterator(&_extensions->rememberedSet);
 
-	while((puddle = remSetIterator.nextList()) != NULL) {
-		GC_RememberedSetSlotIterator remSetSlotIterator(puddle);
+    /* no point checking if the scavenger wasn't turned on */
+    if (!_extensions->scavengerEnabled) {
+        return;
+    }
 
-		while((slotPtr = (J9Object **)remSetSlotIterator.nextSlot()) != NULL) {
-			if (_engine->checkSlotRememberedSet(_javaVM, slotPtr, puddle) != J9MODRON_SLOT_ITERATOR_OK ){
-				return;
-			}
-		}
-	}
+    while ((puddle = remSetIterator.nextList()) != NULL) {
+        GC_RememberedSetSlotIterator remSetSlotIterator(puddle);
+
+        while ((slotPtr = (J9Object**)remSetSlotIterator.nextSlot()) != NULL) {
+            if (_engine->checkSlotRememberedSet(_javaVM, slotPtr, puddle) != J9MODRON_SLOT_ITERATOR_OK) {
+                return;
+            }
+        }
+    }
 }
 
-void
-GC_CheckRememberedSet::print()
+void GC_CheckRememberedSet::print()
 {
-	GC_RememberedSetIterator remSetIterator(&_extensions->rememberedSet);
-	J9Object **slotPtr;
-	MM_SublistPuddle *puddle;
-	GC_ScanFormatter formatter(_portLibrary, "RememberedSet Sublist", (void *)&_extensions->rememberedSet);
-	while ((puddle = remSetIterator.nextList()) != NULL) {
-		GC_RememberedSetSlotIterator remSetSlotIterator(puddle);
-		formatter.section("puddle", (void *) puddle);
+    GC_RememberedSetIterator remSetIterator(&_extensions->rememberedSet);
+    J9Object** slotPtr;
+    MM_SublistPuddle* puddle;
+    GC_ScanFormatter formatter(_portLibrary, "RememberedSet Sublist", (void*)&_extensions->rememberedSet);
+    while ((puddle = remSetIterator.nextList()) != NULL) {
+        GC_RememberedSetSlotIterator remSetSlotIterator(puddle);
+        formatter.section("puddle", (void*)puddle);
 
-		while((slotPtr = (J9Object **)remSetSlotIterator.nextSlot()) != NULL) {
-			formatter.entry((void *)*slotPtr);
-		}
-		formatter.endSection();
-	}
-	formatter.end("RememberedSet Sublist", (void *)&_extensions->rememberedSet);
+        while ((slotPtr = (J9Object**)remSetSlotIterator.nextSlot()) != NULL) {
+            formatter.entry((void*)*slotPtr);
+        }
+        formatter.endSection();
+    }
+    formatter.end("RememberedSet Sublist", (void*)&_extensions->rememberedSet);
 }
 
 #endif /* J9VM_GC_GENERATIONAL */

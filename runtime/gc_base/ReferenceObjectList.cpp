@@ -33,46 +33,48 @@
 #include "ObjectAccessBarrier.hpp"
 
 MM_ReferenceObjectList::MM_ReferenceObjectList()
-	: MM_BaseNonVirtual()
-	, _weakHead(NULL)
-	, _softHead(NULL)
-	, _phantomHead(NULL)
-	, _priorWeakHead(NULL)
-	, _priorSoftHead(NULL)
-	, _priorPhantomHead(NULL)
+    : MM_BaseNonVirtual()
+    , _weakHead(NULL)
+    , _softHead(NULL)
+    , _phantomHead(NULL)
+    , _priorWeakHead(NULL)
+    , _priorSoftHead(NULL)
+    , _priorPhantomHead(NULL)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-void 
-MM_ReferenceObjectList::addAll(MM_EnvironmentBase* env, UDATA referenceObjectType, j9object_t head, j9object_t tail)
+void MM_ReferenceObjectList::addAll(
+    MM_EnvironmentBase* env, UDATA referenceObjectType, j9object_t head, j9object_t tail)
 {
-	Assert_MM_true(NULL != head);
-	Assert_MM_true(NULL != tail);
+    Assert_MM_true(NULL != head);
+    Assert_MM_true(NULL != tail);
 
-	volatile j9object_t *list = NULL;
-	switch (referenceObjectType) {
-	case J9_JAVA_CLASS_REFERENCE_WEAK:
-		list = &_weakHead;
-		break;
-	case J9_JAVA_CLASS_REFERENCE_SOFT:
-		list = &_softHead;
-		break;
-	case J9_JAVA_CLASS_REFERENCE_PHANTOM:
-		list = &_phantomHead;
-		break;
-	default:
-		Assert_MM_unreachable();
-	}
-	
-	j9object_t previousHead = *list;
-	while (previousHead != (j9object_t)MM_AtomicOperations::lockCompareExchange((volatile UDATA*)list, (UDATA)previousHead, (UDATA)head)) {
-		previousHead = *list;
-	}
+    volatile j9object_t* list = NULL;
+    switch (referenceObjectType) {
+    case J9_JAVA_CLASS_REFERENCE_WEAK:
+        list = &_weakHead;
+        break;
+    case J9_JAVA_CLASS_REFERENCE_SOFT:
+        list = &_softHead;
+        break;
+    case J9_JAVA_CLASS_REFERENCE_PHANTOM:
+        list = &_phantomHead;
+        break;
+    default:
+        Assert_MM_unreachable();
+    }
 
-	/* detect trivial cases which can inject cycles into the linked list */
-	Assert_MM_true( (head != previousHead) && (tail != previousHead) );
-	
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	extensions->accessBarrier->setReferenceLink(tail, previousHead);
+    j9object_t previousHead = *list;
+    while (previousHead
+        != (j9object_t)MM_AtomicOperations::lockCompareExchange(
+               (volatile UDATA*)list, (UDATA)previousHead, (UDATA)head)) {
+        previousHead = *list;
+    }
+
+    /* detect trivial cases which can inject cycles into the linked list */
+    Assert_MM_true((head != previousHead) && (tail != previousHead));
+
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    extensions->accessBarrier->setReferenceLink(tail, previousHead);
 }

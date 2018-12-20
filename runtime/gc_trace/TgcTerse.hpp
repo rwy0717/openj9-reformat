@@ -33,9 +33,9 @@
  * @todo Provide struct documentation
  */
 typedef struct TgcTerseExtensions {
-	UDATA gcCount;
+    UDATA gcCount;
 } TgcTerseExtensions;
-	
-bool tgcTerseInitialize(J9JavaVM *javaVM);
+
+bool tgcTerseInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCTERSE_HPP_ */

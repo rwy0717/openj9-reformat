@@ -28,8 +28,12 @@
  */
 #ifndef J9_COMPILER_ENV_CONNECTOR
 #define J9_COMPILER_ENV_CONNECTOR
-   namespace J9 { class CompilerEnv; }
-   namespace J9 { typedef J9::CompilerEnv CompilerEnvConnector; }
+namespace J9 {
+class CompilerEnv;
+}
+namespace J9 {
+typedef J9::CompilerEnv CompilerEnvConnector;
+}
 #endif
 
 #include "env/OMRCompilerEnv.hpp"
@@ -39,23 +43,20 @@ struct J9PortLibrary;
 struct J9JavaVM;
 }
 
-namespace J9
-{
+namespace J9 {
 
-class OMR_EXTENSIBLE CompilerEnv : public OMR::CompilerEnvConnector
-   {
+class OMR_EXTENSIBLE CompilerEnv : public OMR::CompilerEnvConnector {
 public:
+    CompilerEnv(J9JavaVM* vm, TR::RawAllocator raw, const TR::PersistentAllocatorKit& persistentAllocatorKit);
 
-   CompilerEnv(J9JavaVM *vm, TR::RawAllocator raw, const TR::PersistentAllocatorKit &persistentAllocatorKit);
+    J9PortLibrary* const portLib;
+    J9JavaVM* const javaVM;
 
-   J9PortLibrary * const portLib;
-   J9JavaVM * const javaVM;
+    void initializeTargetEnvironment();
 
-   void initializeTargetEnvironment();
+    bool isCodeTossed();
+};
 
-   bool isCodeTossed();
-   };
-
-}
+} // namespace J9
 
 #endif

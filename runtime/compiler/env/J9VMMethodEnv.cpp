@@ -30,47 +30,35 @@
 #include "jilconsts.h"
 #include "j9protos.h"
 
-bool
-J9::VMMethodEnv::hasBackwardBranches(TR_OpaqueMethodBlock *method)
-   {
-   J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method *)method);
-   return (romMethod->modifiers & J9AccMethodHasBackwardBranches) != 0;
-   }
+bool J9::VMMethodEnv::hasBackwardBranches(TR_OpaqueMethodBlock* method)
+{
+    J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method*)method);
+    return (romMethod->modifiers & J9AccMethodHasBackwardBranches) != 0;
+}
 
+bool J9::VMMethodEnv::isCompiledMethod(TR_OpaqueMethodBlock* method)
+{
+    if (TR::Compiler->isCodeTossed()) {
+        return false;
+    }
 
-bool
-J9::VMMethodEnv::isCompiledMethod(TR_OpaqueMethodBlock *method)
-   {
-   if (TR::Compiler->isCodeTossed())
-      {
-      return false;
-      }
+    return TR::CompilationInfo::isCompiled((J9Method*)method);
+}
 
-   return TR::CompilationInfo::isCompiled((J9Method *)method);
-   }
+uintptr_t J9::VMMethodEnv::startPC(TR_OpaqueMethodBlock* method)
+{
+    J9Method* j9method = reinterpret_cast<J9Method*>(method);
+    return reinterpret_cast<uintptr_t>(TR::CompilationInfo::getJ9MethodStartPC(j9method));
+}
 
+uintptr_t J9::VMMethodEnv::bytecodeStart(TR_OpaqueMethodBlock* method)
+{
+    J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method*)method);
+    return (uintptr_t)(J9_BYTECODE_START_FROM_ROM_METHOD(romMethod));
+}
 
-uintptr_t
-J9::VMMethodEnv::startPC(TR_OpaqueMethodBlock *method)
-   {
-   J9Method *j9method = reinterpret_cast<J9Method *>(method);
-   return reinterpret_cast<uintptr_t>(TR::CompilationInfo::getJ9MethodStartPC(j9method));
-   }
-
-
-uintptr_t
-J9::VMMethodEnv::bytecodeStart(TR_OpaqueMethodBlock *method)
-   {
-   J9ROMMethod *romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method *)method);
-   return (uintptr_t)(J9_BYTECODE_START_FROM_ROM_METHOD(romMethod));
-   }
-
-
-uint32_t
-J9::VMMethodEnv::bytecodeSize(TR_OpaqueMethodBlock *method)
-   {
-   J9ROMMethod *romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method *)method);
-   return (uint32_t)(J9_BYTECODE_END_FROM_ROM_METHOD(romMethod) -
-                     J9_BYTECODE_START_FROM_ROM_METHOD(romMethod));
-   }
-
+uint32_t J9::VMMethodEnv::bytecodeSize(TR_OpaqueMethodBlock* method)
+{
+    J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD((J9Method*)method);
+    return (uint32_t)(J9_BYTECODE_END_FROM_ROM_METHOD(romMethod) - J9_BYTECODE_START_FROM_ROM_METHOD(romMethod));
+}

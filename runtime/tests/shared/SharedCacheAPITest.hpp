@@ -39,17 +39,17 @@ extern "C" {
 #endif /* !defined(WIN32) */
 
 #define NONPERSISTENT_CACHE_INDEX 0
-#define CACHE_SIZE 1024*1024
+#define CACHE_SIZE 1024 * 1024
 #define TEST_BASEDIR "sharedcacheapi"
 
 typedef struct CacheInfo {
-	const char *name;
-	char *cacheDir;
-	UDATA cacheType;
-	UDATA cacheSize;
-	UDATA softMaxBytes;
-	UDATA debugBytes;
-	BOOLEAN found;
+    const char* name;
+    char* cacheDir;
+    UDATA cacheType;
+    UDATA cacheSize;
+    UDATA softMaxBytes;
+    UDATA debugBytes;
+    BOOLEAN found;
 } CacheInfo;
 
 #endif /* SHAREDCACHEAPI_HPP_INCLUDED */

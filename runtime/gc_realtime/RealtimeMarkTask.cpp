@@ -21,10 +21,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 /**
  * @file
- */ 
+ */
 
 #include "ut_j9mm.h"
 
@@ -35,65 +34,58 @@
 #include "RealtimeMarkingScheme.hpp"
 #include "RealtimeMarkTask.hpp"
 
-void
-MM_RealtimeMarkTask::run(MM_EnvironmentBase *env)
+void MM_RealtimeMarkTask::run(MM_EnvironmentBase* env)
 {
-	_markingScheme->markLiveObjects(MM_EnvironmentRealtime::getEnvironment(env));
+    _markingScheme->markLiveObjects(MM_EnvironmentRealtime::getEnvironment(env));
 }
 
-void
-MM_RealtimeMarkTask::setup(MM_EnvironmentBase *envBase)
+void MM_RealtimeMarkTask::setup(MM_EnvironmentBase* envBase)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	env->_markStats.clear();
-	env->getGCEnvironment()->_markJavaStats.clear();
-	env->_workPacketStats.clear();
-	
-	/* record that this thread is participating in this cycle */
-	env->_markStats._gcCount = extensions->globalGCStats.gcCount;
-	env->_workPacketStats._gcCount = extensions->globalGCStats.gcCount;
+    env->_markStats.clear();
+    env->getGCEnvironment()->_markJavaStats.clear();
+    env->_workPacketStats.clear();
 
-	if(env->isMasterThread()) {
-		Assert_MM_true(_cycleState == env->_cycleState);
-	} else {
-		Assert_MM_true(NULL == env->_cycleState);
-		env->_cycleState = _cycleState;
-	}
+    /* record that this thread is participating in this cycle */
+    env->_markStats._gcCount = extensions->globalGCStats.gcCount;
+    env->_workPacketStats._gcCount = extensions->globalGCStats.gcCount;
+
+    if (env->isMasterThread()) {
+        Assert_MM_true(_cycleState == env->_cycleState);
+    } else {
+        Assert_MM_true(NULL == env->_cycleState);
+        env->_cycleState = _cycleState;
+    }
 }
 
-void
-MM_RealtimeMarkTask::cleanup(MM_EnvironmentBase *envBase)
+void MM_RealtimeMarkTask::cleanup(MM_EnvironmentBase* envBase)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	GC_Environment *gcEnv = env->getGCEnvironment();
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	
-	MM_GlobalGCStats *finalGCStats= &extensions->globalGCStats;
-	finalGCStats->markStats.merge(&env->_markStats);
-	extensions->markJavaStats.merge(&gcEnv->_markJavaStats);
-	finalGCStats->workPacketStats.merge(&env->_workPacketStats);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    GC_Environment* gcEnv = env->getGCEnvironment();
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	if (env->isMasterThread()) {
-		Assert_MM_true(_cycleState == env->_cycleState);
-	} else {
-		env->_cycleState = NULL;
-	}
-	
-	/* record the thread-specific paralellism stats in the trace buffer. This partially duplicates info in -Xtgc:parallel */ 
-	Trc_MM_RealtimeMarkTask_parallelStats(
-		env->getLanguageVMThread(),
-		(U_32)env->getSlaveID(),
-		(U_32)j9time_hires_delta(0, env->_workPacketStats._workStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
-		(U_32)j9time_hires_delta(0, env->_workPacketStats._completeStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
-		(U_32)j9time_hires_delta(0, env->_markStats._syncStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
-		(U_32)env->_workPacketStats._workStallCount,
-		(U_32)env->_workPacketStats._completeStallCount,
-		(U_32)env->_markStats._syncStallCount,
-		env->_workPacketStats.workPacketsAcquired,
-		env->_workPacketStats.workPacketsReleased,
-		env->_workPacketStats.workPacketsExchanged,
-		gcEnv->_markJavaStats.splitArraysProcessed);
+    MM_GlobalGCStats* finalGCStats = &extensions->globalGCStats;
+    finalGCStats->markStats.merge(&env->_markStats);
+    extensions->markJavaStats.merge(&gcEnv->_markJavaStats);
+    finalGCStats->workPacketStats.merge(&env->_workPacketStats);
+
+    if (env->isMasterThread()) {
+        Assert_MM_true(_cycleState == env->_cycleState);
+    } else {
+        env->_cycleState = NULL;
+    }
+
+    /* record the thread-specific paralellism stats in the trace buffer. This partially duplicates info in
+     * -Xtgc:parallel */
+    Trc_MM_RealtimeMarkTask_parallelStats(env->getLanguageVMThread(), (U_32)env->getSlaveID(),
+        (U_32)j9time_hires_delta(0, env->_workPacketStats._workStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
+        (U_32)j9time_hires_delta(0, env->_workPacketStats._completeStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
+        (U_32)j9time_hires_delta(0, env->_markStats._syncStallTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
+        (U_32)env->_workPacketStats._workStallCount, (U_32)env->_workPacketStats._completeStallCount,
+        (U_32)env->_markStats._syncStallCount, env->_workPacketStats.workPacketsAcquired,
+        env->_workPacketStats.workPacketsReleased, env->_workPacketStats.workPacketsExchanged,
+        gcEnv->_markJavaStats.splitArraysProcessed);
 }

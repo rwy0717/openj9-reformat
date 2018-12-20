@@ -33,16 +33,16 @@
  * Structure holding information relating to tgc tracing for NUMA.
  */
 typedef struct TgcNumaExtensions {
-	UDATA numaNodes;
-	struct NumaNodeData {
-		UDATA totalRegions; /**< total number of regions with affinity to the node */
-		UDATA committedRegions; /**< number of committed regions with affinity to the node */
-		UDATA freeRegions; /**< number of free regions with affinity to the node */
-		UDATA threads; /**< number of threads with affinity to the node */
-		UDATA gcThreads; /**< number of GC threads (slaves/master) with affinity to the node */
-	} *nodeData;
+    UDATA numaNodes;
+    struct NumaNodeData {
+        UDATA totalRegions; /**< total number of regions with affinity to the node */
+        UDATA committedRegions; /**< number of committed regions with affinity to the node */
+        UDATA freeRegions; /**< number of free regions with affinity to the node */
+        UDATA threads; /**< number of threads with affinity to the node */
+        UDATA gcThreads; /**< number of GC threads (slaves/master) with affinity to the node */
+    } * nodeData;
 } TgcNumaExtensions;
-	
-bool tgcNumaInitialize(J9JavaVM *javaVM);
+
+bool tgcNumaInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCNUMA_HPP_ */

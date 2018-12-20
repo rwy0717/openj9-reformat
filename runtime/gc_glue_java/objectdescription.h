@@ -32,7 +32,7 @@ typedef J9Object* languageobjectptr_t;
 typedef J9Object* omrobjectptr_t;
 typedef J9IndexableObject* omrarrayptr_t;
 
-#if defined (J9VM_GC_COMPRESSED_POINTERS)
+#if defined(J9VM_GC_COMPRESSED_POINTERS)
 typedef U_32 fomrobject_t;
 typedef U_32 fomrarray_t;
 #else

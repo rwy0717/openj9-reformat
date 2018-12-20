@@ -32,14 +32,13 @@
 /**
  * Interface to shared cache subsystem for reading cache statistics
  */
-class SH_CacheMapStats
-{
+class SH_CacheMapStats {
 public:
-	virtual IDATA startupForStats(J9VMThread* currentThread, SH_OSCache * oscache, U_64 * runtimeflags) = 0;
+    virtual IDATA startupForStats(J9VMThread* currentThread, SH_OSCache* oscache, U_64* runtimeflags) = 0;
 
-	virtual IDATA shutdownForStats(J9VMThread* currentThread) = 0;
+    virtual IDATA shutdownForStats(J9VMThread* currentThread) = 0;
 
-	virtual UDATA getJavacoreData(J9JavaVM *vm, J9SharedClassJavacoreDataDescriptor* descriptor) = 0;
+    virtual UDATA getJavacoreData(J9JavaVM* vm, J9SharedClassJavacoreDataDescriptor* descriptor) = 0;
 };
 
 #endif /*CACHEMAPSTATS_H_INCLUDED*/

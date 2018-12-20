@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #ifndef COMPACTSCHEMEOBJECTFIXUP_HPP_
 #define COMPACTSCHEMEOBJECTFIXUP_HPP_
 
@@ -33,46 +33,47 @@ class MM_CompactSchemeFixupObject {
 public:
 protected:
 private:
-	OMR_VM *_omrVM;
-	MM_GCExtensions *_extensions;
-	MM_CompactScheme *_compactScheme;
+    OMR_VM* _omrVM;
+    MM_GCExtensions* _extensions;
+    MM_CompactScheme* _compactScheme;
+
 public:
+    /**
+     * Perform fixup for a single object
+     * @param env[in] the current thread
+     * @param objectPtr pointer to object for fixup
+     */
+    void fixupObject(MM_EnvironmentStandard* env, omrobjectptr_t objectPtr);
 
-	/**
-	 * Perform fixup for a single object
-	 * @param env[in] the current thread
-	 * @param objectPtr pointer to object for fixup
-	 */
-	void fixupObject(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr);
+    static void verifyForwardingPtr(omrobjectptr_t objectPtr, omrobjectptr_t forwardingPtr);
 
-	static void verifyForwardingPtr(omrobjectptr_t objectPtr, omrobjectptr_t forwardingPtr);
-
-	MM_CompactSchemeFixupObject(MM_EnvironmentBase* env, MM_CompactScheme *compactScheme) :
-		_omrVM(env->getOmrVM()),
-		_extensions(MM_GCExtensions::getExtensions(env)),
-		_compactScheme(compactScheme)
-	{}
+    MM_CompactSchemeFixupObject(MM_EnvironmentBase* env, MM_CompactScheme* compactScheme)
+        : _omrVM(env->getOmrVM())
+        , _extensions(MM_GCExtensions::getExtensions(env))
+        , _compactScheme(compactScheme)
+    {}
 
 protected:
 private:
-	/**
-	 * Perform fixup for a mixed object
-	 * @param objectPtr pointer to object for fixup
-	 */
-	void fixupMixedObject(omrobjectptr_t objectPtr);
+    /**
+     * Perform fixup for a mixed object
+     * @param objectPtr pointer to object for fixup
+     */
+    void fixupMixedObject(omrobjectptr_t objectPtr);
 
-	/**
-	 * Perform fixup for an array object
-	 * @param objectPtr pointer to object for fixup
-	 */
-	void fixupArrayObject(omrobjectptr_t objectPtr);
+    /**
+     * Perform fixup for an array object
+     * @param objectPtr pointer to object for fixup
+     */
+    void fixupArrayObject(omrobjectptr_t objectPtr);
 
-	/**
-	 * Called whenever a ownable synchronizer object is fixed up during compact. Places the object on the thread-specific buffer of gc work thread.
-	 * @param env -- current thread environment
-	 * @param object -- The object of type or subclass of java.util.concurrent.locks.AbstractOwnableSynchronizer.
-	 */
-	MMINLINE void addOwnableSynchronizerObjectInList(MM_EnvironmentBase *env, omrobjectptr_t objectPtr);
+    /**
+     * Called whenever a ownable synchronizer object is fixed up during compact. Places the object on the
+     * thread-specific buffer of gc work thread.
+     * @param env -- current thread environment
+     * @param object -- The object of type or subclass of java.util.concurrent.locks.AbstractOwnableSynchronizer.
+     */
+    MMINLINE void addOwnableSynchronizerObjectInList(MM_EnvironmentBase* env, omrobjectptr_t objectPtr);
 };
 
 #endif /* COMPACTSCHEMEOBJECTFIXUP_HPP_ */

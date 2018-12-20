@@ -34,34 +34,33 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#if defined (J9ZOS390)
+#if defined(J9ZOS390)
 #include <sys/__getipc.h>
 #endif
 
-
 typedef union {
-	int val;
-	struct semid_ds *buf;
-	unsigned short *array;
+    int val;
+    struct semid_ds* buf;
+    unsigned short* array;
 } semctlUnion;
 
 /*ftok*/
-int ftokWrapper(J9PortLibrary *portLibrary, const char *baseFile, int proj_id);
+int ftokWrapper(J9PortLibrary* portLibrary, const char* baseFile, int proj_id);
 
 /*semaphores*/
-int semgetWrapper(J9PortLibrary *portLibrary, key_t key, int nsems, int semflg);
-int semctlWrapper(J9PortLibrary *portLibrary, BOOLEAN storeError, int semid, int semnum, int cmd, ...);
-int semopWrapper(J9PortLibrary *portLibrary, int semid, struct sembuf *sops, size_t nsops);
+int semgetWrapper(J9PortLibrary* portLibrary, key_t key, int nsems, int semflg);
+int semctlWrapper(J9PortLibrary* portLibrary, BOOLEAN storeError, int semid, int semnum, int cmd, ...);
+int semopWrapper(J9PortLibrary* portLibrary, int semid, struct sembuf* sops, size_t nsops);
 
 /*memory*/
-int shmgetWrapper(J9PortLibrary *portLibrary, key_t key, size_t size, int shmflg);
-int shmctlWrapper(J9PortLibrary *portLibrary, BOOLEAN storeError, int shmid, int cmd, struct shmid_ds *buf);
-void * shmatWrapper(J9PortLibrary *portLibrary, int shmid, const void *shmaddr, int shmflg);
-int shmdtWrapper(J9PortLibrary *portLibrary, const void *shmaddr);
+int shmgetWrapper(J9PortLibrary* portLibrary, key_t key, size_t size, int shmflg);
+int shmctlWrapper(J9PortLibrary* portLibrary, BOOLEAN storeError, int shmid, int cmd, struct shmid_ds* buf);
+void* shmatWrapper(J9PortLibrary* portLibrary, int shmid, const void* shmaddr, int shmflg);
+int shmdtWrapper(J9PortLibrary* portLibrary, const void* shmaddr);
 
 /*z/OS sysv helper function*/
-#if defined (J9ZOS390)
-int getipcWrapper(J9PortLibrary *portLibrary, int id, IPCQPROC *info, size_t length, int cmd);
+#if defined(J9ZOS390)
+int getipcWrapper(J9PortLibrary* portLibrary, int id, IPCQPROC* info, size_t length, int cmd);
 #endif
 
 #endif

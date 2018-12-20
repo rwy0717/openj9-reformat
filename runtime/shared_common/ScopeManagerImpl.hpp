@@ -41,72 +41,72 @@
  *
  * @ingroup Shared_Common
  */
-class SH_ScopeManagerImpl : public SH_ScopeManager
-{
+class SH_ScopeManagerImpl : public SH_ScopeManager {
 public:
-	SH_ScopeManagerImpl();
+    SH_ScopeManagerImpl();
 
-	~SH_ScopeManagerImpl();
+    ~SH_ScopeManagerImpl();
 
-	static SH_ScopeManagerImpl* newInstance(J9JavaVM* vm, SH_SharedCache* cache, SH_ScopeManagerImpl* memForConstructor);
+    static SH_ScopeManagerImpl* newInstance(
+        J9JavaVM* vm, SH_SharedCache* cache, SH_ScopeManagerImpl* memForConstructor);
 
-	static UDATA getRequiredConstrBytes(void);
+    static UDATA getRequiredConstrBytes(void);
 
-	virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
+    virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
 
-	virtual const J9UTF8* findScopeForUTF(J9VMThread* currentThread, const J9UTF8* localScope);
+    virtual const J9UTF8* findScopeForUTF(J9VMThread* currentThread, const J9UTF8* localScope);
 
-	virtual IDATA validate(J9VMThread* currentThread, const J9UTF8* partition, const J9UTF8* modContext, const ShcItem* item);
+    virtual IDATA validate(
+        J9VMThread* currentThread, const J9UTF8* partition, const J9UTF8* modContext, const ShcItem* item);
 
-	void runExitCode(void) {};	
+    void runExitCode(void) {};
 
 protected:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; }
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; }
 
-	IDATA localPostStartup(J9VMThread* currentThread) { return 0; }
-	void localPostCleanup(J9VMThread* currentThread) {}
-	virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
-	IDATA localInitializePools(J9VMThread* currentThread);
-	void localTearDownPools(J9VMThread* currentThread);
-	virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);	
-	HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor) { return NULL; }
+    IDATA localPostStartup(J9VMThread* currentThread) { return 0; }
+    void localPostCleanup(J9VMThread* currentThread) {}
+    virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
+    IDATA localInitializePools(J9VMThread* currentThread);
+    void localTearDownPools(J9VMThread* currentThread);
+    virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
+    HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor) { return NULL; }
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	virtual bool canCreateHints() { return true; }
-	virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
-	virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
+    virtual bool canCreateHints() { return true; }
+    virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
+    virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
 #endif
 
 private:
-	struct HashEntry {
-		const J9UTF8* _value;
+    struct HashEntry {
+        const J9UTF8* _value;
 #if defined(J9SHR_CACHELET_SUPPORT)
-		SH_CompositeCache* _cachelet;
+        SH_CompositeCache* _cachelet;
 #endif
 
-		HashEntry(const J9UTF8* value_, SH_CompositeCache* cachelet_):
-			_value(value_)
+        HashEntry(const J9UTF8* value_, SH_CompositeCache* cachelet_)
+            : _value(value_)
 #if defined(J9SHR_CACHELET_SUPPORT)
-			,_cachelet(cachelet_)
+            , _cachelet(cachelet_)
 #endif
-		 {}
-	};
+        {}
+    };
 
-	void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
+    void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
 
-	static UDATA scHashFn(void* item, void *userData);
-	static UDATA scHashEqualFn(void* left, void* right, void *userData);
-	const J9UTF8* scTableLookup(J9VMThread* currentThread, const J9UTF8* key);
-	const HashEntry* scTableAdd(J9VMThread* currentThread, const ShcItem* item, SH_CompositeCache* cachelet);
+    static UDATA scHashFn(void* item, void* userData);
+    static UDATA scHashEqualFn(void* left, void* right, void* userData);
+    const J9UTF8* scTableLookup(J9VMThread* currentThread, const J9UTF8* key);
+    const HashEntry* scTableAdd(J9VMThread* currentThread, const ShcItem* item, SH_CompositeCache* cachelet);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	IDATA scCollectHashes(J9VMThread* currentThread, SH_CompositeCache* cachelet, CacheletHints* hints);
-	static UDATA scCollectHashOfEntry(void* entry, void* userData);
-	static UDATA scCountCacheletHashes(void* entry, void* userData);
+    IDATA scCollectHashes(J9VMThread* currentThread, SH_CompositeCache* cachelet, CacheletHints* hints);
+    static UDATA scCollectHashOfEntry(void* entry, void* userData);
+    static UDATA scCountCacheletHashes(void* entry, void* userData);
 
-	bool _allCacheletsStarted;
+    bool _allCacheletsStarted;
 #endif /* J9SHR_CACHELET_SUPPORT */
 };
 
 #endif /* SCOPEMANAGERIMPL_H_INCLUDED */
-

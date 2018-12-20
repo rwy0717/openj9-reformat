@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventConcurrentRSScanEnd.hpp"
 #include "GCExtensions.hpp"
 #include "VerboseEventStream.hpp"
@@ -31,16 +31,17 @@
  * Create an new instance of a MM_VerboseEventConcurrentRSScanEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventConcurrentRSScanEnd::newInstance(MM_ConcurrentRememberedSetScanEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventConcurrentRSScanEnd::newInstance(
+    MM_ConcurrentRememberedSetScanEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventConcurrentRSScanEnd *eventObject;
-	
-	eventObject = (MM_VerboseEventConcurrentRSScanEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventConcurrentRSScanEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventConcurrentRSScanEnd(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventConcurrentRSScanEnd* eventObject;
+
+    eventObject = (MM_VerboseEventConcurrentRSScanEnd*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventConcurrentRSScanEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventConcurrentRSScanEnd(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -48,55 +49,55 @@ MM_VerboseEventConcurrentRSScanEnd::newInstance(MM_ConcurrentRememberedSetScanEn
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventConcurrentRSScanEnd::consumeEvents(void)
+void MM_VerboseEventConcurrentRSScanEnd::consumeEvents(void)
 {
-	MM_VerboseEventStream *eventStream = _manager->getEventStream();
-	MM_VerboseEventConcurrentRSScanStart *event = NULL;
-	
-	if (NULL != (event = (MM_VerboseEventConcurrentRSScanStart *)eventStream->returnEvent(J9HOOK_MM_PRIVATE_CONCURRENT_REMEMBERED_SET_SCAN_START, _manager->getPrivateHookInterface(), (MM_VerboseEvent *)this))){
-		_conRSScanStartTime = event->getTimeStamp();
-		_workStackOverflowCountStart = event->getWorkStackOverflowCount();
-	} else {
-		//Stream is corrupted, what now?
-	}
+    MM_VerboseEventStream* eventStream = _manager->getEventStream();
+    MM_VerboseEventConcurrentRSScanStart* event = NULL;
+
+    if (NULL
+        != (event = (MM_VerboseEventConcurrentRSScanStart*)eventStream->returnEvent(
+                J9HOOK_MM_PRIVATE_CONCURRENT_REMEMBERED_SET_SCAN_START, _manager->getPrivateHookInterface(),
+                (MM_VerboseEvent*)this))) {
+        _conRSScanStartTime = event->getTimeStamp();
+        _workStackOverflowCountStart = event->getWorkStackOverflowCount();
+    } else {
+        // Stream is corrupted, what now?
+    }
 }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventConcurrentRSScanEnd::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventConcurrentRSScanEnd::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	U_64 timeInMicroSeconds;
+    UDATA indentLevel = _manager->getIndentLevel();
+    U_64 timeInMicroSeconds;
 
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<con event=\"remembered set scan\">");
-	
-	_manager->incrementIndent();
-	indentLevel = _manager->getIndentLevel();
+    agent->formatAndOutput(
+        static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<con event=\"remembered set scan\">");
 
-	if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _conRSScanStartTime, _time)) {
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"clock error detected in stats timetakenms\" />");
-	}
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<stats objectsfound=\"%zu\" traced=\"%zu\" timetakenms=\"%llu.%03.3llu\" />",
-		_objectsFound,
-		_bytesTraced,
-		timeInMicroSeconds / 1000,
-		timeInMicroSeconds % 1000
-	);
+    _manager->incrementIndent();
+    indentLevel = _manager->getIndentLevel();
 
-	/* Has overflow count gone up since start of final card cleaning. 
-	 * If so we have had further work stack overflows
-	 */
-	if(_workStackOverflowCount > _workStackOverflowCountStart) {
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"concurrent work stack overflow\" count=\"%zu\" />", 
-			_workStackOverflowCount);
-	}
+    if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _conRSScanStartTime, _time)) {
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"clock error detected in stats timetakenms\" />");
+    }
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<stats objectsfound=\"%zu\" traced=\"%zu\" timetakenms=\"%llu.%03.3llu\" />", _objectsFound, _bytesTraced,
+        timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
 
-	_manager->decrementIndent();
-	indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
+    /* Has overflow count gone up since start of final card cleaning.
+     * If so we have had further work stack overflows
+     */
+    if (_workStackOverflowCount > _workStackOverflowCountStart) {
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"concurrent work stack overflow\" count=\"%zu\" />", _workStackOverflowCount);
+    }
+
+    _manager->decrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
 }

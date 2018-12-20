@@ -28,71 +28,69 @@
 
 extern J9PortLibrary* g_PortLibrary;
 
-void Test_Get_00(CuTest *tc) {
-	PORT_ACCESS_FROM_PORT(g_PortLibrary);
-	const char* val1;
-	const char* val2;
-	const char* val3;
-	
-	j9props_file_t f = props_file_open(PORTLIB, TESTDATA("well-formed.props"), NULL, 0);
-	CuAssertPtrNotNull(tc, f);
+void Test_Get_00(CuTest* tc)
+{
+    PORT_ACCESS_FROM_PORT(g_PortLibrary);
+    const char* val1;
+    const char* val2;
+    const char* val3;
 
-	val1 = props_file_get(f, "foo");
-	CuAssertPtrNotNull(tc, val1);
+    j9props_file_t f = props_file_open(PORTLIB, TESTDATA("well-formed.props"), NULL, 0);
+    CuAssertPtrNotNull(tc, f);
 
-	val2 = props_file_get(f, "answer");
-	CuAssertPtrNotNull(tc, val2);
-	
-	val3 = props_file_get(f, "this");
-	CuAssertPtrNotNull(tc, val3);
+    val1 = props_file_get(f, "foo");
+    CuAssertPtrNotNull(tc, val1);
 
-	CuAssertTrue(tc, strcmp(val1,"bar") == 0);
-	CuAssertTrue(tc, strcmp(val2,"42") == 0);
-	CuAssertTrue(tc, strcmp(val3,"is	a line continuation") == 0);
+    val2 = props_file_get(f, "answer");
+    CuAssertPtrNotNull(tc, val2);
 
-	props_file_close(f);
+    val3 = props_file_get(f, "this");
+    CuAssertPtrNotNull(tc, val3);
+
+    CuAssertTrue(tc, strcmp(val1, "bar") == 0);
+    CuAssertTrue(tc, strcmp(val2, "42") == 0);
+    CuAssertTrue(tc, strcmp(val3, "is	a line continuation") == 0);
+
+    props_file_close(f);
 }
 
 BOOLEAN sawFoo = FALSE;
 BOOLEAN sawAnswer = FALSE;
 
-BOOLEAN 
+BOOLEAN
 walk_all_iterator(j9props_file_t file, const char* key, const char* value, void* userData)
 {
-	CuTest *tc = (CuTest*)userData;
-	
-	if (!strcmp(key,"foo")) {
-		sawFoo = TRUE;
-		CuAssertTrue(tc, strcmp(value,"bar") == 0);
-	}
-	if (!strcmp(key,"answer")) {
-		sawAnswer = TRUE;
-		CuAssertTrue(tc, strcmp(value,"42") == 0);
-	}
-	return TRUE;
+    CuTest* tc = (CuTest*)userData;
+
+    if (!strcmp(key, "foo")) {
+        sawFoo = TRUE;
+        CuAssertTrue(tc, strcmp(value, "bar") == 0);
+    }
+    if (!strcmp(key, "answer")) {
+        sawAnswer = TRUE;
+        CuAssertTrue(tc, strcmp(value, "42") == 0);
+    }
+    return TRUE;
 }
 
-
-void Test_Iterate_00(CuTest *tc) {
-	PORT_ACCESS_FROM_PORT(g_PortLibrary);
-	
-	j9props_file_t f = props_file_open(PORTLIB, TESTDATA("well-formed.props"), NULL, 0);
-	CuAssertPtrNotNull(tc, f);
-
-	props_file_do(f, walk_all_iterator, tc);	
-	CuAssertTrue(tc, sawFoo);
-	CuAssertTrue(tc, sawAnswer);
-
-	props_file_close(f);
-}
-
-
-
-CuSuite* 
-GetTestSuite(void) 
+void Test_Iterate_00(CuTest* tc)
 {
-	CuSuite* suite = CuSuiteNew();
-	SUITE_ADD_TEST(suite, Test_Get_00);
-	SUITE_ADD_TEST(suite, Test_Iterate_00);
-	return suite;
+    PORT_ACCESS_FROM_PORT(g_PortLibrary);
+
+    j9props_file_t f = props_file_open(PORTLIB, TESTDATA("well-formed.props"), NULL, 0);
+    CuAssertPtrNotNull(tc, f);
+
+    props_file_do(f, walk_all_iterator, tc);
+    CuAssertTrue(tc, sawFoo);
+    CuAssertTrue(tc, sawAnswer);
+
+    props_file_close(f);
+}
+
+CuSuite* GetTestSuite(void)
+{
+    CuSuite* suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, Test_Get_00);
+    SUITE_ADD_TEST(suite, Test_Iterate_00);
+    return suite;
 }

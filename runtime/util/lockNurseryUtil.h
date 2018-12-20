@@ -28,16 +28,13 @@
 #include "j9consts.h"
 #include "util_internal.h"
 
-#if defined (J9VM_THR_LOCK_NURSERY)
+#if defined(J9VM_THR_LOCK_NURSERY)
 #if defined(J9VM_OUT_OF_PROCESS)
 #include "j9dbgext.h"
-#define LN_HAS_LOCKWORD(vmThread,object) (TMP_HAS_LOCKWORD(object))
+#define LN_HAS_LOCKWORD(vmThread, object) (TMP_HAS_LOCKWORD(object))
 #else
-#define LN_HAS_LOCKWORD(vmThread,obj) ((int)J9OBJECT_CLAZZ(vmThread,obj)->lockOffset >= 0)
+#define LN_HAS_LOCKWORD(vmThread, obj) ((int)J9OBJECT_CLAZZ(vmThread, obj)->lockOffset >= 0)
 #endif
 #endif
 
-
-#endif     /* lockNurseryUtil_h */
-
-
+#endif /* lockNurseryUtil_h */

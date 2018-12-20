@@ -28,44 +28,42 @@
  */
 #ifndef J9_CODEGEN_PHASE_CONNECTOR
 #define J9_CODEGEN_PHASE_CONNECTOR
-   namespace J9 { class CodeGenPhase; }
-   namespace J9 { typedef J9::CodeGenPhase CodeGenPhaseConnector; }
+namespace J9 {
+class CodeGenPhase;
+}
+namespace J9 {
+typedef J9::CodeGenPhase CodeGenPhaseConnector;
+}
 #endif
 
 #include "codegen/OMRCodeGenPhase.hpp"
 
+namespace J9 {
 
-namespace J9
-{
+class OMR_EXTENSIBLE CodeGenPhase : public OMR::CodeGenPhaseConnector {
+protected:
+    CodeGenPhase(TR::CodeGenerator* cg)
+        : OMR::CodeGenPhaseConnector(cg)
+    {}
 
-class OMR_EXTENSIBLE CodeGenPhase: public OMR::CodeGenPhaseConnector
-   {
-   protected:
+public:
+    void reportPhase(PhaseValue phase);
 
-   CodeGenPhase(TR::CodeGenerator * cg): OMR::CodeGenPhaseConnector(cg) {}
+    static void performAllocateLinkageRegistersPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performPopulateOSRBufferPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performMoveUpArrayLengthStoresPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performInsertEpilogueYieldPointsPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performCompressedReferenceRematerializationPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performSplitWarmAndColdBlocksPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performIdentifyUnneededByteConvsPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
+    static void performLateSequentialConstantStoreSimplificationPhase(TR::CodeGenerator* cg, TR::CodeGenPhase*);
 
-   public:
+    // override base class implementation because new phases are being added
+    static int getNumPhases();
+    const char* getName();
+    static const char* getName(PhaseValue phase);
+};
 
-   void reportPhase(PhaseValue phase);
-
-   static void performAllocateLinkageRegistersPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performPopulateOSRBufferPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performMoveUpArrayLengthStoresPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performInsertEpilogueYieldPointsPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performCompressedReferenceRematerializationPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performSplitWarmAndColdBlocksPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performIdentifyUnneededByteConvsPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-   static void performLateSequentialConstantStoreSimplificationPhase(TR::CodeGenerator * cg, TR::CodeGenPhase *);
-
-
-   // override base class implementation because new phases are being added
-   static int getNumPhases();
-   const char * getName();
-   static const char* getName(PhaseValue phase);
-
-   };
-
-
-}
+} // namespace J9
 
 #endif

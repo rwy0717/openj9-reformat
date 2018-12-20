@@ -19,107 +19,98 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
- #include "codegen/Linkage.hpp"
- #include "codegen/S390GenerateInstructions.hpp"
 
-TR::Instruction *
-J9::Z::Linkage::loadUpArguments(TR::Instruction * cursor)
-   {
-   TR::RealRegister * stackPtr = self()->getStackPointerRealRegister();
-   TR::ResolvedMethodSymbol * bodySymbol = self()->comp()->getJittedMethodSymbol();
-   ListIterator<TR::ParameterSymbol> paramIterator(&(bodySymbol->getParameterList()));
-   TR::ParameterSymbol * paramCursor = paramIterator.getFirst();
-   TR::Node * firstNode = self()->comp()->getStartTree()->getNode();
-   int32_t numIntArgs = 0, numFloatArgs = 0;
-   uint32_t binLocalRegs = 0x1<<14;   // Binary pattern representing reg14 as free for local alloc
+#include "codegen/Linkage.hpp"
+#include "codegen/S390GenerateInstructions.hpp"
 
-   bool isRecompilable = false;
-   if (self()->comp()->getRecompilationInfo() && self()->comp()->getRecompilationInfo()->couldBeCompiledAgain())
-      {
-      isRecompilable = true;
-      }
+TR::Instruction* J9::Z::Linkage::loadUpArguments(TR::Instruction* cursor)
+{
+    TR::RealRegister* stackPtr = self()->getStackPointerRealRegister();
+    TR::ResolvedMethodSymbol* bodySymbol = self()->comp()->getJittedMethodSymbol();
+    ListIterator<TR::ParameterSymbol> paramIterator(&(bodySymbol->getParameterList()));
+    TR::ParameterSymbol* paramCursor = paramIterator.getFirst();
+    TR::Node* firstNode = self()->comp()->getStartTree()->getNode();
+    int32_t numIntArgs = 0, numFloatArgs = 0;
+    uint32_t binLocalRegs = 0x1 << 14; // Binary pattern representing reg14 as free for local alloc
 
-   while ((paramCursor != NULL) && ((numIntArgs < self()->getNumIntegerArgumentRegisters()) || (numFloatArgs < self()->getNumFloatArgumentRegisters())))
-      {
-      TR::RealRegister * argRegister;
-      int32_t offset = paramCursor->getParameterOffset();
+    bool isRecompilable = false;
+    if (self()->comp()->getRecompilationInfo() && self()->comp()->getRecompilationInfo()->couldBeCompiledAgain()) {
+        isRecompilable = true;
+    }
 
-      // If FSD, the JIT will conservatively store all parameters to stack later in saveArguments.
-      // Hence, we need to load the value into a parameter register for I2J transitions.
-      bool hasToLoadFromStack = paramCursor->isReferencedParameter() || paramCursor->isParmHasToBeOnStack() || self()->comp()->getOption(TR_FullSpeedDebug);
+    while ((paramCursor != NULL)
+        && ((numIntArgs < self()->getNumIntegerArgumentRegisters())
+               || (numFloatArgs < self()->getNumFloatArgumentRegisters()))) {
+        TR::RealRegister* argRegister;
+        int32_t offset = paramCursor->getParameterOffset();
 
-      switch (paramCursor->getDataType())
-         {
-         case TR::Int8:
-         case TR::Int16:
-         case TR::Int32:
-            if (hasToLoadFromStack && numIntArgs < self()->getNumIntegerArgumentRegisters())
-               {
-               argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
-               TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
-               cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::L, firstNode, argRegister,
-                           memRef, cursor);
-               cursor->setBinLocalFreeRegs(binLocalRegs);
-               }
+        // If FSD, the JIT will conservatively store all parameters to stack later in saveArguments.
+        // Hence, we need to load the value into a parameter register for I2J transitions.
+        bool hasToLoadFromStack = paramCursor->isReferencedParameter() || paramCursor->isParmHasToBeOnStack()
+            || self()->comp()->getOption(TR_FullSpeedDebug);
+
+        switch (paramCursor->getDataType()) {
+        case TR::Int8:
+        case TR::Int16:
+        case TR::Int32:
+            if (hasToLoadFromStack && numIntArgs < self()->getNumIntegerArgumentRegisters()) {
+                argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
+                TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
+                cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::L, firstNode, argRegister, memRef, cursor);
+                cursor->setBinLocalFreeRegs(binLocalRegs);
+            }
             numIntArgs++;
             break;
-         case TR::Address:
-            if ((hasToLoadFromStack || isRecompilable) &&
-                 numIntArgs < self()->getNumIntegerArgumentRegisters())
-               {
-               argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
-               TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
-               cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::getLoadOpCode(), firstNode, argRegister,
-                           memRef, cursor);
-               cursor->setBinLocalFreeRegs(binLocalRegs);
-               }
+        case TR::Address:
+            if ((hasToLoadFromStack || isRecompilable) && numIntArgs < self()->getNumIntegerArgumentRegisters()) {
+                argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
+                TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
+                cursor = generateRXInstruction(
+                    self()->cg(), TR::InstOpCode::getLoadOpCode(), firstNode, argRegister, memRef, cursor);
+                cursor->setBinLocalFreeRegs(binLocalRegs);
+            }
             numIntArgs++;
             break;
-         case TR::Int64:
-            if (hasToLoadFromStack && numIntArgs < self()->getNumIntegerArgumentRegisters())
-               {
-               argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
-               TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
-               cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::getLoadOpCode(), firstNode, argRegister,
-                           memRef, cursor);
-               cursor->setBinLocalFreeRegs(binLocalRegs);
-               if (TR::Compiler->target.is32Bit() && numIntArgs < self()->getNumIntegerArgumentRegisters() - 1)
-                  {
-                  argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs + 1));
-                  cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::L, firstNode, argRegister,
-                              generateS390MemoryReference(stackPtr, offset + 4, self()->cg()), cursor);
-                  cursor->setBinLocalFreeRegs(binLocalRegs);
-                  }
-               }
+        case TR::Int64:
+            if (hasToLoadFromStack && numIntArgs < self()->getNumIntegerArgumentRegisters()) {
+                argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs));
+                TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
+                cursor = generateRXInstruction(
+                    self()->cg(), TR::InstOpCode::getLoadOpCode(), firstNode, argRegister, memRef, cursor);
+                cursor->setBinLocalFreeRegs(binLocalRegs);
+                if (TR::Compiler->target.is32Bit() && numIntArgs < self()->getNumIntegerArgumentRegisters() - 1) {
+                    argRegister = self()->getRealRegister(self()->getIntegerArgumentRegister(numIntArgs + 1));
+                    cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::L, firstNode, argRegister,
+                        generateS390MemoryReference(stackPtr, offset + 4, self()->cg()), cursor);
+                    cursor->setBinLocalFreeRegs(binLocalRegs);
+                }
+            }
             numIntArgs += (TR::Compiler->target.is64Bit()) ? 1 : 2;
             break;
-         case TR::Float:
-         case TR::DecimalFloat:
-            if (hasToLoadFromStack && numFloatArgs < self()->getNumFloatArgumentRegisters())
-               {
-               argRegister = self()->getRealRegister(self()->getFloatArgumentRegister(numFloatArgs));
-               TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
-               cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::LE, firstNode, argRegister,
-                           memRef, cursor);
-               cursor->setBinLocalFreeRegs(binLocalRegs);
-               }
+        case TR::Float:
+        case TR::DecimalFloat:
+            if (hasToLoadFromStack && numFloatArgs < self()->getNumFloatArgumentRegisters()) {
+                argRegister = self()->getRealRegister(self()->getFloatArgumentRegister(numFloatArgs));
+                TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
+                cursor
+                    = generateRXInstruction(self()->cg(), TR::InstOpCode::LE, firstNode, argRegister, memRef, cursor);
+                cursor->setBinLocalFreeRegs(binLocalRegs);
+            }
             numFloatArgs++;
             break;
-         case TR::Double:
-         case TR::DecimalDouble:
-            if (hasToLoadFromStack && numFloatArgs < self()->getNumFloatArgumentRegisters())
-               {
-               argRegister = self()->getRealRegister(self()->getFloatArgumentRegister(numFloatArgs));
-               TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
-               cursor = generateRXInstruction(self()->cg(), TR::InstOpCode::LD, firstNode, argRegister,
-                           memRef, cursor);
-               cursor->setBinLocalFreeRegs(binLocalRegs);
-               }
+        case TR::Double:
+        case TR::DecimalDouble:
+            if (hasToLoadFromStack && numFloatArgs < self()->getNumFloatArgumentRegisters()) {
+                argRegister = self()->getRealRegister(self()->getFloatArgumentRegister(numFloatArgs));
+                TR::MemoryReference* memRef = generateS390MemoryReference(stackPtr, offset, self()->cg());
+                cursor
+                    = generateRXInstruction(self()->cg(), TR::InstOpCode::LD, firstNode, argRegister, memRef, cursor);
+                cursor->setBinLocalFreeRegs(binLocalRegs);
+            }
             numFloatArgs++;
             break;
-         }
-      paramCursor = paramIterator.getNext();
-      }
-   return cursor;
-   }
+        }
+        paramCursor = paramIterator.getNext();
+    }
+    return cursor;
+}

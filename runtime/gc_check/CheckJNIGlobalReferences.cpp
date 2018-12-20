@@ -25,48 +25,45 @@
 #include "ModronTypes.hpp"
 #include "ScanFormatter.hpp"
 
-GC_Check *
-GC_CheckJNIGlobalReferences::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckJNIGlobalReferences::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckJNIGlobalReferences *check = (GC_CheckJNIGlobalReferences *) forge->allocate(sizeof(GC_CheckJNIGlobalReferences), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckJNIGlobalReferences(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckJNIGlobalReferences* check = (GC_CheckJNIGlobalReferences*)forge->allocate(
+        sizeof(GC_CheckJNIGlobalReferences), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckJNIGlobalReferences(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckJNIGlobalReferences::kill()
+void GC_CheckJNIGlobalReferences::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckJNIGlobalReferences::check()
+void GC_CheckJNIGlobalReferences::check()
 {
-	GC_JNIGlobalReferenceIterator jniGlobalReferenceIterator(_javaVM->jniGlobalReferences);
-	J9Object **slotPtr;
-		
-	while((slotPtr = (J9Object **)jniGlobalReferenceIterator.nextSlot()) != NULL) {
-		if (_engine->checkSlotPool(_javaVM, slotPtr, _javaVM->jniGlobalReferences) != J9MODRON_SLOT_ITERATOR_OK ){
-			return;
-		}
-	}
+    GC_JNIGlobalReferenceIterator jniGlobalReferenceIterator(_javaVM->jniGlobalReferences);
+    J9Object** slotPtr;
+
+    while ((slotPtr = (J9Object**)jniGlobalReferenceIterator.nextSlot()) != NULL) {
+        if (_engine->checkSlotPool(_javaVM, slotPtr, _javaVM->jniGlobalReferences) != J9MODRON_SLOT_ITERATOR_OK) {
+            return;
+        }
+    }
 }
 
-void
-GC_CheckJNIGlobalReferences::print()
+void GC_CheckJNIGlobalReferences::print()
 {
-	J9Pool *pool = _javaVM->jniGlobalReferences;
-	GC_PoolIterator poolReferenceIterator(pool);
-	J9Object **slotPtr;
+    J9Pool* pool = _javaVM->jniGlobalReferences;
+    GC_PoolIterator poolReferenceIterator(pool);
+    J9Object** slotPtr;
 
-	GC_ScanFormatter formatter(_portLibrary, "jniGlobalReferences", (void *) pool);
-	while((slotPtr = (J9Object **)poolReferenceIterator.nextSlot()) != NULL) {
-		formatter.entry((void *)*slotPtr);
-	}
-	formatter.end("jniGlobalReferences", (void *)pool);
+    GC_ScanFormatter formatter(_portLibrary, "jniGlobalReferences", (void*)pool);
+    while ((slotPtr = (J9Object**)poolReferenceIterator.nextSlot()) != NULL) {
+        formatter.entry((void*)*slotPtr);
+    }
+    formatter.end("jniGlobalReferences", (void*)pool);
 }

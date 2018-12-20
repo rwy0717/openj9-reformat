@@ -25,59 +25,52 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
+static agentEnv* env;
 
-jint JNICALL
-gtgc001(agentEnv * agent_env, char * args)
+jint JNICALL gtgc001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env;
-			
-	return JNI_OK;
+    env = agent_env;
+
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getThreadGroupChildren_gtgc001_checkAssignment(JNIEnv *jni_env, 
-		jclass klass, 
-		jthreadGroup group, 
-		jint expectedThreadCount, 
-		jint expectedGroupCount, 
-		jstring groupName) 
+jboolean JNICALL Java_com_ibm_jvmti_tests_getThreadGroupChildren_gtgc001_checkAssignment(JNIEnv* jni_env, jclass klass,
+    jthreadGroup group, jint expectedThreadCount, jint expectedGroupCount, jstring groupName)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
     jvmtiError err;
-    
+
     jint thread_count_ptr;
     jthread* threads_ptr;
     jint group_count_ptr;
     jthreadGroup* groups_ptr;
 
-    const char *name;
+    const char* name;
     jboolean isCopy;
-    
-    name = (const char *) (*jni_env)->GetStringUTFChars(jni_env, groupName, &isCopy);
-       
-    
-    err = (*jvmti_env)->GetThreadGroupChildren(jvmti_env, group,
-    										&thread_count_ptr, &threads_ptr,
-    										&group_count_ptr, &groups_ptr);
+
+    name = (const char*)(*jni_env)->GetStringUTFChars(jni_env, groupName, &isCopy);
+
+    err = (*jvmti_env)
+              ->GetThreadGroupChildren(
+                  jvmti_env, group, &thread_count_ptr, &threads_ptr, &group_count_ptr, &groups_ptr);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "Failed to GetThreadGroupChildren");
+        error(env, err, "Failed to GetThreadGroupChildren");
         return JNI_FALSE;
     }
-    
+
     if (thread_count_ptr != expectedThreadCount) {
-    	error(env, err, "Wrong [%s] group thread count. Expected %d got %d", 
-    			name, expectedThreadCount, thread_count_ptr);
-    	return JNI_FALSE;
+        error(
+            env, err, "Wrong [%s] group thread count. Expected %d got %d", name, expectedThreadCount, thread_count_ptr);
+        return JNI_FALSE;
     }
-    
+
     if (group_count_ptr != expectedGroupCount) {
-    	error(env, err, "Wrong [%s] group thread group count. Expected %d got %d", 
-    			name, expectedGroupCount, group_count_ptr);
-    	return JNI_FALSE;
+        error(env, err, "Wrong [%s] group thread group count. Expected %d got %d", name, expectedGroupCount,
+            group_count_ptr);
+        return JNI_FALSE;
     }
-     
+
     return JNI_TRUE;
 }

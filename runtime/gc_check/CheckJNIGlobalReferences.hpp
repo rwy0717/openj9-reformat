@@ -34,22 +34,21 @@
 #include "Check.hpp"
 
 /**
- * 
+ *
  */
-class GC_CheckJNIGlobalReferences : public GC_Check
-{
+class GC_CheckJNIGlobalReferences : public GC_Check {
 private:
-	virtual void check(); /**< run the check */
-	virtual void print(); /**< dump the check structure to tty */
+    virtual void check(); /**< run the check */
+    virtual void print(); /**< dump the check structure to tty */
 
 public:
-	static GC_Check *newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine);
-	virtual void kill();
+    static GC_Check* newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine);
+    virtual void kill();
 
-	virtual const char *getCheckName() { return "JNI GLOBAL REFS"; };
+    virtual const char* getCheckName() { return "JNI GLOBAL REFS"; };
 
-	GC_CheckJNIGlobalReferences(J9JavaVM *javaVM, GC_CheckEngine *engine) :
-		GC_Check(javaVM, engine)
-	{}
+    GC_CheckJNIGlobalReferences(J9JavaVM* javaVM, GC_CheckEngine* engine)
+        : GC_Check(javaVM, engine)
+    {}
 };
 #endif /* CHECKJNIGLOBALREFERENCES_HPP_ */

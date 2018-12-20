@@ -25,86 +25,55 @@
 
 #include "il/J9SymbolReference.hpp"
 
-#include <stdint.h>                          // for int32_t
-#include "env/KnownObjectTable.hpp"      // for KnownObjectTable, etc
-#include "compile/SymbolReferenceTable.hpp"  // for SymbolReferenceTable, etc
-#include "env/jittypes.h"                    // for intptrj_t
-#include "infra/Annotations.hpp"             // for OMR_EXTENSIBLE
+#include <stdint.h> // for int32_t
+#include "env/KnownObjectTable.hpp" // for KnownObjectTable, etc
+#include "compile/SymbolReferenceTable.hpp" // for SymbolReferenceTable, etc
+#include "env/jittypes.h" // for intptrj_t
+#include "infra/Annotations.hpp" // for OMR_EXTENSIBLE
 
 class mcount_t;
-namespace TR { class Symbol; }
+namespace TR {
+class Symbol;
+}
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE SymbolReference : public J9::SymbolReferenceConnector
-   {
+class OMR_EXTENSIBLE SymbolReference : public J9::SymbolReferenceConnector {
 
 public:
+    SymbolReference(TR::SymbolReferenceTable* symRefTab)
+        : J9::SymbolReferenceConnector(symRefTab)
+    {}
 
-   SymbolReference(TR::SymbolReferenceTable * symRefTab) :
-      J9::SymbolReferenceConnector(symRefTab) {}
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::Symbol* symbol, intptrj_t offset = 0)
+        : J9::SymbolReferenceConnector(symRefTab, symbol, offset)
+    {}
 
-   SymbolReference(TR::SymbolReferenceTable * symRefTab,
-                   TR::Symbol * symbol,
-                   intptrj_t offset = 0) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        symbol,
-                                        offset) {}
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, int32_t refNumber, TR::Symbol* ps, intptrj_t offset = 0)
+        : J9::SymbolReferenceConnector(symRefTab, refNumber, ps, offset)
+    {}
 
-   SymbolReference(TR::SymbolReferenceTable * symRefTab,
-                   int32_t refNumber,
-                   TR::Symbol *ps,
-                   intptrj_t offset = 0) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        refNumber,
-                                        ps,
-                                        offset) {}
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::SymbolReferenceTable::CommonNonhelperSymbol number,
+        TR::Symbol* ps, intptrj_t offset = 0)
+        : J9::SymbolReferenceConnector(symRefTab, number, ps, offset)
+    {}
 
-   SymbolReference(TR::SymbolReferenceTable *symRefTab,
-                   TR::SymbolReferenceTable::CommonNonhelperSymbol number,
-                   TR::Symbol *ps,
-                   intptrj_t offset = 0) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        number,
-                                        ps,
-                                        offset) {}
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::Symbol* sym, mcount_t owningMethodIndex, int32_t cpIndex,
+        int32_t unresolvedIndex = 0, TR::KnownObjectTable::Index knownObjectIndex = TR::KnownObjectTable::UNKNOWN)
+        : J9::SymbolReferenceConnector(symRefTab, sym, owningMethodIndex, cpIndex, unresolvedIndex, knownObjectIndex)
+    {}
 
-   SymbolReference(TR::SymbolReferenceTable *symRefTab,
-                   TR::Symbol *sym,
-                   mcount_t owningMethodIndex,
-                   int32_t cpIndex,
-                   int32_t unresolvedIndex = 0,
-                   TR::KnownObjectTable::Index knownObjectIndex = TR::KnownObjectTable::UNKNOWN) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        sym,
-                                        owningMethodIndex,
-                                        cpIndex,
-                                        unresolvedIndex,
-                                        knownObjectIndex) {}
-
-   SymbolReference(TR::SymbolReferenceTable *symRefTab,
-                   TR::SymbolReference& sr,
-                   intptrj_t offset,
-                   TR::KnownObjectTable::Index knownObjectIndex = TR::KnownObjectTable::UNKNOWN) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        sr,
-                                        offset,
-                                        knownObjectIndex) {}
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::SymbolReference& sr, intptrj_t offset,
+        TR::KnownObjectTable::Index knownObjectIndex = TR::KnownObjectTable::UNKNOWN)
+        : J9::SymbolReferenceConnector(symRefTab, sr, offset, knownObjectIndex)
+    {}
 
 protected:
+    SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::Symbol* symbol, intptrj_t offset, const char* name)
+        : J9::SymbolReferenceConnector(symRefTab, symbol, offset, name)
+    {}
+};
 
-   SymbolReference(TR::SymbolReferenceTable * symRefTab,
-                   TR::Symbol *          symbol,
-                   intptrj_t              offset,
-                   const char *           name) :
-      J9::SymbolReferenceConnector(symRefTab,
-                                        symbol,
-                                        offset,
-                                        name) {}
-
-   };
-
-}
+} // namespace TR
 
 #endif

@@ -31,35 +31,34 @@
 #include "VerboseEvent.hpp"
 
 /**
- * Stores the data relating to the end of a concurrent complete tracing stage 
+ * Stores the data relating to the end of a concurrent complete tracing stage
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentCompleteTracingEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentCompleteTracingEnd : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_bytesTraced; /**< the number of bytes traced */
-	UDATA	_workStackOverflowCount; /**< the current count of concurrent work stack overflows */
-	
-	/* Consumed Data */
-	U_64	_conCompleteTracingStartTime; /**< timestamp of Complete Marking Start */
-	UDATA	_workStackOverflowCountStart; /**< the count of concurrent work stack overflows at start of RS scan */
-	
+    /* Passed Data */
+    UDATA _bytesTraced; /**< the number of bytes traced */
+    UDATA _workStackOverflowCount; /**< the current count of concurrent work stack overflows */
+
+    /* Consumed Data */
+    U_64 _conCompleteTracingStartTime; /**< timestamp of Complete Marking Start */
+    UDATA _workStackOverflowCountStart; /**< the count of concurrent work stack overflows at start of RS scan */
+
 public:
+    static MM_VerboseEvent* newInstance(MM_ConcurrentCompleteTracingEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ConcurrentCompleteTracingEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; }
-	MMINLINE virtual bool endsEventChain() { return false; }
+    MMINLINE virtual bool definesOutputRoutine() { return true; }
+    MMINLINE virtual bool endsEventChain() { return false; }
 
-	MM_VerboseEventConcurrentCompleteTracingEnd(MM_ConcurrentCompleteTracingEndEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_bytesTraced(event->bytesTraced),
-		_workStackOverflowCount(event->workStackOverflowCount)
-	{}
+    MM_VerboseEventConcurrentCompleteTracingEnd(
+        MM_ConcurrentCompleteTracingEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _bytesTraced(event->bytesTraced)
+        , _workStackOverflowCount(event->workStackOverflowCount)
+    {}
 };
 
 #endif /* EVENT_CON_COMPLETE_TRACING_END_HPP_ */

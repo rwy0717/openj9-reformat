@@ -33,8 +33,7 @@ extern "C" {
  * Method:    getDumpFormat
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniReader_getDumpFormat
-  (JNIEnv *, jobject);
+JNIEXPORT jstring JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniReader_getDumpFormat(JNIEnv*, jobject);
 
 #ifdef __cplusplus
 }

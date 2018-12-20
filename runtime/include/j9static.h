@@ -24,14 +24,19 @@
 #define j9static_h
 
 typedef struct {
-	char * name;
-	void * funcOrTable;
+    char* name;
+    void* funcOrTable;
 } EsPrimitiveTableSlot;
 
-typedef	EsPrimitiveTableSlot EsPrimitiveTable[];
-#define	EsDefinePrimitiveTable(name)	EsPrimitiveTableSlot name [] = {
-#define	EsSubTable(table)		EsPrimitiveTableEntry(0, (table))
-#define	EsPrimitiveTableEntry(name, fn)	{ (char *) (name), (void *) (fn) },
-#define	EsEndPrimitiveTable             { (char *) 0, (void *) 0} };
+typedef EsPrimitiveTableSlot EsPrimitiveTable[];
+#define EsDefinePrimitiveTable(name) EsPrimitiveTableSlot name[] = {
+#define EsSubTable(table) EsPrimitiveTableEntry(0, (table))
+#define EsPrimitiveTableEntry(name, fn) { (char*)(name), (void*)(fn) },
+#define EsEndPrimitiveTable \
+    {                       \
+        (char*)0, (void*)0  \
+    }                       \
+    }                       \
+    ;
 
-#endif     /* j9static_h */
+#endif /* j9static_h */

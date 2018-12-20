@@ -25,6 +25,4 @@
 
 #include "util_api.h"
 
-#endif     /* divhelp_h */
-
-
+#endif /* divhelp_h */

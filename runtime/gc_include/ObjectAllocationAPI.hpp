@@ -30,308 +30,308 @@
 #include "omrgcconsts.h"
 #include "AtomicSupport.hpp"
 
-class MM_ObjectAllocationAPI
-{
-	/*
-	 * Data members
-	 */
+class MM_ObjectAllocationAPI {
+    /*
+     * Data members
+     */
 private:
-	const UDATA _gcAllocationType;
+    const UDATA _gcAllocationType;
 #if defined(J9VM_GC_BATCH_CLEAR_TLH)
-	const UDATA _initializeSlotsOnTLHAllocate;
+    const UDATA _initializeSlotsOnTLHAllocate;
 #endif /* J9VM_GC_BATCH_CLEAR_TLH */
-	const UDATA _objectAlignmentInBytes;
+    const UDATA _objectAlignmentInBytes;
 
-#if defined (J9VM_GC_SEGREGATED_HEAP)
-	const J9VMGCSizeClasses *_sizeClasses;
+#if defined(J9VM_GC_SEGREGATED_HEAP)
+    const J9VMGCSizeClasses* _sizeClasses;
 #endif /* J9VM_GC_SEGREGATED_HEAP */
 
 protected:
 public:
-
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
 protected:
 public:
-
-	/**
-	 * Create an instance.
-	 */
-	MM_ObjectAllocationAPI(J9VMThread *currentThread)
-		: _gcAllocationType(currentThread->javaVM->gcAllocationType)
+    /**
+     * Create an instance.
+     */
+    MM_ObjectAllocationAPI(J9VMThread* currentThread)
+        : _gcAllocationType(currentThread->javaVM->gcAllocationType)
 #if defined(J9VM_GC_BATCH_CLEAR_TLH)
-		, _initializeSlotsOnTLHAllocate(currentThread->javaVM->initializeSlotsOnTLHAllocate)
+        , _initializeSlotsOnTLHAllocate(currentThread->javaVM->initializeSlotsOnTLHAllocate)
 #endif /* J9VM_GC_BATCH_CLEAR_TLH */
-		, _objectAlignmentInBytes(currentThread->omrVMThread->_vm->_objectAlignmentInBytes)
-#if defined (J9VM_GC_SEGREGATED_HEAP)
-		, _sizeClasses(currentThread->javaVM->realtimeSizeClasses)
+        , _objectAlignmentInBytes(currentThread->omrVMThread->_vm->_objectAlignmentInBytes)
+#if defined(J9VM_GC_SEGREGATED_HEAP)
+        , _sizeClasses(currentThread->javaVM->realtimeSizeClasses)
 #endif /* J9VM_GC_SEGREGATED_HEAP */
-	{}
+    {}
 
-	VMINLINE j9object_t
-	inlineAllocateObject(J9VMThread *currentThread, J9Class *clazz, bool initializeSlots = true, bool memoryBarrier = true)
-	{
-		j9object_t instance = NULL;
+    VMINLINE j9object_t inlineAllocateObject(
+        J9VMThread* currentThread, J9Class* clazz, bool initializeSlots = true, bool memoryBarrier = true)
+    {
+        j9object_t instance = NULL;
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP) || defined(J9VM_GC_SEGREGATED_HEAP)
-		bool initializeLockWord = initializeSlots
-			&& J9_ARE_ANY_BITS_SET(J9CLASS_EXTENDED_FLAGS(clazz), J9ClassReservableLockWordInit);
+        bool initializeLockWord
+            = initializeSlots && J9_ARE_ANY_BITS_SET(J9CLASS_EXTENDED_FLAGS(clazz), J9ClassReservableLockWordInit);
 
-		/* Calculate the size of the object */
-		UDATA dataSize = clazz->totalInstanceSize;
-		UDATA allocateSize = (dataSize + J9_OBJECT_HEADER_SIZE + _objectAlignmentInBytes - 1) & ~(UDATA)(_objectAlignmentInBytes - 1);
-		if (allocateSize < J9_GC_MINIMUM_OBJECT_SIZE) {
-			allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
-		}
+        /* Calculate the size of the object */
+        UDATA dataSize = clazz->totalInstanceSize;
+        UDATA allocateSize
+            = (dataSize + J9_OBJECT_HEADER_SIZE + _objectAlignmentInBytes - 1) & ~(UDATA)(_objectAlignmentInBytes - 1);
+        if (allocateSize < J9_GC_MINIMUM_OBJECT_SIZE) {
+            allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
+        }
 
-		/* Allocate the object */
-		switch(_gcAllocationType) {
+        /* Allocate the object */
+        switch (_gcAllocationType) {
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP)
-		case OMR_GC_ALLOCATION_TYPE_TLH:
-			if (allocateSize <= ((UDATA) currentThread->heapTop - (UDATA) currentThread->heapAlloc)) {
-				U_8 *heapAlloc = currentThread->heapAlloc;
-				UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
-				currentThread->heapAlloc = (U_8 *)afterAlloc;
+        case OMR_GC_ALLOCATION_TYPE_TLH:
+            if (allocateSize <= ((UDATA)currentThread->heapTop - (UDATA)currentThread->heapAlloc)) {
+                U_8* heapAlloc = currentThread->heapAlloc;
+                UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
+                currentThread->heapAlloc = (U_8*)afterAlloc;
 #if defined(J9VM_GC_TLH_PREFETCH_FTA)
-				currentThread->tlhPrefetchFTA -= allocateSize;
+                currentThread->tlhPrefetchFTA -= allocateSize;
 #endif /* J9VM_GC_TLH_PREFETCH_FTA */
-				instance = (j9object_t) heapAlloc;
+                instance = (j9object_t)heapAlloc;
 #if defined(J9VM_GC_BATCH_CLEAR_TLH)
-				/* Do not zero the TLH if it is already zero'd */
-				initializeSlots = initializeSlots && _initializeSlotsOnTLHAllocate;
+                /* Do not zero the TLH if it is already zero'd */
+                initializeSlots = initializeSlots && _initializeSlotsOnTLHAllocate;
 #endif /* J9VM_GC_BATCH_CLEAR_TLH */
-			} else {
-				return NULL;
-			}
-			break;
+            } else {
+                return NULL;
+            }
+            break;
 #endif /* J9VM_GC_THREAD_LOCAL_HEAP */
 
 #if defined(J9VM_GC_SEGREGATED_HEAP)
-		case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
-			/* ensure the allocation will fit in a small size */
-			if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
+        case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
+            /* ensure the allocation will fit in a small size */
+            if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
 
-				/* fetch the size class based on the allocation size */
-				UDATA slotsRequested = allocateSize / sizeof(UDATA);
-				UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
+                /* fetch the size class based on the allocation size */
+                UDATA slotsRequested = allocateSize / sizeof(UDATA);
+                UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
 
-				/* Ensure the cache for the current size class is not empty. */
-				J9VMGCSegregatedAllocationCacheEntry *cacheEntry =
-						(J9VMGCSegregatedAllocationCacheEntry *)((UDATA)currentThread + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
-								+ (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
-				UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
+                /* Ensure the cache for the current size class is not empty. */
+                J9VMGCSegregatedAllocationCacheEntry* cacheEntry
+                    = (J9VMGCSegregatedAllocationCacheEntry*)((UDATA)currentThread
+                        + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
+                        + (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
+                UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
 
-				if (cellSize <= ((UDATA) cacheEntry->top - (UDATA) cacheEntry->current)) {
-					instance = (j9object_t) cacheEntry->current;
-					cacheEntry->current = (UDATA *) ((UDATA) cacheEntry->current + cellSize);
-					/* The metronome pre write barrier might scan this object - always zero it */
-					initializeSlots = true;
-				} else {
-					return NULL;
-				}
-			} else {
-				return NULL;
-			}
-			break;
+                if (cellSize <= ((UDATA)cacheEntry->top - (UDATA)cacheEntry->current)) {
+                    instance = (j9object_t)cacheEntry->current;
+                    cacheEntry->current = (UDATA*)((UDATA)cacheEntry->current + cellSize);
+                    /* The metronome pre write barrier might scan this object - always zero it */
+                    initializeSlots = true;
+                } else {
+                    return NULL;
+                }
+            } else {
+                return NULL;
+            }
+            break;
 #endif /* J9VM_GC_SEGREGATED_HEAP */
 
-		default:
-			return NULL;
-		}
+        default:
+            return NULL;
+        }
 
-		/* Initialize the object */
-		J9NonIndexableObject *objectHeader = (J9NonIndexableObject *) instance;
-		objectHeader->clazz = (j9objectclass_t)(UDATA)clazz;
+        /* Initialize the object */
+        J9NonIndexableObject* objectHeader = (J9NonIndexableObject*)instance;
+        objectHeader->clazz = (j9objectclass_t)(UDATA)clazz;
 
-		if (initializeSlots) {
-			memset(objectHeader + 1, 0, dataSize);
-		}
+        if (initializeSlots) {
+            memset(objectHeader + 1, 0, dataSize);
+        }
 
-		if (initializeLockWord) {
-			*J9OBJECT_MONITOR_EA(currentThread, instance) = OBJECT_HEADER_LOCK_RESERVED;
-		}
+        if (initializeLockWord) {
+            *J9OBJECT_MONITOR_EA(currentThread, instance) = OBJECT_HEADER_LOCK_RESERVED;
+        }
 
-		if (memoryBarrier) {
-			VM_AtomicSupport::writeBarrier();
-		}
+        if (memoryBarrier) {
+            VM_AtomicSupport::writeBarrier();
+        }
 #endif /* J9VM_GC_THREAD_LOCAL_HEAP || J9VM_GC_SEGREGATED_HEAP */
-		return instance;
-	}
+        return instance;
+    }
 
-	VMINLINE j9object_t
-	inlineAllocateIndexableObject(J9VMThread *currentThread, J9Class *arrayClass, U_32 size, bool initializeSlots = true, bool memoryBarrier = true, bool sizeCheck = true)
-	{
-		j9object_t instance = NULL;
+    VMINLINE j9object_t inlineAllocateIndexableObject(J9VMThread* currentThread, J9Class* arrayClass, U_32 size,
+        bool initializeSlots = true, bool memoryBarrier = true, bool sizeCheck = true)
+    {
+        j9object_t instance = NULL;
 
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP) || defined(J9VM_GC_SEGREGATED_HEAP)
-		if (0 != size) {
-			/* Contiguous Array */
+        if (0 != size) {
+            /* Contiguous Array */
 
-			UDATA scale = ((J9ROMArrayClass*)(arrayClass->romClass))->arrayShape;
+            UDATA scale = ((J9ROMArrayClass*)(arrayClass->romClass))->arrayShape;
 
 #if !defined(J9VM_ENV_DATA64)
-			if (!sizeCheck || (size < ((U_32)J9_MAXIMUM_INDEXABLE_DATA_SIZE >> scale)))
+            if (!sizeCheck || (size < ((U_32)J9_MAXIMUM_INDEXABLE_DATA_SIZE >> scale)))
 #endif /* J9VM_ENV_DATA64 */
-			{
-				/* Calculate the size of the object */
-				UDATA dataSize = ((UDATA)size) << scale;
-				UDATA allocateSize = (dataSize + sizeof(J9IndexableObjectContiguous) + _objectAlignmentInBytes - 1) & ~(UDATA)(_objectAlignmentInBytes - 1);
-				if (allocateSize < J9_GC_MINIMUM_OBJECT_SIZE) {
-					allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
-				}
+            {
+                /* Calculate the size of the object */
+                UDATA dataSize = ((UDATA)size) << scale;
+                UDATA allocateSize = (dataSize + sizeof(J9IndexableObjectContiguous) + _objectAlignmentInBytes - 1)
+                    & ~(UDATA)(_objectAlignmentInBytes - 1);
+                if (allocateSize < J9_GC_MINIMUM_OBJECT_SIZE) {
+                    allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
+                }
 
-				/* Allocate the memory */
-				J9IndexableObjectContiguous *objectHeader = NULL;
+                /* Allocate the memory */
+                J9IndexableObjectContiguous* objectHeader = NULL;
 
-				switch(_gcAllocationType) {
+                switch (_gcAllocationType) {
 
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP)
-				case OMR_GC_ALLOCATION_TYPE_TLH:
-					if (allocateSize <= ((UDATA) currentThread->heapTop - (UDATA) currentThread->heapAlloc)) {
-						U_8 *heapAlloc = currentThread->heapAlloc;
-						UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
-						objectHeader = (J9IndexableObjectContiguous*)heapAlloc;
-						currentThread->heapAlloc = (U_8 *)afterAlloc;
+                case OMR_GC_ALLOCATION_TYPE_TLH:
+                    if (allocateSize <= ((UDATA)currentThread->heapTop - (UDATA)currentThread->heapAlloc)) {
+                        U_8* heapAlloc = currentThread->heapAlloc;
+                        UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
+                        objectHeader = (J9IndexableObjectContiguous*)heapAlloc;
+                        currentThread->heapAlloc = (U_8*)afterAlloc;
 #if defined(J9VM_GC_TLH_PREFETCH_FTA)
-						currentThread->tlhPrefetchFTA -= allocateSize;
+                        currentThread->tlhPrefetchFTA -= allocateSize;
 #endif /* J9VM_GC_TLH_PREFETCH_FTA */
 #if defined(J9VM_GC_BATCH_CLEAR_TLH)
-						/* Do not zero the TLH if it is already zero's */
-						initializeSlots = initializeSlots && _initializeSlotsOnTLHAllocate;
+                        /* Do not zero the TLH if it is already zero's */
+                        initializeSlots = initializeSlots && _initializeSlotsOnTLHAllocate;
 #endif /* J9VM_GC_BATCH_CLEAR_TLH */
-					} else {
-						return NULL;
-					}
-					break;
+                    } else {
+                        return NULL;
+                    }
+                    break;
 #endif /* J9VM_GC_THREAD_LOCAL_HEAP */
 
 #if defined(J9VM_GC_SEGREGATED_HEAP)
 
-				case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
-					/* Metronome requires that slots are always initialized */
+                case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
+                    /* Metronome requires that slots are always initialized */
 
-					/* ensure the allocation will fit in a small size */
-					if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
+                    /* ensure the allocation will fit in a small size */
+                    if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
 
-						/* fetch the size class based on the allocation size */
-						UDATA slotsRequested = allocateSize / sizeof(UDATA);
-						UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
+                        /* fetch the size class based on the allocation size */
+                        UDATA slotsRequested = allocateSize / sizeof(UDATA);
+                        UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
 
-						/* Ensure the cache for the current size class is not empty. */
-						J9VMGCSegregatedAllocationCacheEntry *cacheEntry =
-								(J9VMGCSegregatedAllocationCacheEntry *)((UDATA)currentThread + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
-										+ (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
-						UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
+                        /* Ensure the cache for the current size class is not empty. */
+                        J9VMGCSegregatedAllocationCacheEntry* cacheEntry
+                            = (J9VMGCSegregatedAllocationCacheEntry*)((UDATA)currentThread
+                                + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
+                                + (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
+                        UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
 
-						if (cellSize <= ((UDATA) cacheEntry->top - (UDATA) cacheEntry->current)) {
-							objectHeader = (J9IndexableObjectContiguous*)cacheEntry->current;
-							cacheEntry->current = (UDATA *) ((UDATA) cacheEntry->current + cellSize);
-							/* The metronome pre write barrier might scan this object - always zero it */
-							initializeSlots = true;
-						} else {
-							return NULL;
-						}
-					} else {
-						return NULL;
-					}
-					break;
+                        if (cellSize <= ((UDATA)cacheEntry->top - (UDATA)cacheEntry->current)) {
+                            objectHeader = (J9IndexableObjectContiguous*)cacheEntry->current;
+                            cacheEntry->current = (UDATA*)((UDATA)cacheEntry->current + cellSize);
+                            /* The metronome pre write barrier might scan this object - always zero it */
+                            initializeSlots = true;
+                        } else {
+                            return NULL;
+                        }
+                    } else {
+                        return NULL;
+                    }
+                    break;
 #endif /* J9VM_GC_SEGREGATED_HEAP */
 
-				default:
-					/* Inline allocation not supported */
-					return NULL;
-				}
+                default:
+                    /* Inline allocation not supported */
+                    return NULL;
+                }
 
-				/* Initialize the object */
-				objectHeader->clazz = (j9objectclass_t)(UDATA)arrayClass;
-				objectHeader->size = size;
+                /* Initialize the object */
+                objectHeader->clazz = (j9objectclass_t)(UDATA)arrayClass;
+                objectHeader->size = size;
 
-				if (initializeSlots) {
-					memset(objectHeader + 1, 0, dataSize);
-				}
-				if (memoryBarrier) {
-					VM_AtomicSupport::writeBarrier();
-				}
-				instance = (j9object_t) objectHeader;
-			}
-		} else {
-			/* Discontiguous Array */
+                if (initializeSlots) {
+                    memset(objectHeader + 1, 0, dataSize);
+                }
+                if (memoryBarrier) {
+                    VM_AtomicSupport::writeBarrier();
+                }
+                instance = (j9object_t)objectHeader;
+            }
+        } else {
+            /* Discontiguous Array */
 #if J9SIZEOF_J9IndexableObjectDiscontiguous <= J9_GC_MINIMUM_OBJECT_SIZE
 
-			/* Calculate the object size */
-			UDATA allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
+            /* Calculate the object size */
+            UDATA allocateSize = J9_GC_MINIMUM_OBJECT_SIZE;
 
-			/* Allocate the memory */
-			J9IndexableObjectDiscontiguous *objectHeader = NULL;
-			switch(_gcAllocationType) {
+            /* Allocate the memory */
+            J9IndexableObjectDiscontiguous* objectHeader = NULL;
+            switch (_gcAllocationType) {
 
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP)
-			case OMR_GC_ALLOCATION_TYPE_TLH:
+            case OMR_GC_ALLOCATION_TYPE_TLH:
 
-				if (allocateSize <= ((UDATA) currentThread->heapTop - (UDATA) currentThread->heapAlloc)) {
-					U_8 *heapAlloc = currentThread->heapAlloc;
-					UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
-					objectHeader = (J9IndexableObjectDiscontiguous *) heapAlloc;
-					currentThread->heapAlloc = (U_8 *)afterAlloc;
+                if (allocateSize <= ((UDATA)currentThread->heapTop - (UDATA)currentThread->heapAlloc)) {
+                    U_8* heapAlloc = currentThread->heapAlloc;
+                    UDATA afterAlloc = (UDATA)heapAlloc + allocateSize;
+                    objectHeader = (J9IndexableObjectDiscontiguous*)heapAlloc;
+                    currentThread->heapAlloc = (U_8*)afterAlloc;
 #if defined(J9VM_GC_TLH_PREFETCH_FTA)
-					currentThread->tlhPrefetchFTA -= allocateSize;
+                    currentThread->tlhPrefetchFTA -= allocateSize;
 #endif /* J9VM_GC_TLH_PREFETCH_FTA */
-				} else {
-					return NULL;
-				}
-				break;
+                } else {
+                    return NULL;
+                }
+                break;
 #endif /* J9VM_GC_THREAD_LOCAL_HEAP */
 
 #if defined(J9VM_GC_SEGREGATED_HEAP)
-			case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
-				/* ensure the allocation will fit in a small size */
-				if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
+            case OMR_GC_ALLOCATION_TYPE_SEGREGATED:
+                /* ensure the allocation will fit in a small size */
+                if (allocateSize <= J9VMGC_SIZECLASSES_MAX_SMALL_SIZE_BYTES) {
 
-					/* fetch the size class based on the allocation size */
-					UDATA slotsRequested = allocateSize / sizeof(UDATA);
-					UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
+                    /* fetch the size class based on the allocation size */
+                    UDATA slotsRequested = allocateSize / sizeof(UDATA);
+                    UDATA sizeClassIndex = _sizeClasses->sizeClassIndex[slotsRequested];
 
-					/* Ensure the cache for the current size class is not empty. */
-					J9VMGCSegregatedAllocationCacheEntry *cacheEntry =
-							(J9VMGCSegregatedAllocationCacheEntry *)((UDATA)currentThread + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
-									+ (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
-					UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
+                    /* Ensure the cache for the current size class is not empty. */
+                    J9VMGCSegregatedAllocationCacheEntry* cacheEntry
+                        = (J9VMGCSegregatedAllocationCacheEntry*)((UDATA)currentThread
+                            + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET
+                            + (sizeClassIndex * sizeof(J9VMGCSegregatedAllocationCacheEntry)));
+                    UDATA cellSize = _sizeClasses->smallCellSizes[sizeClassIndex];
 
-					if (cellSize <= ((UDATA) cacheEntry->top - (UDATA) cacheEntry->current)) {
-						objectHeader = (J9IndexableObjectDiscontiguous *) cacheEntry->current;
-						cacheEntry->current = (UDATA *) ((UDATA) cacheEntry->current + cellSize);
-					} else {
-						return NULL;
-					}
-				} else {
-					return NULL;
-				}
-				break;
+                    if (cellSize <= ((UDATA)cacheEntry->top - (UDATA)cacheEntry->current)) {
+                        objectHeader = (J9IndexableObjectDiscontiguous*)cacheEntry->current;
+                        cacheEntry->current = (UDATA*)((UDATA)cacheEntry->current + cellSize);
+                    } else {
+                        return NULL;
+                    }
+                } else {
+                    return NULL;
+                }
+                break;
 #endif /* J9VM_GC_SEGREGATED_HEAP */
 
-			default:
-				return NULL;
-				break;
-			}
+            default:
+                return NULL;
+                break;
+            }
 
-			/* Initialize the object */
-			objectHeader->clazz = (j9objectclass_t)(UDATA)arrayClass;
-			objectHeader->mustBeZero = 0;
-			objectHeader->size = 0;
-			if (memoryBarrier) {
-				VM_AtomicSupport::writeBarrier();
-			}
-			instance = (j9object_t) objectHeader;
+            /* Initialize the object */
+            objectHeader->clazz = (j9objectclass_t)(UDATA)arrayClass;
+            objectHeader->mustBeZero = 0;
+            objectHeader->size = 0;
+            if (memoryBarrier) {
+                VM_AtomicSupport::writeBarrier();
+            }
+            instance = (j9object_t)objectHeader;
 #endif /* J9SIZEOF_J9IndexableObjectDiscontiguous <= J9_GC_MINIMUM_OBJECT_SIZE */
 
 #endif /* defined(J9VM_GC_THREAD_LOCAL_HEAP) || defined(J9VM_GC_SEGREGATED_HEAP) */
+        }
 
-		}
-
-		return instance;
-	}
-
+        return instance;
+    }
 };
 
 #endif /* OBJECTALLOCATIONAPI_HPP_ */

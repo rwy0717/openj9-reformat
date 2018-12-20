@@ -27,48 +27,47 @@
 #include "util_internal.h"
 
 #if defined(J9VM_OUT_OF_PROCESS)
-#define READU(field) dbgReadUDATA((UDATA *)&(field))
-#define READP(field) ((void *)READU(field))
+#define READU(field) dbgReadUDATA((UDATA*)&(field))
+#define READP(field) ((void*)READU(field))
 #else /* not J9VM_OUT_OF_PROCESS */
 #define READU(field) (field)
 #define READP(field) (field)
 #endif
 
-#define J9RAMCLASS_SUPERCLASSES(clazz) ((J9Class **)READP((clazz)->superclasses))
+#define J9RAMCLASS_SUPERCLASSES(clazz) ((J9Class**)READP((clazz)->superclasses))
 #define J9RAMCLASS_DEPTH(clazz) (READU(J9CLASS_FLAGS(clazz)) & J9_JAVA_CLASS_DEPTH_MASK)
 
-UDATA 
-isSameOrSuperClassOf(J9Class *superClass, J9Class *baseClass)
+UDATA
+isSameOrSuperClassOf(J9Class* superClass, J9Class* baseClass)
 {
-	UDATA superClassDepth = J9RAMCLASS_DEPTH(superClass);
-	
-	return ((baseClass == superClass)
-					|| ((J9RAMCLASS_DEPTH(baseClass) > superClassDepth)
-					   && (READP(J9RAMCLASS_SUPERCLASSES(baseClass)[superClassDepth]) == superClass)));
+    UDATA superClassDepth = J9RAMCLASS_DEPTH(superClass);
+
+    return ((baseClass == superClass)
+        || ((J9RAMCLASS_DEPTH(baseClass) > superClassDepth)
+               && (READP(J9RAMCLASS_SUPERCLASSES(baseClass)[superClassDepth]) == superClass)));
 }
 
-
 BOOLEAN
-isSameOrSuperInterfaceOf(J9Class *superInterface, J9Class *baseInterface)
+isSameOrSuperInterfaceOf(J9Class* superInterface, J9Class* baseInterface)
 {
-	BOOLEAN isSameOrSuper = FALSE;
+    BOOLEAN isSameOrSuper = FALSE;
 
-	if (superInterface == baseInterface) {
-		isSameOrSuper = TRUE;
-	} else {
-		J9ITable *iTable = (J9ITable *)baseInterface->iTable;
-		if (iTable->depth <= ((J9ITable *)superInterface->iTable)->depth) {
-			/* Super interface must be at a shallower depth than baseInterface */
-			isSameOrSuper = FALSE;
-		} else {
-			while (NULL != iTable) {
-				if (iTable->interfaceClass == superInterface) {
-					isSameOrSuper = TRUE;
-					break;
-				}
-				iTable = iTable->next;
-			}
-		}
-	}
-	return isSameOrSuper;
+    if (superInterface == baseInterface) {
+        isSameOrSuper = TRUE;
+    } else {
+        J9ITable* iTable = (J9ITable*)baseInterface->iTable;
+        if (iTable->depth <= ((J9ITable*)superInterface->iTable)->depth) {
+            /* Super interface must be at a shallower depth than baseInterface */
+            isSameOrSuper = FALSE;
+        } else {
+            while (NULL != iTable) {
+                if (iTable->interfaceClass == superInterface) {
+                    isSameOrSuper = TRUE;
+                    break;
+                }
+                iTable = iTable->next;
+            }
+        }
+    }
+    return isSameOrSuper;
 }

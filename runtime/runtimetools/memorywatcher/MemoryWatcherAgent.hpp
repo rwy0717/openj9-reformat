@@ -24,98 +24,103 @@
 
 #include "RuntimeToolsIntervalAgent.hpp"
 
-typedef struct memcategory_data_frame
-{
-	U_32 category;
-	UDATA liveBytes;
-	UDATA liveAllocations;
+typedef struct memcategory_data_frame {
+    U_32 category;
+    UDATA liveBytes;
+    UDATA liveAllocations;
 } memcategory_data_frame;
 
-class MemoryWatcherAgent : public RuntimeToolsIntervalAgent
-{
+class MemoryWatcherAgent : public RuntimeToolsIntervalAgent {
 private:
-	int _currentCategory;
-	UDATA* _category_last;
-	UDATA _lastUsedVirtual;
-	UDATA _lastPeakUsedVirtual;
-	UDATA _lastPeakWorkingSet;
-	UDATA _lastWorkingSet;
-	UDATA _lastAvailVirtual;
-	bool _dumpGenerated;
+    int _currentCategory;
+    UDATA* _category_last;
+    UDATA _lastUsedVirtual;
+    UDATA _lastPeakUsedVirtual;
+    UDATA _lastPeakWorkingSet;
+    UDATA _lastWorkingSet;
+    UDATA _lastAvailVirtual;
+    bool _dumpGenerated;
 
-	/* class used to call method to dump a core file */
-	jclass _cls;
+    /* class used to call method to dump a core file */
+    jclass _cls;
 
-	/* method used to call method to dump a core file */
-	jmethodID _method;
+    /* method used to call method to dump a core file */
+    jmethodID _method;
 
-	/* holds the threshold a which we should generate dumps */
-	int _dumpThreshHold;
+    /* holds the threshold a which we should generate dumps */
+    int _dumpThreshHold;
 
 protected:
-	/**
-	 * Default constructor
-	 *
+    /**
+     * Default constructor
+     *
      * @param vm java vm that can be used by this manager
-	 */
-	MemoryWatcherAgent(JavaVM * vm) : RuntimeToolsIntervalAgent(vm) {}
+     */
+    MemoryWatcherAgent(JavaVM* vm)
+        : RuntimeToolsIntervalAgent(vm)
+    {}
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init();
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init();
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill();
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill();
 
-	/**
-	 * This method is used to create an instance
+    /**
+     * This method is used to create an instance
      * @param vm java vm that can be used by this manager
-	 */
-	static MemoryWatcherAgent* newInstance(JavaVM * vm);
+     */
+    static MemoryWatcherAgent* newInstance(JavaVM* vm);
 
-	/**
-	 * This get gets the reference to the agent given the pointer to where it should
-	 * be stored.  If necessary it creates the agent
-	 * @param vm that can be used by the method
-	 * @param agent pointer to storage where pointer to agent can be stored
-	 */
-	static inline MemoryWatcherAgent* getAgent(JavaVM * vm, MemoryWatcherAgent** agent){
-		if (*agent == NULL){
-			*agent = newInstance(vm);
-		}
-		return *agent;
-	}
+    /**
+     * This get gets the reference to the agent given the pointer to where it should
+     * be stored.  If necessary it creates the agent
+     * @param vm that can be used by the method
+     * @param agent pointer to storage where pointer to agent can be stored
+     */
+    static inline MemoryWatcherAgent* getAgent(JavaVM* vm, MemoryWatcherAgent** agent)
+    {
+        if (*agent == NULL) {
+            *agent = newInstance(vm);
+        }
+        return *agent;
+    }
 
-	/**
-	 * sets the last bytes for the current category
-	 * @param value to set
-	 */
-	inline void setLastBytes(UDATA liveBytes){_category_last[_currentCategory] = liveBytes;_currentCategory++;};
+    /**
+     * sets the last bytes for the current category
+     * @param value to set
+     */
+    inline void setLastBytes(UDATA liveBytes)
+    {
+        _category_last[_currentCategory] = liveBytes;
+        _currentCategory++;
+    };
 
-	/**
-	 * sets the last bytes for the current category
-	 * @param value to set
-	 */
-	inline UDATA getLastBytes(){return _category_last[_currentCategory];};
+    /**
+     * sets the last bytes for the current category
+     * @param value to set
+     */
+    inline UDATA getLastBytes() { return _category_last[_currentCategory]; };
 
-	/**
-	 * Method called at the interval specified in the options for the agent
-	 */
-	virtual void runAction();
+    /**
+     * Method called at the interval specified in the options for the agent
+     */
+    virtual void runAction();
 
-	/**
-	 * This is called once for each argument, the agent should parse the arguments
-	 * it supports and pass any that it does not understand to parent classes
-	 *
-	 * @param options string containing the argument
-	 *
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	virtual jint parseArgument(char* option);
+    /**
+     * This is called once for each argument, the agent should parse the arguments
+     * it supports and pass any that it does not understand to parent classes
+     *
+     * @param options string containing the argument
+     *
+     * @returns one of the AGENT_ERROR_ values
+     */
+    virtual jint parseArgument(char* option);
 };
 
 #endif /*RUNTIMETOOLS_MEMORYWATCHERAGENT_HPP_*/

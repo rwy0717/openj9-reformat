@@ -24,13 +24,13 @@
 #define clear_vmi_internal_h
 
 /**
-* @file clear_vmi_internal.h
-* @brief Internal prototypes used within the CLEAR_VMI module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the CLEAR_VMI module.
-*
-*/
+ * @file clear_vmi_internal.h
+ * @brief Internal prototypes used within the CLEAR_VMI module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the CLEAR_VMI module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -45,25 +45,21 @@ extern "C" {
 /* ---------------- j9vmi.c ---------------- */
 
 /**
-* @brief
-* @param vm
-* @return VMInterface*
-*/
-VMInterface* JNICALL 
-VMI_GetVMIFromJavaVM(JavaVM* vm);
-
+ * @brief
+ * @param vm
+ * @return VMInterface*
+ */
+VMInterface* JNICALL VMI_GetVMIFromJavaVM(JavaVM* vm);
 
 /**
-* @brief
-* @param env
-* @return VMInterface*
-*/
-VMInterface* JNICALL 
-VMI_GetVMIFromJNIEnv(JNIEnv* env);
+ * @brief
+ * @param env
+ * @return VMInterface*
+ */
+VMInterface* JNICALL VMI_GetVMIFromJNIEnv(JNIEnv* env);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* clear_vmi_internal_h */
-

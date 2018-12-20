@@ -25,37 +25,32 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
+static agentEnv* env;
 
-jint JNICALL
-gomi002(agentEnv * agent_env, char * args)
+jint JNICALL gomi002(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);                                
-	jvmtiCapabilities capabilities;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_get_owned_monitor_info = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}				
-			
-	return JNI_OK;
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_get_owned_monitor_info = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-void JNICALL
-Java_com_ibm_jvmti_tests_getOwnedMonitorInfo_gomi002_callGet(
-		JNIEnv *jni_env, 
-		jclass klass, 
-		jthread thread) 
+void JNICALL Java_com_ibm_jvmti_tests_getOwnedMonitorInfo_gomi002_callGet(JNIEnv* jni_env, jclass klass, jthread thread)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jint infoCount = 0;
-	jobject *info = NULL;
-	(*jvmti_env)->GetOwnedMonitorInfo(jvmti_env, thread, &infoCount, &info);
-	(*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)info);
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jint infoCount = 0;
+    jobject* info = NULL;
+    (*jvmti_env)->GetOwnedMonitorInfo(jvmti_env, thread, &infoCount, &info);
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)info);
 }

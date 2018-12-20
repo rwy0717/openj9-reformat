@@ -25,16 +25,15 @@
 /* 2 transitions per return type + 1 for all natives */
 #define J9JIT_NUM_J2I_TRANSITIONS 11
 
-J9JITConfig *codert_onload(J9JavaVM *javaVM);
-UDATA codert_onbootstrap(J9VMThread * vmThread);
-void codert_init_helpers_and_targets(J9JITConfig *jitConfig, char isSMP);
-UDATA codert_shutdown(J9VMThread * vmThread, IDATA rc);
-void codert_OnUnload(J9JavaVM *javaVM);
-void codert_freeJITConfig(J9JavaVM *javaVM);
-UDATA lookupSendTargetForThunk(J9JavaVM * javaVM, int thunkNumber);
+J9JITConfig* codert_onload(J9JavaVM* javaVM);
+UDATA codert_onbootstrap(J9VMThread* vmThread);
+void codert_init_helpers_and_targets(J9JITConfig* jitConfig, char isSMP);
+UDATA codert_shutdown(J9VMThread* vmThread, IDATA rc);
+void codert_OnUnload(J9JavaVM* javaVM);
+void codert_freeJITConfig(J9JavaVM* javaVM);
+UDATA lookupSendTargetForThunk(J9JavaVM* javaVM, int thunkNumber);
 
 extern "C" {
-void revertMethodToInterpreted(J9Method * method);
-void * getRuntimeHelperValue(int h);
+void revertMethodToInterpreted(J9Method* method);
+void* getRuntimeHelperValue(int h);
 }
-

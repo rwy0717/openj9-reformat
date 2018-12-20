@@ -43,79 +43,71 @@
  * @anchor ClassIteratorClassSlotsState
  */
 enum {
-	classiteratorclassslots_state_start = 0,
-	classiteratorclassslots_state_constant_pool,
-	classiteratorclassslots_state_superclasses,
-	classiteratorclassslots_state_interfaces,
-	classiteratorclassslots_state_array_class_slots,
-	classiteratorclassslots_state_end
+    classiteratorclassslots_state_start = 0,
+    classiteratorclassslots_state_constant_pool,
+    classiteratorclassslots_state_superclasses,
+    classiteratorclassslots_state_interfaces,
+    classiteratorclassslots_state_array_class_slots,
+    classiteratorclassslots_state_end
 };
 
-
-/** 
+/**
  * Iterate through slots in the class which contain a class reference (as compared to
  * GC_ClassIterator, which iterates over object references).
- * 
+ *
  * @see GC_ClassIterator
  * @ingroup GC_Structs
  */
-class GC_ClassIteratorClassSlots
-{
+class GC_ClassIteratorClassSlots {
 protected:
-	J9Class *_clazzPtr;
-	int _state;
+    J9Class* _clazzPtr;
+    int _state;
 
-	GC_ConstantPoolClassSlotIterator _constantPoolClassSlotIterator;
-	GC_ClassSuperclassesIterator _classSuperclassesIterator;
-	GC_ClassLocalInterfaceIterator _classLocalInterfaceIterator;
-	GC_ClassArrayClassSlotIterator _classArrayClassSlotIterator;
+    GC_ConstantPoolClassSlotIterator _constantPoolClassSlotIterator;
+    GC_ClassSuperclassesIterator _classSuperclassesIterator;
+    GC_ClassLocalInterfaceIterator _classLocalInterfaceIterator;
+    GC_ClassArrayClassSlotIterator _classArrayClassSlotIterator;
 
 public:
+    GC_ClassIteratorClassSlots(J9Class* clazz)
+        : _clazzPtr(clazz)
+        , _state(classiteratorclassslots_state_start)
+        , _constantPoolClassSlotIterator(clazz)
+        , _classSuperclassesIterator(clazz)
+        , _classLocalInterfaceIterator(clazz)
+        , _classArrayClassSlotIterator(clazz)
+    {}
 
-	GC_ClassIteratorClassSlots(J9Class *clazz) :
-		_clazzPtr(clazz),
-		_state(classiteratorclassslots_state_start),
-		_constantPoolClassSlotIterator(clazz),
-		_classSuperclassesIterator(clazz),
-		_classLocalInterfaceIterator(clazz),
-		_classArrayClassSlotIterator(clazz)
-	{}
-	
-	/**
-	 * @return @ref ClassIteratorClassSlotsState representing the current state (stage
-	 * of the iteration process)
-	 */
-	MMINLINE int getState() 
-	{ 
-		return _state; 
-	};
-	
-	/**
-	 * Gets the current index corresponding to the current state.
-	 * @return current index of the current state where appropriate.
-	 * @return -1 if the current state is not indexed.
-	 */
-	MMINLINE IDATA getIndex()
-	{
-		switch (getState()) {
-			case classiteratorclassslots_state_constant_pool:
-				return _constantPoolClassSlotIterator.getIndex();
+    /**
+     * @return @ref ClassIteratorClassSlotsState representing the current state (stage
+     * of the iteration process)
+     */
+    MMINLINE int getState() { return _state; };
 
-			case classiteratorclassslots_state_superclasses:
-				return _classSuperclassesIterator.getIndex();
+    /**
+     * Gets the current index corresponding to the current state.
+     * @return current index of the current state where appropriate.
+     * @return -1 if the current state is not indexed.
+     */
+    MMINLINE IDATA getIndex()
+    {
+        switch (getState()) {
+        case classiteratorclassslots_state_constant_pool:
+            return _constantPoolClassSlotIterator.getIndex();
 
-			case classiteratorclassslots_state_array_class_slots:
-				return _classArrayClassSlotIterator.getIndex();
-				
-			case classiteratorclassslots_state_interfaces:
-			default:
-				return -1;
-		}			
-	}
-	
-	J9Class **nextSlot();
+        case classiteratorclassslots_state_superclasses:
+            return _classSuperclassesIterator.getIndex();
 
+        case classiteratorclassslots_state_array_class_slots:
+            return _classArrayClassSlotIterator.getIndex();
+
+        case classiteratorclassslots_state_interfaces:
+        default:
+            return -1;
+        }
+    }
+
+    J9Class** nextSlot();
 };
 
 #endif /* CLASSITERATORCLASSSLOTS_HPP_ */
-

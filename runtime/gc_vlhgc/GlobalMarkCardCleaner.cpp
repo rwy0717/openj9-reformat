@@ -32,35 +32,35 @@
 #include "EnvironmentVLHGC.hpp"
 #include "GlobalMarkingScheme.hpp"
 
-void
-MM_GlobalMarkCardCleaner::clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+void MM_GlobalMarkCardCleaner::clean(
+    MM_EnvironmentBase* envModron, void* lowAddress, void* highAddress, Card* cardToClean)
 {
-	MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
-	Assert_MM_false(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
-	Assert_MM_true(NULL != _markingScheme);
-	
-	Card fromState = *cardToClean;
-	Card toState = CARD_INVALID;
-	switch(fromState) {
-	case CARD_DIRTY:
-		toState = CARD_PGC_MUST_SCAN;
-		break;
-	case CARD_GMP_MUST_SCAN:
-		toState = CARD_CLEAN;
-		break;
-	case CARD_CLEAN:
-	case CARD_PGC_MUST_SCAN:
-		/* other card states are not of interest to this cleaner and should be ignored */
-		break;
-	default:
-		Assert_MM_unreachable();
-	}
-	/* only update the card state if we identified a transition we are interested in since some are to be ignored:
-	 * Consider the case of seeing CARD_GMP_MUST_SCAN during a PGC (which is allowed to happen if we have GMP followed
-	 * by GMP).  We want to ignore this transition.
-	 */
-	if (CARD_INVALID != toState) {
-		*cardToClean = toState;
-		_markingScheme->scanObjectsInRange(env, lowAddress, highAddress);
-	}
+    MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
+    Assert_MM_false(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
+    Assert_MM_true(NULL != _markingScheme);
+
+    Card fromState = *cardToClean;
+    Card toState = CARD_INVALID;
+    switch (fromState) {
+    case CARD_DIRTY:
+        toState = CARD_PGC_MUST_SCAN;
+        break;
+    case CARD_GMP_MUST_SCAN:
+        toState = CARD_CLEAN;
+        break;
+    case CARD_CLEAN:
+    case CARD_PGC_MUST_SCAN:
+        /* other card states are not of interest to this cleaner and should be ignored */
+        break;
+    default:
+        Assert_MM_unreachable();
+    }
+    /* only update the card state if we identified a transition we are interested in since some are to be ignored:
+     * Consider the case of seeing CARD_GMP_MUST_SCAN during a PGC (which is allowed to happen if we have GMP followed
+     * by GMP).  We want to ignore this transition.
+     */
+    if (CARD_INVALID != toState) {
+        *cardToClean = toState;
+        _markingScheme->scanObjectsInRange(env, lowAddress, highAddress);
+    }
 }

@@ -23,59 +23,54 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
- 
-jint JNICALL
-snmp001(agentEnv * agent_env, char * args)
+static agentEnv* env;
+
+jint JNICALL snmp001(agentEnv* agent_env, char* args)
 {
-	jvmtiError err;
-	jvmtiCapabilities capabilities;
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    jvmtiCapabilities capabilities;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env; 
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_set_native_method_prefix = 1;	
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to AddCapabilities");
-		return JNI_ERR;
-	}						
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_set_native_method_prefix = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to AddCapabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_setNativeMethodPrefix_snmp001_setPrefix(JNIEnv * jni_env, jclass klass)
+jboolean JNICALL Java_com_ibm_jvmti_tests_setNativeMethodPrefix_snmp001_setPrefix(JNIEnv* jni_env, jclass klass)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err; 
-	jvmtiEnv *disposeEnv;
-	JavaVM *vm;
-	
-	err = (*jvmti_env)->SetNativeMethodPrefix(jvmti_env, "$$J9$$");
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Unable to set prefix");
-		return JNI_FALSE;
-	}
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
+    jvmtiEnv* disposeEnv;
+    JavaVM* vm;
 
-	if (JNI_OK != (*jni_env)->GetJavaVM(jni_env, &vm)) {
-		error(env, err, "Unable to get VM");
-		return JNI_FALSE;
-	}
-	if (JNI_OK != (*vm)->GetEnv(vm, (void **) &disposeEnv, JVMTI_VERSION_1_2)) {
-		error(env, err, "Unable to get new JVMTI env");
-		return JNI_FALSE;
-	}
-	err = (*disposeEnv)->DisposeEnvironment(disposeEnv);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Unable dispose JVMTI env");
-		return JNI_FALSE;
-	}
-	return JNI_TRUE;
+    err = (*jvmti_env)->SetNativeMethodPrefix(jvmti_env, "$$J9$$");
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Unable to set prefix");
+        return JNI_FALSE;
+    }
+
+    if (JNI_OK != (*jni_env)->GetJavaVM(jni_env, &vm)) {
+        error(env, err, "Unable to get VM");
+        return JNI_FALSE;
+    }
+    if (JNI_OK != (*vm)->GetEnv(vm, (void**)&disposeEnv, JVMTI_VERSION_1_2)) {
+        error(env, err, "Unable to get new JVMTI env");
+        return JNI_FALSE;
+    }
+    err = (*disposeEnv)->DisposeEnvironment(disposeEnv);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Unable dispose JVMTI env");
+        return JNI_FALSE;
+    }
+    return JNI_TRUE;
 }
 
-void JNICALL
-Java_com_ibm_jvmti_tests_setNativeMethodPrefix_snmp001_nat(JNIEnv * jni_env, jclass klass)
-{
-}
+void JNICALL Java_com_ibm_jvmti_tests_setNativeMethodPrefix_snmp001_nat(JNIEnv* jni_env, jclass klass) {}

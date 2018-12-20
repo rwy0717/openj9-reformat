@@ -23,4 +23,3 @@
 /* Helper file for precompiled header support, the Microsoft compiler needs something to compile. */
 
 #include "precompiled_cpp.h"
-

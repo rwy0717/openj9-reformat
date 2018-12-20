@@ -28,26 +28,26 @@
 extern "C" {
 
 /* java.lang.ClassLoader: private native Class findLoadedClassImpl(String className); */
-j9object_t JNICALL
-Fast_java_lang_Classloader_findLoadedClassImpl(J9VMThread *currentThread, j9object_t classloaderObject, j9object_t className)
+j9object_t JNICALL Fast_java_lang_Classloader_findLoadedClassImpl(
+    J9VMThread* currentThread, j9object_t classloaderObject, j9object_t className)
 {
-	j9object_t resultObject = NULL;
-	if (NULL != className) {
-		J9ClassLoader *loader = J9VMJAVALANGCLASSLOADER_VMREF(currentThread, classloaderObject);
-		if (NULL != loader) {
-			if (CLASSNAME_INVALID != verifyQualifiedName(currentThread, className)) {
-				J9Class *j9Class = internalFindClassString(currentThread, NULL, className, loader, J9_FINDCLASS_FLAG_EXISTING_ONLY);
-				/* macro handles NULL */
-				resultObject = J9VM_J9CLASS_TO_HEAPCLASS(j9Class);
-			}
-		}
-	}
-	return resultObject;
+    j9object_t resultObject = NULL;
+    if (NULL != className) {
+        J9ClassLoader* loader = J9VMJAVALANGCLASSLOADER_VMREF(currentThread, classloaderObject);
+        if (NULL != loader) {
+            if (CLASSNAME_INVALID != verifyQualifiedName(currentThread, className)) {
+                J9Class* j9Class
+                    = internalFindClassString(currentThread, NULL, className, loader, J9_FINDCLASS_FLAG_EXISTING_ONLY);
+                /* macro handles NULL */
+                resultObject = J9VM_J9CLASS_TO_HEAPCLASS(j9Class);
+            }
+        }
+    }
+    return resultObject;
 }
 
 J9_FAST_JNI_METHOD_TABLE(java_lang_ClassLoader)
-	J9_FAST_JNI_METHOD("findLoadedClassImpl", "(Ljava/lang/String;)Ljava/lang/Class;", Fast_java_lang_Classloader_findLoadedClassImpl,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
+J9_FAST_JNI_METHOD("findLoadedClassImpl", "(Ljava/lang/String;)Ljava/lang/Class;",
+    Fast_java_lang_Classloader_findLoadedClassImpl, J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
 J9_FAST_JNI_METHOD_TABLE_END
-
 }

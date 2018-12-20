@@ -37,7 +37,7 @@
 /* #undef HAVE_ALLOCA */
 
 /* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+ */
 /* #undef HAVE_ALLOCA_H */
 
 /* Define if your assembler supports .ascii. */
@@ -50,7 +50,7 @@
 /* #undef HAVE_AS_REGISTER_PSEUDO_OP */
 
 /* Define if your assembler and linker support unaligned PC relative relocs.
-   */
+ */
 /* #undef HAVE_AS_SPARC_UA_PCREL */
 
 /* Define if your assembler supports .string. */
@@ -126,7 +126,7 @@
 /* #undef HAVE_UNISTD_H */
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+ */
 #define LT_OBJDIR ".libs/"
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
@@ -165,9 +165,9 @@
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at runtime.
-	STACK_DIRECTION > 0 => grows toward higher addresses
-	STACK_DIRECTION < 0 => grows toward lower addresses
-	STACK_DIRECTION = 0 => direction of growth unknown */
+        STACK_DIRECTION > 0 => grows toward higher addresses
+        STACK_DIRECTION < 0 => grows toward lower addresses
+        STACK_DIRECTION = 0 => direction of growth unknown */
 #define STACK_DIRECTION -1
 
 /* Define to 1 if you have the ANSI C header files. */
@@ -177,7 +177,7 @@
 /* #undef SYMBOL_UNDERSCORE */
 
 /* Define this if you are using Purify and want to suppress spurious messages.
-   */
+ */
 /* #undef USING_PURIFY */
 
 /* Version number of package */
@@ -186,24 +186,23 @@
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
+#if defined __BIG_ENDIAN__
+#define WORDS_BIGENDIAN 1
+#endif
 #else
-# ifndef WORDS_BIGENDIAN
+#ifndef WORDS_BIGENDIAN
 /* #  undef WORDS_BIGENDIAN */
-# endif
+#endif
 #endif
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
 
-
 #ifdef HAVE_HIDDEN_VISIBILITY_ATTRIBUTE
 #ifdef LIBFFI_ASM
 #define FFI_HIDDEN(name) .hidden name
 #else
-#define FFI_HIDDEN __attribute__ ((visibility ("hidden")))
+#define FFI_HIDDEN __attribute__((visibility("hidden")))
 #endif
 #else
 #ifdef LIBFFI_ASM
@@ -212,4 +211,3 @@
 #define FFI_HIDDEN
 #endif
 #endif
-

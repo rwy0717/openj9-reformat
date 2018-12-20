@@ -45,50 +45,49 @@ void idleGCManagerVMStateHook(J9HookInterface** hook, UDATA eventNum, void* even
 /**
  * Manages free java heap memory whenever JVM becomes idle. Registers for VM Runtime State Notification Hook
  */
-class MM_IdleGCManager : public MM_BaseNonVirtual
-{
+class MM_IdleGCManager : public MM_BaseNonVirtual {
 private:
-	/*
-	 * reference to the language runtime
-	 */
-	J9JavaVM* _javaVM;
+    /*
+     * reference to the language runtime
+     */
+    J9JavaVM* _javaVM;
 
 protected:
 public:
-
 private:
 protected:
-	/**
-	 * Initialize the object of this class and registers for Runtime State hook
-	 */
-	bool initialize(MM_EnvironmentBase* env);
-	/**
-	 * cleanup the object & unregisters registered hook
-	 */
-	void tearDown(MM_EnvironmentBase* env);
-public:
-	/**
-	 * creates the object
-	 */
-	static MM_IdleGCManager* newInstance(MM_EnvironmentBase* env);
-	/**
-	 * deallocates the object
-	 */
-	void kill(MM_EnvironmentBase* env);
-	/**
-	  * Whenever JVM becomes idle, uses the opportunity to free up pages of free java heap
-	  */
-	void manageFreeHeap(J9VMThread* currentThread);
+    /**
+     * Initialize the object of this class and registers for Runtime State hook
+     */
+    bool initialize(MM_EnvironmentBase* env);
+    /**
+     * cleanup the object & unregisters registered hook
+     */
+    void tearDown(MM_EnvironmentBase* env);
 
-	/**
-	 * construct the object
-	 */
-	MM_IdleGCManager(MM_EnvironmentBase* env)
-		: MM_BaseNonVirtual()
-		, _javaVM((J9JavaVM*)env->getOmrVM()->_language_vm)
-	{
-		_typeId = __FUNCTION__;
-	}
+public:
+    /**
+     * creates the object
+     */
+    static MM_IdleGCManager* newInstance(MM_EnvironmentBase* env);
+    /**
+     * deallocates the object
+     */
+    void kill(MM_EnvironmentBase* env);
+    /**
+     * Whenever JVM becomes idle, uses the opportunity to free up pages of free java heap
+     */
+    void manageFreeHeap(J9VMThread* currentThread);
+
+    /**
+     * construct the object
+     */
+    MM_IdleGCManager(MM_EnvironmentBase* env)
+        : MM_BaseNonVirtual()
+        , _javaVM((J9JavaVM*)env->getOmrVM()->_language_vm)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 #endif /* defined(J9VM_GC_IDLE_HEAP_MANAGER) */
 #endif /* IDLERESOURCEMANAGERHPP_ */

@@ -23,49 +23,44 @@
 #include "j9.h"
 #include "omr.h"
 
-omr_error_t
-OMR_Glue_BindCurrentThread(OMR_VM *omrVM, const char *threadName, OMR_VMThread **omrVMThread)
+omr_error_t OMR_Glue_BindCurrentThread(OMR_VM* omrVM, const char* threadName, OMR_VMThread** omrVMThread)
 {
-	omr_error_t rc = OMR_ERROR_NONE;
-	J9JavaVM *vm = (J9JavaVM *)omrVM->_language_vm;
-	J9VMThread *tempVMThread = NULL;
+    omr_error_t rc = OMR_ERROR_NONE;
+    J9JavaVM* vm = (J9JavaVM*)omrVM->_language_vm;
+    J9VMThread* tempVMThread = NULL;
 
-	/* Pass in a temporary J9VMThread because the JVM's attach API handles initialization of omrVMThread->_language_vmthread.*/
-	if (JNI_OK != vm->internalVMFunctions->attachSystemDaemonThread(vm, &tempVMThread, threadName)) {
-		rc = OMR_ERROR_INTERNAL;
-	} else {
-		*omrVMThread = tempVMThread->omrVMThread;
-	}
-	return rc;
+    /* Pass in a temporary J9VMThread because the JVM's attach API handles initialization of
+     * omrVMThread->_language_vmthread.*/
+    if (JNI_OK != vm->internalVMFunctions->attachSystemDaemonThread(vm, &tempVMThread, threadName)) {
+        rc = OMR_ERROR_INTERNAL;
+    } else {
+        *omrVMThread = tempVMThread->omrVMThread;
+    }
+    return rc;
 }
 
-omr_error_t
-OMR_Glue_UnbindCurrentThread(OMR_VMThread *omrVMThread)
+omr_error_t OMR_Glue_UnbindCurrentThread(OMR_VMThread* omrVMThread)
 {
-	J9JavaVM *vm = (J9JavaVM *)omrVMThread->_vm->_language_vm;
-	vm->internalVMFunctions->DetachCurrentThread((JavaVM *)vm);
-	return OMR_ERROR_NONE;
+    J9JavaVM* vm = (J9JavaVM*)omrVMThread->_vm->_language_vm;
+    vm->internalVMFunctions->DetachCurrentThread((JavaVM*)vm);
+    return OMR_ERROR_NONE;
 }
 
-omr_error_t
-OMR_Glue_AllocLanguageThread(void *languageVM, void **languageThread)
+omr_error_t OMR_Glue_AllocLanguageThread(void* languageVM, void** languageThread)
 {
-	/* OMRTODO Unimplemented */
-	*languageThread = NULL;
-	return OMR_ERROR_NONE;
+    /* OMRTODO Unimplemented */
+    *languageThread = NULL;
+    return OMR_ERROR_NONE;
 }
 
-omr_error_t
-OMR_Glue_FreeLanguageThread(void *languageThread)
+omr_error_t OMR_Glue_FreeLanguageThread(void* languageThread)
 {
-	/* OMRTODO Unimplemented */
-	return OMR_ERROR_NONE;
+    /* OMRTODO Unimplemented */
+    return OMR_ERROR_NONE;
 }
 
-omr_error_t
-OMR_Glue_LinkLanguageThreadToOMRThread(void *languageThread, OMR_VMThread *omrVMThread)
+omr_error_t OMR_Glue_LinkLanguageThreadToOMRThread(void* languageThread, OMR_VMThread* omrVMThread)
 {
-	/* OMRTODO Unimplemented */
-	return OMR_ERROR_NONE;
+    /* OMRTODO Unimplemented */
+    return OMR_ERROR_NONE;
 }
-

@@ -25,11 +25,21 @@
 
 #include "codegen/Linkage.hpp"
 
-namespace TR { class AutomaticSymbol; }
-namespace TR { class CodeGenerator; }
-namespace TR { class RegisterDependencyConditions; }
-namespace TR { class ResolvedMethodSymbol; }
-namespace TR { class Snippet; }
+namespace TR {
+class AutomaticSymbol;
+}
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class RegisterDependencyConditions;
+}
+namespace TR {
+class ResolvedMethodSymbol;
+}
+namespace TR {
+class Snippet;
+}
 
 namespace TR {
 
@@ -37,132 +47,134 @@ namespace TR {
 //  TR::S390PrivateLinkage Definition for J9
 ////////////////////////////////////////////////////////////////////////////////
 
-class S390PrivateLinkage : public TR::Linkage
-   {
-   uint32_t _preservedRegisterMapForGC;
+class S390PrivateLinkage : public TR::Linkage {
+    uint32_t _preservedRegisterMapForGC;
 
-   TR::RealRegister::RegNum _methodMetaDataRegister;
+    TR::RealRegister::RegNum _methodMetaDataRegister;
 
 public:
+    S390PrivateLinkage(
+        TR::CodeGenerator* cg, TR_S390LinkageConventions elc = TR_JavaPrivate, TR_LinkageConventions lc = TR_Private);
 
-   S390PrivateLinkage(TR::CodeGenerator * cg, TR_S390LinkageConventions elc=TR_JavaPrivate, TR_LinkageConventions lc=TR_Private);
+    virtual void createPrologue(TR::Instruction* cursor);
+    virtual void createEpilogue(TR::Instruction* cursor);
 
-   virtual void createPrologue(TR::Instruction * cursor);
-   virtual void createEpilogue(TR::Instruction * cursor);
+    /** \brief
+     *     Align the stackIndex to a multiple of localObjectAlignment and update the numberOfSlotMapped.
+     *
+     *  \param stackIndex
+     *     The current stack index to be aligned to \p localObjectAlignment.
+     *
+     *  \param localObjectAlignment
+     *     The stack object alignment.
+     */
+    void alignLocalsOffset(uint32_t& stackIndex, uint32_t localObjectAlignment);
 
-   /** \brief
-    *     Align the stackIndex to a multiple of localObjectAlignment and update the numberOfSlotMapped.
-    *
-    *  \param stackIndex
-    *     The current stack index to be aligned to \p localObjectAlignment.
-    *
-    *  \param localObjectAlignment
-    *     The stack object alignment.
-    */
-   void alignLocalsOffset(uint32_t &stackIndex, uint32_t localObjectAlignment);
+    void mapCompactedStack(TR::ResolvedMethodSymbol* symbol);
+    virtual void mapStack(TR::ResolvedMethodSymbol* symbol);
+    virtual void mapSingleAutomatic(TR::AutomaticSymbol* p, uint32_t& stackIndex);
+    void mapSingleAutomatic(TR::AutomaticSymbol* p, uint32_t size, uint32_t& stackIndex);
+    uint32_t getS390RoundedSize(uint32_t size);
+    virtual bool hasToBeOnStack(TR::ParameterSymbol* parm);
 
-   void         mapCompactedStack(TR::ResolvedMethodSymbol * symbol);
-   virtual void mapStack(TR::ResolvedMethodSymbol * symbol);
-   virtual void mapSingleAutomatic(TR::AutomaticSymbol * p, uint32_t & stackIndex);
-   void         mapSingleAutomatic(TR::AutomaticSymbol * p, uint32_t size, uint32_t & stackIndex);
-   uint32_t     getS390RoundedSize(uint32_t size);
-   virtual bool hasToBeOnStack(TR::ParameterSymbol * parm);
+    virtual void initS390RealRegisterLinkage();
+    virtual void doNotKillSpecialRegsForBuildArgs(TR::Linkage* linkage, bool isFastJNI, int64_t& killMask);
+    virtual void addSpecialRegDepsForBuildArgs(
+        TR::Node* callNode, TR::RegisterDependencyConditions* dependencies, int32_t& from, int32_t step);
+    virtual int32_t storeExtraEnvRegForBuildArgs(TR::Node* callNode, TR::Linkage* linkage,
+        TR::RegisterDependencyConditions* dependencies, bool isFastJNI, int32_t stackOffset, int8_t gprSize,
+        uint32_t& numIntegerArgs);
+    virtual int64_t addFECustomizedReturnRegDependency(
+        int64_t killMask, TR::Linkage* linkage, TR::DataType resType, TR::RegisterDependencyConditions* dependencies);
 
-   virtual void initS390RealRegisterLinkage();
-   virtual void doNotKillSpecialRegsForBuildArgs (TR::Linkage *linkage, bool isFastJNI, int64_t &killMask);
-   virtual void addSpecialRegDepsForBuildArgs(TR::Node * callNode, TR::RegisterDependencyConditions * dependencies, int32_t& from, int32_t step);
-   virtual int32_t storeExtraEnvRegForBuildArgs(TR::Node * callNode, TR::Linkage* linkage, TR::RegisterDependencyConditions * dependencies, bool isFastJNI, int32_t stackOffset, int8_t gprSize, uint32_t &numIntegerArgs);
-   virtual int64_t addFECustomizedReturnRegDependency(int64_t killMask, TR::Linkage* linkage, TR::DataType resType, TR::RegisterDependencyConditions * dependencies);
+    virtual void buildVirtualDispatch(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies,
+        TR::Register* vftReg, uint32_t sizeOfArguments);
 
-   virtual void buildVirtualDispatch(TR::Node * callNode, TR::RegisterDependencyConditions * dependencies,
-      TR::Register * vftReg, uint32_t sizeOfArguments);
+    virtual TR::RealRegister::RegNum setMethodMetaDataRegister(TR::RealRegister::RegNum r)
+    {
+        return _methodMetaDataRegister = r;
+    }
+    virtual TR::RealRegister::RegNum getMethodMetaDataRegister() { return _methodMetaDataRegister; }
+    virtual TR::RealRegister* getMethodMetaDataRealRegister() { return getRealRegister(_methodMetaDataRegister); }
 
-   virtual TR::RealRegister::RegNum setMethodMetaDataRegister(TR::RealRegister::RegNum r) { return _methodMetaDataRegister = r; }
-   virtual TR::RealRegister::RegNum getMethodMetaDataRegister() { return _methodMetaDataRegister; }
-   virtual TR::RealRegister *getMethodMetaDataRealRegister() {return getRealRegister(_methodMetaDataRegister);}
+    virtual uint32_t setPreservedRegisterMapForGC(uint32_t m) { return _preservedRegisterMapForGC = m; }
+    virtual uint32_t getPreservedRegisterMapForGC() { return _preservedRegisterMapForGC; }
 
-   virtual uint32_t setPreservedRegisterMapForGC(uint32_t m)  { return _preservedRegisterMapForGC = m; }
-   virtual uint32_t getPreservedRegisterMapForGC()        { return _preservedRegisterMapForGC; }
+    virtual TR::RealRegister::RegNum getSystemStackPointerRegister()
+    {
+        return cg()->getLinkage(TR_System)->getStackPointerRegister();
+    }
+    virtual TR::RealRegister* getSystemStackPointerRealRegister()
+    {
+        return getRealRegister(getSystemStackPointerRegister());
+    }
 
-   virtual TR::RealRegister::RegNum getSystemStackPointerRegister(){ return cg()->getLinkage(TR_System)->getStackPointerRegister(); }
-   virtual TR::RealRegister *getSystemStackPointerRealRegister() {return getRealRegister(getSystemStackPointerRegister());}
+    virtual int32_t setupLiteralPoolRegister(TR::Snippet* firstSnippet);
 
-   virtual int32_t setupLiteralPoolRegister(TR::Snippet *firstSnippet);
-   
-   //called by buildNativeDispatch
-   virtual void setupRegisterDepForLinkage(TR::Node *, TR_DispatchType, TR::RegisterDependencyConditions * &, int64_t &, TR::SystemLinkage *, TR::Node * &, bool &, TR::Register **, TR::Register *&);
-   virtual void setupBuildArgForLinkage(TR::Node *, TR_DispatchType, TR::RegisterDependencyConditions *, bool, bool, int64_t &, TR::Node *, bool, TR::SystemLinkage *);
+    // called by buildNativeDispatch
+    virtual void setupRegisterDepForLinkage(TR::Node*, TR_DispatchType, TR::RegisterDependencyConditions*&, int64_t&,
+        TR::SystemLinkage*, TR::Node*&, bool&, TR::Register**, TR::Register*&);
+    virtual void setupBuildArgForLinkage(TR::Node*, TR_DispatchType, TR::RegisterDependencyConditions*, bool, bool,
+        int64_t&, TR::Node*, bool, TR::SystemLinkage*);
 
-   virtual int32_t calculateRegisterSaveSize(TR::RealRegister::RegNum f,
-                                             TR::RealRegister::RegNum l,
-                                             TR::RealRegister::RegNum fh,
-                                             TR::RealRegister::RegNum lh,
-                                             int32_t &rsd,
-                                             int32_t &numInts, int32_t &numFloats, int32_t &numHigh);
+    virtual int32_t calculateRegisterSaveSize(TR::RealRegister::RegNum f, TR::RealRegister::RegNum l,
+        TR::RealRegister::RegNum fh, TR::RealRegister::RegNum lh, int32_t& rsd, int32_t& numInts, int32_t& numFloats,
+        int32_t& numHigh);
 
 protected:
+    virtual TR::Register* buildIndirectDispatch(TR::Node* callNode);
+    virtual TR::Register* buildDirectDispatch(TR::Node* callNode);
+    TR::Register* buildJNIDispatch(TR::Node* callNode);
+    TR::Instruction* buildDirectCall(TR::Node* callNode, TR::SymbolReference* callSymRef,
+        TR::RegisterDependencyConditions* dependencies, int32_t argSize);
 
-   virtual TR::Register * buildIndirectDispatch(TR::Node * callNode);
-   virtual TR::Register * buildDirectDispatch(TR::Node * callNode);
-   TR::Register * buildJNIDispatch(TR::Node * callNode);
-   TR::Instruction * buildDirectCall(TR::Node * callNode, TR::SymbolReference * callSymRef,
-   TR::RegisterDependencyConditions * dependencies, int32_t argSize);
+    virtual void mapIncomingParms(TR::ResolvedMethodSymbol* method);
 
-   virtual void mapIncomingParms(TR::ResolvedMethodSymbol *method);
+    void callPreJNICallOffloadCheck(TR::Node* callNode);
+    void callPostJNICallOffloadCheck(TR::Node* callNode);
+    void collapseJNIReferenceFrame(TR::Node* callNode, TR::RealRegister* javaStackPointerRealRegister,
+        TR::Register* javaLitPoolVirtualRegister, TR::Register* tempReg);
 
-   void callPreJNICallOffloadCheck(TR::Node * callNode);
-   void callPostJNICallOffloadCheck(TR::Node * callNode);
-   void collapseJNIReferenceFrame(TR::Node * callNode, TR::RealRegister * javaStackPointerRealRegister,
-      TR::Register * javaLitPoolVirtualRegister, TR::Register * tempReg);
-
-   void setupJNICallOutFrame(TR::Node * callNode,
-      TR::RealRegister * javaStackPointerRealRegister,
-      TR::Register * methodMetaDataVirtualRegister,
-      TR::LabelSymbol * returnFromJNICallLabel,
-      TR::S390JNICallDataSnippet *jniCallDataSnippet);
-
-   };
-
+    void setupJNICallOutFrame(TR::Node* callNode, TR::RealRegister* javaStackPointerRealRegister,
+        TR::Register* methodMetaDataVirtualRegister, TR::LabelSymbol* returnFromJNICallLabel,
+        TR::S390JNICallDataSnippet* jniCallDataSnippet);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //  TR::S390HelperLinkage Definition for J9
 ////////////////////////////////////////////////////////////////////////////////
 
-class S390HelperLinkage : public TR::S390PrivateLinkage
-   {
+class S390HelperLinkage : public TR::S390PrivateLinkage {
 public:
+    S390HelperLinkage(TR::CodeGenerator* cg)
+        : TR::S390PrivateLinkage(cg, TR_JavaHelper, TR_Helper)
+    {
+        setProperty(ParmsInReverseOrder);
+    }
+};
 
-   S390HelperLinkage(TR::CodeGenerator * cg)
-      : TR::S390PrivateLinkage(cg,TR_JavaHelper, TR_Helper)
-      {
-      setProperty(ParmsInReverseOrder);
-      }
-   };
-
-class J9S390JNILinkage : public TR::S390PrivateLinkage
-   {
+class J9S390JNILinkage : public TR::S390PrivateLinkage {
 public:
+    J9S390JNILinkage(TR::CodeGenerator* cg, TR_S390LinkageConventions elc = TR_JavaPrivate,
+        TR_LinkageConventions lc = TR_J9JNILinkage);
+    virtual TR::Register* buildDirectDispatch(TR::Node* callNode);
 
-   J9S390JNILinkage(TR::CodeGenerator * cg, TR_S390LinkageConventions elc=TR_JavaPrivate, TR_LinkageConventions lc=TR_J9JNILinkage);
-   virtual TR::Register * buildDirectDispatch(TR::Node * callNode);
-
-   void checkException(TR::Node * callNode, TR::Register *methodMetaDataVirtualRegister, TR::Register * tempReg);
-   void releaseVMAccessMask(TR::Node * callNode, TR::Register * methodMetaDataVirtualRegister,
-         TR::Register * methodAddressReg, TR::Register * javaLitOffsetReg, TR::S390JNICallDataSnippet * jniCallDataSnippet, TR::RegisterDependencyConditions * deps);
-   void acquireVMAccessMask(TR::Node * callNode, TR::Register * javaLitPoolVirtualRegister,
-      TR::Register * methodMetaDataVirtualRegister, TR::Register * methodAddressReg, TR::Register * javaLitOffsetReg);
+    void checkException(TR::Node* callNode, TR::Register* methodMetaDataVirtualRegister, TR::Register* tempReg);
+    void releaseVMAccessMask(TR::Node* callNode, TR::Register* methodMetaDataVirtualRegister,
+        TR::Register* methodAddressReg, TR::Register* javaLitOffsetReg, TR::S390JNICallDataSnippet* jniCallDataSnippet,
+        TR::RegisterDependencyConditions* deps);
+    void acquireVMAccessMask(TR::Node* callNode, TR::Register* javaLitPoolVirtualRegister,
+        TR::Register* methodMetaDataVirtualRegister, TR::Register* methodAddressReg, TR::Register* javaLitOffsetReg);
 
 #ifdef J9VM_INTERP_ATOMIC_FREE_JNI
-   void releaseVMAccessMaskAtomicFree(TR::Node * callNode,
-                                      TR::Register * methodMetaDataVirtualRegister,
-                                      TR::Register * tempReg1);
+    void releaseVMAccessMaskAtomicFree(
+        TR::Node* callNode, TR::Register* methodMetaDataVirtualRegister, TR::Register* tempReg1);
 
-   void acquireVMAccessMaskAtomicFree(TR::Node * callNode,
-                                      TR::Register * methodMetaDataVirtualRegister,
-                                      TR::Register * tempReg1);
+    void acquireVMAccessMaskAtomicFree(
+        TR::Node* callNode, TR::Register* methodMetaDataVirtualRegister, TR::Register* tempReg1);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-   };
+};
 
-}
+} // namespace TR
 
 #endif /* J9S390PRIVATELINKAGE_INCL */

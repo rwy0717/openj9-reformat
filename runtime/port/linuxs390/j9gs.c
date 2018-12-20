@@ -38,88 +38,82 @@
 #define GS_ENABLE 0
 #define GS_DISABLE 1
 #define GS_SET_BC_CB 2
-#define GS_CLEAR_BC_CB  3
+#define GS_CLEAR_BC_CB 3
 #define GS_BROADCAST 4
 
 #if defined(J9VM_PORT_OMRSIG_SUPPORT)
 #include "omrsig.h"
 #endif /* defined(J9VM_PORT_OMRSIG_SUPPORT) */
 
-static void
-j9gs_store_gscb(void * gscb_controls)
+static void j9gs_store_gscb(void* gscb_controls)
 {
-	J9GSControlBlock* gsControlBlock = (J9GSControlBlock*) gscb_controls;
-	asm volatile(".insn rxy,0xe30000000049,0,%0"
-			     : : "Q" (*gsControlBlock));
+    J9GSControlBlock* gsControlBlock = (J9GSControlBlock*)gscb_controls;
+    asm volatile(".insn rxy,0xe30000000049,0,%0" : : "Q"(*gsControlBlock));
 }
 
-static void
-j9gs_load_gscb(void * gscb_controls)
+static void j9gs_load_gscb(void* gscb_controls)
 {
-	J9GSControlBlock* gsControlBlock = (J9GSControlBlock*) gscb_controls;
-	asm volatile(".insn rxy,0xe3000000004d,0,%0"
-			     : : "Q" (*gsControlBlock));
+    J9GSControlBlock* gsControlBlock = (J9GSControlBlock*)gscb_controls;
+    asm volatile(".insn rxy,0xe3000000004d,0,%0" : : "Q"(*gsControlBlock));
 }
 
-int32_t
-j9gs_initialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, int32_t shiftAmount)
+int32_t j9gs_initialize(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams, int32_t shiftAmount)
 {
-	int32_t ret_code = -1;
-	Trc_PRT_gs_initialize_Entry(gsParams,shiftAmount);
+    int32_t ret_code = -1;
+    Trc_PRT_gs_initialize_Entry(gsParams, shiftAmount);
 
 #if !defined(J9ZTPF)
-	/*
-	 * syscall is _s390_guarded_storage
-	 * errno values from syscall routine is as follows:
-	 * EINVAL     The value specified for command is not a valid command.
-	 * EFAULT     The cp pointer is outside of the accessible address space.
-	 * ENOMEM     Allocating memory for the guarded-storage control block failed.
-	 * EOPNOTSUPP The guarded-storage facility is not available
-	 */
+    /*
+     * syscall is _s390_guarded_storage
+     * errno values from syscall routine is as follows:
+     * EINVAL     The value specified for command is not a valid command.
+     * EFAULT     The cp pointer is outside of the accessible address space.
+     * ENOMEM     Allocating memory for the guarded-storage control block failed.
+     * EOPNOTSUPP The guarded-storage facility is not available
+     */
 
-	ret_code = syscall(__NR_s390_guarded_storage, GS_ENABLE);
-	if (0 != ret_code) {
-		Trc_PRT_gs_initialize_Exception(errno, gsParams->flags);
-	} else {
-		J9GSControlBlock* gsControlBlock = (J9GSControlBlock*)(gsParams->controlBlock);
-		/* Guarded load shift value, bits 53-56 in Guarded-Storage-Designation Register */
-		gsControlBlock->designationRegister = (uint64_t) shiftAmount << 8;
-		j9gs_load_gscb((void*)gsControlBlock);
-		gsParams->flags |= J9PORT_GS_INITIALIZED;
-	}
+    ret_code = syscall(__NR_s390_guarded_storage, GS_ENABLE);
+    if (0 != ret_code) {
+        Trc_PRT_gs_initialize_Exception(errno, gsParams->flags);
+    } else {
+        J9GSControlBlock* gsControlBlock = (J9GSControlBlock*)(gsParams->controlBlock);
+        /* Guarded load shift value, bits 53-56 in Guarded-Storage-Designation Register */
+        gsControlBlock->designationRegister = (uint64_t)shiftAmount << 8;
+        j9gs_load_gscb((void*)gsControlBlock);
+        gsParams->flags |= J9PORT_GS_INITIALIZED;
+    }
 #endif /* !defined(J9ZTPF) */
 
-	Trc_PRT_gs_initialize_Exit(ret_code, gsParams->flags);
+    Trc_PRT_gs_initialize_Exit(ret_code, gsParams->flags);
 
-	return IS_GS_INITIALIZED(gsParams) ? 1 : 0;
+    return IS_GS_INITIALIZED(gsParams) ? 1 : 0;
 }
 
-int32_t
-j9gs_deinitialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams)
+int32_t j9gs_deinitialize(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams)
 {
-	int32_t ret_code = -1;
-	Trc_PRT_gs_deinitialize_Entry(gsParams);
+    int32_t ret_code = -1;
+    Trc_PRT_gs_deinitialize_Entry(gsParams);
 
 #if !defined(J9ZTPF)
-	/*
-	 * syscall is _s390_guarded_storagee
-	 * errno values from syscall routine is as follows:
-	 * EINVAL     The value specified for command is not a valid command.
-	 * EFAULT     The cp pointer is outside of the accessible address space.
-	 * ENOMEM     Allocating memory for the guarded-storage control block failed.
-	 * EOPNOTSUPP The guarded-storage facility is not available
-	 */
+    /*
+     * syscall is _s390_guarded_storagee
+     * errno values from syscall routine is as follows:
+     * EINVAL     The value specified for command is not a valid command.
+     * EFAULT     The cp pointer is outside of the accessible address space.
+     * ENOMEM     Allocating memory for the guarded-storage control block failed.
+     * EOPNOTSUPP The guarded-storage facility is not available
+     */
 
-	ret_code = syscall(__NR_s390_guarded_storage, GS_DISABLE);
+    ret_code = syscall(__NR_s390_guarded_storage, GS_DISABLE);
 
-	if (0 == ret_code) {
-		gsParams->flags &= ~(J9PORT_GS_INITIALIZED);  /* Clear J9PORT_GS_INITIALIZE bit */
-	} else {
-		Trc_PRT_gs_deinitialize_Exception(errno, gsParams->flags);
-	}
+    if (0 == ret_code) {
+        gsParams->flags &= ~(J9PORT_GS_INITIALIZED); /* Clear J9PORT_GS_INITIALIZE bit */
+    } else {
+        Trc_PRT_gs_deinitialize_Exception(errno, gsParams->flags);
+    }
 #endif /* !defined(J9ZTPF) */
 
-	Trc_PRT_gs_deinitialize_Exit();
+    Trc_PRT_gs_deinitialize_Exit();
 
-	return IS_GS_INITIALIZED(gsParams) ? 0 : 1;
+    return IS_GS_INITIALIZED(gsParams) ? 0 : 1;
 }

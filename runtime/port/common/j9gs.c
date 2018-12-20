@@ -36,21 +36,19 @@
  * @param[in] gsParams pointer to generic guarded storage parameters structure.
  * @param[in] gsControlBlock pointer to machine architecture dependent control block
  */
-void
-j9gs_params_init(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, void *gsControlBlock)
+void j9gs_params_init(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams, void* gsControlBlock)
 {
-	Trc_PRT_gs_params_init_Entry(gsParams, gsControlBlock);
-	gsParams->flags = 0;
-	gsParams->controlBlock = gsControlBlock;
-	Trc_PRT_gs_params_init_Exit();
+    Trc_PRT_gs_params_init_Entry(gsParams, gsControlBlock);
+    gsParams->flags = 0;
+    gsParams->controlBlock = gsControlBlock;
+    Trc_PRT_gs_params_init_Exit();
 }
-
 
 /**
  * Enable guarded storage on the calling hardware thread.
- * 
- * The memory starting at 'baseAddress' is divided into sections of 'perBitSectionSize' and the 'bitMask' indicates which sections are being guarded
- * This sets the J9PORT_GS_ENABLED bit in gsParams->flags
+ *
+ * The memory starting at 'baseAddress' is divided into sections of 'perBitSectionSize' and the 'bitMask' indicates
+ * which sections are being guarded This sets the J9PORT_GS_ENABLED bit in gsParams->flags
  *
  * @param[in] portLibrary The port library
  * @param[in] gsParams pointer to generic guarded storage parameters structure
@@ -58,12 +56,12 @@ j9gs_params_init(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsPar
  * @param[in] perBitSectionSize Section size in bytes
  * @param[in] bitMask Bit mask for guarded memory sections
  */
-void
-j9gs_enable(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, void* baseAddress, uint64_t perBitSectionSize, uint64_t bitMask)
+void j9gs_enable(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams, void* baseAddress,
+    uint64_t perBitSectionSize, uint64_t bitMask)
 {
-	Trc_PRT_gs_enable_Entry(gsParams, baseAddress, perBitSectionSize, bitMask);
+    Trc_PRT_gs_enable_Entry(gsParams, baseAddress, perBitSectionSize, bitMask);
 
-	Trc_PRT_gs_enable_Exit();
+    Trc_PRT_gs_enable_Exit();
 }
 
 /**
@@ -75,12 +73,11 @@ j9gs_enable(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, 
  * @param[in] portLibrary The port library
  * @param[in] gsParams pointer to generic guarded storage parameters structure.
  */
-void
-j9gs_disable(struct J9PortLibrary *portLibrary,  struct J9GSParameters *gsParams)
+void j9gs_disable(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams)
 {
-	Trc_PRT_gs_disable_Entry(gsParams);
+    Trc_PRT_gs_disable_Entry(gsParams);
 
-	Trc_PRT_gs_disable_Exit();
+    Trc_PRT_gs_disable_Exit();
 }
 
 /**
@@ -92,15 +89,14 @@ j9gs_disable(struct J9PortLibrary *portLibrary,  struct J9GSParameters *gsParams
  * @param[in] portLibrary The port library
  * @param[in] gsParams pointer to generic guarded storage parameters structure.
  * @param[in] shiftAmount compressedrefs shift amount, used by hardware when calculating guarded storage region
- * 
+ *
  * @return 1 if successful, 0 otherwise
  */
-int32_t
-j9gs_initialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, int32_t shiftAmount)
+int32_t j9gs_initialize(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams, int32_t shiftAmount)
 {
-	Trc_PRT_gs_initialize_Entry(gsParams, shiftAmount);
-	Trc_PRT_gs_initialize_Exit(0, gsParams->flags);
-	return 0;
+    Trc_PRT_gs_initialize_Entry(gsParams, shiftAmount);
+    Trc_PRT_gs_initialize_Exit(0, gsParams->flags);
+    return 0;
 }
 
 /**
@@ -111,15 +107,14 @@ j9gs_initialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsPara
  *
  * @param[in] portLibrary The port library
  * @param[in] gsParams pointer to generic guarded storage parameters structure.
- * 
+ *
  * @return 1 if successful, 0 otherwise
  */
-int32_t
-j9gs_deinitialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams)
+int32_t j9gs_deinitialize(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams)
 {
-	Trc_PRT_gs_deinitialize_Entry(gsParams);
-	Trc_PRT_gs_deinitialize_Exit();
-	return 0;
+    Trc_PRT_gs_deinitialize_Entry(gsParams);
+    Trc_PRT_gs_deinitialize_Exit();
+    return 0;
 }
 
 /**
@@ -135,10 +130,10 @@ j9gs_deinitialize(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsPa
  * @param[in] perBitSectionSize Section size in bits
  * @param[in] bitMask Bit mask for guarded memory sections
  */
-int32_t
-j9gs_isEnabled(struct J9PortLibrary *portLibrary, struct J9GSParameters *gsParams, void** baseAddress, uint64_t* perBitSectionSize, uint64_t* bitMask)
+int32_t j9gs_isEnabled(struct J9PortLibrary* portLibrary, struct J9GSParameters* gsParams, void** baseAddress,
+    uint64_t* perBitSectionSize, uint64_t* bitMask)
 {
-	Trc_PRT_gs_isEnabled_Entry(gsParams);
-	Trc_PRT_gs_isEnabled_Exit(0, *baseAddress, *perBitSectionSize, *bitMask);
-	return 0;
+    Trc_PRT_gs_isEnabled_Entry(gsParams);
+    Trc_PRT_gs_isEnabled_Exit(0, *baseAddress, *perBitSectionSize, *bitMask);
+    return 0;
 }

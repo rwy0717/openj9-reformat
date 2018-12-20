@@ -32,22 +32,20 @@
  * @return pointer to the user thread local storage data
  *
  */
-threadData *
-getThreadData(agentEnv *env, jthread currentThread)
+threadData* getThreadData(agentEnv* env, jthread currentThread)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
 
-	if (currentThread != NULL) {
-		threadData * localData = NULL;
+    if (currentThread != NULL) {
+        threadData* localData = NULL;
 
-		(*jvmti_env)->GetThreadLocalStorage(jvmti_env, currentThread, (void **) &localData);
-		if (localData) {
-			return localData;
-		}
-	}
-	return &env->globalData;
+        (*jvmti_env)->GetThreadLocalStorage(jvmti_env, currentThread, (void**)&localData);
+        if (localData) {
+            return localData;
+        }
+    }
+    return &env->globalData;
 }
-
 
 /**
  * \brief	Get the name of a thread
@@ -61,44 +59,42 @@ getThreadData(agentEnv *env, jthread currentThread)
  *  The caller is responsible for freeing the returned thread name using
  *  <code>(*jvmti_env)->Deallocate</code>
  */
-char *
-getThreadName(agentEnv *env, jthread currentThread, jthread thread)
+char* getThreadName(agentEnv* env, jthread currentThread, jthread thread)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err;
-	jvmtiThreadInfo threadInfo;
-	threadData * data = getThreadData(env, currentThread);
-	IDATA  threadNameLen;
-	char * threadNameStr;
-	char   threadNameBuf[JVMTI_TEST_NAME_MAX];
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
+    jvmtiThreadInfo threadInfo;
+    threadData* data = getThreadData(env, currentThread);
+    IDATA threadNameLen;
+    char* threadNameStr;
+    char threadNameBuf[JVMTI_TEST_NAME_MAX];
 
-	jvmtiPhase phase;
+    jvmtiPhase phase;
 
-	(*jvmti_env)->GetPhase(jvmti_env, &phase);
-	if (phase == JVMTI_PHASE_LIVE) {
-		err = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &threadInfo);
-		if (err == JVMTI_ERROR_NONE) {
-			strcpy(threadNameBuf, threadInfo.name);
-			(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *) threadInfo.name);
-		} else {
-			error(env, err, "Failed to get thread info");
-		}
-	} else {
-		strcpy(threadNameBuf, "<not in live phase>");
-	}
+    (*jvmti_env)->GetPhase(jvmti_env, &phase);
+    if (phase == JVMTI_PHASE_LIVE) {
+        err = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &threadInfo);
+        if (err == JVMTI_ERROR_NONE) {
+            strcpy(threadNameBuf, threadInfo.name);
+            (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)threadInfo.name);
+        } else {
+            error(env, err, "Failed to get thread info");
+        }
+    } else {
+        strcpy(threadNameBuf, "<not in live phase>");
+    }
 
-	threadNameLen = strlen(threadNameBuf) + 1;
-	err = (*jvmti_env)->Allocate(jvmti_env, threadNameLen, (unsigned char **) &threadNameStr);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to allocate return buffer for thread name");
-		return NULL;
-	}
+    threadNameLen = strlen(threadNameBuf) + 1;
+    err = (*jvmti_env)->Allocate(jvmti_env, threadNameLen, (unsigned char**)&threadNameStr);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to allocate return buffer for thread name");
+        return NULL;
+    }
 
-	strcpy(threadNameStr, threadNameBuf);
+    strcpy(threadNameStr, threadNameBuf);
 
-	return threadNameStr;
+    return threadNameStr;
 }
-
 
 /**
  * \brief	Get a JNI ref to the current thread
@@ -108,21 +104,20 @@ getThreadName(agentEnv *env, jthread currentThread, jthread thread)
  * @param[in] jni_env JNI environment
  * @return JNI reference to the current thread
  */
-jthread
-getCurrentThread(JNIEnv * jni_env)
+jthread getCurrentThread(JNIEnv* jni_env)
 {
-	jclass clazz;
-	jmethodID mid;
+    jclass clazz;
+    jmethodID mid;
 
-	clazz = (*jni_env)->FindClass(jni_env, "java/lang/Thread");
-	if (clazz == NULL) {
-		return NULL;
-	}
+    clazz = (*jni_env)->FindClass(jni_env, "java/lang/Thread");
+    if (clazz == NULL) {
+        return NULL;
+    }
 
-	mid = (*jni_env)->GetStaticMethodID(jni_env, clazz, "currentThread", "()Ljava/lang/Thread;");
-	if (mid == NULL) {
-		return NULL;
-	}
+    mid = (*jni_env)->GetStaticMethodID(jni_env, clazz, "currentThread", "()Ljava/lang/Thread;");
+    if (mid == NULL) {
+        return NULL;
+    }
 
-	return (jthread)  (*jni_env)->CallStaticObjectMethod(jni_env, clazz, mid);
+    return (jthread)(*jni_env)->CallStaticObjectMethod(jni_env, clazz, mid);
 }

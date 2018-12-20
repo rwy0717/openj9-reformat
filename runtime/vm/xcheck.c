@@ -26,177 +26,176 @@
 #include "vm_internal.h"
 #include "verbose_api.h"
 
-static UDATA isVerboseJni(J9PortLibrary *portLibrary, J9VMInitArgs* j9vm_args, IDATA *verboseIndexPtr);
-static IDATA printXcheckUsage(J9JavaVM *vm);
+static UDATA isVerboseJni(J9PortLibrary* portLibrary, J9VMInitArgs* j9vm_args, IDATA* verboseIndexPtr);
+static IDATA printXcheckUsage(J9JavaVM* vm);
 extern void J9RASCheckDump(J9JavaVM* javaVM);
 
-jint 
-processXCheckOptions(J9JavaVM * vm, J9Pool* loadTable, J9VMInitArgs* j9vm_args) 
+jint processXCheckOptions(J9JavaVM* vm, J9Pool* loadTable, J9VMInitArgs* j9vm_args)
 {
-	jint rc = 0;
-	J9VMDllLoadInfo* entry = NULL;
-	IDATA jniIndex, naboundsIndex, gcIndex, vmIndex, allIndex;
-	IDATA checkCPIndex, checkCPHelpIndex;
-	IDATA noJNIIndex, noGCIndex, noVMIndex, noneIndex, nocheckCPIndex, nohelpIndex;
-	IDATA helpIndex, memoryHelpIndex, memoryNoneIndex;
-	IDATA dumpIndex, dumpHelpIndex, dumpNoneIndex;
+    jint rc = 0;
+    J9VMDllLoadInfo* entry = NULL;
+    IDATA jniIndex, naboundsIndex, gcIndex, vmIndex, allIndex;
+    IDATA checkCPIndex, checkCPHelpIndex;
+    IDATA noJNIIndex, noGCIndex, noVMIndex, noneIndex, nocheckCPIndex, nohelpIndex;
+    IDATA helpIndex, memoryHelpIndex, memoryNoneIndex;
+    IDATA dumpIndex, dumpHelpIndex, dumpNoneIndex;
 
     PORT_ACCESS_FROM_JAVAVM(vm);
 
-	/*
-	 * Global options
-	 */
-	noneIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:none", NULL, TRUE);
-	helpIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:help", NULL, TRUE);
-	allIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck", NULL, TRUE);
+    /*
+     * Global options
+     */
+    noneIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:none", NULL, TRUE);
+    helpIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:help", NULL, TRUE);
+    allIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck", NULL, TRUE);
 
-	/*
-	 * Memory options: Need to deal with the processing of the memory:help option as this should
-	 * disable the startup of the jvm 
-	 */
-	memoryNoneIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:memory:none", NULL, TRUE);
-	memoryHelpIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:memory:help", NULL, TRUE);
-	
-	if (memoryNoneIndex < memoryHelpIndex) {
-		rc = -1;
-	}
-	
-	/*
-	 * Memory options: These were handled earlier -- just recognize and consume the 
-	 * remaining options here.
-	 */
-	findArgInVMArgs( PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:memory", NULL, TRUE);
+    /*
+     * Memory options: Need to deal with the processing of the memory:help option as this should
+     * disable the startup of the jvm
+     */
+    memoryNoneIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:memory:none", NULL, TRUE);
+    memoryHelpIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:memory:help", NULL, TRUE);
 
-	/*
-	 * JNI options 
-	 */
-	jniIndex = findArgInVMArgs( PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:jni", NULL, TRUE);
-	/* 
-	 * -Xcheck:nabounds is a Sun-compatibility option. It is equivalent to -Xcheck:jni.
-	 * No sub-options are permitted for -Xcheck:nabounds
-	 */
-	naboundsIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:nabounds", NULL, TRUE);
-	noJNIIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:jni:none", NULL, TRUE);
+    if (memoryNoneIndex < memoryHelpIndex) {
+        rc = -1;
+    }
 
-	jniIndex = OMR_MAX(OMR_MAX(jniIndex, naboundsIndex), allIndex);
-	noJNIIndex = OMR_MAX(noJNIIndex, noneIndex);
+    /*
+     * Memory options: These were handled earlier -- just recognize and consume the
+     * remaining options here.
+     */
+    findArgInVMArgs(PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:memory", NULL, TRUE);
 
-	if ((jniIndex > noJNIIndex) || isVerboseJni(PORTLIB, j9vm_args, NULL)) {
-		if (jniIndex >= 0) { /* -1 indicates the argument not found */
-			j9vm_args->j9Options[jniIndex].flags |= ARG_REQUIRES_LIBRARY;
-		}
-		entry = findDllLoadInfo(loadTable, J9_CHECK_JNI_DLL_NAME);
-		entry->loadFlags |= LOAD_BY_DEFAULT;
-	}
+    /*
+     * JNI options
+     */
+    jniIndex = findArgInVMArgs(PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:jni", NULL, TRUE);
+    /*
+     * -Xcheck:nabounds is a Sun-compatibility option. It is equivalent to -Xcheck:jni.
+     * No sub-options are permitted for -Xcheck:nabounds
+     */
+    naboundsIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:nabounds", NULL, TRUE);
+    noJNIIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:jni:none", NULL, TRUE);
 
-	/*
-	 * GC options
-	 */
-	gcIndex = findArgInVMArgs( PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:gc", NULL, TRUE);
-	noGCIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:gc:none", NULL, TRUE);
+    jniIndex = OMR_MAX(OMR_MAX(jniIndex, naboundsIndex), allIndex);
+    noJNIIndex = OMR_MAX(noJNIIndex, noneIndex);
 
-	gcIndex = OMR_MAX(gcIndex, allIndex);
-	noGCIndex = OMR_MAX(noGCIndex, noneIndex);
+    if ((jniIndex > noJNIIndex) || isVerboseJni(PORTLIB, j9vm_args, NULL)) {
+        if (jniIndex >= 0) { /* -1 indicates the argument not found */
+            j9vm_args->j9Options[jniIndex].flags |= ARG_REQUIRES_LIBRARY;
+        }
+        entry = findDllLoadInfo(loadTable, J9_CHECK_JNI_DLL_NAME);
+        entry->loadFlags |= LOAD_BY_DEFAULT;
+    }
 
-	if (gcIndex > noGCIndex) {
-		j9vm_args->j9Options[gcIndex].flags |= ARG_REQUIRES_LIBRARY;
-		entry = findDllLoadInfo(loadTable, J9_CHECK_GC_DLL_NAME);
-		entry->loadFlags |= LOAD_BY_DEFAULT;
-	}
+    /*
+     * GC options
+     */
+    gcIndex = findArgInVMArgs(PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:gc", NULL, TRUE);
+    noGCIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:gc:none", NULL, TRUE);
 
-	/*
-	 * VM options
-	 */
-	vmIndex = findArgInVMArgs( PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:vm", NULL, TRUE);
-	noVMIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:vm:none", NULL, TRUE);
+    gcIndex = OMR_MAX(gcIndex, allIndex);
+    noGCIndex = OMR_MAX(noGCIndex, noneIndex);
 
-	vmIndex = OMR_MAX(vmIndex, allIndex);
-	noVMIndex = OMR_MAX(noVMIndex, noneIndex);
+    if (gcIndex > noGCIndex) {
+        j9vm_args->j9Options[gcIndex].flags |= ARG_REQUIRES_LIBRARY;
+        entry = findDllLoadInfo(loadTable, J9_CHECK_GC_DLL_NAME);
+        entry->loadFlags |= LOAD_BY_DEFAULT;
+    }
 
-	if (vmIndex > noVMIndex) {
-		j9vm_args->j9Options[vmIndex].flags |= ARG_REQUIRES_LIBRARY;
-		entry = findDllLoadInfo(loadTable, J9_CHECK_VM_DLL_NAME);
-		entry->loadFlags |= LOAD_BY_DEFAULT;
-	}
+    /*
+     * VM options
+     */
+    vmIndex = findArgInVMArgs(PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, "-Xcheck:vm", NULL, TRUE);
+    noVMIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:vm:none", NULL, TRUE);
 
-	/*
-	 * Check classpath: all classpath processing is done here.
-	 */
-	checkCPIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath", NULL, TRUE);
-	nocheckCPIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath:none", NULL, TRUE);
-	checkCPHelpIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath:help", NULL, TRUE);
-	
-	checkCPIndex = OMR_MAX(checkCPIndex, allIndex);
-	nocheckCPIndex = OMR_MAX(OMR_MAX(nocheckCPIndex, noneIndex), helpIndex);
+    vmIndex = OMR_MAX(vmIndex, allIndex);
+    noVMIndex = OMR_MAX(noVMIndex, noneIndex);
 
-	if (checkCPHelpIndex > nocheckCPIndex) {
-		j9tty_err_printf(PORTLIB, "\nUsage: -Xcheck:classpath[:help|none]\n\n");
-		rc = -1;
-	}
-	
-	if (checkCPIndex > nocheckCPIndex) {
-		/* classpath checking has been requested, so set a flag to show it is on */
-		J9VMSystemProperty * property;
- 
-		if (getSystemProperty(vm, "com.ibm.jcl.checkClassPath", &property) == J9SYSPROP_ERROR_NONE) {
-			setSystemProperty(vm, property, "true");
-			property->flags &= ~J9SYSPROP_FLAG_WRITEABLE;
-		}
-	}
+    if (vmIndex > noVMIndex) {
+        j9vm_args->j9Options[vmIndex].flags |= ARG_REQUIRES_LIBRARY;
+        entry = findDllLoadInfo(loadTable, J9_CHECK_VM_DLL_NAME);
+        entry->loadFlags |= LOAD_BY_DEFAULT;
+    }
 
-	/*
-	 * Dump option
-	 */
-	dumpIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump", NULL, TRUE);
-	dumpNoneIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump:none", NULL, TRUE);
-	dumpHelpIndex = findArgInVMArgs( PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump:help", NULL, TRUE);
+    /*
+     * Check classpath: all classpath processing is done here.
+     */
+    checkCPIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath", NULL, TRUE);
+    nocheckCPIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath:none", NULL, TRUE);
+    checkCPHelpIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:classpath:help", NULL, TRUE);
 
-	dumpIndex = OMR_MAX(dumpIndex, allIndex);
-	dumpNoneIndex = OMR_MAX(OMR_MAX(dumpNoneIndex, noneIndex), helpIndex);
+    checkCPIndex = OMR_MAX(checkCPIndex, allIndex);
+    nocheckCPIndex = OMR_MAX(OMR_MAX(nocheckCPIndex, noneIndex), helpIndex);
 
-	if (dumpHelpIndex > dumpNoneIndex) {
-		j9tty_err_printf(PORTLIB, "\nUsage: -Xcheck:dump\nRun JVM start-up checks for OS system dump settings\n\n");
-		rc = -1;
-	}
+    if (checkCPHelpIndex > nocheckCPIndex) {
+        j9tty_err_printf(PORTLIB, "\nUsage: -Xcheck:classpath[:help|none]\n\n");
+        rc = -1;
+    }
 
-	if (dumpIndex > dumpNoneIndex) {
-		/* dump checking has been requested, do it now */
-		J9RASCheckDump(vm);
-	}
+    if (checkCPIndex > nocheckCPIndex) {
+        /* classpath checking has been requested, so set a flag to show it is on */
+        J9VMSystemProperty* property;
 
-	nohelpIndex = OMR_MAX(OMR_MAX(noneIndex, memoryHelpIndex), checkCPHelpIndex);
-	if (helpIndex > nohelpIndex) {
-		/* print out the base -Xcheck help */
-		printXcheckUsage(vm);
-		rc = -1;
-	}
-	return rc;
+        if (getSystemProperty(vm, "com.ibm.jcl.checkClassPath", &property) == J9SYSPROP_ERROR_NONE) {
+            setSystemProperty(vm, property, "true");
+            property->flags &= ~J9SYSPROP_FLAG_WRITEABLE;
+        }
+    }
+
+    /*
+     * Dump option
+     */
+    dumpIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump", NULL, TRUE);
+    dumpNoneIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump:none", NULL, TRUE);
+    dumpHelpIndex = findArgInVMArgs(PORTLIB, j9vm_args, EXACT_MATCH, "-Xcheck:dump:help", NULL, TRUE);
+
+    dumpIndex = OMR_MAX(dumpIndex, allIndex);
+    dumpNoneIndex = OMR_MAX(OMR_MAX(dumpNoneIndex, noneIndex), helpIndex);
+
+    if (dumpHelpIndex > dumpNoneIndex) {
+        j9tty_err_printf(PORTLIB, "\nUsage: -Xcheck:dump\nRun JVM start-up checks for OS system dump settings\n\n");
+        rc = -1;
+    }
+
+    if (dumpIndex > dumpNoneIndex) {
+        /* dump checking has been requested, do it now */
+        J9RASCheckDump(vm);
+    }
+
+    nohelpIndex = OMR_MAX(OMR_MAX(noneIndex, memoryHelpIndex), checkCPHelpIndex);
+    if (helpIndex > nohelpIndex) {
+        /* print out the base -Xcheck help */
+        printXcheckUsage(vm);
+        rc = -1;
+    }
+    return rc;
 }
 
-static IDATA printXcheckUsage(J9JavaVM *vm)
+static IDATA printXcheckUsage(J9JavaVM* vm)
 {
-        PORT_ACCESS_FROM_JAVAVM(vm);
- 
-        j9tty_err_printf(PORTLIB, "\n-Xcheck usage:\n\n");
- 
-        j9tty_err_printf(PORTLIB, "  -Xcheck:help                  Print general Xcheck help\n");
-        j9tty_err_printf(PORTLIB, "  -Xcheck:none                  Ignore all previous/default Xcheck options\n");
- 
-        j9tty_err_printf(PORTLIB, "  -Xcheck:<component>:help      Print detailed Xcheck help\n");
-        j9tty_err_printf(PORTLIB, "  -Xcheck:<component>:none      Ignore previous Xcheck options of this type\n");
- 
-        j9tty_err_printf(PORTLIB, "\nXcheck enabled components:\n\n");
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-        j9tty_err_printf(PORTLIB, "  classpath\n");
-        j9tty_err_printf(PORTLIB, "  dump\n");
-        j9tty_err_printf(PORTLIB, "  gc\n");
-        j9tty_err_printf(PORTLIB, "  jni\n");
-        j9tty_err_printf(PORTLIB, "  memory\n");
-        j9tty_err_printf(PORTLIB, "  vm\n\n");
+    j9tty_err_printf(PORTLIB, "\n-Xcheck usage:\n\n");
 
-        return JNI_OK;
+    j9tty_err_printf(PORTLIB, "  -Xcheck:help                  Print general Xcheck help\n");
+    j9tty_err_printf(PORTLIB, "  -Xcheck:none                  Ignore all previous/default Xcheck options\n");
+
+    j9tty_err_printf(PORTLIB, "  -Xcheck:<component>:help      Print detailed Xcheck help\n");
+    j9tty_err_printf(PORTLIB, "  -Xcheck:<component>:none      Ignore previous Xcheck options of this type\n");
+
+    j9tty_err_printf(PORTLIB, "\nXcheck enabled components:\n\n");
+
+    j9tty_err_printf(PORTLIB, "  classpath\n");
+    j9tty_err_printf(PORTLIB, "  dump\n");
+    j9tty_err_printf(PORTLIB, "  gc\n");
+    j9tty_err_printf(PORTLIB, "  jni\n");
+    j9tty_err_printf(PORTLIB, "  memory\n");
+    j9tty_err_printf(PORTLIB, "  vm\n\n");
+
+    return JNI_OK;
 }
- 
+
 /**
  * Non-consuming search for "-verbose:jni"
  * @param list of arguments
@@ -204,17 +203,17 @@ static IDATA printXcheckUsage(J9JavaVM *vm)
  * @returns 1 if argument found. Position returned by reference
  */
 
-static UDATA 
-isVerboseJni(J9PortLibrary *portLibrary, J9VMInitArgs* j9vm_args, IDATA *verboseIndexPtr) {
-	IDATA argIndex;
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	argIndex = findArgInVMArgs( PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, OPT_VERBOSE, "jni", FALSE);
-	if (NULL != verboseIndexPtr) {
-		*verboseIndexPtr = argIndex;
-	}
-	 if (argIndex >= 0) {
-		return 1;
-	} else {
-		return 0;
-	}
+static UDATA isVerboseJni(J9PortLibrary* portLibrary, J9VMInitArgs* j9vm_args, IDATA* verboseIndexPtr)
+{
+    IDATA argIndex;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    argIndex = findArgInVMArgs(PORTLIB, j9vm_args, OPTIONAL_LIST_MATCH, OPT_VERBOSE, "jni", FALSE);
+    if (NULL != verboseIndexPtr) {
+        *verboseIndexPtr = argIndex;
+    }
+    if (argIndex >= 0) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

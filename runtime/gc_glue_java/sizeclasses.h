@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef SIZECLASSES_H_
 #define SIZECLASSES_H_
 
@@ -50,13 +49,13 @@
  * Note that this array must be of size OMR_SIZECLASSES_NUM_SMALL+1. Note that
  * the 0 size class isn't used since there are no 0-size objects.
  */
-#define SMALL_SIZECLASSES	{0, 16, 24, 32, 40, 48, 56, 64, 72, 88,\
-							 104, 120, 136, 160, 184, 208, 240, 272, 312, 352,\
-							 400, 456, 520, 592, 672, 760, 856, 968, 1096, 1240,\
-							 1400, 1576, 1776, 2000, 2256, 2544, 2864, 3224, 3632, 4088,\
-							 4600, 5176, 5824, 6552, 7376, 8304, 9344, 10512, 11832, 13312,\
-							 14976, 16848, 18960, 21336, 24008, 27016, 30400, 34200, 38480, 43296,\
-							 48712, 54808, 61664, 65536 }
+#define SMALL_SIZECLASSES                                                                                              \
+    {                                                                                                                  \
+        0, 16, 24, 32, 40, 48, 56, 64, 72, 88, 104, 120, 136, 160, 184, 208, 240, 272, 312, 352, 400, 456, 520, 592,   \
+            672, 760, 856, 968, 1096, 1240, 1400, 1576, 1776, 2000, 2256, 2544, 2864, 3224, 3632, 4088, 4600, 5176,    \
+            5824, 6552, 7376, 8304, 9344, 10512, 11832, 13312, 14976, 16848, 18960, 21336, 24008, 27016, 30400, 34200, \
+            38480, 43296, 48712, 54808, 61664, 65536                                                                   \
+    }
 
 typedef struct OMR_SizeClasses {
     UDATA smallCellSizes[OMR_SIZECLASSES_MAX_SMALL + 1];

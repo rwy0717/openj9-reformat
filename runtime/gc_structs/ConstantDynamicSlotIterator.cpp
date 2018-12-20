@@ -31,31 +31,30 @@
 
 #include "ConstantDynamicSlotIterator.hpp"
 
-
 /**
  * Scan the current constant dynamic slot
  * @return slot value if it is not NULL
  * @return exception otherwise
  */
-j9object_t*
-GC_ConstantDynamicSlotIterator::nextSlot(j9object_t *slotPtr) {
-	j9object_t *result;
-	switch (_condySlotState) {
-	case condy_slot_value:
-		result = &(((J9RAMConstantDynamicRef *) slotPtr)->value);
-		_condySlotState = condy_slot_exception;
-		break;
-	case condy_slot_exception:
-		result = &(((J9RAMConstantDynamicRef *) slotPtr)->exception);
-		_condySlotState = condy_slot_terminator;
-		break;
-	case condy_slot_terminator:
-		result = NULL;
-		_condySlotState = condy_slot_value;
-		break;
-	default:
-		Assert_MM_unreachable();
-		break;
-	}
-	return result;
+j9object_t* GC_ConstantDynamicSlotIterator::nextSlot(j9object_t* slotPtr)
+{
+    j9object_t* result;
+    switch (_condySlotState) {
+    case condy_slot_value:
+        result = &(((J9RAMConstantDynamicRef*)slotPtr)->value);
+        _condySlotState = condy_slot_exception;
+        break;
+    case condy_slot_exception:
+        result = &(((J9RAMConstantDynamicRef*)slotPtr)->exception);
+        _condySlotState = condy_slot_terminator;
+        break;
+    case condy_slot_terminator:
+        result = NULL;
+        _condySlotState = condy_slot_value;
+        break;
+    default:
+        Assert_MM_unreachable();
+        break;
+    }
+    return result;
 }

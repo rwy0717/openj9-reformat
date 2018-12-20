@@ -36,35 +36,31 @@
 #include "j9vmnls.h"
 #include "j9vmconstantpool.h"
 
-
 /*
  * Native method that creates a copy of the object in old-space so that the ConstantPool entries do not
  * have to be walked by the gencon gc policy.
  *
  * This treats interned MethodTypes the same way String constants in the ConstantPool are treated.
  */
-jobject JNICALL
-Java_java_lang_invoke_MethodType_makeTenured(JNIEnv *env, jclass clazz, jobject receiverObject)
+jobject JNICALL Java_java_lang_invoke_MethodType_makeTenured(JNIEnv* env, jclass clazz, jobject receiverObject)
 {
-	J9VMThread *vmThread = (J9VMThread *) env;
-	J9JavaVM const *vm = vmThread->javaVM;
-	J9InternalVMFunctions const *vmFuncs = vm->internalVMFunctions;
-	J9MemoryManagerFunctions const *gcFuncs = vm->memoryManagerFunctions;
-	const UDATA allocateFlags = J9_GC_ALLOCATE_OBJECT_TENURED | J9_GC_ALLOCATE_OBJECT_NON_INSTRUMENTABLE;
-	j9object_t methodType;
-	jobject methodTypeRef = NULL;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    J9JavaVM const* vm = vmThread->javaVM;
+    J9InternalVMFunctions const* vmFuncs = vm->internalVMFunctions;
+    J9MemoryManagerFunctions const* gcFuncs = vm->memoryManagerFunctions;
+    const UDATA allocateFlags = J9_GC_ALLOCATE_OBJECT_TENURED | J9_GC_ALLOCATE_OBJECT_NON_INSTRUMENTABLE;
+    j9object_t methodType;
+    jobject methodTypeRef = NULL;
 
-	vmFuncs->internalEnterVMFromJNI(vmThread);
+    vmFuncs->internalEnterVMFromJNI(vmThread);
 
-	methodType = gcFuncs->j9gc_objaccess_asConstantPoolObject(
-								vmThread,
-								J9_JNI_UNWRAP_REFERENCE(receiverObject),
-								allocateFlags);
-	if (methodType == NULL) {
-		vmFuncs->setHeapOutOfMemoryError(vmThread);
-	} else {
-		methodTypeRef = vmFuncs->j9jni_createLocalRef(env, methodType);
-	}
-	vmFuncs->internalExitVMToJNI(vmThread);
-	return methodTypeRef;
+    methodType = gcFuncs->j9gc_objaccess_asConstantPoolObject(
+        vmThread, J9_JNI_UNWRAP_REFERENCE(receiverObject), allocateFlags);
+    if (methodType == NULL) {
+        vmFuncs->setHeapOutOfMemoryError(vmThread);
+    } else {
+        methodTypeRef = vmFuncs->j9jni_createLocalRef(env, methodType);
+    }
+    vmFuncs->internalExitVMToJNI(vmThread);
+    return methodTypeRef;
 }

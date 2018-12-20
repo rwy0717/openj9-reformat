@@ -25,10 +25,13 @@
 
 #ifndef J9_CODECACHEMANAGER_COMPOSED
 #define J9_CODECACHEMANAGER_COMPOSED
-namespace J9 { class CodeCacheManager; }
-namespace J9 { typedef CodeCacheManager CodeCacheManagerConnector; }
+namespace J9 {
+class CodeCacheManager;
+}
+namespace J9 {
+typedef CodeCacheManager CodeCacheManagerConnector;
+}
 #endif
-
 
 #include "env/jittypes.h"
 //#include "runtime/CodeCacheMemorySegment.hpp"
@@ -41,79 +44,80 @@ struct J9JITConfig;
 struct J9JavaVM;
 struct J9ClassLoader;
 
-namespace TR { class CodeCacheMemorySegment; }
-namespace TR { class CodeCache; }
+namespace TR {
+class CodeCacheMemorySegment;
+}
+namespace TR {
+class CodeCache;
+}
 
 namespace J9 {
 
-class OMR_EXTENSIBLE CodeCacheManager : public OMR::CodeCacheManagerConnector
-   {
-   TR::CodeCacheManager *self();
+class OMR_EXTENSIBLE CodeCacheManager : public OMR::CodeCacheManagerConnector {
+    TR::CodeCacheManager* self();
 
 public:
-   CodeCacheManager(TR_FrontEnd *fe, TR::RawAllocator rawAllocator) :
-      OMR::CodeCacheManagerConnector(rawAllocator),
-      _fe(fe)
-      {
-      _codeCacheManager = reinterpret_cast<TR::CodeCacheManager *>(this);
-      }
+    CodeCacheManager(TR_FrontEnd* fe, TR::RawAllocator rawAllocator)
+        : OMR::CodeCacheManagerConnector(rawAllocator)
+        , _fe(fe)
+    {
+        _codeCacheManager = reinterpret_cast<TR::CodeCacheManager*>(this);
+    }
 
-   void *operator new(size_t s, TR::CodeCacheManager *m) { return m; }
+    void* operator new(size_t s, TR::CodeCacheManager* m) { return m; }
 
-   static TR::CodeCacheManager *instance() { return _codeCacheManager; }
-   static J9JITConfig *jitConfig()         { return _jitConfig; }
-   static J9JavaVM *javaVM()               { return _javaVM; }
+    static TR::CodeCacheManager* instance() { return _codeCacheManager; }
+    static J9JITConfig* jitConfig() { return _jitConfig; }
+    static J9JavaVM* javaVM() { return _javaVM; }
 
-   TR_FrontEnd *fe();
-   TR_J9VMBase *fej9();
+    TR_FrontEnd* fe();
+    TR_J9VMBase* fej9();
 
-   TR::CodeCache *initialize(bool useConsolidatedCache, uint32_t numberOfCodeCachesToCreateAtStartup);
+    TR::CodeCache* initialize(bool useConsolidatedCache, uint32_t numberOfCodeCachesToCreateAtStartup);
 
-   void addCodeCache(TR::CodeCache *codeCache);
+    void addCodeCache(TR::CodeCache* codeCache);
 
-   TR::CodeCacheMemorySegment *allocateCodeCacheSegment(size_t segmentSize,
-                                                        size_t &codeCacheSizeToAllocate,
-                                                        void *preferredStartAddress);
-   void *chooseCacheStartAddress(size_t repositorySize);
+    TR::CodeCacheMemorySegment* allocateCodeCacheSegment(
+        size_t segmentSize, size_t& codeCacheSizeToAllocate, void* preferredStartAddress);
+    void* chooseCacheStartAddress(size_t repositorySize);
 
-   void addFaintCacheBlock(OMR::MethodExceptionData *metaData, uint8_t bytesToSaveAtStart);
-   void freeFaintCacheBlock(OMR::FaintCacheBlock *block, uint8_t *startPC);
+    void addFaintCacheBlock(OMR::MethodExceptionData* metaData, uint8_t bytesToSaveAtStart);
+    void freeFaintCacheBlock(OMR::FaintCacheBlock* block, uint8_t* startPC);
 
-   // reclaim the whole method body (which is guaranteed to be fully dead already - hence
-   // no need for leaving stumps at the head or the tail
-   void purgeClassLoaderFromFaintBlocks(J9ClassLoader *classLoader);
-   void onClassUnloading(J9ClassLoader *loaderPtr);
+    // reclaim the whole method body (which is guaranteed to be fully dead already - hence
+    // no need for leaving stumps at the head or the tail
+    void purgeClassLoaderFromFaintBlocks(J9ClassLoader* classLoader);
+    void onClassUnloading(J9ClassLoader* loaderPtr);
 
-   TR::CodeCache * reserveCodeCache(bool compilationCodeAllocationsMustBeContiguous,
-                                    size_t sizeEstimate,
-                                    int32_t compThreadID,
-                                    int32_t *numReserved);
+    TR::CodeCache* reserveCodeCache(bool compilationCodeAllocationsMustBeContiguous, size_t sizeEstimate,
+        int32_t compThreadID, int32_t* numReserved);
 
-   TR::CodeCacheMemorySegment *setupMemorySegmentFromRepository(uint8_t *start,
-                                                                uint8_t *end,
-                                                                size_t & codeCacheSizeToAllocate);
-   void freeMemorySegment(TR::CodeCacheMemorySegment *segment);
+    TR::CodeCacheMemorySegment* setupMemorySegmentFromRepository(
+        uint8_t* start, uint8_t* end, size_t& codeCacheSizeToAllocate);
+    void freeMemorySegment(TR::CodeCacheMemorySegment* segment);
 
-   void reportCodeLoadEvents();
+    void reportCodeLoadEvents();
 
-   static const uint32_t SAFE_DISTANCE_REPOSITORY_JITLIBRARY = 64 * 1024 * 1024;  // 64MB to account for some safe JIT library size
-   static const uintptr_t MAX_DISTANCE_NEAR_JITLIBRARY_TO_AVOID_TRAMPOLINE = 0x80000000 - 64 * 1024 * 1024; // 2GB - 64MB
+    static const uint32_t SAFE_DISTANCE_REPOSITORY_JITLIBRARY
+        = 64 * 1024 * 1024; // 64MB to account for some safe JIT library size
+    static const uintptr_t MAX_DISTANCE_NEAR_JITLIBRARY_TO_AVOID_TRAMPOLINE
+        = 0x80000000 - 64 * 1024 * 1024; // 2GB - 64MB
 
-   void setCodeCacheFull();
+    void setCodeCacheFull();
 
-   void onFSDDecompile();
-   void onClassRedefinition(TR_OpaqueMethodBlock *oldMethod, TR_OpaqueMethodBlock *newMethod);
+    void onFSDDecompile();
+    void onClassRedefinition(TR_OpaqueMethodBlock* oldMethod, TR_OpaqueMethodBlock* newMethod);
 
-   uintptr_t getSomeJitLibraryAddress();
-   bool isInRange(uintptr_t address1, uintptr_t address2, uintptr_t range);
+    uintptr_t getSomeJitLibraryAddress();
+    bool isInRange(uintptr_t address1, uintptr_t address2, uintptr_t range);
 
-private :
-   TR_FrontEnd *_fe;
-   static TR::CodeCacheManager *_codeCacheManager;
-   static J9JITConfig *_jitConfig;
-   static J9JavaVM *_javaVM;
-   };
-   
+private:
+    TR_FrontEnd* _fe;
+    static TR::CodeCacheManager* _codeCacheManager;
+    static J9JITConfig* _jitConfig;
+    static J9JavaVM* _javaVM;
+};
+
 } // namespace J9
 
 #endif // J9_CODECACHEMANAGER_INCL

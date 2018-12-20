@@ -34,23 +34,23 @@
  * Create an new instance of a MM_VerboseEventMetronomeOutOfMemory event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeOutOfMemory::newInstance(MM_OutOfMemoryEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeOutOfMemory::newInstance(
+    MM_OutOfMemoryEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeOutOfMemory *eventObject = (MM_VerboseEventMetronomeOutOfMemory *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeOutOfMemory));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeOutOfMemory(event, hookInterface);
-		eventObject->initialize(event);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeOutOfMemory* eventObject = (MM_VerboseEventMetronomeOutOfMemory*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventMetronomeOutOfMemory));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeOutOfMemory(event, hookInterface);
+        eventObject->initialize(event);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventMetronomeOutOfMemory::initialize(MM_OutOfMemoryEvent *event)
+void MM_VerboseEventMetronomeOutOfMemory::initialize(MM_OutOfMemoryEvent* event)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	_timeInMilliSeconds = omrtime_current_time_millis();
-	strncpy(_memorySpaceString, event->memorySpaceString, 64);
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    _timeInMilliSeconds = omrtime_current_time_millis();
+    strncpy(_memorySpaceString, event->memorySpaceString, 64);
 }
 
 /**
@@ -58,31 +58,25 @@ MM_VerboseEventMetronomeOutOfMemory::initialize(MM_OutOfMemoryEvent *event)
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeOutOfMemory::consumeEvents()
-{
-}
+void MM_VerboseEventMetronomeOutOfMemory::consumeEvents() {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeOutOfMemory::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventMetronomeOutOfMemory::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
-	MM_VerboseManagerBase *manager = extensions->verboseGCManager;
-	char timestamp[32];
-	
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(), "<event details=\"out of memory\" timestamp=\"%s\" memoryspace=\"%s\" J9MemorySpace=\"0x%p\" />",
-		timestamp,
-		_memorySpaceString,
-		_memorySpace
-	);
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
+    MM_VerboseManagerBase* manager = extensions->verboseGCManager;
+    char timestamp[32];
+
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(),
+        "<event details=\"out of memory\" timestamp=\"%s\" memoryspace=\"%s\" J9MemorySpace=\"0x%p\" />", timestamp,
+        _memorySpaceString, _memorySpace);
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }
 
 #endif /* J9VM_GC_REALTIME */

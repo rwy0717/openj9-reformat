@@ -31,44 +31,41 @@
  * Method:    verifyCanonisizeAndCopyUTF8
  * Signature: ([B[BI)I
  */
-jint JNICALL
-Java_com_ibm_j9_test_bcutil_TestNatives_verifyCanonisizeAndCopyUTF8(JNIEnv *env, jclass class, jintArray destArray, jintArray srcArray, jint length)
+jint JNICALL Java_com_ibm_j9_test_bcutil_TestNatives_verifyCanonisizeAndCopyUTF8(
+    JNIEnv* env, jclass class, jintArray destArray, jintArray srcArray, jint length)
 {
-	int i;
-	U_8 *src;
-	U_8 *dest;
-	jint result = -1;
-	jint *jSrc = (*env)->GetIntArrayElements(env, srcArray, NULL);
-	jint *jDest = (*env)->GetIntArrayElements(env, destArray, NULL);
+    int i;
+    U_8* src;
+    U_8* dest;
+    jint result = -1;
+    jint* jSrc = (*env)->GetIntArrayElements(env, srcArray, NULL);
+    jint* jDest = (*env)->GetIntArrayElements(env, destArray, NULL);
 
-	src = malloc(length);
-	if (!src) {
-		return -1;
-	}
-	dest = malloc(length);
-	if (!dest) {
-		free(src);
-		return -1;
-	}
+    src = malloc(length);
+    if (!src) {
+        return -1;
+    }
+    dest = malloc(length);
+    if (!dest) {
+        free(src);
+        return -1;
+    }
 
-	for (i =0; i < length; i++) {
-		src[i] = (char) jSrc[i];
-	}
+    for (i = 0; i < length; i++) {
+        src[i] = (char)jSrc[i];
+    }
 
-	result = j9bcutil_verifyCanonisizeAndCopyUTF8(dest, src, length);
+    result = j9bcutil_verifyCanonisizeAndCopyUTF8(dest, src, length);
 
-	for (i =0; i < length; i++) {
-		jDest[i] = dest[i];
-	}
+    for (i = 0; i < length; i++) {
+        jDest[i] = dest[i];
+    }
 
-	(*env)->ReleaseIntArrayElements(env, destArray, jDest, 0);
-	(*env)->ReleaseIntArrayElements(env, srcArray, jSrc, JNI_ABORT);
+    (*env)->ReleaseIntArrayElements(env, destArray, jDest, 0);
+    (*env)->ReleaseIntArrayElements(env, srcArray, jSrc, JNI_ABORT);
 
-	free(src);
-	free(dest);
+    free(src);
+    free(dest);
 
-	return result;
+    return result;
 }
-
-
-

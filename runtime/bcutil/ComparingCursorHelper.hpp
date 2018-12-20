@@ -33,28 +33,23 @@
 class SRPKeyProducer;
 class ClassFileOracle;
 
-class ComparingCursorHelper : public Cursor
-{
+class ComparingCursorHelper : public Cursor {
 private:
-	U_8 *_baseAddress;
+    U_8* _baseAddress;
+
 public:
-	ComparingCursorHelper(SRPOffsetTable *srpOffsetTable, U_8 *baseAddress, ROMClassCreationContext * context) :
-		Cursor(0, srpOffsetTable, context),
-		_baseAddress(baseAddress)
-	{
-	}
+    ComparingCursorHelper(SRPOffsetTable* srpOffsetTable, U_8* baseAddress, ROMClassCreationContext* context)
+        : Cursor(0, srpOffsetTable, context)
+        , _baseAddress(baseAddress)
+    {}
 
-	void resetBaseMemoryLocation( U_8 *baseAddress )
-	{
-		_baseAddress = baseAddress;
-		resetCount();
-	}
-	
-	U_8 * getBaseAddress() 
-	{ 
-		return _baseAddress;
-	};
+    void resetBaseMemoryLocation(U_8* baseAddress)
+    {
+        _baseAddress = baseAddress;
+        resetCount();
+    }
 
+    U_8* getBaseAddress() { return _baseAddress; };
 };
 
 #endif /* COMPARINGCURSORHELPER_HPP_ */

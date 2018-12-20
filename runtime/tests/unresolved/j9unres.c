@@ -33,12 +33,7 @@
 /* Define a function which won't resolve, used for testing.
  * An unresolved variable won't work, as all variables are resolved regardless of RTLD_LAZY flag.
  */
-extern int
-dontResolveThis(void);
+extern int dontResolveThis(void);
 
 /* Define a function with a reference to the unresolved function. */
-int
-functionWithUnresolvedRef(void) {
-	return dontResolveThis();
-}
-
+int functionWithUnresolvedRef(void) { return dontResolveThis(); }

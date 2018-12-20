@@ -24,34 +24,35 @@
 #include "j9.h"
 #include "mgmtinit.h"
 
-static UDATA getIndexFromManagerID(J9JavaLangManagementData *mgmt, UDATA id);
+static UDATA getIndexFromManagerID(J9JavaLangManagementData* mgmt, UDATA id);
 
-
-jboolean JNICALL
-Java_com_ibm_java_lang_management_internal_MemoryManagerMXBeanImpl_isManagedPoolImpl(JNIEnv *env, jclass beanInstance, jint id, jint poolID)
+jboolean JNICALL Java_com_ibm_java_lang_management_internal_MemoryManagerMXBeanImpl_isManagedPoolImpl(
+    JNIEnv* env, jclass beanInstance, jint id, jint poolID)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
-	J9JavaLangManagementData *mgmt = javaVM->managementData;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
+    J9JavaLangManagementData* mgmt = javaVM->managementData;
 
-	if (0 != (J9VM_MANAGEMENT_GC_HEAP & id)) {
-		J9GarbageCollectorData *gc = &mgmt->garbageCollectors[getIndexFromManagerID(mgmt, id)];
-		if (javaVM->memoryManagerFunctions->j9gc_is_managedpool_by_collector(javaVM, (UDATA)(gc->id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK), (UDATA)(poolID & J9VM_MANAGEMENT_POOL_HEAP_ID_MASK))) {
-			return JNI_TRUE;
-		}
-	}
+    if (0 != (J9VM_MANAGEMENT_GC_HEAP & id)) {
+        J9GarbageCollectorData* gc = &mgmt->garbageCollectors[getIndexFromManagerID(mgmt, id)];
+        if (javaVM->memoryManagerFunctions->j9gc_is_managedpool_by_collector(javaVM,
+                (UDATA)(gc->id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK),
+                (UDATA)(poolID & J9VM_MANAGEMENT_POOL_HEAP_ID_MASK))) {
+            return JNI_TRUE;
+        }
+    }
 
-	return JNI_FALSE;
+    return JNI_FALSE;
 }
 
-static UDATA
-getIndexFromManagerID(J9JavaLangManagementData *mgmt, UDATA id)
+static UDATA getIndexFromManagerID(J9JavaLangManagementData* mgmt, UDATA id)
 {
-	UDATA idx = 0;
+    UDATA idx = 0;
 
-	for(; idx < mgmt->supportedCollectors; idx++) {
-		if ((mgmt->garbageCollectors[idx].id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK) == (id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK)) {
-			break;
-		}
-	}
-	return idx;
+    for (; idx < mgmt->supportedCollectors; idx++) {
+        if ((mgmt->garbageCollectors[idx].id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK)
+            == (id & J9VM_MANAGEMENT_GC_HEAP_ID_MASK)) {
+            break;
+        }
+    }
+    return idx;
 }

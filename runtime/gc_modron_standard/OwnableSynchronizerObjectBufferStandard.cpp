@@ -31,53 +31,49 @@
 #include "OwnableSynchronizerObjectBufferStandard.hpp"
 #include "OwnableSynchronizerObjectList.hpp"
 
-MM_OwnableSynchronizerObjectBufferStandard::MM_OwnableSynchronizerObjectBufferStandard(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_OwnableSynchronizerObjectBuffer(extensions, maxObjectCount)
-	,_ownableSynchronizerObjectListIndex(0)
+MM_OwnableSynchronizerObjectBufferStandard::MM_OwnableSynchronizerObjectBufferStandard(
+    MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_OwnableSynchronizerObjectBuffer(extensions, maxObjectCount)
+    , _ownableSynchronizerObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_OwnableSynchronizerObjectBufferStandard *
-MM_OwnableSynchronizerObjectBufferStandard::newInstance(MM_EnvironmentBase *env)
+MM_OwnableSynchronizerObjectBufferStandard* MM_OwnableSynchronizerObjectBufferStandard::newInstance(
+    MM_EnvironmentBase* env)
 {
-	MM_OwnableSynchronizerObjectBufferStandard *ownableObjectBuffer = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_OwnableSynchronizerObjectBufferStandard* ownableObjectBuffer = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	ownableObjectBuffer = (MM_OwnableSynchronizerObjectBufferStandard *)env->getForge()->allocate(sizeof(MM_OwnableSynchronizerObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != ownableObjectBuffer) {
-		new(ownableObjectBuffer) MM_OwnableSynchronizerObjectBufferStandard(extensions, extensions->objectListFragmentCount);
-		if (!ownableObjectBuffer->initialize(env)) {
-			ownableObjectBuffer->kill(env);
-			ownableObjectBuffer = NULL;
-		}
-	}
+    ownableObjectBuffer = (MM_OwnableSynchronizerObjectBufferStandard*)env->getForge()->allocate(
+        sizeof(MM_OwnableSynchronizerObjectBufferStandard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != ownableObjectBuffer) {
+        new (ownableObjectBuffer)
+            MM_OwnableSynchronizerObjectBufferStandard(extensions, extensions->objectListFragmentCount);
+        if (!ownableObjectBuffer->initialize(env)) {
+            ownableObjectBuffer->kill(env);
+            ownableObjectBuffer = NULL;
+        }
+    }
 
-	return ownableObjectBuffer;
+    return ownableObjectBuffer;
 }
 
-bool
-MM_OwnableSynchronizerObjectBufferStandard::initialize(MM_EnvironmentBase *base)
+bool MM_OwnableSynchronizerObjectBufferStandard::initialize(MM_EnvironmentBase* base) { return true; }
+
+void MM_OwnableSynchronizerObjectBufferStandard::tearDown(MM_EnvironmentBase* base) {}
+
+void MM_OwnableSynchronizerObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
 {
-	return true;
-}
+    MM_HeapRegionDescriptorStandard* region = (MM_HeapRegionDescriptorStandard*)_region;
+    MM_HeapRegionDescriptorStandardExtension* regionExtension
+        = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+    MM_OwnableSynchronizerObjectList* list
+        = &regionExtension->_ownableSynchronizerObjectLists[_ownableSynchronizerObjectListIndex];
 
-void
-MM_OwnableSynchronizerObjectBufferStandard::tearDown(MM_EnvironmentBase *base)
-{
-
-}
-
-void 
-MM_OwnableSynchronizerObjectBufferStandard::flushImpl(MM_EnvironmentBase* env)
-{
-	MM_HeapRegionDescriptorStandard *region = (MM_HeapRegionDescriptorStandard*)_region;
-	MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-	MM_OwnableSynchronizerObjectList *list = &regionExtension->_ownableSynchronizerObjectLists[_ownableSynchronizerObjectListIndex];
-
-	list->addAll(env, _head, _tail);
-	_ownableSynchronizerObjectListIndex += 1;
-	if (regionExtension->_maxListIndex == _ownableSynchronizerObjectListIndex) {
-		_ownableSynchronizerObjectListIndex = 0;
-	}
+    list->addAll(env, _head, _tail);
+    _ownableSynchronizerObjectListIndex += 1;
+    if (regionExtension->_maxListIndex == _ownableSynchronizerObjectListIndex) {
+        _ownableSynchronizerObjectListIndex = 0;
+    }
 }

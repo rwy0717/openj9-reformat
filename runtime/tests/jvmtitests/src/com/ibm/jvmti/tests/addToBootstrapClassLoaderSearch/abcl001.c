@@ -22,31 +22,30 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * _agentEnv;
+static agentEnv* _agentEnv;
 
-jint JNICALL
-abcl001(agentEnv * agent_env, char * args)
+jint JNICALL abcl001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiError err;
-	char * jar = agent_env->testArgs;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    char* jar = agent_env->testArgs;
 
-	if (!ensureVersion(agent_env, JVMTI_VERSION_1_1)) {
-		return JNI_ERR;
-	}
+    if (!ensureVersion(agent_env, JVMTI_VERSION_1_1)) {
+        return JNI_ERR;
+    }
 
-	_agentEnv = agent_env;
+    _agentEnv = agent_env;
 
-	if (jar == NULL) {
-		error(agent_env, JVMTI_ERROR_NONE, "Must specify jar name in args");
-		return JNI_ERR;
-	}
+    if (jar == NULL) {
+        error(agent_env, JVMTI_ERROR_NONE, "Must specify jar name in args");
+        return JNI_ERR;
+    }
 
-	err = (*jvmti_env)->AddToBootstrapClassLoaderSearch(jvmti_env, jar);
-	if (err != JVMTI_ERROR_NONE) {
-		error(agent_env, err, "Failed to add \"%s\" to the bootpath", jar);
-		return JNI_ERR;
-	}
+    err = (*jvmti_env)->AddToBootstrapClassLoaderSearch(jvmti_env, jar);
+    if (err != JVMTI_ERROR_NONE) {
+        error(agent_env, err, "Failed to add \"%s\" to the bootpath", jar);
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }

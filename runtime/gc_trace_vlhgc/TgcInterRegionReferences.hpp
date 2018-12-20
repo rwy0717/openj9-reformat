@@ -29,7 +29,7 @@
 #if !defined(TGCINTERREGIONREFERENCES_HPP_)
 #define TGCINTERREGIONREFERENCES_HPP_
 
-bool tgcInterRegionReferencesInitialize(J9JavaVM *javaVM);
-void tgcInterRegionReferencesTearDown(J9JavaVM *javaVM);
+bool tgcInterRegionReferencesInitialize(J9JavaVM* javaVM);
+void tgcInterRegionReferencesTearDown(J9JavaVM* javaVM);
 
 #endif /* TGCINTERREGIONREFERENCES_HPP_ */

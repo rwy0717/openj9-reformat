@@ -31,38 +31,41 @@
 #include "ut_j9bcverify.h"
 #include "omrlinkedlist.h"
 
-static J9ClassLoadingConstraint* findClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length);
-static J9ClassLoadingConstraint* registerClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length, UDATA copyName);
-static void validateArgs (J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, U_8* name1, U_8* name2, UDATA length);
-static void constrainList (J9ClassLoadingConstraint* constraint, J9Class* clazz);
-static UDATA constraintHashFn(void *key, void *userData);
-static UDATA  constraintHashEqualFn(void *leftKey, void *rightKey, void *userData);
-
+static J9ClassLoadingConstraint* findClassLoadingConstraint(
+    J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length);
+static J9ClassLoadingConstraint* registerClassLoadingConstraint(
+    J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length, UDATA copyName);
+static void validateArgs(
+    J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, U_8* name1, U_8* name2, UDATA length);
+static void constrainList(J9ClassLoadingConstraint* constraint, J9Class* clazz);
+static UDATA constraintHashFn(void* key, void* userData);
+static UDATA constraintHashEqualFn(void* leftKey, void* rightKey, void* userData);
 
 /* This is a helper function used by Assert_RTV_validateClassLoadingConstraints */
-static void 
-validateArgs (J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, U_8* name1, U_8* name2, UDATA length) 
+static void validateArgs(
+    J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, U_8* name1, U_8* name2, UDATA length)
 {
-	J9MemorySegment *seg;
+    J9MemorySegment* seg;
 
-	Assert_RTV_notEqual(loader1, loader2);
-	Assert_RTV_true(0 == memcmp(name1, name2, length));
+    Assert_RTV_notEqual(loader1, loader2);
+    Assert_RTV_true(0 == memcmp(name1, name2, length));
 
-	/* verify that the name is actually in the correct segment. If it's not, the name could get
-	 * garbage collected while the constraint object is still alive
-	 */
-	seg = vmThread->javaVM->classMemorySegments->nextSegment;
-	while (seg) {
-		if (seg->heapBase <= name1 && seg->heapTop >= name1) {
-			Assert_RTV_true( (seg->classLoader == loader1) || (seg->classLoader->flags & J9CLASSLOADER_INVARIANTS_SHARABLE) );
-		}
-		if (seg->heapBase <= name2 && seg->heapTop >= name2) {
-			Assert_RTV_true( (seg->classLoader == loader2) || (seg->classLoader->flags & J9CLASSLOADER_INVARIANTS_SHARABLE) );
-		}
-		seg = seg->nextSegment;
-	}
+    /* verify that the name is actually in the correct segment. If it's not, the name could get
+     * garbage collected while the constraint object is still alive
+     */
+    seg = vmThread->javaVM->classMemorySegments->nextSegment;
+    while (seg) {
+        if (seg->heapBase <= name1 && seg->heapTop >= name1) {
+            Assert_RTV_true(
+                (seg->classLoader == loader1) || (seg->classLoader->flags & J9CLASSLOADER_INVARIANTS_SHARABLE));
+        }
+        if (seg->heapBase <= name2 && seg->heapTop >= name2) {
+            Assert_RTV_true(
+                (seg->classLoader == loader2) || (seg->classLoader->flags & J9CLASSLOADER_INVARIANTS_SHARABLE));
+        }
+        seg = seg->nextSegment;
+    }
 }
-
 
 /*
  * sig1 must come from a ROMSegment in loader1.
@@ -70,248 +73,251 @@ validateArgs (J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loade
  * sig1 and sig2 must contain identical bytes. The signatures may be method or field signatures.
  * return 0 if no class loading constraints have been violated, or non-zero if they have been.
  */
-UDATA 
-j9bcv_checkClassLoadingConstraintsForSignature (J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, J9UTF8* sig1, J9UTF8* sig2)
+UDATA
+j9bcv_checkClassLoadingConstraintsForSignature(
+    J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, J9UTF8* sig1, J9UTF8* sig2)
 {
-	U_32 index = 0, endIndex;
-	U_32 length = J9UTF8_LENGTH(sig1);
-	UDATA rc = 0;
-	J9JavaVM *javaVM = vmThread->javaVM;
-	JavaVM* jniVM = (JavaVM*)javaVM;
+    U_32 index = 0, endIndex;
+    U_32 length = J9UTF8_LENGTH(sig1);
+    UDATA rc = 0;
+    J9JavaVM* javaVM = vmThread->javaVM;
+    JavaVM* jniVM = (JavaVM*)javaVM;
 
-	Trc_RTV_checkClassLoadingConstraintsForSignature_Entry(vmThread, loader1, loader2, sig1, sig2, J9UTF8_LENGTH(sig1), J9UTF8_DATA(sig1));
-	Assert_RTV_true(J9UTF8_LENGTH(sig1) == J9UTF8_LENGTH(sig2));
-	Assert_RTV_validateClassLoadingConstraints(vmThread, loader1, loader2, J9UTF8_DATA(sig1), J9UTF8_DATA(sig2), J9UTF8_LENGTH(sig1));
+    Trc_RTV_checkClassLoadingConstraintsForSignature_Entry(
+        vmThread, loader1, loader2, sig1, sig2, J9UTF8_LENGTH(sig1), J9UTF8_DATA(sig1));
+    Assert_RTV_true(J9UTF8_LENGTH(sig1) == J9UTF8_LENGTH(sig2));
+    Assert_RTV_validateClassLoadingConstraints(
+        vmThread, loader1, loader2, J9UTF8_DATA(sig1), J9UTF8_DATA(sig2), J9UTF8_LENGTH(sig1));
 
-	omrthread_monitor_enter(javaVM->classTableMutex);
-	for (;;) {
-		/* find a 'L', indicating the beginning of a class name */
-		while (index  < length && J9UTF8_DATA(sig1)[index] != 'L') {
-			index++;
-		}
-		if (index >= length) {
-			break;
-		}
+    omrthread_monitor_enter(javaVM->classTableMutex);
+    for (;;) {
+        /* find a 'L', indicating the beginning of a class name */
+        while (index < length && J9UTF8_DATA(sig1)[index] != 'L') {
+            index++;
+        }
+        if (index >= length) {
+            break;
+        }
 
-		/* skip the 'L'; */
-		index++;
+        /* skip the 'L'; */
+        index++;
 
-		/* find the ';' marking the end of the class name */
-		endIndex = index;
-		while (J9UTF8_DATA(sig1)[endIndex] != ';') {
-			endIndex++;
-		}
+        /* find the ';' marking the end of the class name */
+        endIndex = index;
+        while (J9UTF8_DATA(sig1)[endIndex] != ';') {
+            endIndex++;
+        }
 
-		rc = j9bcv_checkClassLoadingConstraintForName (vmThread, loader1, loader2, &J9UTF8_DATA(sig1)[index], &J9UTF8_DATA(sig2)[index], endIndex - index, FALSE);
-		if (rc) {
-			break;
-		}
+        rc = j9bcv_checkClassLoadingConstraintForName(
+            vmThread, loader1, loader2, &J9UTF8_DATA(sig1)[index], &J9UTF8_DATA(sig2)[index], endIndex - index, FALSE);
+        if (rc) {
+            break;
+        }
 
-		index = endIndex;
-	}
-	omrthread_monitor_exit(javaVM->classTableMutex);
+        index = endIndex;
+    }
+    omrthread_monitor_exit(javaVM->classTableMutex);
 
-	Trc_RTV_checkClassLoadingConstraintsForSignature_Exit(vmThread, rc);
+    Trc_RTV_checkClassLoadingConstraintsForSignature_Exit(vmThread, rc);
 
-	return rc;
+    return rc;
 }
-
 
 /* NOTE: the current thread must own the class table mutex */
 
 UDATA
-j9bcv_checkClassLoadingConstraintForName (J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2, U_8* name1, U_8* name2, UDATA length, UDATA copyUTFs)
+j9bcv_checkClassLoadingConstraintForName(J9VMThread* vmThread, J9ClassLoader* loader1, J9ClassLoader* loader2,
+    U_8* name1, U_8* name2, UDATA length, UDATA copyUTFs)
 {
-	J9Class *class1;
-	J9Class *class2;
-	J9ClassLoadingConstraint *const1 = NULL;
-	J9ClassLoadingConstraint *const2 = NULL;
-	J9InternalVMFunctions const *vmFuncs = vmThread->javaVM->internalVMFunctions;
+    J9Class* class1;
+    J9Class* class2;
+    J9ClassLoadingConstraint* const1 = NULL;
+    J9ClassLoadingConstraint* const2 = NULL;
+    J9InternalVMFunctions const* vmFuncs = vmThread->javaVM->internalVMFunctions;
 
-	Trc_RTV_checkClassLoadingConstraintForName(vmThread, loader1, loader2, length, name1);
-	Assert_RTV_validateClassLoadingConstraints(vmThread, loader1, loader2, name1, name2, length);
+    Trc_RTV_checkClassLoadingConstraintForName(vmThread, loader1, loader2, length, name1);
+    Assert_RTV_validateClassLoadingConstraints(vmThread, loader1, loader2, name1, name2, length);
 
-	/* peek at the class tables to see if the class has been loaded yet */
-	class1 = vmFuncs->hashClassTableAt (loader1, name1, length);
-	class2 = vmFuncs->hashClassTableAt (loader2, name2, length);
+    /* peek at the class tables to see if the class has been loaded yet */
+    class1 = vmFuncs->hashClassTableAt(loader1, name1, length);
+    class2 = vmFuncs->hashClassTableAt(loader2, name2, length);
 
-	if (class1 && class2) {
-		if (class1 != class2) {
-			return 1;
-		}
-	} else if (class1 == NULL && class2 != NULL) {
-		const1 = registerClassLoadingConstraint (vmThread, loader1, name1, length, copyUTFs);
-		if (const1 == NULL) return 1;
-		if (const1->clazz != NULL) {
-			if (const1->clazz != class2) {
-				return 1;
-			}
-		} else {
-			Assert_RTV_true(J9_ARE_NO_BITS_SET(class2->classFlags, J9ClassIsAnonymous));
-			const1->clazz = class2;
-		}
-	} else if (class2 == NULL && class1 != NULL) {
-		const2 = registerClassLoadingConstraint (vmThread, loader2, name2, length, copyUTFs);
-		if (const2->clazz != NULL) {
-			if (const2->clazz != class1) {
-				return 1;
-			}
-		} else {
-			const2->clazz = class1;
-			Assert_RTV_true(J9_ARE_NO_BITS_SET(class1->classFlags, J9ClassIsAnonymous));
-		}
-	} else { /* class1 == NULL && class2 == NULL */
-		J9ClassLoadingConstraint *tempNext;
-		J9ClassLoadingConstraint *tempPrevious;
+    if (class1 && class2) {
+        if (class1 != class2) {
+            return 1;
+        }
+    } else if (class1 == NULL && class2 != NULL) {
+        const1 = registerClassLoadingConstraint(vmThread, loader1, name1, length, copyUTFs);
+        if (const1 == NULL)
+            return 1;
+        if (const1->clazz != NULL) {
+            if (const1->clazz != class2) {
+                return 1;
+            }
+        } else {
+            Assert_RTV_true(J9_ARE_NO_BITS_SET(class2->classFlags, J9ClassIsAnonymous));
+            const1->clazz = class2;
+        }
+    } else if (class2 == NULL && class1 != NULL) {
+        const2 = registerClassLoadingConstraint(vmThread, loader2, name2, length, copyUTFs);
+        if (const2->clazz != NULL) {
+            if (const2->clazz != class1) {
+                return 1;
+            }
+        } else {
+            const2->clazz = class1;
+            Assert_RTV_true(J9_ARE_NO_BITS_SET(class1->classFlags, J9ClassIsAnonymous));
+        }
+    } else { /* class1 == NULL && class2 == NULL */
+        J9ClassLoadingConstraint* tempNext;
+        J9ClassLoadingConstraint* tempPrevious;
 
-		const1 = registerClassLoadingConstraint (vmThread, loader1, name1, length, copyUTFs);
-		if (const1 == NULL) {
-			return 1;
-		}
-		const2 = registerClassLoadingConstraint (vmThread, loader2, name2, length, copyUTFs);
-		if (const2 == NULL) {
-			return 1;
-		}
+        const1 = registerClassLoadingConstraint(vmThread, loader1, name1, length, copyUTFs);
+        if (const1 == NULL) {
+            return 1;
+        }
+        const2 = registerClassLoadingConstraint(vmThread, loader2, name2, length, copyUTFs);
+        if (const2 == NULL) {
+            return 1;
+        }
 
-		if (const1->clazz != const2->clazz) {
-			/* need to merge two constraint chains with different constraints.
-			 * This is only solvable if one of them is NULL
-			 */
-			if (const1->clazz == NULL) {
-				constrainList(const1, const2->clazz);
-			} else if (const2->clazz == NULL) {
-				constrainList(const2, const1->clazz);
-			} else {
-				/* both constraints are satisfied, but in an incompatible manner */
-				return 1;
-			}
-		}
+        if (const1->clazz != const2->clazz) {
+            /* need to merge two constraint chains with different constraints.
+             * This is only solvable if one of them is NULL
+             */
+            if (const1->clazz == NULL) {
+                constrainList(const1, const2->clazz);
+            } else if (const2->clazz == NULL) {
+                constrainList(const2, const1->clazz);
+            } else {
+                /* both constraints are satisfied, but in an incompatible manner */
+                return 1;
+            }
+        }
 
-		/* now link them up, keeping in mind that one or either of them might have already been in a list */
-		tempNext = const1->linkNext;
-		tempPrevious = const2->linkPrevious;
-		const1->linkNext = const2;
-		const2->linkPrevious = const1;
-		tempNext->linkPrevious = tempPrevious;
-		tempPrevious->linkNext = tempNext;
-	}
+        /* now link them up, keeping in mind that one or either of them might have already been in a list */
+        tempNext = const1->linkNext;
+        tempPrevious = const2->linkPrevious;
+        const1->linkNext = const2;
+        const2->linkPrevious = const1;
+        tempNext->linkPrevious = tempPrevious;
+        tempPrevious->linkNext = tempNext;
+    }
 
-	return 0;
+    return 0;
 }
-
 
 /* NOTE: the current thread must own the class table mutex */
 
-static J9ClassLoadingConstraint*
-registerClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length, UDATA copyName)
+static J9ClassLoadingConstraint* registerClassLoadingConstraint(
+    J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length, UDATA copyName)
 {
-	PORT_ACCESS_FROM_VMC (vmThread);
-	J9JavaVM* vm = vmThread->javaVM;
-	J9ClassLoadingConstraint* constraint;
-	J9ClassLoadingConstraint exemplar;
+    PORT_ACCESS_FROM_VMC(vmThread);
+    J9JavaVM* vm = vmThread->javaVM;
+    J9ClassLoadingConstraint* constraint;
+    J9ClassLoadingConstraint exemplar;
 
-	Trc_RTV_registerClassLoadingConstraint_Entry(vmThread, length, name, loader);
+    Trc_RTV_registerClassLoadingConstraint_Entry(vmThread, length, name, loader);
 
-	if (vm->classLoadingConstraints == NULL) {
-		Trc_RTV_registerClassLoadingConstraint_AllocatingTable(vmThread);
-		vm->classLoadingConstraints  = hashTableNew(OMRPORT_FROM_J9PORT(PORTLIB), J9_GET_CALLSITE(), 256, sizeof(J9ClassLoadingConstraint), sizeof(char *), 0, J9MEM_CATEGORY_CLASSES, constraintHashFn, constraintHashEqualFn, NULL, vm);
-		if (vm->classLoadingConstraints == NULL) {
-			Trc_RTV_registerClassLoadingConstraint_TableAllocationFailed(vmThread);
-			Trc_RTV_registerClassLoadingConstraint_Exit(vmThread, NULL);
-			return NULL;
-		}
-	}
+    if (vm->classLoadingConstraints == NULL) {
+        Trc_RTV_registerClassLoadingConstraint_AllocatingTable(vmThread);
+        vm->classLoadingConstraints
+            = hashTableNew(OMRPORT_FROM_J9PORT(PORTLIB), J9_GET_CALLSITE(), 256, sizeof(J9ClassLoadingConstraint),
+                sizeof(char*), 0, J9MEM_CATEGORY_CLASSES, constraintHashFn, constraintHashEqualFn, NULL, vm);
+        if (vm->classLoadingConstraints == NULL) {
+            Trc_RTV_registerClassLoadingConstraint_TableAllocationFailed(vmThread);
+            Trc_RTV_registerClassLoadingConstraint_Exit(vmThread, NULL);
+            return NULL;
+        }
+    }
 
-	exemplar.classLoader = loader;
-	exemplar.name = name;
-	exemplar.nameLength = length;
-	exemplar.clazz = NULL;
-	exemplar.linkNext = NULL;
-	exemplar.linkPrevious = NULL;
-	exemplar.freeName = FALSE;
+    exemplar.classLoader = loader;
+    exemplar.name = name;
+    exemplar.nameLength = length;
+    exemplar.clazz = NULL;
+    exemplar.linkNext = NULL;
+    exemplar.linkPrevious = NULL;
+    exemplar.freeName = FALSE;
 
-	constraint = hashTableAdd(vm->classLoadingConstraints, &exemplar);
-	if (constraint == NULL) {
-oom:
-		Trc_RTV_registerClassLoadingConstraint_EntryAllocationFailed(vmThread);
-	} else if (constraint->linkNext == NULL) {
-		/* this must be a newly added constraint. Link it up to itself */
-		constraint->linkNext = constraint->linkPrevious = constraint;
-		if (copyName) {
-			U_8 *nameCopy = j9mem_allocate_memory(length, J9MEM_CATEGORY_CLASSES);
-			if (NULL == nameCopy) {
-				hashTableRemove(vm->classLoadingConstraints, constraint);
-				constraint = NULL;
-				goto oom;
-			}
-			memcpy(nameCopy, name, length);
-			constraint->name = nameCopy;
-			constraint->freeName = TRUE;
-		}
-		Trc_RTV_registerClassLoadingConstraint_AllocatedEntry(vmThread, constraint, length, name, loader);
-	}
+    constraint = hashTableAdd(vm->classLoadingConstraints, &exemplar);
+    if (constraint == NULL) {
+    oom:
+        Trc_RTV_registerClassLoadingConstraint_EntryAllocationFailed(vmThread);
+    } else if (constraint->linkNext == NULL) {
+        /* this must be a newly added constraint. Link it up to itself */
+        constraint->linkNext = constraint->linkPrevious = constraint;
+        if (copyName) {
+            U_8* nameCopy = j9mem_allocate_memory(length, J9MEM_CATEGORY_CLASSES);
+            if (NULL == nameCopy) {
+                hashTableRemove(vm->classLoadingConstraints, constraint);
+                constraint = NULL;
+                goto oom;
+            }
+            memcpy(nameCopy, name, length);
+            constraint->name = nameCopy;
+            constraint->freeName = TRUE;
+        }
+        Trc_RTV_registerClassLoadingConstraint_AllocatedEntry(vmThread, constraint, length, name, loader);
+    }
 
-	Trc_RTV_registerClassLoadingConstraint_Exit(vmThread, constraint);
-	return constraint;
+    Trc_RTV_registerClassLoadingConstraint_Exit(vmThread, constraint);
+    return constraint;
 }
-
 
 /* NOTE: the current thread must own the class table mutex */
 
-static J9ClassLoadingConstraint*
-findClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length) 
+static J9ClassLoadingConstraint* findClassLoadingConstraint(
+    J9VMThread* vmThread, J9ClassLoader* loader, U_8* name, UDATA length)
 {
-	J9ClassLoadingConstraint *constraint = NULL;
-	J9JavaVM* vm = vmThread->javaVM;
+    J9ClassLoadingConstraint* constraint = NULL;
+    J9JavaVM* vm = vmThread->javaVM;
 
-	Trc_RTV_findClassLoadingConstraint_Entry(vmThread, length, name, loader);
+    Trc_RTV_findClassLoadingConstraint_Entry(vmThread, length, name, loader);
 
-	if (vm->classLoadingConstraints != NULL) {
-		J9ClassLoadingConstraint exemplar;
+    if (vm->classLoadingConstraints != NULL) {
+        J9ClassLoadingConstraint exemplar;
 
-		exemplar.classLoader = loader;
-		exemplar.name = name;
-		exemplar.nameLength = length;
-		exemplar.clazz = NULL;
-		exemplar.linkNext = NULL;
-		exemplar.linkPrevious = NULL;
+        exemplar.classLoader = loader;
+        exemplar.name = name;
+        exemplar.nameLength = length;
+        exemplar.clazz = NULL;
+        exemplar.linkNext = NULL;
+        exemplar.linkPrevious = NULL;
 
-		constraint = hashTableFind(vm->classLoadingConstraints, &exemplar);
-	}
+        constraint = hashTableFind(vm->classLoadingConstraints, &exemplar);
+    }
 
-	Trc_RTV_findClassLoadingConstraint_Exit(vmThread, constraint);
+    Trc_RTV_findClassLoadingConstraint_Exit(vmThread, constraint);
 
-	return constraint;
+    return constraint;
 }
-
 
 /* NOTE: this function must only be called while the current thread owns the class table mutex */
 
-J9Class * 
-j9bcv_satisfyClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader, J9Class* clazz)
+J9Class* j9bcv_satisfyClassLoadingConstraint(J9VMThread* vmThread, J9ClassLoader* loader, J9Class* clazz)
 {
-	J9ROMClass* romClass = clazz->romClass;
-	J9UTF8* name = J9ROMCLASS_CLASSNAME (romClass);
-	J9ClassLoadingConstraint* constraint = findClassLoadingConstraint (vmThread, loader, J9UTF8_DATA(name), J9UTF8_LENGTH(name));
+    J9ROMClass* romClass = clazz->romClass;
+    J9UTF8* name = J9ROMCLASS_CLASSNAME(romClass);
+    J9ClassLoadingConstraint* constraint
+        = findClassLoadingConstraint(vmThread, loader, J9UTF8_DATA(name), J9UTF8_LENGTH(name));
 
-	if (constraint) {
-		if ((NULL != constraint->clazz) && (constraint->clazz != clazz)) {
-			return constraint->clazz;
-		} else {
-			J9ClassLoadingConstraint* root = constraint;
-			U_8 *nameToFree = constraint->freeName ? constraint->name : NULL;
-			constrainList (constraint, clazz);
-			J9_LINKED_LIST_REMOVE(root, constraint);
-			hashTableRemove (vmThread->javaVM->classLoadingConstraints, constraint);
-			if (NULL != nameToFree) {
-				PORT_ACCESS_FROM_VMC(vmThread);
-				j9mem_free_memory(nameToFree);
-			}
-		}
-	}
-	return NULL;
+    if (constraint) {
+        if ((NULL != constraint->clazz) && (constraint->clazz != clazz)) {
+            return constraint->clazz;
+        } else {
+            J9ClassLoadingConstraint* root = constraint;
+            U_8* nameToFree = constraint->freeName ? constraint->name : NULL;
+            constrainList(constraint, clazz);
+            J9_LINKED_LIST_REMOVE(root, constraint);
+            hashTableRemove(vmThread->javaVM->classLoadingConstraints, constraint);
+            if (NULL != nameToFree) {
+                PORT_ACCESS_FROM_VMC(vmThread);
+                j9mem_free_memory(nameToFree);
+            }
+        }
+    }
+    return NULL;
 }
-
 
 /*
  * Called when class loaders are being unloaded. This function removes all of the dying loaders'
@@ -320,84 +326,77 @@ j9bcv_satisfyClassLoadingConstraint (J9VMThread* vmThread, J9ClassLoader* loader
  * The current thread should have exclusive VM access
  */
 
-void 
-unlinkClassLoadingConstraints (J9JavaVM* jvm) 
+void unlinkClassLoadingConstraints(J9JavaVM* jvm)
 {
-	J9HashTableState walkState;
-	J9ClassLoadingConstraint* constraint;
+    J9HashTableState walkState;
+    J9ClassLoadingConstraint* constraint;
 
-	Trc_RTV_unlinkClassLoadingConstraints_Entry();
+    Trc_RTV_unlinkClassLoadingConstraints_Entry();
 
-	if (jvm->classLoadingConstraints != NULL) {
-		PORT_ACCESS_FROM_JAVAVM(jvm);
-		constraint = hashTableStartDo(jvm->classLoadingConstraints, &walkState);
-		while (constraint != NULL) {
-			U_8 *nameToFree = constraint->freeName ? constraint->name : NULL;
-			if ((NULL == constraint->clazz) && (constraint->linkNext == constraint)) { /* no point in having a single empty element */
-				hashTableDoRemove(&walkState);
-				if (NULL != nameToFree) {
-					j9mem_free_memory(constraint->name);
-				}
-			} else if (J9_GC_CLASS_LOADER_DEAD == (constraint->classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD) ) {
-				/* this class loader is being unloaded. Remove the constraint from the linked list */
-				J9ClassLoadingConstraint* root = constraint;
-				J9_LINKED_LIST_REMOVE(root, constraint);
-				hashTableDoRemove(&walkState);
-				if (NULL != nameToFree) {
-					j9mem_free_memory(constraint->name);
-				}
-			} else {
-				/* mark the constraint as unsatisfied if it refers to a dying loader */
-				J9Class* clazz = constraint->clazz;
+    if (jvm->classLoadingConstraints != NULL) {
+        PORT_ACCESS_FROM_JAVAVM(jvm);
+        constraint = hashTableStartDo(jvm->classLoadingConstraints, &walkState);
+        while (constraint != NULL) {
+            U_8* nameToFree = constraint->freeName ? constraint->name : NULL;
+            if ((NULL == constraint->clazz)
+                && (constraint->linkNext == constraint)) { /* no point in having a single empty element */
+                hashTableDoRemove(&walkState);
+                if (NULL != nameToFree) {
+                    j9mem_free_memory(constraint->name);
+                }
+            } else if (J9_GC_CLASS_LOADER_DEAD == (constraint->classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
+                /* this class loader is being unloaded. Remove the constraint from the linked list */
+                J9ClassLoadingConstraint* root = constraint;
+                J9_LINKED_LIST_REMOVE(root, constraint);
+                hashTableDoRemove(&walkState);
+                if (NULL != nameToFree) {
+                    j9mem_free_memory(constraint->name);
+                }
+            } else {
+                /* mark the constraint as unsatisfied if it refers to a dying loader */
+                J9Class* clazz = constraint->clazz;
 
-				if ((NULL != clazz) && (J9_JAVA_CLASS_DYING == (J9CLASS_FLAGS(clazz) & J9_JAVA_CLASS_DYING))) {
-					constraint->clazz = NULL;
-				}
-			}
+                if ((NULL != clazz) && (J9_JAVA_CLASS_DYING == (J9CLASS_FLAGS(clazz) & J9_JAVA_CLASS_DYING))) {
+                    constraint->clazz = NULL;
+                }
+            }
 
-			constraint = hashTableNextDo(&walkState);
-		}
-	}
+            constraint = hashTableNextDo(&walkState);
+        }
+    }
 
-	Trc_RTV_unlinkClassLoadingConstraints_Exit();
+    Trc_RTV_unlinkClassLoadingConstraints_Exit();
 }
-
 
 /*
  * Set the 'clazz' field of every J9ClassLoadingConstraint in the circular list to be clazz.
  */
-static void
-constrainList (J9ClassLoadingConstraint* constraint, J9Class* clazz)
+static void constrainList(J9ClassLoadingConstraint* constraint, J9Class* clazz)
 {
-	J9ClassLoadingConstraint* cursor = constraint;
+    J9ClassLoadingConstraint* cursor = constraint;
 
-   	Assert_RTV_true(J9_ARE_NO_BITS_SET(clazz->classFlags, J9ClassIsAnonymous));
-	while (NULL != cursor) {
-		cursor->clazz = clazz;
-		cursor = J9_LINKED_LIST_NEXT_DO(constraint, cursor);
-	}
+    Assert_RTV_true(J9_ARE_NO_BITS_SET(clazz->classFlags, J9ClassIsAnonymous));
+    while (NULL != cursor) {
+        cursor->clazz = clazz;
+        cursor = J9_LINKED_LIST_NEXT_DO(constraint, cursor);
+    }
 }
 
-static UDATA 
-constraintHashFn(void *key, void *userData)
+static UDATA constraintHashFn(void* key, void* userData)
 {
-	J9ClassLoadingConstraint *k = key;
-	J9JavaVM *vm = userData;
-	UDATA utf8Hash = vm->internalVMFunctions->computeHashForUTF8(k->name, k->nameLength);
+    J9ClassLoadingConstraint* k = key;
+    J9JavaVM* vm = userData;
+    UDATA utf8Hash = vm->internalVMFunctions->computeHashForUTF8(k->name, k->nameLength);
 
-	return (UDATA)k->classLoader ^ utf8Hash;
+    return (UDATA)k->classLoader ^ utf8Hash;
 }
 
-
-static UDATA  
-constraintHashEqualFn(void *leftKey, void *rightKey, void *userData)
+static UDATA constraintHashEqualFn(void* leftKey, void* rightKey, void* userData)
 {
-	J9ClassLoadingConstraint *left_k = leftKey;
-	J9ClassLoadingConstraint *right_k = rightKey;
-	J9JavaVM *vm = userData;
+    J9ClassLoadingConstraint* left_k = leftKey;
+    J9ClassLoadingConstraint* right_k = rightKey;
+    J9JavaVM* vm = userData;
 
-	return 
-		(left_k->classLoader == right_k->classLoader) 
-		&& (J9UTF8_DATA_EQUALS(left_k->name, left_k->nameLength, right_k->name, right_k->nameLength));
+    return (left_k->classLoader == right_k->classLoader)
+        && (J9UTF8_DATA_EQUALS(left_k->name, left_k->nameLength, right_k->name, right_k->nameLength));
 }
-

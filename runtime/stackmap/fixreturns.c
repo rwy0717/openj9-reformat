@@ -28,45 +28,33 @@
 #include "cfreader.h"
 #include "ut_map.h"
 
-#define	WALKED	1
+#define WALKED 1
 
 #if 0 /* StackMapTable based fixreturns removed - CMVC 145180 - bogus stack maps cause shareclasses crash*/
 /* Return code only used locally */
-#define	MISSING_MAPS	1
+#define MISSING_MAPS 1
 #endif
 
-#define PARAM_8(index, offset) ((index) [offset])
+#define PARAM_8(index, offset) ((index)[offset])
 
 #ifdef J9VM_ENV_LITTLE_ENDIAN
-#define PARAM_16(index, offset)	\
-	( ( ((U_16) (index)[offset])			)	\
-	| ( ((U_16) (index)[offset + 1]) << 8)	\
-	)
+#define PARAM_16(index, offset) ((((U_16)(index)[offset])) | (((U_16)(index)[offset + 1]) << 8))
 #else
-#define PARAM_16(index, offset)	\
-	( ( ((U_16) (index)[offset]) << 8)	\
-	| ( ((U_16) (index)[offset + 1])			)	\
-	)
+#define PARAM_16(index, offset) ((((U_16)(index)[offset]) << 8) | (((U_16)(index)[offset + 1])))
 #endif
 
 #ifdef J9VM_ENV_LITTLE_ENDIAN
-#define PARAM_32(index, offset)						\
-	( ( ((U_32) (index)[offset])					)	\
-	| ( ((U_32) (index)[offset + 1]) << 8 )	\
-	| ( ((U_32) (index)[offset + 2]) << 16)	\
-	| ( ((U_32) (index)[offset + 3]) << 24)	\
-	)
+#define PARAM_32(index, offset)                                                                           \
+    ((((U_32)(index)[offset])) | (((U_32)(index)[offset + 1]) << 8) | (((U_32)(index)[offset + 2]) << 16) \
+        | (((U_32)(index)[offset + 3]) << 24))
 #else
-#define PARAM_32(index, offset)						\
-	( ( ((U_32) (index)[offset])		 << 24)	\
-	| ( ((U_32) (index)[offset + 1]) << 16)	\
-	| ( ((U_32) (index)[offset + 2]) << 8 )	\
-	| ( ((U_32) (index)[offset + 3])			)	\
-	)
+#define PARAM_32(index, offset)                                                                                 \
+    ((((U_32)(index)[offset]) << 24) | (((U_32)(index)[offset + 1]) << 16) | (((U_32)(index)[offset + 2]) << 8) \
+        | (((U_32)(index)[offset + 3])))
 #endif
 
-static IDATA fixReturnBytecodesInMethod (J9PortLibrary * portLib, J9ROMClass * romClass, J9ROMMethod * romMethod);
-static void fixReturns (UDATA *scratch, U_8 * map, J9ROMClass * romClass, J9ROMMethod * romMethod);
+static IDATA fixReturnBytecodesInMethod(J9PortLibrary* portLib, J9ROMClass* romClass, J9ROMMethod* romMethod);
+static void fixReturns(UDATA* scratch, U_8* map, J9ROMClass* romClass, J9ROMMethod* romMethod);
 
 #if 0 /* StackMapTable based fixreturns removed */
 static IDATA fixReturnsWithStackMaps(J9ROMClass * romClass, J9ROMMethod * romMethod, U_32 * stackMapMethods, UDATA i);
@@ -77,427 +65,415 @@ static UDATA parseStack (U_8** stackMapData, UDATA stackCount);
 #endif
 
 /*
-	Called by jar2jxe and the shared class loader to fix returns on unverified ROM classes.
+        Called by jar2jxe and the shared class loader to fix returns on unverified ROM classes.
 */
 
 IDATA
-fixReturnBytecodes(J9PortLibrary * portLib, struct J9ROMClass* romClass)
+fixReturnBytecodes(J9PortLibrary* portLib, struct J9ROMClass* romClass)
 {
-	UDATA i;
-	J9ROMMethod * romMethod;
-	IDATA rc = 0;
-	BOOLEAN isJavaLangObject = (J9ROMCLASS_SUPERCLASSNAME(romClass) == NULL);
+    UDATA i;
+    J9ROMMethod* romMethod;
+    IDATA rc = 0;
+    BOOLEAN isJavaLangObject = (J9ROMCLASS_SUPERCLASSNAME(romClass) == NULL);
 
-	Trc_Map_fixReturnBytecodes_Class((UDATA) J9UTF8_LENGTH(J9ROMCLASS_CLASSNAME(romClass)), J9UTF8_DATA(J9ROMCLASS_CLASSNAME(romClass)));
+    Trc_Map_fixReturnBytecodes_Class(
+        (UDATA)J9UTF8_LENGTH(J9ROMCLASS_CLASSNAME(romClass)), J9UTF8_DATA(J9ROMCLASS_CLASSNAME(romClass)));
 
-	romMethod = J9ROMCLASS_ROMMETHODS(romClass);
+    romMethod = J9ROMCLASS_ROMMETHODS(romClass);
 
-	for (i = 0; i < romClass->romMethodCount; i++, romMethod = nextROMMethod(romMethod)) {
-		if ((romMethod->modifiers & (CFR_ACC_NATIVE | CFR_ACC_ABSTRACT)) == 0) {
-			if (isJavaLangObject) {
-				/* Avoid rewriting genericReturn for Object.<init>() */
-				U_8 * nameData = J9UTF8_DATA(J9ROMMETHOD_GET_NAME(romClass, romMethod));
-				if (('<' == nameData[0]) && ('i' == nameData[1]) && (1 == romMethod->argCount)) {
-					continue;
-				}
-			}
-			rc = fixReturnBytecodesInMethod (portLib, romClass, romMethod);
-			if (rc != BCT_ERR_NO_ERROR) {
-				return rc;
-			}
-		}
-	}
+    for (i = 0; i < romClass->romMethodCount; i++, romMethod = nextROMMethod(romMethod)) {
+        if ((romMethod->modifiers & (CFR_ACC_NATIVE | CFR_ACC_ABSTRACT)) == 0) {
+            if (isJavaLangObject) {
+                /* Avoid rewriting genericReturn for Object.<init>() */
+                U_8* nameData = J9UTF8_DATA(J9ROMMETHOD_GET_NAME(romClass, romMethod));
+                if (('<' == nameData[0]) && ('i' == nameData[1]) && (1 == romMethod->argCount)) {
+                    continue;
+                }
+            }
+            rc = fixReturnBytecodesInMethod(portLib, romClass, romMethod);
+            if (rc != BCT_ERR_NO_ERROR) {
+                return rc;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
-
-
-
-/* 
-	Returns the bytecode for cleaning a method return - also returns the number of slots in the parameter.
-*/
-
-U_8
-getReturnBytecode(J9ROMClass * romClass, J9ROMMethod * romMethod, UDATA * returnSlots)
-{
-
-	U_8 sigChar, returnBytecode;
-
-	J9UTF8 * name = J9ROMMETHOD_GET_NAME(romClass, romMethod);
-	J9UTF8 * signature = J9ROMMETHOD_GET_SIGNATURE(romClass, romMethod);
-
-	U_8 * sigData = J9UTF8_DATA(signature);
-	UDATA sigLength = J9UTF8_LENGTH(signature);
-
-	/* Determine correct number of return slots for this method based on signature */
-
-	*returnSlots = 0;
-	sigChar = sigData[sigLength - 1];
-
-	/* Update the sig char in the case we are dealing with an array */
-	if ('[' == sigData[sigLength - 2]) {
-		sigChar = '[';
-	}
-
-	if (sigChar != 'V') {
-		*returnSlots = 1;
-		if (sigChar == 'J' || sigChar == 'D') {
-			*returnSlots = 2;
-		}
-	}
-
-	/* Determine the correct return bytecode to insert */
-	if ((J9UTF8_DATA(name)[0] == '<') && (J9UTF8_DATA(name)[1] == 'i')) {
-		returnBytecode = JBreturnFromConstructor;
-	} else {
-		/* bool, byte, char, and short need special treatment since they need to be truncated before return */
-		if (romMethod->modifiers & J9AccSynchronized) {
-			switch(sigChar){
-			case 'Z':
-			case 'B':
-			case 'C':
-			case 'S':
-				returnBytecode = JBgenericReturn;
-				break;
-			default:
-				returnBytecode = JBsyncReturn0 + (U_8) *returnSlots;
-				break;
-			}
-		} else {
-			switch(sigChar){
-			case 'Z':
-				returnBytecode = JBreturnZ;
-				break;
-			case 'B':
-				returnBytecode = JBreturnB;
-				break;
-			case 'C':
-				returnBytecode = JBreturnC;
-				break;
-			case 'S':
-				returnBytecode = JBreturnS;
-				break;
-			default:
-				returnBytecode = JBreturn0 + (U_8) *returnSlots;
-				break;
-			}
-		}
-	}
-
-
-	return returnBytecode;
-}
-
-
 
 /*
-	Set up a data flow walk to identify and clean any return bytecodes.
-	The data consists of a "walked" map and a stack with unwalked branch pointers and matching depth counts.
+        Returns the bytecode for cleaning a method return - also returns the number of slots in the parameter.
 */
 
-static IDATA
-fixReturnBytecodesInMethod(J9PortLibrary * portLib, J9ROMClass * romClass, J9ROMMethod * romMethod)
+U_8 getReturnBytecode(J9ROMClass* romClass, J9ROMMethod* romMethod, UDATA* returnSlots)
 {
 
-	PORT_ACCESS_FROM_PORT(portLib);
-	UDATA length;
-	UDATA *scratch;
-	UDATA scratchSize;
-	UDATA accurateGuess = FALSE;
-	U_8 *map;
-#define LOCAL_SCRATCH 2048
-	UDATA localScratch[LOCAL_SCRATCH / sizeof(UDATA)];
-	UDATA *allocScratch = NULL;
+    U_8 sigChar, returnBytecode;
 
-	length = (UDATA) J9_ROUNDED_BYTECODE_SIZE_FROM_ROM_METHOD(romMethod);
-	scratchSize = (romClass->maxBranchCount * sizeof(UDATA) * 2) + length;
+    J9UTF8* name = J9ROMMETHOD_GET_NAME(romClass, romMethod);
+    J9UTF8* signature = J9ROMMETHOD_GET_SIGNATURE(romClass, romMethod);
 
-	/* Allocate sufficient buffer */
-	if(scratchSize < LOCAL_SCRATCH) {
-		scratch = localScratch;
+    U_8* sigData = J9UTF8_DATA(signature);
+    UDATA sigLength = J9UTF8_LENGTH(signature);
 
-	} else {
-		allocScratch = j9mem_allocate_memory(scratchSize, OMRMEM_CATEGORY_VM);
+    /* Determine correct number of return slots for this method based on signature */
 
-		if (allocScratch) {
-			scratch = allocScratch;
-		} else {
-			Trc_Map_fixReturnBytecodesInMethod_AllocationFailure(scratchSize);
-			return BCT_ERR_OUT_OF_MEMORY;
-		}
-	}
+    *returnSlots = 0;
+    sigChar = sigData[sigLength - 1];
 
-	/* Allocate the instruction map at end of scratch space */
-	map = (U_8 *) (scratch + (romClass->maxBranchCount * 2));
-	memset(map, 0, length);
+    /* Update the sig char in the case we are dealing with an array */
+    if ('[' == sigData[sigLength - 2]) {
+        sigChar = '[';
+    }
 
-	fixReturns(scratch, map, romClass, romMethod);
+    if (sigChar != 'V') {
+        *returnSlots = 1;
+        if (sigChar == 'J' || sigChar == 'D') {
+            *returnSlots = 2;
+        }
+    }
 
-	j9mem_free_memory(allocScratch);
+    /* Determine the correct return bytecode to insert */
+    if ((J9UTF8_DATA(name)[0] == '<') && (J9UTF8_DATA(name)[1] == 'i')) {
+        returnBytecode = JBreturnFromConstructor;
+    } else {
+        /* bool, byte, char, and short need special treatment since they need to be truncated before return */
+        if (romMethod->modifiers & J9AccSynchronized) {
+            switch (sigChar) {
+            case 'Z':
+            case 'B':
+            case 'C':
+            case 'S':
+                returnBytecode = JBgenericReturn;
+                break;
+            default:
+                returnBytecode = JBsyncReturn0 + (U_8)*returnSlots;
+                break;
+            }
+        } else {
+            switch (sigChar) {
+            case 'Z':
+                returnBytecode = JBreturnZ;
+                break;
+            case 'B':
+                returnBytecode = JBreturnB;
+                break;
+            case 'C':
+                returnBytecode = JBreturnC;
+                break;
+            case 'S':
+                returnBytecode = JBreturnS;
+                break;
+            default:
+                returnBytecode = JBreturn0 + (U_8)*returnSlots;
+                break;
+            }
+        }
+    }
 
-	return BCT_ERR_NO_ERROR;
+    return returnBytecode;
 }
 
-
-/* 
-	Data flow walk to identify the stack depth at return points and replace generic returns with the correct return type. 
+/*
+        Set up a data flow walk to identify and clean any return bytecodes.
+        The data consists of a "walked" map and a stack with unwalked branch pointers and matching depth counts.
 */
 
-static void 
-fixReturns(UDATA *scratch, U_8 * map, J9ROMClass * romClass, J9ROMMethod * romMethod)
+static IDATA fixReturnBytecodesInMethod(J9PortLibrary* portLib, J9ROMClass* romClass, J9ROMMethod* romMethod)
 {
-	IDATA pc;
-	I_32 low, high, offset;
-	U_32 index;
-	U_8 *bcStart, *bcIndex, *bcEnd;
-	U_8 sigChar, returnBytecode;
-	UDATA bc, action, size, temp1, temp2, target, npairs;
-	UDATA returnSlots;
-	UDATA maxStack = (UDATA) J9_MAX_STACK_FROM_ROM_METHOD(romMethod);
-	UDATA depth = 0;
-	UDATA length;
-	J9UTF8 *utf8Signature;
-	J9SRP *callSiteData = (J9SRP *) J9ROMCLASS_CALLSITEDATA(romClass);
-	UDATA *pendingStacks = scratch;
-	J9ROMConstantPoolItem *pool = (J9ROMConstantPoolItem *) & (romClass[1]);
-	J9ExceptionInfo *exceptionData = J9_EXCEPTION_DATA_FROM_ROM_METHOD(romMethod);
 
-	/* Determine the correct return bytecode to insert and the expected depth for a fixable return */
+    PORT_ACCESS_FROM_PORT(portLib);
+    UDATA length;
+    UDATA* scratch;
+    UDATA scratchSize;
+    UDATA accurateGuess = FALSE;
+    U_8* map;
+#define LOCAL_SCRATCH 2048
+    UDATA localScratch[LOCAL_SCRATCH / sizeof(UDATA)];
+    UDATA* allocScratch = NULL;
 
-	returnBytecode = getReturnBytecode(romClass, romMethod, &returnSlots);
+    length = (UDATA)J9_ROUNDED_BYTECODE_SIZE_FROM_ROM_METHOD(romMethod);
+    scratchSize = (romClass->maxBranchCount * sizeof(UDATA) * 2) + length;
 
-	/* Add exceptions to the pending walks list */
-	if (J9ROMMETHOD_HAS_EXCEPTION_INFO(romMethod)) {
-		UDATA exceptionsToWalk = (UDATA) exceptionData->catchCount;
-		J9ExceptionHandler *handler = J9EXCEPTIONINFO_HANDLERS(exceptionData);
+    /* Allocate sufficient buffer */
+    if (scratchSize < LOCAL_SCRATCH) {
+        scratch = localScratch;
 
-		while (exceptionsToWalk) {
-			*pendingStacks++ = handler[--exceptionsToWalk].handlerPC;
-			*pendingStacks++ = 1;
-		}
-	}
+    } else {
+        allocScratch = j9mem_allocate_memory(scratchSize, OMRMEM_CATEGORY_VM);
 
-	bcStart = J9_BYTECODE_START_FROM_ROM_METHOD(romMethod);
-	bcIndex = bcStart;
-	length = J9_BYTECODE_SIZE_FROM_ROM_METHOD(romMethod);
-	bcEnd = bcStart + length;
+        if (allocScratch) {
+            scratch = allocScratch;
+        } else {
+            Trc_Map_fixReturnBytecodesInMethod_AllocationFailure(scratchSize);
+            return BCT_ERR_OUT_OF_MEMORY;
+        }
+    }
 
-	while (bcIndex < bcEnd) {
-		pc = bcIndex - bcStart;
-		bc = (UDATA) *bcIndex;
+    /* Allocate the instruction map at end of scratch space */
+    map = (U_8*)(scratch + (romClass->maxBranchCount * 2));
+    memset(map, 0, length);
 
-		if (map[pc]) {
-			/* We have been here before, stop this scan */
-			goto _nextRoot;
-		}
-		map[pc] = WALKED;
+    fixReturns(scratch, map, romClass, romMethod);
 
-		size = (UDATA) J9JavaInstructionSizeAndBranchActionTable[bc];
-		action = (UDATA) JavaStackActionTable[bc];
+    j9mem_free_memory(allocScratch);
 
-		/* action encodes pushes and pops by the bytecode - 0x80 means something special */
-		if (action != 0x80) {
-			depth -= (action & 7);
-			depth += ((action >> 4) & 3);
+    return BCT_ERR_NO_ERROR;
+}
 
-			if (!(size >> 4)) {
-				bcIndex += size;
-				if (size == 0) {
-					/* Unknown bytecode */
-					Trc_Map_fixReturns_UnknownBytecode(bc, pc);
-					return;
-				}
-				continue;
-			}
+/*
+        Data flow walk to identify the stack depth at return points and replace generic returns with the correct return
+   type.
+*/
 
-			switch (size >> 4) {
+static void fixReturns(UDATA* scratch, U_8* map, J9ROMClass* romClass, J9ROMMethod* romMethod)
+{
+    IDATA pc;
+    I_32 low, high, offset;
+    U_32 index;
+    U_8 *bcStart, *bcIndex, *bcEnd;
+    U_8 sigChar, returnBytecode;
+    UDATA bc, action, size, temp1, temp2, target, npairs;
+    UDATA returnSlots;
+    UDATA maxStack = (UDATA)J9_MAX_STACK_FROM_ROM_METHOD(romMethod);
+    UDATA depth = 0;
+    UDATA length;
+    J9UTF8* utf8Signature;
+    J9SRP* callSiteData = (J9SRP*)J9ROMCLASS_CALLSITEDATA(romClass);
+    UDATA* pendingStacks = scratch;
+    J9ROMConstantPoolItem* pool = (J9ROMConstantPoolItem*)&(romClass[1]);
+    J9ExceptionInfo* exceptionData = J9_EXCEPTION_DATA_FROM_ROM_METHOD(romMethod);
 
-			case 1:			/* ifs */
-				offset = (I_16) PARAM_16(bcIndex, 1);
-				target = (UDATA) (pc + (I_16) offset);
-				if (!map[target]) {
-					*pendingStacks++ = target;
-					*pendingStacks++ = depth;
-				}
-				bcIndex += (size & 7);
-				continue;
+    /* Determine the correct return bytecode to insert and the expected depth for a fixable return */
 
-			case 2:			/* gotos */
-				offset = (I_16) PARAM_16(bcIndex, 1);
-				target = (UDATA) (pc + (I_16) offset);
-				if (bc == JBgotow) {
-					offset = (I_32) PARAM_32(bcIndex, 1);
-					target = (UDATA) (pc + offset);
-				}
-				bcIndex = bcStart + target;
-				continue;
+    returnBytecode = getReturnBytecode(romClass, romMethod, &returnSlots);
 
-			case 4:			/* returns/athrow */
-				/* fix the generic returns only - already changed returns */
-				/* may have been changed to forward a verification error */
-				if (bc == JBgenericReturn) {
-					if (depth == returnSlots) {
-						*bcIndex = returnBytecode;
-					}
-				}
-				goto _nextRoot;
+    /* Add exceptions to the pending walks list */
+    if (J9ROMMETHOD_HAS_EXCEPTION_INFO(romMethod)) {
+        UDATA exceptionsToWalk = (UDATA)exceptionData->catchCount;
+        J9ExceptionHandler* handler = J9EXCEPTIONINFO_HANDLERS(exceptionData);
 
-			case 5:			/* switches */
-				bcIndex = bcIndex + (4 - (pc & 3));
-				offset = (I_32) PARAM_32(bcIndex, 0);
-				bcIndex += 4;
-				temp2 = (UDATA) (pc + offset);
-				low = (I_32) PARAM_32(bcIndex, 0);
-				bcIndex += 4;
+        while (exceptionsToWalk) {
+            *pendingStacks++ = handler[--exceptionsToWalk].handlerPC;
+            *pendingStacks++ = 1;
+        }
+    }
 
-				if (bc == JBtableswitch) {
-					high = (I_32) PARAM_32(bcIndex, 0);
-					bcIndex += 4;
-					npairs = (UDATA) (high - low + 1);
-					temp1 = 0;
-				} else {
-					npairs = (UDATA) low;
-					/* used to skip over the tableswitch key entry */
-					temp1 = 4;
-				}
+    bcStart = J9_BYTECODE_START_FROM_ROM_METHOD(romMethod);
+    bcIndex = bcStart;
+    length = J9_BYTECODE_SIZE_FROM_ROM_METHOD(romMethod);
+    bcEnd = bcStart + length;
 
-				for (; npairs > 0; npairs--) {
-					bcIndex += temp1;
-					offset = (I_32) PARAM_32(bcIndex, 0);
-					bcIndex += 4;
-					target = (UDATA) (pc + (I_32) offset);
-					if (!map[target]) {
-						*pendingStacks++ = target;
-						*pendingStacks++ = depth;
-					}
-				}
+    while (bcIndex < bcEnd) {
+        pc = bcIndex - bcStart;
+        bc = (UDATA)*bcIndex;
 
-				/* finally continue at the default switch case */
-				bcIndex = bcStart + temp2;
-				continue;
+        if (map[pc]) {
+            /* We have been here before, stop this scan */
+            goto _nextRoot;
+        }
+        map[pc] = WALKED;
 
-			case 7:			/* breakpoint */
-				/* Unexpected bytecode - unknown */
-				Trc_Map_fixReturns_UnknownBytecode(bc, pc);
-				return;
+        size = (UDATA)J9JavaInstructionSizeAndBranchActionTable[bc];
+        action = (UDATA)JavaStackActionTable[bc];
 
-			default:
-				bcIndex += (size & 7);
-				continue;
+        /* action encodes pushes and pops by the bytecode - 0x80 means something special */
+        if (action != 0x80) {
+            depth -= (action & 7);
+            depth += ((action >> 4) & 3);
 
-			}
-		} else {
-			switch (bc) {
+            if (!(size >> 4)) {
+                bcIndex += size;
+                if (size == 0) {
+                    /* Unknown bytecode */
+                    Trc_Map_fixReturns_UnknownBytecode(bc, pc);
+                    return;
+                }
+                continue;
+            }
 
-			case JBdup2:
-			case JBdup2x1:
-			case JBdup2x2:
-				depth++;	/* fall through case */
+            switch (size >> 4) {
 
-			case JBldc:
-			case JBldcw:
-			case JBdup:
-			case JBdupx1:
-			case JBdupx2:
-				depth++;	/* fall through case */
+            case 1: /* ifs */
+                offset = (I_16)PARAM_16(bcIndex, 1);
+                target = (UDATA)(pc + (I_16)offset);
+                if (!map[target]) {
+                    *pendingStacks++ = target;
+                    *pendingStacks++ = depth;
+                }
+                bcIndex += (size & 7);
+                continue;
 
-			case JBswap:
-				break;
+            case 2: /* gotos */
+                offset = (I_16)PARAM_16(bcIndex, 1);
+                target = (UDATA)(pc + (I_16)offset);
+                if (bc == JBgotow) {
+                    offset = (I_32)PARAM_32(bcIndex, 1);
+                    target = (UDATA)(pc + offset);
+                }
+                bcIndex = bcStart + target;
+                continue;
 
-			case JBgetfield:
-				depth--;	/* fall through case */
+            case 4: /* returns/athrow */
+                /* fix the generic returns only - already changed returns */
+                /* may have been changed to forward a verification error */
+                if (bc == JBgenericReturn) {
+                    if (depth == returnSlots) {
+                        *bcIndex = returnBytecode;
+                    }
+                }
+                goto _nextRoot;
 
-			case JBgetstatic:
-				index = PARAM_16(bcIndex, 1);
-				utf8Signature =
-					J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE
-													((J9ROMFieldRef *) (&(pool[index]))));
-				sigChar = (U_8) J9UTF8_DATA(utf8Signature)[0];
-				depth += (UDATA) argCountCharConversion[sigChar - 'A'];
-				break;
+            case 5: /* switches */
+                bcIndex = bcIndex + (4 - (pc & 3));
+                offset = (I_32)PARAM_32(bcIndex, 0);
+                bcIndex += 4;
+                temp2 = (UDATA)(pc + offset);
+                low = (I_32)PARAM_32(bcIndex, 0);
+                bcIndex += 4;
 
-			case JBputfield:
-				depth--;	/* fall through case !!! */
+                if (bc == JBtableswitch) {
+                    high = (I_32)PARAM_32(bcIndex, 0);
+                    bcIndex += 4;
+                    npairs = (UDATA)(high - low + 1);
+                    temp1 = 0;
+                } else {
+                    npairs = (UDATA)low;
+                    /* used to skip over the tableswitch key entry */
+                    temp1 = 4;
+                }
 
-			case JBputstatic:
-				index = PARAM_16(bcIndex, 1);
-				utf8Signature =
-					J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE
-													((J9ROMFieldRef *) (&(pool[index]))));
-				sigChar = (U_8) J9UTF8_DATA(utf8Signature)[0];
-				depth -= (UDATA) argCountCharConversion[sigChar - 'A'];
-				break;
+                for (; npairs > 0; npairs--) {
+                    bcIndex += temp1;
+                    offset = (I_32)PARAM_32(bcIndex, 0);
+                    bcIndex += 4;
+                    target = (UDATA)(pc + (I_32)offset);
+                    if (!map[target]) {
+                        *pendingStacks++ = target;
+                        *pendingStacks++ = depth;
+                    }
+                }
 
-			case JBinvokeinterface2:
-				bcIndex += 2;
-				continue;
+                /* finally continue at the default switch case */
+                bcIndex = bcStart + temp2;
+                continue;
 
-			case JBinvokehandle:
-			case JBinvokehandlegeneric:
-			case JBinvokevirtual:
-			case JBinvokespecial:
-			case JBinvokespecialsplit:
-			case JBinvokeinterface:
-				depth--;
-			case JBinvokedynamic:
-			case JBinvokestaticsplit:
-			case JBinvokestatic: {
-				index = PARAM_16(bcIndex, 1);
+            case 7: /* breakpoint */
+                /* Unexpected bytecode - unknown */
+                Trc_Map_fixReturns_UnknownBytecode(bc, pc);
+                return;
 
-				if (JBinvokestaticsplit == bc) {
-					index = *(U_16 *)(J9ROMCLASS_STATICSPLITMETHODREFINDEXES(romClass) + index);
-				} else if (JBinvokespecialsplit == bc) {
-					index = *(U_16 *)(J9ROMCLASS_SPECIALSPLITMETHODREFINDEXES(romClass) + index);
-				}
-				if (bc == JBinvokedynamic) {
-					/* TODO 3 byte index */
-					utf8Signature = (J9UTF8 *) (J9ROMNAMEANDSIGNATURE_SIGNATURE(SRP_PTR_GET(callSiteData + index, J9ROMNameAndSignature*)));
-				} else {
-					utf8Signature =
-							J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMMETHODREF_NAMEANDSIGNATURE
-													((J9ROMMethodRef *) (&(pool[index]))));
-				}
+            default:
+                bcIndex += (size & 7);
+                continue;
+            }
+        } else {
+            switch (bc) {
 
-				depth -= (UDATA) getSendSlotsFromSignature(J9UTF8_DATA(utf8Signature));
+            case JBdup2:
+            case JBdup2x1:
+            case JBdup2x2:
+                depth++; /* fall through case */
 
-				sigChar = J9UTF8_DATA(utf8Signature)[J9UTF8_LENGTH(utf8Signature) - 1];
-				if (sigChar != 'V') {
-					depth++;
-					if (((sigChar == 'J') || (sigChar == 'D')) &&
-							(J9UTF8_DATA(utf8Signature)[J9UTF8_LENGTH(utf8Signature) - 2] != '['))
-					{
-						depth++;
-					}
-				}
+            case JBldc:
+            case JBldcw:
+            case JBdup:
+            case JBdupx1:
+            case JBdupx2:
+                depth++; /* fall through case */
 
-				if (bc == JBinvokeinterface2) {
-					bcIndex -= 2;
-				}
-				break;
-			}
-			case JBmultianewarray:
-				index = PARAM_8(bcIndex, 3);
-				depth -= index;
-				depth++;
-				break;
+            case JBswap:
+                break;
 
-			}
-			bcIndex += (size & 7);
-			continue;
-		}
+            case JBgetfield:
+                depth--; /* fall through case */
 
-	  _nextRoot:
+            case JBgetstatic:
+                index = PARAM_16(bcIndex, 1);
+                utf8Signature
+                    = J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE((J9ROMFieldRef*)(&(pool[index]))));
+                sigChar = (U_8)J9UTF8_DATA(utf8Signature)[0];
+                depth += (UDATA)argCountCharConversion[sigChar - 'A'];
+                break;
 
-		if (pendingStacks == scratch) {
-			return;
-		}
+            case JBputfield:
+                depth--; /* fall through case !!! */
 
-		/* pop the next pending stack for walking */
-		depth = *(--pendingStacks);
-		bcIndex = bcStart + *(--pendingStacks);
-	}
-	Trc_Map_fixReturns_WalkOffEndOfBytecodeArray();
-	/* Fell off end of bytecode array - should never get here */
+            case JBputstatic:
+                index = PARAM_16(bcIndex, 1);
+                utf8Signature
+                    = J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE((J9ROMFieldRef*)(&(pool[index]))));
+                sigChar = (U_8)J9UTF8_DATA(utf8Signature)[0];
+                depth -= (UDATA)argCountCharConversion[sigChar - 'A'];
+                break;
+
+            case JBinvokeinterface2:
+                bcIndex += 2;
+                continue;
+
+            case JBinvokehandle:
+            case JBinvokehandlegeneric:
+            case JBinvokevirtual:
+            case JBinvokespecial:
+            case JBinvokespecialsplit:
+            case JBinvokeinterface:
+                depth--;
+            case JBinvokedynamic:
+            case JBinvokestaticsplit:
+            case JBinvokestatic: {
+                index = PARAM_16(bcIndex, 1);
+
+                if (JBinvokestaticsplit == bc) {
+                    index = *(U_16*)(J9ROMCLASS_STATICSPLITMETHODREFINDEXES(romClass) + index);
+                } else if (JBinvokespecialsplit == bc) {
+                    index = *(U_16*)(J9ROMCLASS_SPECIALSPLITMETHODREFINDEXES(romClass) + index);
+                }
+                if (bc == JBinvokedynamic) {
+                    /* TODO 3 byte index */
+                    utf8Signature = (J9UTF8*)(J9ROMNAMEANDSIGNATURE_SIGNATURE(
+                        SRP_PTR_GET(callSiteData + index, J9ROMNameAndSignature*)));
+                } else {
+                    utf8Signature = J9ROMNAMEANDSIGNATURE_SIGNATURE(
+                        J9ROMMETHODREF_NAMEANDSIGNATURE((J9ROMMethodRef*)(&(pool[index]))));
+                }
+
+                depth -= (UDATA)getSendSlotsFromSignature(J9UTF8_DATA(utf8Signature));
+
+                sigChar = J9UTF8_DATA(utf8Signature)[J9UTF8_LENGTH(utf8Signature) - 1];
+                if (sigChar != 'V') {
+                    depth++;
+                    if (((sigChar == 'J') || (sigChar == 'D'))
+                        && (J9UTF8_DATA(utf8Signature)[J9UTF8_LENGTH(utf8Signature) - 2] != '[')) {
+                        depth++;
+                    }
+                }
+
+                if (bc == JBinvokeinterface2) {
+                    bcIndex -= 2;
+                }
+                break;
+            }
+            case JBmultianewarray:
+                index = PARAM_8(bcIndex, 3);
+                depth -= index;
+                depth++;
+                break;
+            }
+            bcIndex += (size & 7);
+            continue;
+        }
+
+    _nextRoot:
+
+        if (pendingStacks == scratch) {
+            return;
+        }
+
+        /* pop the next pending stack for walking */
+        depth = *(--pendingStacks);
+        bcIndex = bcStart + *(--pendingStacks);
+    }
+    Trc_Map_fixReturns_WalkOffEndOfBytecodeArray();
+    /* Fell off end of bytecode array - should never get here */
 }
 
 #if 0 /* StackMapTable based fixreturns removed */

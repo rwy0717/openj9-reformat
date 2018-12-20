@@ -23,67 +23,62 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-jint JNICALL
-gctcti001(agentEnv * agent_env, char * args)
+jint JNICALL gctcti001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiCapabilities capabilities;
-	jvmtiError err;
-	
-	env = agent_env;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_get_current_thread_cpu_time = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		if (err == JVMTI_ERROR_NOT_AVAILABLE) { 
-			softError(env, err, "Failed to add capabilities. Expected to fail on Linux PPC32 and Linux S390.");
-			return JNI_OK;
-		} else {
-			error(env, err, "Failed to add capabilities.");
-			return JNI_ERR;				
-		}
-	}						
+    env = agent_env;
 
-	return JNI_OK;
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_get_current_thread_cpu_time = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        if (err == JVMTI_ERROR_NOT_AVAILABLE) {
+            softError(env, err, "Failed to add capabilities. Expected to fail on Linux PPC32 and Linux S390.");
+            return JNI_OK;
+        } else {
+            error(env, err, "Failed to add capabilities.");
+            return JNI_ERR;
+        }
+    }
+
+    return JNI_OK;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getCurrentThreadCpuTimerInfo_gctcti001_verifyTimerInfo(JNIEnv *jni_env, jclass cls)
+jboolean JNICALL Java_com_ibm_jvmti_tests_getCurrentThreadCpuTimerInfo_gctcti001_verifyTimerInfo(
+    JNIEnv* jni_env, jclass cls)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiTimerInfo info;
-	jvmtiError err;
-	
-	memset(&info, 0x00, sizeof(info));
-	
-	err = (*jvmti_env)->GetCurrentThreadCpuTimerInfo(jvmti_env, &info);
-	
-	if (info.max_value != ((jlong) - 1)) {
-		error(env, err, "incorrect info.max_value");
-		return JNI_FALSE; 	
-	}
-	
-	if (info.may_skip_forward != JNI_FALSE) {
-		error(env, err, "incorrect info.may_skip_forward");
-		return JNI_FALSE;	
-	}
-	
-	if (info.may_skip_backward != JNI_FALSE) {
-		error(env, err, "incorrect info.may_skip_backward");
-		return JNI_FALSE;	
-	}
-	
-	if (info.kind != JVMTI_TIMER_TOTAL_CPU) {
-		error(env, err, "incorrect info.kind");
-		return JNI_FALSE;	
-	}
-	
-	
-	
-	return JNI_TRUE;
-}
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiTimerInfo info;
+    jvmtiError err;
 
+    memset(&info, 0x00, sizeof(info));
+
+    err = (*jvmti_env)->GetCurrentThreadCpuTimerInfo(jvmti_env, &info);
+
+    if (info.max_value != ((jlong)-1)) {
+        error(env, err, "incorrect info.max_value");
+        return JNI_FALSE;
+    }
+
+    if (info.may_skip_forward != JNI_FALSE) {
+        error(env, err, "incorrect info.may_skip_forward");
+        return JNI_FALSE;
+    }
+
+    if (info.may_skip_backward != JNI_FALSE) {
+        error(env, err, "incorrect info.may_skip_backward");
+        return JNI_FALSE;
+    }
+
+    if (info.kind != JVMTI_TIMER_TOTAL_CPU) {
+        error(env, err, "incorrect info.kind");
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
+}

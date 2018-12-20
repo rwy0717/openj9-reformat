@@ -23,7 +23,7 @@
  * @file
  * @ingroup BCUtilTest
  * @brief Dynamic Loader testing
- * 
+ *
  * Definitions, types and functions common to Dynamic Loader test suites.
  */
 #include "j9cfg.h"
@@ -48,22 +48,24 @@ extern "C" {
 /** @} */
 
 /**
- * Save some typing, when displaying an error message need the 
+ * Save some typing, when displaying an error message need the
  * portlibrary, file name, line number and testname used
  */
 #define TEST_ERROR_ARGS PORTLIB, __FILE__, __LINE__, testName
 
 /* Forward declarations, not under doxygen control
  */
-void operationNotSupported(J9PortLibrary *portLibrary, const char *operationName);
-void reportTestEntry(J9PortLibrary *portLibrary, const char *testName);
-IDATA reportTestExit(J9PortLibrary *portLibrary, const char *testName);
-void outputComment(J9PortLibrary *portLibrary, const char *format, ...);
-void outputErrorMessage(J9PortLibrary *portLibrary, const char *fileName, I_32 lineNumber, const char* testName, const char *format, ...);
-void HEADING(J9PortLibrary *portLibrary, const char *string);
-UDATA verifyFileExists(struct J9PortLibrary *portLibrary, const char *pltestFileName, I_32 lineNumber, const char *testName, const char *fileName);
-void dumpTestFailuresToConsole(struct J9PortLibrary *portLibrary);
-void deleteControlDirectory(struct J9PortLibrary *portLibrary, char* baseDir);
+void operationNotSupported(J9PortLibrary* portLibrary, const char* operationName);
+void reportTestEntry(J9PortLibrary* portLibrary, const char* testName);
+IDATA reportTestExit(J9PortLibrary* portLibrary, const char* testName);
+void outputComment(J9PortLibrary* portLibrary, const char* format, ...);
+void outputErrorMessage(
+    J9PortLibrary* portLibrary, const char* fileName, I_32 lineNumber, const char* testName, const char* format, ...);
+void HEADING(J9PortLibrary* portLibrary, const char* string);
+UDATA verifyFileExists(struct J9PortLibrary* portLibrary, const char* pltestFileName, I_32 lineNumber,
+    const char* testName, const char* fileName);
+void dumpTestFailuresToConsole(struct J9PortLibrary* portLibrary);
+void deleteControlDirectory(struct J9PortLibrary* portLibrary, char* baseDir);
 
 #ifdef __cplusplus
 }

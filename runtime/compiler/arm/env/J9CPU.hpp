@@ -28,8 +28,14 @@
  */
 #ifndef J9_CPU_CONNECTOR
 #define J9_CPU_CONNECTOR
-namespace J9 { namespace ARM { class CPU; } }
-namespace J9 { typedef J9::ARM::CPU CPUConnector; }
+namespace J9 {
+namespace ARM {
+class CPU;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::ARM::CPU CPUConnector;
+}
 #else
 #error J9::ARM::CPU expected to be a primary connector, but a J9 connector is already defined
 #endif
@@ -43,36 +49,30 @@ extern "C" {
 
 #define PROCESSOR_FEATURES_SIZE 1
 typedef struct TR_ProcessorFeatureFlags {
-  uint32_t featureFlags[PROCESSOR_FEATURES_SIZE];
+    uint32_t featureFlags[PROCESSOR_FEATURES_SIZE];
 } TR_ProcessorFeatureFlags;
 
 #ifdef __cplusplus
 }
 #endif
 
-namespace J9
-{
+namespace J9 {
 
-namespace ARM 
-{
+namespace ARM {
 
-class CPU : public J9::CPU
-   {
+class CPU : public J9::CPU {
 protected:
-
-   CPU() :
-         J9::CPU()
-      {}
+    CPU()
+        : J9::CPU()
+    {}
 
 public:
+    TR_ProcessorFeatureFlags getProcessorFeatureFlags();
+    bool isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags);
+};
 
-   TR_ProcessorFeatureFlags getProcessorFeatureFlags();
-   bool isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags);
+} // namespace ARM
 
-   };
-
-}
-
-}
+} // namespace J9
 
 #endif

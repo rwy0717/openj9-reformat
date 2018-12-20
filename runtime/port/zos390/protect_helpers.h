@@ -29,6 +29,6 @@
  * @brief Helpers for protecting shared memory regions in the virtual address space (used by j9shmem).
  */
 
-intptr_t protect_memory(struct J9PortLibrary *portLibrary, void *address, uintptr_t length, uintptr_t flags);
-uintptr_t protect_region_granularity(struct J9PortLibrary *portLibrary, void *address);
+intptr_t protect_memory(struct J9PortLibrary* portLibrary, void* address, uintptr_t length, uintptr_t flags);
+uintptr_t protect_region_granularity(struct J9PortLibrary* portLibrary, void* address);
 #endif /* !defined(PROTECT_HELPERS_H) */

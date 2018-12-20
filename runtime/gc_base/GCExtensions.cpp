@@ -39,34 +39,32 @@
 #include "SublistPool.hpp"
 #include "Wildcard.hpp"
 
-MM_GCExtensions *
-MM_GCExtensions::newInstance(MM_EnvironmentBase *env)
+MM_GCExtensions* MM_GCExtensions::newInstance(MM_EnvironmentBase* env)
 {
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	MM_GCExtensions *extensions;
-	
-	/* Avoid using MM_Forge to allocate memory for the extension, since MM_Forge itself has not been created! */
-	extensions = static_cast<MM_GCExtensions*>(j9mem_allocate_memory(sizeof(MM_GCExtensions), OMRMEM_CATEGORY_MM));
-	if (extensions) {
-		/* Initialize all the fields to zero */
-		memset((void *)extensions, 0, sizeof(*extensions));
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    MM_GCExtensions* extensions;
 
-		new(extensions) MM_GCExtensions();
-		if (!extensions->initialize(env)) {
-			extensions->kill(env);
-			return NULL;
-		}
-	}
-	return extensions;
+    /* Avoid using MM_Forge to allocate memory for the extension, since MM_Forge itself has not been created! */
+    extensions = static_cast<MM_GCExtensions*>(j9mem_allocate_memory(sizeof(MM_GCExtensions), OMRMEM_CATEGORY_MM));
+    if (extensions) {
+        /* Initialize all the fields to zero */
+        memset((void*)extensions, 0, sizeof(*extensions));
+
+        new (extensions) MM_GCExtensions();
+        if (!extensions->initialize(env)) {
+            extensions->kill(env);
+            return NULL;
+        }
+    }
+    return extensions;
 }
 
-void
-MM_GCExtensions::kill(MM_EnvironmentBase *env)
+void MM_GCExtensions::kill(MM_EnvironmentBase* env)
 {
-	/* Avoid using MM_Forge to free memory for the extension, since MM_Forge was not used to allocate the memory */
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	tearDown(env);
-	j9mem_free_memory(this);
+    /* Avoid using MM_Forge to free memory for the extension, since MM_Forge was not used to allocate the memory */
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    tearDown(env);
+    j9mem_free_memory(this);
 }
 
 /**
@@ -76,187 +74,190 @@ MM_GCExtensions::kill(MM_EnvironmentBase *env)
  *
  * @return true if the initialization was successful, false otherwise.
  */
-bool
-MM_GCExtensions::initialize(MM_EnvironmentBase *env)
+bool MM_GCExtensions::initialize(MM_EnvironmentBase* env)
 {
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	if (!MM_GCExtensionsBase::initialize(env)) {
-		goto failed;
-	}
+    if (!MM_GCExtensionsBase::initialize(env)) {
+        goto failed;
+    }
 
 #if defined(J9VM_GC_REALTIME)
 #if defined(J9VM_GC_HYBRID_ARRAYLETS)
-	/* only ref slots, size in bytes: 2 * minObjectSize - header size */
-	minArraySizeToSetAsScanned = 2 * (1 << J9VMGC_SIZECLASSES_LOG_SMALLEST) - sizeof(J9IndexableObjectContiguous);
+    /* only ref slots, size in bytes: 2 * minObjectSize - header size */
+    minArraySizeToSetAsScanned = 2 * (1 << J9VMGC_SIZECLASSES_LOG_SMALLEST) - sizeof(J9IndexableObjectContiguous);
 #else /* J9VM_GC_HYBRID_ARRAYLETS */
-	/* only ref slots, size in bytes: 2 * minObjectSize - header size) - 1 * sizeof(arraylet pointer) */
-	minArraySizeToSetAsScanned = 2 * (1 << J9VMGC_SIZECLASSES_LOG_SMALLEST) - sizeof(J9IndexableObjectDiscontiguous) - sizeof(fj9object_t*);
+    /* only ref slots, size in bytes: 2 * minObjectSize - header size) - 1 * sizeof(arraylet pointer) */
+    minArraySizeToSetAsScanned
+        = 2 * (1 << J9VMGC_SIZECLASSES_LOG_SMALLEST) - sizeof(J9IndexableObjectDiscontiguous) - sizeof(fj9object_t*);
 #endif /* J9VM_GC_HYBRID_ARRAYLETS */
 
-	getJavaVM()->gcCycleOn = 0;
-	if (omrthread_monitor_init_with_name(&getJavaVM()->gcCycleOnMonitor, 0, "gcCycleOn")) {
-		goto failed;
-	}
+    getJavaVM()->gcCycleOn = 0;
+    if (omrthread_monitor_init_with_name(&getJavaVM()->gcCycleOnMonitor, 0, "gcCycleOn")) {
+        goto failed;
+    }
 #endif /* J9VM_GC_REALTIME */
 
 #if defined(J9VM_GC_JNI_ARRAY_CACHE)
-	getJavaVM()->jniArrayCacheMaxSize = J9_GC_JNI_ARRAY_CACHE_SIZE;
+    getJavaVM()->jniArrayCacheMaxSize = J9_GC_JNI_ARRAY_CACHE_SIZE;
 #endif /* J9VM_GC_JNI_ARRAY_CACHE */
 
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP)
-	getJavaVM()->gcInfo.tlhThreshold = J9_GC_TLH_THRESHOLD;
-	getJavaVM()->gcInfo.tlhSize = J9_GC_TLH_SIZE;
+    getJavaVM()->gcInfo.tlhThreshold = J9_GC_TLH_THRESHOLD;
+    getJavaVM()->gcInfo.tlhSize = J9_GC_TLH_SIZE;
 #endif /* J9VM_GC_THREAD_LOCAL_HEAP */
 
-	/* if tuned for virtualized environment, we compromise a bit of performance for lower footprint */
-	if (getJavaVM()->runtimeFlags & J9_RUNTIME_TUNE_VIRTUALIZED) {
-		heapFreeMinimumRatioMultiplier = 20;
-	}
+    /* if tuned for virtualized environment, we compromise a bit of performance for lower footprint */
+    if (getJavaVM()->runtimeFlags & J9_RUNTIME_TUNE_VIRTUALIZED) {
+        heapFreeMinimumRatioMultiplier = 20;
+    }
 
-	padToPageSize = J9_ARE_ALL_BITS_SET(getJavaVM()->runtimeFlags, J9_RUNTIME_AGGRESSIVE);
+    padToPageSize = J9_ARE_ALL_BITS_SET(getJavaVM()->runtimeFlags, J9_RUNTIME_AGGRESSIVE);
 
-	if (J9HookInitializeInterface(getHookInterface(), OMRPORT_FROM_J9PORT(PORTLIB), sizeof(hookInterface))) {
-		goto failed;
-	}
-	
-	initializeReferenceArrayCopyTable(&referenceArrayCopyTable);
-	
-	{
-		J9InternalVMFunctions const * const vmFuncs = getJavaVM()->internalVMFunctions;
-		_asyncCallbackKey = vmFuncs->J9RegisterAsyncEvent(getJavaVM(), memoryManagerAsyncCallbackHandler, getJavaVM());
-		_TLHAsyncCallbackKey = vmFuncs->J9RegisterAsyncEvent(getJavaVM(), memoryManagerTLHAsyncCallbackHandler, getJavaVM());
-		if ((_asyncCallbackKey < 0) || (_TLHAsyncCallbackKey < 0)) {
-			goto failed;
-		}
-	}
+    if (J9HookInitializeInterface(getHookInterface(), OMRPORT_FROM_J9PORT(PORTLIB), sizeof(hookInterface))) {
+        goto failed;
+    }
+
+    initializeReferenceArrayCopyTable(&referenceArrayCopyTable);
+
+    {
+        J9InternalVMFunctions const* const vmFuncs = getJavaVM()->internalVMFunctions;
+        _asyncCallbackKey = vmFuncs->J9RegisterAsyncEvent(getJavaVM(), memoryManagerAsyncCallbackHandler, getJavaVM());
+        _TLHAsyncCallbackKey
+            = vmFuncs->J9RegisterAsyncEvent(getJavaVM(), memoryManagerTLHAsyncCallbackHandler, getJavaVM());
+        if ((_asyncCallbackKey < 0) || (_TLHAsyncCallbackKey < 0)) {
+            goto failed;
+        }
+    }
 
 #if defined(J9VM_GC_IDLE_HEAP_MANAGER)
-	/* absorbs GC specific idle tuning flags */
-	if (J9_IDLE_TUNING_GC_ON_IDLE == (getJavaVM()->vmRuntimeStateListener.idleTuningFlags & J9_IDLE_TUNING_GC_ON_IDLE)) {
-		gcOnIdle = true;
-	}
-	if (J9_IDLE_TUNING_COMPACT_ON_IDLE == (getJavaVM()->vmRuntimeStateListener.idleTuningFlags & J9_IDLE_TUNING_COMPACT_ON_IDLE)) {
-		compactOnIdle = true;
-	}
-	idleMinimumFree = getJavaVM()->vmRuntimeStateListener.idleMinFreeHeap;
+    /* absorbs GC specific idle tuning flags */
+    if (J9_IDLE_TUNING_GC_ON_IDLE
+        == (getJavaVM()->vmRuntimeStateListener.idleTuningFlags & J9_IDLE_TUNING_GC_ON_IDLE)) {
+        gcOnIdle = true;
+    }
+    if (J9_IDLE_TUNING_COMPACT_ON_IDLE
+        == (getJavaVM()->vmRuntimeStateListener.idleTuningFlags & J9_IDLE_TUNING_COMPACT_ON_IDLE)) {
+        compactOnIdle = true;
+    }
+    idleMinimumFree = getJavaVM()->vmRuntimeStateListener.idleMinFreeHeap;
 #endif /* if defined(J9VM_GC_IDLE_HEAP_MANAGER) */
 
-	return true;
+    return true;
 
 failed:
-	tearDown(env);
-	return false;
+    tearDown(env);
+    return false;
 }
 
 /**
  * Tear down the global GC extensions structure and all sub structures.
  */
-void
-MM_GCExtensions::tearDown(MM_EnvironmentBase *env)
+void MM_GCExtensions::tearDown(MM_EnvironmentBase* env)
 {
-	J9InternalVMFunctions const * const vmFuncs = getJavaVM()->internalVMFunctions;
-	vmFuncs->J9UnregisterAsyncEvent(getJavaVM(), _TLHAsyncCallbackKey);
-	_TLHAsyncCallbackKey = -1;
-	vmFuncs->J9UnregisterAsyncEvent(getJavaVM(), _asyncCallbackKey);
-	_asyncCallbackKey = -1;
+    J9InternalVMFunctions const* const vmFuncs = getJavaVM()->internalVMFunctions;
+    vmFuncs->J9UnregisterAsyncEvent(getJavaVM(), _TLHAsyncCallbackKey);
+    _TLHAsyncCallbackKey = -1;
+    vmFuncs->J9UnregisterAsyncEvent(getJavaVM(), _asyncCallbackKey);
+    _asyncCallbackKey = -1;
 
 #if defined(J9VM_GC_REALTIME)
-	if (getJavaVM()->gcCycleOnMonitor) {
-		omrthread_monitor_destroy(getJavaVM()->gcCycleOnMonitor);
-		getJavaVM()->gcCycleOnMonitor = (omrthread_monitor_t) NULL;
-	}
+    if (getJavaVM()->gcCycleOnMonitor) {
+        omrthread_monitor_destroy(getJavaVM()->gcCycleOnMonitor);
+        getJavaVM()->gcCycleOnMonitor = (omrthread_monitor_t)NULL;
+    }
 #endif
 
 #if defined(J9VM_GC_MODRON_TRACE) && !defined(J9VM_GC_REALTIME)
-	tgcTearDownExtensions(getJavaVM());
+    tgcTearDownExtensions(getJavaVM());
 #endif /* J9VM_GC_MODRON_TRACE && !defined(J9VM_GC_REALTIME) */
 
-	MM_Wildcard *wildcard = numaCommonThreadClassNamePatterns;
-	while (NULL != wildcard) {
-		MM_Wildcard *nextWildcard = wildcard->_next;
-		wildcard->kill(this);
-		wildcard = nextWildcard;
-	}
-	numaCommonThreadClassNamePatterns = NULL;
-	
-	J9HookInterface** tmpHookInterface = getHookInterface();
-	if((NULL != tmpHookInterface) && (NULL != *tmpHookInterface)){
-		(*tmpHookInterface)->J9HookShutdownInterface(tmpHookInterface);
-		*tmpHookInterface = NULL; /* avoid issues with double teardowns */
-	}
+    MM_Wildcard* wildcard = numaCommonThreadClassNamePatterns;
+    while (NULL != wildcard) {
+        MM_Wildcard* nextWildcard = wildcard->_next;
+        wildcard->kill(this);
+        wildcard = nextWildcard;
+    }
+    numaCommonThreadClassNamePatterns = NULL;
 
-	MM_GCExtensionsBase::tearDown(env);
+    J9HookInterface** tmpHookInterface = getHookInterface();
+    if ((NULL != tmpHookInterface) && (NULL != *tmpHookInterface)) {
+        (*tmpHookInterface)->J9HookShutdownInterface(tmpHookInterface);
+        *tmpHookInterface = NULL; /* avoid issues with double teardowns */
+    }
+
+    MM_GCExtensionsBase::tearDown(env);
 }
 
-void
-MM_GCExtensions::identityHashDataAddRange(MM_EnvironmentBase *env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress)
+void MM_GCExtensions::identityHashDataAddRange(
+    MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress)
 {
-	J9IdentityHashData* hashData = getJavaVM()->identityHashData;
-	if (J9_IDENTITY_HASH_SALT_POLICY_STANDARD == hashData->hashSaltPolicy) {
-		if (MEMORY_TYPE_NEW == (subspace->getTypeFlags() & MEMORY_TYPE_NEW)) {
-			if ((UDATA)lowAddress < hashData->hashData1) {
-				hashData->hashData1 = (UDATA)lowAddress;
-			}
-			if ((UDATA)highAddress > hashData->hashData2) {
-				hashData->hashData2 = (UDATA)highAddress;
-			}
-		}
-	}
+    J9IdentityHashData* hashData = getJavaVM()->identityHashData;
+    if (J9_IDENTITY_HASH_SALT_POLICY_STANDARD == hashData->hashSaltPolicy) {
+        if (MEMORY_TYPE_NEW == (subspace->getTypeFlags() & MEMORY_TYPE_NEW)) {
+            if ((UDATA)lowAddress < hashData->hashData1) {
+                hashData->hashData1 = (UDATA)lowAddress;
+            }
+            if ((UDATA)highAddress > hashData->hashData2) {
+                hashData->hashData2 = (UDATA)highAddress;
+            }
+        }
+    }
 }
 
-void
-MM_GCExtensions::identityHashDataRemoveRange(MM_EnvironmentBase *env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress)
+void MM_GCExtensions::identityHashDataRemoveRange(
+    MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress)
 {
-	J9IdentityHashData* hashData = getJavaVM()->identityHashData;
-	if (J9_IDENTITY_HASH_SALT_POLICY_STANDARD == hashData->hashSaltPolicy) {
-		if (MEMORY_TYPE_NEW == (subspace->getTypeFlags() & MEMORY_TYPE_NEW)) {
-			if ((UDATA)lowAddress > hashData->hashData1) {
-				hashData->hashData1 = (UDATA)lowAddress;
-			}
-			if ((UDATA)highAddress < hashData->hashData2) {
-				hashData->hashData2 = (UDATA)highAddress;
-			}
-		}
-	}
+    J9IdentityHashData* hashData = getJavaVM()->identityHashData;
+    if (J9_IDENTITY_HASH_SALT_POLICY_STANDARD == hashData->hashSaltPolicy) {
+        if (MEMORY_TYPE_NEW == (subspace->getTypeFlags() & MEMORY_TYPE_NEW)) {
+            if ((UDATA)lowAddress > hashData->hashData1) {
+                hashData->hashData1 = (UDATA)lowAddress;
+            }
+            if ((UDATA)highAddress < hashData->hashData2) {
+                hashData->hashData2 = (UDATA)highAddress;
+            }
+        }
+    }
 }
 
-void
-MM_GCExtensions::updateIdentityHashDataForSaltIndex(UDATA index)
+void MM_GCExtensions::updateIdentityHashDataForSaltIndex(UDATA index)
 {
-	getJavaVM()->identityHashData->hashSaltTable[index] = (U_32)convertValueToHash(getJavaVM(), getJavaVM()->identityHashData->hashSaltTable[index]);
+    getJavaVM()->identityHashData->hashSaltTable[index]
+        = (U_32)convertValueToHash(getJavaVM(), getJavaVM()->identityHashData->hashSaltTable[index]);
 }
 
-void
-MM_GCExtensions::computeDefaultMaxHeap(MM_EnvironmentBase *env)
+void MM_GCExtensions::computeDefaultMaxHeap(MM_EnvironmentBase* env)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 
-	MM_GCExtensionsBase::computeDefaultMaxHeap(env);
+    MM_GCExtensionsBase::computeDefaultMaxHeap(env);
 
-	if (OMR_CGROUP_SUBSYSTEM_MEMORY == omrsysinfo_cgroup_are_subsystems_enabled(OMR_CGROUP_SUBSYSTEM_MEMORY)) {
-		if (omrsysinfo_cgroup_is_memlimit_set()) {
-			/* If running in a cgroup with memory limit > 1G, reserve at-least 512M for JVM's internal requirements
-			 * like JIT compilation etc, and extend default max heap memory to at-most 75% of cgroup limit.
-			 * The value reserved for JVM's internal requirements excludes heap. This value is a conservative
-			 * estimate of the JVM's internal requirements, given that one compilation thread can use up to 256M.
-			 */
+    if (OMR_CGROUP_SUBSYSTEM_MEMORY == omrsysinfo_cgroup_are_subsystems_enabled(OMR_CGROUP_SUBSYSTEM_MEMORY)) {
+        if (omrsysinfo_cgroup_is_memlimit_set()) {
+            /* If running in a cgroup with memory limit > 1G, reserve at-least 512M for JVM's internal requirements
+             * like JIT compilation etc, and extend default max heap memory to at-most 75% of cgroup limit.
+             * The value reserved for JVM's internal requirements excludes heap. This value is a conservative
+             * estimate of the JVM's internal requirements, given that one compilation thread can use up to 256M.
+             */
 #define OPENJ9_IN_CGROUP_NATIVE_FOOTPRINT_EXCLUDING_HEAP ((U_64)512 * 1024 * 1024)
-			memoryMax = (uintptr_t)OMR_MAX((int64_t)(usablePhysicalMemory / 2), (int64_t)(usablePhysicalMemory - OPENJ9_IN_CGROUP_NATIVE_FOOTPRINT_EXCLUDING_HEAP));
-			memoryMax = (uintptr_t)OMR_MIN(memoryMax, (usablePhysicalMemory / 4) * 3);
+            memoryMax = (uintptr_t)OMR_MAX((int64_t)(usablePhysicalMemory / 2),
+                (int64_t)(usablePhysicalMemory - OPENJ9_IN_CGROUP_NATIVE_FOOTPRINT_EXCLUDING_HEAP));
+            memoryMax = (uintptr_t)OMR_MIN(memoryMax, (usablePhysicalMemory / 4) * 3);
 #undef OPENJ9_IN_CGROUP_NATIVE_FOOTPRINT_EXCLUDING_HEAP
-		}
-	}
+        }
+    }
 
 #if defined(OMR_ENV_DATA64)
-	if (J2SE_VERSION((J9JavaVM *)getOmrVM()->_language_vm) >= J2SE_19) {
-		/* extend java default max memory to 25% of usable RAM */
-		memoryMax = OMR_MAX(memoryMax, usablePhysicalMemory / 4);
-	}
+    if (J2SE_VERSION((J9JavaVM*)getOmrVM()->_language_vm) >= J2SE_19) {
+        /* extend java default max memory to 25% of usable RAM */
+        memoryMax = OMR_MAX(memoryMax, usablePhysicalMemory / 4);
+    }
 
-	/* limit maxheapsize up to MAXIMUM_HEAP_SIZE_RECOMMENDED_FOR_3BIT_SHIFT_COMPRESSEDREFS, then can set 3bit compressedrefs as the default */
-	memoryMax = OMR_MIN(memoryMax, MAXIMUM_HEAP_SIZE_RECOMMENDED_FOR_3BIT_SHIFT_COMPRESSEDREFS);
+    /* limit maxheapsize up to MAXIMUM_HEAP_SIZE_RECOMMENDED_FOR_3BIT_SHIFT_COMPRESSEDREFS, then can set 3bit
+     * compressedrefs as the default */
+    memoryMax = OMR_MIN(memoryMax, MAXIMUM_HEAP_SIZE_RECOMMENDED_FOR_3BIT_SHIFT_COMPRESSEDREFS);
 #endif /* OMR_ENV_DATA64 */
 
-	memoryMax = MM_Math::roundToFloor(heapAlignment, memoryMax);
+    memoryMax = MM_Math::roundToFloor(heapAlignment, memoryMax);
 }

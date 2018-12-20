@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "gdb_plugin.h"
 #ifdef IBM_ATOE
 #include <atoe.h>
@@ -28,41 +27,19 @@
 
 #include "plugin-interface.h"
 
+void wrap_dbgext_j9help(char* args, int from_tty) { dbgext_j9help(args ? args : ""); }
 
-void
-wrap_dbgext_j9help(char *args, int from_tty)
-{
-	dbgext_j9help(args ? args : "" );
-}
+void wrap_dbgext_findvm(char* args, int from_tty) { dbgext_findvm(args ? args : ""); }
 
+void wrap_dbgext_trprint(char* args, int from_tty) { dbgext_trprint(args ? args : ""); }
 
-void
-wrap_dbgext_findvm(char *args, int from_tty)
-{
-	dbgext_findvm(args ? args : "" );
-}
+void wrap_dbgext_setvm(char* args, int from_tty) { dbgext_setvm(args ? args : ""); }
 
-
-void
-wrap_dbgext_trprint(char *args, int from_tty)
-{
-	dbgext_trprint(args ? args : "" );
-}
-
-
-void
-wrap_dbgext_setvm(char *args, int from_tty)
-{
-	dbgext_setvm(args ? args : "" );
-}
-
-
-void
-add_commands(struct plugin_service_ops *plugin_service)
+void add_commands(struct plugin_service_ops* plugin_service)
 {
 
-	plugin_service->add_command("j9help", class_plugin, wrap_dbgext_j9help, "j9help");
-	plugin_service->add_command("findvm", class_plugin, wrap_dbgext_findvm, "findvm");
-	plugin_service->add_command("trprint", class_plugin, wrap_dbgext_trprint, "trprint");
-	plugin_service->add_command("setvm", class_plugin, wrap_dbgext_setvm, "setvm");
+    plugin_service->add_command("j9help", class_plugin, wrap_dbgext_j9help, "j9help");
+    plugin_service->add_command("findvm", class_plugin, wrap_dbgext_findvm, "findvm");
+    plugin_service->add_command("trprint", class_plugin, wrap_dbgext_trprint, "trprint");
+    plugin_service->add_command("setvm", class_plugin, wrap_dbgext_setvm, "setvm");
 }

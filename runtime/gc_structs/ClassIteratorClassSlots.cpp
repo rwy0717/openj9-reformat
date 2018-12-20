@@ -35,47 +35,45 @@
  * @return the next slot in the class containing an object reference
  * @return NULL if there are no more such slots
  */
-J9Class **
-GC_ClassIteratorClassSlots::nextSlot()
+J9Class** GC_ClassIteratorClassSlots::nextSlot()
 {
-	J9Class **slotPtr;
+    J9Class** slotPtr;
 
-	switch(_state) {
-	case classiteratorclassslots_state_start:
-		_state += 1;
+    switch (_state) {
+    case classiteratorclassslots_state_start:
+        _state += 1;
 
-	case classiteratorclassslots_state_constant_pool:
-		slotPtr = _constantPoolClassSlotIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
-		_state += 1;
+    case classiteratorclassslots_state_constant_pool:
+        slotPtr = _constantPoolClassSlotIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
+        _state += 1;
 
-	case classiteratorclassslots_state_superclasses:
-		slotPtr = _classSuperclassesIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
-		_state += 1;
+    case classiteratorclassslots_state_superclasses:
+        slotPtr = _classSuperclassesIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
+        _state += 1;
 
-	case classiteratorclassslots_state_interfaces:
-		slotPtr = _classLocalInterfaceIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
-		_state += 1;
+    case classiteratorclassslots_state_interfaces:
+        slotPtr = _classLocalInterfaceIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
+        _state += 1;
 
-	case classiteratorclassslots_state_array_class_slots:
-		slotPtr = _classArrayClassSlotIterator.nextSlot();
-		if(NULL != slotPtr) {
-			return slotPtr;
-		}
-		_state += 1;
-		
-	default:
-		break;
-	}
+    case classiteratorclassslots_state_array_class_slots:
+        slotPtr = _classArrayClassSlotIterator.nextSlot();
+        if (NULL != slotPtr) {
+            return slotPtr;
+        }
+        _state += 1;
 
-	return NULL;
+    default:
+        break;
+    }
+
+    return NULL;
 }
-

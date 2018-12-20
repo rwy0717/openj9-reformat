@@ -40,4 +40,4 @@ IDATA testSCStoreTransaction(J9JavaVM* vm);
 } /*extern "C"*/
 #endif
 
-#endif  /*J9SC_STORE_TRANSACTION_TESTS_H_INCLUDED*/
+#endif /*J9SC_STORE_TRANSACTION_TESTS_H_INCLUDED*/

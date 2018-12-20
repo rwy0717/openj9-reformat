@@ -41,89 +41,89 @@
 
 #if defined(J9VM_GC_ARRAYLETS)
 
-
 /**
- * Iterate over all slots in a pointer array's inline leaf which contain an object reference (will iterate over nothing if the object is fully discontiguous)
+ * Iterate over all slots in a pointer array's inline leaf which contain an object reference (will iterate over nothing
+ * if the object is fully discontiguous)
  * @ingroup GC_Structs
  */
-class GC_PointerArrayletInlineLeafIterator
-{
-	/* Data Members */
+class GC_PointerArrayletInlineLeafIterator {
+    /* Data Members */
 private:
-	GC_SlotObject _slotObject;		/**< Create own SlotObject class to provide output */
+    GC_SlotObject _slotObject; /**< Create own SlotObject class to provide output */
 
-	UDATA _arrayletLeafSize; 		/* The size of an arraylet leaf */
-	UDATA _fobjectsPerLeaf; 		/* The number of fj9object_t's per leaf */
-	fj9object_t * _currentArrayletBaseAddress; /* The base address of the current arraylet */
-	UDATA _currentArrayletOffset; 	/* The offset to the _index'ed item from the currentArrayletBaseAddress */
-	UDATA _elementsStillToRead;		/**< The number of elements this iterator is still expecting to return */
-	J9JavaVM *_javaVM;				/**< The JavaVM */
+    UDATA _arrayletLeafSize; /* The size of an arraylet leaf */
+    UDATA _fobjectsPerLeaf; /* The number of fj9object_t's per leaf */
+    fj9object_t* _currentArrayletBaseAddress; /* The base address of the current arraylet */
+    UDATA _currentArrayletOffset; /* The offset to the _index'ed item from the currentArrayletBaseAddress */
+    UDATA _elementsStillToRead; /**< The number of elements this iterator is still expecting to return */
+    J9JavaVM* _javaVM; /**< The JavaVM */
 protected:
 public:
-
-	/* Member Functions */
+    /* Member Functions */
 private:
 protected:
 public:
-	MMINLINE void initialize(J9Object *objectPtr) {
-		MM_GCExtensionsBase *extensions = MM_GCExtensionsBase::getExtensions(_javaVM->omrVM);
+    MMINLINE void initialize(J9Object* objectPtr)
+    {
+        MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_javaVM->omrVM);
 
-		J9IndexableObject *arrayPtr = (J9IndexableObject *)objectPtr;
+        J9IndexableObject* arrayPtr = (J9IndexableObject*)objectPtr;
 
-		/* Set current and end scan pointers */
-		UDATA index = extensions->indexableObjectModel.getSizeInElements(arrayPtr);
-		if(0 == index) {
-			_currentArrayletOffset = 0;
-			_currentArrayletBaseAddress = NULL;
-			_elementsStillToRead = 0;
-		} else {
-			UDATA currentArrayletIndex = ((U_32)index-1) / _fobjectsPerLeaf; /* The index of the arraylet containing _index */
-			_currentArrayletOffset = ((U_32)index-1) % _fobjectsPerLeaf; /* The offset of _index in the current arraylet */
-	
-			fj9object_t *arrayoidPointer = extensions->indexableObjectModel.getArrayoidPointer(arrayPtr);
-			GC_SlotObject arrayletBaseSlotObject(_javaVM->omrVM, arrayoidPointer + currentArrayletIndex);
-			_currentArrayletBaseAddress = (fj9object_t *)arrayletBaseSlotObject.readReferenceFromSlot();
-			_elementsStillToRead = index % _fobjectsPerLeaf;
-		}
-	}
+        /* Set current and end scan pointers */
+        UDATA index = extensions->indexableObjectModel.getSizeInElements(arrayPtr);
+        if (0 == index) {
+            _currentArrayletOffset = 0;
+            _currentArrayletBaseAddress = NULL;
+            _elementsStillToRead = 0;
+        } else {
+            UDATA currentArrayletIndex
+                = ((U_32)index - 1) / _fobjectsPerLeaf; /* The index of the arraylet containing _index */
+            _currentArrayletOffset
+                = ((U_32)index - 1) % _fobjectsPerLeaf; /* The offset of _index in the current arraylet */
 
-	MMINLINE GC_SlotObject *nextSlot()
-	{
-		GC_SlotObject *slotObject = NULL;
-		
-		if (_elementsStillToRead > 0) {
-			_slotObject.writeAddressToSlot(_currentArrayletBaseAddress + _currentArrayletOffset);
+            fj9object_t* arrayoidPointer = extensions->indexableObjectModel.getArrayoidPointer(arrayPtr);
+            GC_SlotObject arrayletBaseSlotObject(_javaVM->omrVM, arrayoidPointer + currentArrayletIndex);
+            _currentArrayletBaseAddress = (fj9object_t*)arrayletBaseSlotObject.readReferenceFromSlot();
+            _elementsStillToRead = index % _fobjectsPerLeaf;
+        }
+    }
 
-			_elementsStillToRead -= 1;
-			_currentArrayletOffset -= 1;
+    MMINLINE GC_SlotObject* nextSlot()
+    {
+        GC_SlotObject* slotObject = NULL;
 
-			slotObject = &_slotObject;
-		}
-		return slotObject;
-}
+        if (_elementsStillToRead > 0) {
+            _slotObject.writeAddressToSlot(_currentArrayletBaseAddress + _currentArrayletOffset);
 
-	GC_PointerArrayletInlineLeafIterator(J9JavaVM *javaVM)
-		: _slotObject(GC_SlotObject(javaVM->omrVM, NULL))
-		, _javaVM(javaVM)
-	{
-		_arrayletLeafSize = _javaVM->arrayletLeafSize;
-		_fobjectsPerLeaf = _arrayletLeafSize/sizeof(fj9object_t);
-	}
+            _elementsStillToRead -= 1;
+            _currentArrayletOffset -= 1;
 
-	/**
-	 * @param objectPtr the array object to be processed
-	 */
-	GC_PointerArrayletInlineLeafIterator(J9JavaVM *javaVM, J9Object *objectPtr)
-		: _slotObject(GC_SlotObject(javaVM->omrVM, NULL))
-		, _javaVM(javaVM)
-	{
-		_arrayletLeafSize = _javaVM->arrayletLeafSize;
-		_fobjectsPerLeaf = _arrayletLeafSize/sizeof(fj9object_t);
-		initialize(objectPtr);
-	}
+            slotObject = &_slotObject;
+        }
+        return slotObject;
+    }
+
+    GC_PointerArrayletInlineLeafIterator(J9JavaVM* javaVM)
+        : _slotObject(GC_SlotObject(javaVM->omrVM, NULL))
+        , _javaVM(javaVM)
+    {
+        _arrayletLeafSize = _javaVM->arrayletLeafSize;
+        _fobjectsPerLeaf = _arrayletLeafSize / sizeof(fj9object_t);
+    }
+
+    /**
+     * @param objectPtr the array object to be processed
+     */
+    GC_PointerArrayletInlineLeafIterator(J9JavaVM* javaVM, J9Object* objectPtr)
+        : _slotObject(GC_SlotObject(javaVM->omrVM, NULL))
+        , _javaVM(javaVM)
+    {
+        _arrayletLeafSize = _javaVM->arrayletLeafSize;
+        _fobjectsPerLeaf = _arrayletLeafSize / sizeof(fj9object_t);
+        initialize(objectPtr);
+    }
 };
 
 #endif /* defined(J9VM_GC_ARRAYLETS) */
-
 
 #endif /* POINTERARRAYLETINLINELEAFITERATOR_HPP_ */

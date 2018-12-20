@@ -31,38 +31,40 @@
 extern "C" {
 
 /* java.lang.reflect.Array: private static native Object newArrayImpl(Class componentType, int dimension); */
-j9object_t JNICALL
-Fast_java_lang_reflect_Array_newArrayImpl(J9VMThread *currentThread, j9object_t clazz, jint dimension)
+j9object_t JNICALL Fast_java_lang_reflect_Array_newArrayImpl(
+    J9VMThread* currentThread, j9object_t clazz, jint dimension)
 {
-	MM_ObjectAllocationAPI objectAllocate(currentThread);
-	j9object_t array = NULL;
-	J9Class *arrayClass = NULL;
-	J9Class *componentType = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, clazz);
+    MM_ObjectAllocationAPI objectAllocate(currentThread);
+    j9object_t array = NULL;
+    J9Class* arrayClass = NULL;
+    J9Class* componentType = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, clazz);
 
-	if (J9ROMCLASS_IS_ARRAY(componentType->romClass) && ((((J9ArrayClass *)componentType)->arity + 1) > J9_ARRAY_DIMENSION_LIMIT)) {
-		/* The spec says to throw this exception if the number of dimensions is greater than J9_ARRAY_DIMENSION_LIMIT */
-		setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
-		goto done;
-	}
+    if (J9ROMCLASS_IS_ARRAY(componentType->romClass)
+        && ((((J9ArrayClass*)componentType)->arity + 1) > J9_ARRAY_DIMENSION_LIMIT)) {
+        /* The spec says to throw this exception if the number of dimensions is greater than J9_ARRAY_DIMENSION_LIMIT */
+        setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
+        goto done;
+    }
 
-	arrayClass = componentType->arrayClass;
-	if (NULL == arrayClass) {
-		J9ROMImageHeader *romHeader = currentThread->javaVM->arrayROMClasses;
-		Assert_VM_false(J9ROMCLASS_IS_PRIMITIVE_TYPE(componentType->romClass));
-		arrayClass = internalCreateArrayClass(currentThread, (J9ROMArrayClass*)J9ROMIMAGEHEADER_FIRSTCLASS(romHeader), componentType);
-		if (VM_VMHelpers::exceptionPending(currentThread)) {
-			goto done;
-		}
-	}
+    arrayClass = componentType->arrayClass;
+    if (NULL == arrayClass) {
+        J9ROMImageHeader* romHeader = currentThread->javaVM->arrayROMClasses;
+        Assert_VM_false(J9ROMCLASS_IS_PRIMITIVE_TYPE(componentType->romClass));
+        arrayClass = internalCreateArrayClass(
+            currentThread, (J9ROMArrayClass*)J9ROMIMAGEHEADER_FIRSTCLASS(romHeader), componentType);
+        if (VM_VMHelpers::exceptionPending(currentThread)) {
+            goto done;
+        }
+    }
 
-	array = VM_VMHelpers::allocateIndexableObject(currentThread, &objectAllocate, arrayClass, dimension, true, false, false);
+    array = VM_VMHelpers::allocateIndexableObject(
+        currentThread, &objectAllocate, arrayClass, dimension, true, false, false);
 done:
-	return array;
+    return array;
 }
 
 J9_FAST_JNI_METHOD_TABLE(java_lang_reflect_Array)
-	J9_FAST_JNI_METHOD("newArrayImpl", "(Ljava/lang/Class;I)Ljava/lang/Object;", Fast_java_lang_reflect_Array_newArrayImpl,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS | J9_FAST_JNI_DO_NOT_PASS_RECEIVER)
+J9_FAST_JNI_METHOD("newArrayImpl", "(Ljava/lang/Class;I)Ljava/lang/Object;", Fast_java_lang_reflect_Array_newArrayImpl,
+    J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS | J9_FAST_JNI_DO_NOT_PASS_RECEIVER)
 J9_FAST_JNI_METHOD_TABLE_END
-
 }

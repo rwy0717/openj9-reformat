@@ -35,28 +35,23 @@ extern "C" {
 
 #include "romcookie.h"
 
-extern J9PortLibrary *cTestPortLib;
+extern J9PortLibrary* cTestPortLib;
 extern UDATA passCount, failCount;
 
-#define j9_assume(val1, val2) \
-	do { \
-		if (val1 != val2) { \
-			J9PortLibrary *privatePortLibrary = cTestPortLib; \
-			failCount++; \
-			j9tty_printf(cTestPortLib, "%d: FAIL -> %s == %s (%d == %d)\n", \
-				failCount + passCount, \
-				#val1, \
-				#val2, \
-				val1, \
-				val2); \
-		} else { \
-			passCount++; \
-		} \
-	} while (0)
+#define j9_assume(val1, val2)                                                                                        \
+    do {                                                                                                             \
+        if (val1 != val2) {                                                                                          \
+            J9PortLibrary* privatePortLibrary = cTestPortLib;                                                        \
+            failCount++;                                                                                             \
+            j9tty_printf(                                                                                            \
+                cTestPortLib, "%d: FAIL -> %s == %s (%d == %d)\n", failCount + passCount, #val1, #val2, val1, val2); \
+        } else {                                                                                                     \
+            passCount++;                                                                                             \
+        }                                                                                                            \
+    } while (0)
 
 #ifdef __cplusplus
- }
+}
 #endif
-
 
 #endif /* ctest_h */

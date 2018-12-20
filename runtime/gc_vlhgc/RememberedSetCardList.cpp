@@ -25,149 +25,139 @@
 #include "VMThreadListIterator.hpp"
 #include "InterRegionRememberedSet.hpp"
 
-bool
-MM_RememberedSetCardList::initialize(MM_EnvironmentVLHGC *env, UDATA index)
+bool MM_RememberedSetCardList::initialize(MM_EnvironmentVLHGC* env, UDATA index)
 {
-	_index = index;
-	MM_RememberedSetCardBucket *bucket = &(env->_rememberedSetCardBucketPool[_index]);
-	new(bucket) MM_RememberedSetCardBucket();
-	bucket->initialize(env, this, _bucketListHead);
-	_bucketListHead = bucket;
+    _index = index;
+    MM_RememberedSetCardBucket* bucket = &(env->_rememberedSetCardBucketPool[_index]);
+    new (bucket) MM_RememberedSetCardBucket();
+    bucket->initialize(env, this, _bucketListHead);
+    _bucketListHead = bucket;
 
-	return true;
+    return true;
 }
 
-void
-MM_RememberedSetCardList::tearDown(MM_GCExtensions *extensions)
+void MM_RememberedSetCardList::tearDown(MM_GCExtensions* extensions)
 {
-	MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-	while (NULL != currentBucket) {
-		currentBucket->tearDown(extensions);
-		currentBucket = currentBucket->_next;
-	}
+    MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+    while (NULL != currentBucket) {
+        currentBucket->tearDown(extensions);
+        currentBucket = currentBucket->_next;
+    }
 }
 
-bool
-MM_RememberedSetCardList::isEmpty(MM_EnvironmentVLHGC *env)
+bool MM_RememberedSetCardList::isEmpty(MM_EnvironmentVLHGC* env)
 {
-	bool empty = true;
+    bool empty = true;
 
-	if (TRUE == _overflowed) {
-		empty = false;
-	} else {
-		if (0 != _bufferCount) {
-			empty = false;
-		} else {
-			MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-			while (NULL != currentBucket) {
-				if (!currentBucket->isEmpty(env)) {
-					empty = false;
-					break;
-				}
-				currentBucket = currentBucket->_next;
-			}
-		}
+    if (TRUE == _overflowed) {
+        empty = false;
+    } else {
+        if (0 != _bufferCount) {
+            empty = false;
+        } else {
+            MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+            while (NULL != currentBucket) {
+                if (!currentBucket->isEmpty(env)) {
+                    empty = false;
+                    break;
+                }
+                currentBucket = currentBucket->_next;
+            }
+        }
 
-		/* If it is empty, the size must be 0 */
-		Assert_MM_true(empty == (0 == getSize(env)));
-	}
+        /* If it is empty, the size must be 0 */
+        Assert_MM_true(empty == (0 == getSize(env)));
+    }
 
-	return empty;
+    return empty;
 }
-
 
 UDATA
-MM_RememberedSetCardList::getSize(MM_EnvironmentVLHGC *env)
+MM_RememberedSetCardList::getSize(MM_EnvironmentVLHGC* env)
 {
-	UDATA size = 0;
-	UDATA checkBufferCount = 0; /* used to validate the consistency of _bufferCount */
-	
-	MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-	while (NULL != currentBucket) {
-		size += currentBucket->getSize(env);
-		checkBufferCount += currentBucket->getBufferCount(env);
-		currentBucket = currentBucket->_next;
-	}
+    UDATA size = 0;
+    UDATA checkBufferCount = 0; /* used to validate the consistency of _bufferCount */
 
-	Assert_MM_true(_bufferCount == checkBufferCount);
-	
-	return size;
+    MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+    while (NULL != currentBucket) {
+        size += currentBucket->getSize(env);
+        checkBufferCount += currentBucket->getBufferCount(env);
+        currentBucket = currentBucket->_next;
+    }
+
+    Assert_MM_true(_bufferCount == checkBufferCount);
+
+    return size;
 }
 
-void
-MM_RememberedSetCardList::releaseBuffers(MM_EnvironmentVLHGC *env)
+void MM_RememberedSetCardList::releaseBuffers(MM_EnvironmentVLHGC* env)
 {
-	if (0 != _bufferCount) {
-		MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-		while (NULL != currentBucket) {
-			currentBucket->localReleaseBuffers(env);
-			currentBucket = currentBucket->_next;
-		}
-	}
+    if (0 != _bufferCount) {
+        MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+        while (NULL != currentBucket) {
+            currentBucket->localReleaseBuffers(env);
+            currentBucket = currentBucket->_next;
+        }
+    }
 
-	Assert_MM_true(0 == _bufferCount);
+    Assert_MM_true(0 == _bufferCount);
 }
 
-void
-MM_RememberedSetCardList::releaseBuffersForCurrentThread(MM_EnvironmentVLHGC *env)
+void MM_RememberedSetCardList::releaseBuffersForCurrentThread(MM_EnvironmentVLHGC* env)
 {
-	MM_RememberedSetCardBucket *currentBucket = mapToBucket(env);
-	currentBucket->globalReleaseBuffers(env);
+    MM_RememberedSetCardBucket* currentBucket = mapToBucket(env);
+    currentBucket->globalReleaseBuffers(env);
 }
 
-void
-MM_RememberedSetCardList::clear(MM_EnvironmentVLHGC *env)
+void MM_RememberedSetCardList::clear(MM_EnvironmentVLHGC* env)
 {
-	releaseBuffers(env);
-	_overflowed = FALSE;
-	_stable = false;
+    releaseBuffers(env);
+    _overflowed = FALSE;
+    _stable = false;
 }
 
-void
-MM_RememberedSetCardList::add(MM_EnvironmentVLHGC *env, J9Object *object)
+void MM_RememberedSetCardList::add(MM_EnvironmentVLHGC* env, J9Object* object)
 {
-	MM_InterRegionRememberedSet *interRegionRememberedSet = MM_GCExtensions::getExtensions(env)->interRegionRememberedSet;
-	MM_RememberedSetCard card = interRegionRememberedSet->getRememberedSetCardFromJ9Object(object);
-	MM_RememberedSetCardBucket *bucket = mapToBucket(env);
-	bucket->add(env, card);
-
+    MM_InterRegionRememberedSet* interRegionRememberedSet
+        = MM_GCExtensions::getExtensions(env)->interRegionRememberedSet;
+    MM_RememberedSetCard card = interRegionRememberedSet->getRememberedSetCardFromJ9Object(object);
+    MM_RememberedSetCardBucket* bucket = mapToBucket(env);
+    bucket->add(env, card);
 }
 
-bool
-MM_RememberedSetCardList::isRemembered(MM_EnvironmentVLHGC *env, MM_RememberedSetCard card)
+bool MM_RememberedSetCardList::isRemembered(MM_EnvironmentVLHGC* env, MM_RememberedSetCard card)
 {
-	Assert_MM_true(FALSE == _overflowed);
-	
-	MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-	while (NULL != currentBucket) {
-		if (currentBucket->isRemembered(env, card)) {
-			return true;
-		}
-		currentBucket = currentBucket->_next;
-	}
+    Assert_MM_true(FALSE == _overflowed);
 
-	return false;
+    MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+    while (NULL != currentBucket) {
+        if (currentBucket->isRemembered(env, card)) {
+            return true;
+        }
+        currentBucket = currentBucket->_next;
+    }
+
+    return false;
 }
 
-bool
-MM_RememberedSetCardList::isRemembered(MM_EnvironmentVLHGC *env, J9Object *object)
+bool MM_RememberedSetCardList::isRemembered(MM_EnvironmentVLHGC* env, J9Object* object)
 {
-	MM_InterRegionRememberedSet *interRegionRememberedSet = MM_GCExtensions::getExtensions(env)->interRegionRememberedSet;
-	return isRemembered(env, interRegionRememberedSet->getRememberedSetCardFromJ9Object(object));
+    MM_InterRegionRememberedSet* interRegionRememberedSet
+        = MM_GCExtensions::getExtensions(env)->interRegionRememberedSet;
+    return isRemembered(env, interRegionRememberedSet->getRememberedSetCardFromJ9Object(object));
 }
 
-void
-MM_RememberedSetCardList::compact(MM_EnvironmentVLHGC *env)
+void MM_RememberedSetCardList::compact(MM_EnvironmentVLHGC* env)
 {
-	Assert_MM_true(FALSE == _overflowed);
-	UDATA checkBufferCount = 0; /* used to validate the consistency of _bufferCount */
+    Assert_MM_true(FALSE == _overflowed);
+    UDATA checkBufferCount = 0; /* used to validate the consistency of _bufferCount */
 
-	MM_RememberedSetCardBucket *currentBucket = _bucketListHead;
-	while (NULL != currentBucket) {
-		currentBucket->compact(env);
-		checkBufferCount += currentBucket->getBufferCount(env);
-		currentBucket = currentBucket->_next;
-	}
-	
-	Assert_MM_true(_bufferCount == checkBufferCount);
+    MM_RememberedSetCardBucket* currentBucket = _bucketListHead;
+    while (NULL != currentBucket) {
+        currentBucket->compact(env);
+        checkBufferCount += currentBucket->getBufferCount(env);
+        currentBucket = currentBucket->_next;
+    }
+
+    Assert_MM_true(_bufferCount == checkBufferCount);
 }

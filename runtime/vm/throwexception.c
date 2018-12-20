@@ -23,30 +23,27 @@
 #include "j9.h"
 
 /**
-  * Throw java.lang.OutOfMemoryError
-  */
-void
-throwNativeOOMError(JNIEnv *env, U_32 moduleName, U_32 messageNumber)
+ * Throw java.lang.OutOfMemoryError
+ */
+void throwNativeOOMError(JNIEnv* env, U_32 moduleName, U_32 messageNumber)
 {
-	J9VMThread *currentThread = (J9VMThread *)env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-	vmFuncs->setNativeOutOfMemoryError(currentThread, moduleName, messageNumber);
-	vmFuncs->internalReleaseVMAccess(currentThread);
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+    vmFuncs->setNativeOutOfMemoryError(currentThread, moduleName, messageNumber);
+    vmFuncs->internalReleaseVMAccess(currentThread);
 }
 
-
 /**
-  * Throw java.io.IOException with the message provided
-  */
-void
-throwNewJavaIoIOException(JNIEnv *env, const char *message)
+ * Throw java.io.IOException with the message provided
+ */
+void throwNewJavaIoIOException(JNIEnv* env, const char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/io/IOException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/io/IOException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }

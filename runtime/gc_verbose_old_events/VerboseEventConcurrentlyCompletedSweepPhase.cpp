@@ -33,24 +33,24 @@
  * Create an new instance of a MM_VerboseEventGlobalGCEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventConcurrentlyCompletedSweepPhase::newInstance(MM_ConcurrentlyCompletedSweepPhase *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventConcurrentlyCompletedSweepPhase::newInstance(
+    MM_ConcurrentlyCompletedSweepPhase* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventConcurrentlyCompletedSweepPhase *eventObject;
-	
-	eventObject = (MM_VerboseEventConcurrentlyCompletedSweepPhase *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventConcurrentlyCompletedSweepPhase));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventConcurrentlyCompletedSweepPhase(event, hookInterface);
-		eventObject->initialize();
-	}
-	return eventObject;
+    MM_VerboseEventConcurrentlyCompletedSweepPhase* eventObject;
+
+    eventObject = (MM_VerboseEventConcurrentlyCompletedSweepPhase*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventConcurrentlyCompletedSweepPhase));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventConcurrentlyCompletedSweepPhase(event, hookInterface);
+        eventObject->initialize();
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventConcurrentlyCompletedSweepPhase::initialize(void)
+void MM_VerboseEventConcurrentlyCompletedSweepPhase::initialize(void)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	_timeInMilliSeconds = omrtime_current_time_millis();
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    _timeInMilliSeconds = omrtime_current_time_millis();
 }
 
 /**
@@ -58,36 +58,31 @@ MM_VerboseEventConcurrentlyCompletedSweepPhase::initialize(void)
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventConcurrentlyCompletedSweepPhase::consumeEvents(void)
-{
-}
+void MM_VerboseEventConcurrentlyCompletedSweepPhase::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventConcurrentlyCompletedSweepPhase::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventConcurrentlyCompletedSweepPhase::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	char timestamp[32];
-	UDATA indentLevel = _manager->getIndentLevel();
-	
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<con event=\"completed sweep\" timestamp=\"%s\">", timestamp);
-	
-	_manager->incrementIndent();
-	indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<stats bytes=\"%zu\" time=\"%llu.%03.3llu\" />",
-		_bytesSwept,
-		_timeElapsed / 1000,
-		_timeElapsed % 1000);
-	
-	_manager->decrementIndent();
-	indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    char timestamp[32];
+    UDATA indentLevel = _manager->getIndentLevel();
+
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<con event=\"completed sweep\" timestamp=\"%s\">", timestamp);
+
+    _manager->incrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<stats bytes=\"%zu\" time=\"%llu.%03.3llu\" />", _bytesSwept, _timeElapsed / 1000, _timeElapsed % 1000);
+
+    _manager->decrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }

@@ -29,7 +29,6 @@
 #if !defined(TGCWRITEONCECOMPACTION_HPP_)
 #define TGCWRITEONCECOMPACTION_HPP_
 
-bool tgcWriteOnceCompactionInitialize(J9JavaVM *javaVM);
+bool tgcWriteOnceCompactionInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCWRITEONCECOMPACTION_HPP_ */
-

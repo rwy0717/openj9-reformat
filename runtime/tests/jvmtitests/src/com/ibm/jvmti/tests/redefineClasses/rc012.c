@@ -23,82 +23,80 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-
-jint JNICALL
-rc012(agentEnv * agent_env, char * args)
+jint JNICALL rc012(agentEnv* agent_env, char* args)
 {
-	jvmtiError err;
-	jvmtiCapabilities capabilities;
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    jvmtiCapabilities capabilities;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env; 
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_redefine_classes = 1;	
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to AddCapabilities");
-		return JNI_ERR;
-	}
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_redefine_classes = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to AddCapabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_redefineClasses_rc012_redefineClass(JNIEnv * jni_env, jclass klass, jclass originalClass, jint classBytesSize, jbyteArray classBytes)
+jboolean JNICALL Java_com_ibm_jvmti_tests_redefineClasses_rc012_redefineClass(
+    JNIEnv* jni_env, jclass klass, jclass originalClass, jint classBytesSize, jbyteArray classBytes)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jbyte * class_bytes;
-	char * classFileName = env->testArgs;
-	jvmtiClassDefinition classdef;
-	jvmtiError err; 
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jbyte* class_bytes;
+    char* classFileName = env->testArgs;
+    jvmtiClassDefinition classdef;
+    jvmtiError err;
 
-	err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize, (unsigned char **) &class_bytes);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Unable to allocate temp buffer for the class file");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize, (unsigned char**)&class_bytes);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Unable to allocate temp buffer for the class file");
+        return JNI_FALSE;
+    }
 
-	(*jni_env)->GetByteArrayRegion(jni_env, classBytes, 0, classBytesSize, class_bytes); 
+    (*jni_env)->GetByteArrayRegion(jni_env, classBytes, 0, classBytesSize, class_bytes);
 
-	classdef.class_bytes = (unsigned char *) class_bytes;
-	classdef.class_byte_count = classBytesSize;
-	classdef.klass = originalClass;
-	
-	err = (*jvmti_env)->RedefineClasses(jvmti_env, 1, &classdef);
-	(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *) class_bytes);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "RedefineClasses failed");
-		return JNI_FALSE;
-	}
+    classdef.class_bytes = (unsigned char*)class_bytes;
+    classdef.class_byte_count = classBytesSize;
+    classdef.klass = originalClass;
 
-	return JNI_TRUE;
+    err = (*jvmti_env)->RedefineClasses(jvmti_env, 1, &classdef);
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)class_bytes);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "RedefineClasses failed");
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
 }
 
-jstring JNICALL
-Java_com_ibm_jvmti_tests_redefineClasses_rc012_1testRedefineRunningNativeMethod_1O1_meth1(JNIEnv * jni_env, jobject instance)
+jstring JNICALL Java_com_ibm_jvmti_tests_redefineClasses_rc012_1testRedefineRunningNativeMethod_1O1_meth1(
+    JNIEnv* jni_env, jobject instance)
 {
-	jclass klass;
-	jmethodID method;
-	jobject result = NULL;
+    jclass klass;
+    jmethodID method;
+    jobject result = NULL;
 
-	klass = (*jni_env)->FindClass(jni_env, "com/ibm/jvmti/tests/redefineClasses/rc012_testRedefineRunningNativeMethod_O1");
-	if (NULL != klass) {
-		method = (*jni_env)->GetMethodID(jni_env, klass, "meth3", "()Ljava/lang/String;");
-		if (NULL != method) {
-			result = (*jni_env)->CallObjectMethod(jni_env, instance, method);
-			if (NULL != result) {
-				return result;
-			}
-		}
-		method = (*jni_env)->GetMethodID(jni_env, klass, "meth2", "()Ljava/lang/String;");
-		if (NULL != method) {
-			result = (*jni_env)->CallObjectMethod(jni_env, instance, method);
-		}
-	}
+    klass = (*jni_env)->FindClass(
+        jni_env, "com/ibm/jvmti/tests/redefineClasses/rc012_testRedefineRunningNativeMethod_O1");
+    if (NULL != klass) {
+        method = (*jni_env)->GetMethodID(jni_env, klass, "meth3", "()Ljava/lang/String;");
+        if (NULL != method) {
+            result = (*jni_env)->CallObjectMethod(jni_env, instance, method);
+            if (NULL != result) {
+                return result;
+            }
+        }
+        method = (*jni_env)->GetMethodID(jni_env, klass, "meth2", "()Ljava/lang/String;");
+        if (NULL != method) {
+            result = (*jni_env)->CallObjectMethod(jni_env, instance, method);
+        }
+    }
 
-	return result;
+    return result;
 }
-

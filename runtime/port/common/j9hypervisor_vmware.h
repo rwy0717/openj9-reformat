@@ -29,7 +29,6 @@
 #ifndef J9HYPERVISOR_VMWARE_H_
 #define J9HYPERVISOR_VMWARE_H_
 
-intptr_t
-vmware_startup(struct J9PortLibrary *portLibrary);
+intptr_t vmware_startup(struct J9PortLibrary* portLibrary);
 
 #endif

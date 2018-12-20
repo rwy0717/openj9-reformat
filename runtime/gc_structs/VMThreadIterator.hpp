@@ -37,73 +37,61 @@
 #include "VMThreadMonitorRecordSlotIterator.hpp"
 #endif
 
-
 /**
  * State constants representing the current stage of the iteration process
  * @anchor VMThreadIteratorState
  */
 enum {
-	vmthreaditerator_state_start = 0,
-	vmthreaditerator_state_slots,
-	vmthreaditerator_state_jni_slots,
+    vmthreaditerator_state_start = 0,
+    vmthreaditerator_state_slots,
+    vmthreaditerator_state_jni_slots,
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
-	vmthreaditerator_state_monitor_records,
+    vmthreaditerator_state_monitor_records,
 #endif
-	vmthreaditerator_state_end
+    vmthreaditerator_state_end
 };
-
 
 /**
  * Iterate over slots in a VM thread which contain object refereces.
- * Internally, uses GC_VMThreadSlotIterator, GC_VMThreadJNISlotIterator, and 
+ * Internally, uses GC_VMThreadSlotIterator, GC_VMThreadJNISlotIterator, and
  * GC_VMThreadMonitorRecordSlotIterator on the given thread.
  * @note Does not include references on the thread's stack (see GC_VMThreadStackSlotIterator)
  * @ingroup GC_Structs
  */
-class GC_VMThreadIterator
-{
-	J9VMThread *_vmThread;
-	int _state;
+class GC_VMThreadIterator {
+    J9VMThread* _vmThread;
+    int _state;
 
-	GC_VMThreadSlotIterator _threadSlotIterator;
-	GC_VMThreadJNISlotIterator _jniSlotIterator;
+    GC_VMThreadSlotIterator _threadSlotIterator;
+    GC_VMThreadJNISlotIterator _jniSlotIterator;
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
-	GC_VMThreadMonitorRecordSlotIterator _monitorRecordSlotIterator;
+    GC_VMThreadMonitorRecordSlotIterator _monitorRecordSlotIterator;
 #endif
 
 public:
-	GC_VMThreadIterator(J9VMThread *vmThread) :
-		_vmThread(vmThread),
-		_state(vmthreaditerator_state_start),
-		_threadSlotIterator(_vmThread),
-		_jniSlotIterator(vmThread)
+    GC_VMThreadIterator(J9VMThread* vmThread)
+        : _vmThread(vmThread)
+        , _state(vmthreaditerator_state_start)
+        , _threadSlotIterator(_vmThread)
+        , _jniSlotIterator(vmThread)
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
-		, _monitorRecordSlotIterator(_vmThread)
+        , _monitorRecordSlotIterator(_vmThread)
 #endif
-		{};
+              {};
 
-	/**
-	 * @return @ref VMThreadIteratorState representing the current state (stage
-	 * of the iteration process)
-	 */
-	MMINLINE int 
-	getState() 
-	{ 
-		return _state; 
-	}
+    /**
+     * @return @ref VMThreadIteratorState representing the current state (stage
+     * of the iteration process)
+     */
+    MMINLINE int getState() { return _state; }
 
-	/**
-	 * Get the J9VMThread * for the thread being iterated
-	 * @return _vmThread - the J9VMThread being iterated.
-	 */
-	MMINLINE J9VMThread *
-	getVMThread()
-	{
-		return _vmThread;
-	}
+    /**
+     * Get the J9VMThread * for the thread being iterated
+     * @return _vmThread - the J9VMThread being iterated.
+     */
+    MMINLINE J9VMThread* getVMThread() { return _vmThread; }
 
-	j9object_t *nextSlot();
+    j9object_t* nextSlot();
 };
 
 #endif /* VMTHREADITERATOR_HPP_ */
-

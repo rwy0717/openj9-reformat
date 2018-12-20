@@ -22,33 +22,14 @@
 
 #include "j9comp.h"
 
-I_32 k8sdiv(I_32 a, I_32 b)
-{
-	return(a / b);
-}
+I_32 k8sdiv(I_32 a, I_32 b) { return (a / b); }
 
-I_32 k8srem( I_32 a, I_32 b)
-{
-	return(a % b);
-}
+I_32 k8srem(I_32 a, I_32 b) { return (a % b); }
 
-U_32 k8udiv(U_32 a, U_32 b)
-{
-	return(a / b);
-}
+U_32 k8udiv(U_32 a, U_32 b) { return (a / b); }
 
-U_32 k8urem(U_32 a, U_32 b)
-{
-	return(a % b);
-}
+U_32 k8urem(U_32 a, U_32 b) { return (a % b); }
 
-I_32 k8smul(I_32 a, I_32 b)
-{
-	return(a * b);
-}
+I_32 k8smul(I_32 a, I_32 b) { return (a * b); }
 
-U_32 k8umul(U_32 a, U_32 b)
-{
-	return(a * b);
-}
-
+U_32 k8umul(U_32 a, U_32 b) { return (a * b); }

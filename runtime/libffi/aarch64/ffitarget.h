@@ -30,13 +30,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 typedef unsigned long ffi_arg;
 typedef signed long ffi_sarg;
 
-typedef enum ffi_abi
-  {
-    FFI_FIRST_ABI = 0,
-    FFI_SYSV,
-    FFI_LAST_ABI,
-    FFI_DEFAULT_ABI = FFI_SYSV
-  } ffi_abi;
+typedef enum ffi_abi { FFI_FIRST_ABI = 0, FFI_SYSV, FFI_LAST_ABI, FFI_DEFAULT_ABI = FFI_SYSV } ffi_abi;
 #endif
 
 /* ---- Definitions for closures ----------------------------------------- */
@@ -47,9 +41,11 @@ typedef enum ffi_abi
 
 /* ---- Internal ---- */
 
-#if defined (__APPLE__)
+#if defined(__APPLE__)
 #define FFI_TARGET_SPECIFIC_VARIADIC
-#define FFI_EXTRA_CIF_FIELDS unsigned aarch64_flags; unsigned aarch64_nfixedargs
+#define FFI_EXTRA_CIF_FIELDS \
+    unsigned aarch64_flags;  \
+    unsigned aarch64_nfixedargs
 #else
 #define FFI_EXTRA_CIF_FIELDS unsigned aarch64_flags
 #endif

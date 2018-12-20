@@ -66,7 +66,7 @@ extern "C" {
  * @return MM_RESMAN_MERGE_OK on success, otherwise fail.
  */
 UDATA
-mergeMemorySpaces(J9VMThread *vmThread, void *destinationMemorySpace, void *sourceMemorySpace);
+mergeMemorySpaces(J9VMThread* vmThread, void* destinationMemorySpace, void* sourceMemorySpace);
 
 /**
  * Move an object to the given memory space.
@@ -75,21 +75,21 @@ mergeMemorySpaces(J9VMThread *vmThread, void *destinationMemorySpace, void *sour
  * @return MM_RESMAN_OBJ_MOVE_OK on success, otherwise fail.
  */
 UDATA
-moveObjectToMemorySpace(J9VMThread *vmThread, void *destinationMemorySpace, j9object_t objectPtr);
+moveObjectToMemorySpace(J9VMThread* vmThread, void* destinationMemorySpace, j9object_t objectPtr);
 
 /**
  * Determine whether an object is in a given memory space.
  * @return non-zero if the object is in the memory space, 0 otherwise.
  */
 UDATA
-isObjectInMemorySpace(J9VMThread *vmThread, void *memorySpace, j9object_t objectPtr);
+isObjectInMemorySpace(J9VMThread* vmThread, void* memorySpace, j9object_t objectPtr);
 
 /**
  * Determine whether a memory space has any external references.
  * @return non-zero if there are any references to the space
  */
 UDATA
-isMemorySpaceReferenced(J9VMThread *vmThread, void *memorySpace);
+isMemorySpaceReferenced(J9VMThread* vmThread, void* memorySpace);
 
 #ifdef __cplusplus
 } /* extern "C" { */

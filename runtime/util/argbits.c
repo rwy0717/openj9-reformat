@@ -23,47 +23,43 @@
 #include "j9protos.h"
 #include "util_internal.h"
 
-
-void
-argBitsFromSignature(U_8 * signature, U_32 * resultArrayBase, UDATA resultArraySize, UDATA isStatic) 
+void argBitsFromSignature(U_8* signature, U_32* resultArrayBase, UDATA resultArraySize, UDATA isStatic)
 {
-	U_32 argBit = 1;
+    U_32 argBit = 1;
 
-	/* clear the result map as we won't write all of it */
-	memset ((U_8 *)resultArrayBase, 0, resultArraySize * sizeof (U_32));
+    /* clear the result map as we won't write all of it */
+    memset((U_8*)resultArrayBase, 0, resultArraySize * sizeof(U_32));
 
-	if (!isStatic) {
-		/* not static - arg 0 is object */
-		*resultArrayBase |= argBit;
-		argBit <<= 1;
-	}
-	
-	/* Parse the signature inside the ()'s */
-	while (*(++signature) != ')') {
-		if ((*signature == '[') || (*signature == 'L')) {
-			*resultArrayBase |= argBit;
-			while (*signature == '[') {
-				signature++;
-			}
-			if (*signature == 'L' ) {
-				while (*signature != ';') {
-					signature++;
-				}
-			}
-		} else if ((*signature == 'J') || (*signature == 'D')) {
-			argBit <<= 1;
-			if (argBit == 0) {
-				argBit = 1;
-				resultArrayBase++;
-			}
-		}
-		
-		argBit <<= 1;
-		if (argBit == 0) {
-			argBit = 1;
-			resultArrayBase++;
-		}
-	}
+    if (!isStatic) {
+        /* not static - arg 0 is object */
+        *resultArrayBase |= argBit;
+        argBit <<= 1;
+    }
+
+    /* Parse the signature inside the ()'s */
+    while (*(++signature) != ')') {
+        if ((*signature == '[') || (*signature == 'L')) {
+            *resultArrayBase |= argBit;
+            while (*signature == '[') {
+                signature++;
+            }
+            if (*signature == 'L') {
+                while (*signature != ';') {
+                    signature++;
+                }
+            }
+        } else if ((*signature == 'J') || (*signature == 'D')) {
+            argBit <<= 1;
+            if (argBit == 0) {
+                argBit = 1;
+                resultArrayBase++;
+            }
+        }
+
+        argBit <<= 1;
+        if (argBit == 0) {
+            argBit = 1;
+            resultArrayBase++;
+        }
+    }
 }
-
-

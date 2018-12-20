@@ -24,13 +24,13 @@
 #define exe_api_h
 
 /**
-* @file exe_api.h
-* @brief Public API for the EXE module.
-*
-* This file contains public function prototypes and
-* type definitions for the EXE module.
-*
-*/
+ * @file exe_api.h
+ * @brief Public API for the EXE module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the EXE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* exe_api_h */
-

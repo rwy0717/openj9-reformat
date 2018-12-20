@@ -20,10 +20,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(EVENT_GC_START_HPP_)
 #define EVENT_GC_START_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -34,40 +34,39 @@
  * Stores the data relating to the start of a GC.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventGCStart : public MM_VerboseEvent
-{
+class MM_VerboseEventGCStart : public MM_VerboseEvent {
 protected:
-	/**
-	 * Passed Data
-	 * @{ 
-	 */
-	MM_CommonGCStartData _gcStartData; /**< data which is common to all GC start events */
-	/** @} */
- 	
-	/**
-	 * External Data
-	 * @{ 
-	 */
-	I_64 _timeInMilliSeconds;
-	/** @} */
-	
-	void initialize(void);
-	
-	bool hasDetailedTenuredOutput();
-	void tlhFormattedOutput(MM_VerboseOutputAgent *agent);
-	void loaFormattedOutput(MM_VerboseOutputAgent *agent);
+    /**
+     * Passed Data
+     * @{
+     */
+    MM_CommonGCStartData _gcStartData; /**< data which is common to all GC start events */
+    /** @} */
+
+    /**
+     * External Data
+     * @{
+     */
+    I_64 _timeInMilliSeconds;
+    /** @} */
+
+    void initialize(void);
+
+    bool hasDetailedTenuredOutput();
+    void tlhFormattedOutput(MM_VerboseOutputAgent* agent);
+    void loaFormattedOutput(MM_VerboseOutputAgent* agent);
 
 public:
+    void gcStartFormattedOutput(MM_VerboseOutputAgent* agent);
 
-	void gcStartFormattedOutput(MM_VerboseOutputAgent *agent);
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-
-	MM_VerboseEventGCStart(OMR_VMThread *omrVMThread, U_64 timestamp, UDATA type, MM_CommonGCStartData* gcStartData, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(omrVMThread, timestamp, type, hookInterface),
-		_gcStartData(*gcStartData)
-	{}
+    MM_VerboseEventGCStart(OMR_VMThread* omrVMThread, U_64 timestamp, UDATA type, MM_CommonGCStartData* gcStartData,
+        J9HookInterface** hookInterface)
+        : MM_VerboseEvent(omrVMThread, timestamp, type, hookInterface)
+        , _gcStartData(*gcStartData)
+    {}
 };
 
 #endif /* EVENT_GC_START_HPP_ */

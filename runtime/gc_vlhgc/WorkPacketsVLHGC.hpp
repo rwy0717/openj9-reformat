@@ -29,7 +29,6 @@
 #if !defined(WORKPACKETSVLHGC_HPP_)
 #define WORKPACKETSVLHGC_HPP_
 
-
 #include "CycleState.hpp"
 #include "EnvironmentVLHGC.hpp"
 #include "WorkPackets.hpp"
@@ -43,48 +42,43 @@
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_WorkPacketsVLHGC : public MM_WorkPackets
-{
+class MM_WorkPacketsVLHGC : public MM_WorkPackets {
 private:
-	MM_CycleState::CollectionType _markType; /**< The type of mark this workpackets is being used for */
+    MM_CycleState::CollectionType _markType; /**< The type of mark this workpackets is being used for */
 protected:
 public:
-
 private:
 protected:
-	virtual MM_WorkPacketOverflow *createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
+    virtual MM_WorkPacketOverflow* createOverflowHandler(MM_EnvironmentBase* env, MM_WorkPackets* workPackets);
+
 public:
-	static MM_WorkPacketsVLHGC  *newInstance(MM_EnvironmentBase *env, MM_CycleState::CollectionType markType);
-	
-	/**
-	 * Allows callers to determine if there might be work imbalance problem by letting them see how many
-	 * threads are currently awaiting work.  Note that the number returned is highly volatile so it can't
-	 * be used to determine stalling behaviour, over the course of a run, only instantaneous imbalance.
-	 *
-	 * @return The number of threads currently blocked acquiring an input packet
-	 */
-	UDATA threadsCurrentlyAwaitingWork()
-	{
-		return _inputListWaitCount;
-	}
+    static MM_WorkPacketsVLHGC* newInstance(MM_EnvironmentBase* env, MM_CycleState::CollectionType markType);
 
-	/**
-	 * Wakes up any threads currently blocked on the work packet monitor.
-	 * @param env[in] A GC thread
-	 */
-	void wakeUpThreads(MM_EnvironmentBase *env);
+    /**
+     * Allows callers to determine if there might be work imbalance problem by letting them see how many
+     * threads are currently awaiting work.  Note that the number returned is highly volatile so it can't
+     * be used to determine stalling behaviour, over the course of a run, only instantaneous imbalance.
+     *
+     * @return The number of threads currently blocked acquiring an input packet
+     */
+    UDATA threadsCurrentlyAwaitingWork() { return _inputListWaitCount; }
 
-	/**
-	 * Create a WorkPackets object.
-	 * @ingroup GC_Modron_Standard methodGroup
-	 */
-	MM_WorkPacketsVLHGC(MM_EnvironmentBase *env, MM_CycleState::CollectionType markType) :
-		MM_WorkPackets(env)
-		,_markType(markType)
-	{
-		_typeId = __FUNCTION__;
-	};
+    /**
+     * Wakes up any threads currently blocked on the work packet monitor.
+     * @param env[in] A GC thread
+     */
+    void wakeUpThreads(MM_EnvironmentBase* env);
+
+    /**
+     * Create a WorkPackets object.
+     * @ingroup GC_Modron_Standard methodGroup
+     */
+    MM_WorkPacketsVLHGC(MM_EnvironmentBase* env, MM_CycleState::CollectionType markType)
+        : MM_WorkPackets(env)
+        , _markType(markType)
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* WORKPACKETSVLHGC_HPP_ */
-

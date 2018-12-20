@@ -35,28 +35,26 @@
  * @param[in] deviceId  the device identifier
  * @return a new stream
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaStream_create
-  (JNIEnv * env, jclass, jint deviceId)
+jlong JNICALL Java_com_ibm_cuda_CudaStream_create(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamCreate_entry(thread, deviceId);
+    Trc_cuda_streamCreate_entry(thread, deviceId);
 
-	J9CudaStream stream = NULL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaStream stream = NULL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_streamCreate((uint32_t)deviceId, &stream);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_streamCreate((uint32_t)deviceId, &stream);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamCreate_exit(thread, stream);
+    Trc_cuda_streamCreate_exit(thread, stream);
 
-	return (jlong)stream;
+    return (jlong)stream;
 }
 
 /**
@@ -73,32 +71,27 @@ Java_com_ibm_cuda_CudaStream_create
  * @param[in] priority  the requested stream priority
  * @return a new stream
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaStream_createWithPriority
-  (JNIEnv * env, jclass, jint deviceId, jint flags, jint priority)
+jlong JNICALL Java_com_ibm_cuda_CudaStream_createWithPriority(
+    JNIEnv* env, jclass, jint deviceId, jint flags, jint priority)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamCreateWithPriority_entry(thread, deviceId, flags, priority);
+    Trc_cuda_streamCreateWithPriority_entry(thread, deviceId, flags, priority);
 
-	J9CudaStream stream = NULL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaStream stream = NULL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_streamCreateWithPriority(
-			(uint32_t)deviceId,
-			priority,
-			(uint32_t)flags,
-			&stream);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_streamCreateWithPriority((uint32_t)deviceId, priority, (uint32_t)flags, &stream);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamCreateWithPriority_exit(thread, stream);
+    Trc_cuda_streamCreateWithPriority_exit(thread, stream);
 
-	return (jlong)stream;
+    return (jlong)stream;
 }
 
 #ifdef OMR_OPT_CUDA
@@ -115,23 +108,21 @@ Java_com_ibm_cuda_CudaStream_createWithPriority
  * @param[in] deviceId  the device identifier
  * @param[in] stream    the stream to be destroyed
  */
-void JNICALL
-Java_com_ibm_cuda_CudaStream_destroy
-  (JNIEnv * env, jclass, jint deviceId, jlong stream)
+void JNICALL Java_com_ibm_cuda_CudaStream_destroy(JNIEnv* env, jclass, jint deviceId, jlong stream)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamDestroy_entry(thread, deviceId, (J9CudaStream)stream);
+    Trc_cuda_streamDestroy_entry(thread, deviceId, (J9CudaStream)stream);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_streamDestroy((uint32_t)deviceId, (J9CudaStream)stream);
+    int32_t error = j9cuda_streamDestroy((uint32_t)deviceId, (J9CudaStream)stream);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamDestroy_exit(thread, error);
+    Trc_cuda_streamDestroy_exit(thread, error);
 }
 
 /**
@@ -147,26 +138,24 @@ Java_com_ibm_cuda_CudaStream_destroy
  * @param[in] stream    the stream
  * @return the flags of the stream
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaStream_getFlags
-  (JNIEnv * env, jclass, jint deviceId, jlong stream)
+jint JNICALL Java_com_ibm_cuda_CudaStream_getFlags(JNIEnv* env, jclass, jint deviceId, jlong stream)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamGetFlags_entry(thread, deviceId, (J9CudaStream)stream);
+    Trc_cuda_streamGetFlags_entry(thread, deviceId, (J9CudaStream)stream);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	uint32_t flags = 0;
-	int32_t error = j9cuda_streamGetFlags((uint32_t)deviceId, (J9CudaStream)stream, &flags);
+    uint32_t flags = 0;
+    int32_t error = j9cuda_streamGetFlags((uint32_t)deviceId, (J9CudaStream)stream, &flags);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamGetFlags_exit(thread, error, flags);
+    Trc_cuda_streamGetFlags_exit(thread, error, flags);
 
-	return (jint)flags;
+    return (jint)flags;
 }
 
 /**
@@ -182,26 +171,24 @@ Java_com_ibm_cuda_CudaStream_getFlags
  * @param[in] stream    the stream
  * @return the priority of the stream
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaStream_getPriority
-  (JNIEnv * env, jclass, jint deviceId, jlong stream)
+jint JNICALL Java_com_ibm_cuda_CudaStream_getPriority(JNIEnv* env, jclass, jint deviceId, jlong stream)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamGetPriority_entry(thread, deviceId, (J9CudaStream)stream);
+    Trc_cuda_streamGetPriority_entry(thread, deviceId, (J9CudaStream)stream);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t priority = 0;
-	int32_t error = j9cuda_streamGetPriority((uint32_t)deviceId, (J9CudaStream)stream, &priority);
+    int32_t priority = 0;
+    int32_t error = j9cuda_streamGetPriority((uint32_t)deviceId, (J9CudaStream)stream, &priority);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamGetPriority_exit(thread, error, priority);
+    Trc_cuda_streamGetPriority_exit(thread, error, priority);
 
-	return priority;
+    return priority;
 }
 
 /**
@@ -217,21 +204,19 @@ Java_com_ibm_cuda_CudaStream_getPriority
  * @param[in] stream    the stream
  * @return 0 if the stream is complete; else cudaErrorNotReady or another error
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaStream_query
-  (JNIEnv * env, jclass, jint deviceId, jlong stream)
+jint JNICALL Java_com_ibm_cuda_CudaStream_query(JNIEnv* env, jclass, jint deviceId, jlong stream)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamQuery_entry(thread, deviceId, (J9CudaStream)stream);
+    Trc_cuda_streamQuery_entry(thread, deviceId, (J9CudaStream)stream);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_streamQuery((uint32_t)deviceId, (J9CudaStream)stream);
+    int32_t error = j9cuda_streamQuery((uint32_t)deviceId, (J9CudaStream)stream);
 
-	Trc_cuda_streamQuery_exit(thread, error);
+    Trc_cuda_streamQuery_exit(thread, error);
 
-	return error;
+    return error;
 }
 
 /**
@@ -246,23 +231,21 @@ Java_com_ibm_cuda_CudaStream_query
  * @param[in] deviceId  the device identifier
  * @param[in] stream    the stream
  */
-void JNICALL
-Java_com_ibm_cuda_CudaStream_synchronize
-  (JNIEnv * env, jclass, jint deviceId, jlong stream)
+void JNICALL Java_com_ibm_cuda_CudaStream_synchronize(JNIEnv* env, jclass, jint deviceId, jlong stream)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamSynchronize_entry(thread, deviceId, (J9CudaStream)stream);
+    Trc_cuda_streamSynchronize_entry(thread, deviceId, (J9CudaStream)stream);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_streamSynchronize((uint32_t)deviceId, (J9CudaStream)stream);
+    int32_t error = j9cuda_streamSynchronize((uint32_t)deviceId, (J9CudaStream)stream);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamSynchronize_exit(thread, error);
+    Trc_cuda_streamSynchronize_exit(thread, error);
 }
 
 /**
@@ -278,23 +261,21 @@ Java_com_ibm_cuda_CudaStream_synchronize
  * @param[in] stream    the stream
  * @param[in] event     the event to wait for
  */
-void JNICALL
-Java_com_ibm_cuda_CudaStream_waitFor
-  (JNIEnv * env, jclass, jint deviceId, jlong stream, jlong event)
+void JNICALL Java_com_ibm_cuda_CudaStream_waitFor(JNIEnv* env, jclass, jint deviceId, jlong stream, jlong event)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_streamWaitFor_entry(thread, deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
+    Trc_cuda_streamWaitFor_entry(thread, deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_streamWaitEvent((uint32_t)deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
+    int32_t error = j9cuda_streamWaitEvent((uint32_t)deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_streamWaitFor_exit(thread, error);
+    Trc_cuda_streamWaitFor_exit(thread, error);
 }
 
 #endif /* OMR_OPT_CUDA */

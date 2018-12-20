@@ -36,28 +36,38 @@
 
 class MM_EnvironmentBase;
 
-class MM_HeapRegionDescriptorRealtime : public MM_HeapRegionDescriptorSegregated
-{
+class MM_HeapRegionDescriptorRealtime : public MM_HeapRegionDescriptorSegregated {
 
-	/*
-	 * Data Members
-	 */
+    /*
+     * Data Members
+     */
 private:
-	MM_HeapRegionDescriptorRealtime *_nextOverflowedRegion;
+    MM_HeapRegionDescriptorRealtime* _nextOverflowedRegion;
 
 public:
-	MM_HeapRegionDescriptorRealtime(MM_EnvironmentBase *env, void *lowAddress, void *highAddress);
+    MM_HeapRegionDescriptorRealtime(MM_EnvironmentBase* env, void* lowAddress, void* highAddress);
 
-	bool initialize(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager);
-	
-	static bool initializer(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor, void *lowAddress, void *highAddress);
-	static void destructor(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor);
-	static UDATA getUnfinalizedObjectListCount(MM_EnvironmentBase *env) {return MM_GCExtensions::getExtensions(env)->gcThreadCount;}
-	static UDATA getOwnableSynchronizerObjectListCount(MM_EnvironmentBase *env) {return MM_GCExtensions::getExtensions(env)->gcThreadCount;}
-	static UDATA getReferenceObjectListCount(MM_EnvironmentBase *env) {return MM_GCExtensions::getExtensions(env)->gcThreadCount;}
+    bool initialize(MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager);
 
-	MM_HeapRegionDescriptorRealtime *getNextOverflowRegion() {return _nextOverflowedRegion;}
-	void setNextOverflowRegion(MM_HeapRegionDescriptorRealtime *region) {_nextOverflowedRegion = region;}
+    static bool initializer(MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager,
+        MM_HeapRegionDescriptor* descriptor, void* lowAddress, void* highAddress);
+    static void destructor(
+        MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager, MM_HeapRegionDescriptor* descriptor);
+    static UDATA getUnfinalizedObjectListCount(MM_EnvironmentBase* env)
+    {
+        return MM_GCExtensions::getExtensions(env)->gcThreadCount;
+    }
+    static UDATA getOwnableSynchronizerObjectListCount(MM_EnvironmentBase* env)
+    {
+        return MM_GCExtensions::getExtensions(env)->gcThreadCount;
+    }
+    static UDATA getReferenceObjectListCount(MM_EnvironmentBase* env)
+    {
+        return MM_GCExtensions::getExtensions(env)->gcThreadCount;
+    }
+
+    MM_HeapRegionDescriptorRealtime* getNextOverflowRegion() { return _nextOverflowedRegion; }
+    void setNextOverflowRegion(MM_HeapRegionDescriptorRealtime* region) { _nextOverflowedRegion = region; }
 };
 
 #endif /* J9VM_GC_REALTIME */

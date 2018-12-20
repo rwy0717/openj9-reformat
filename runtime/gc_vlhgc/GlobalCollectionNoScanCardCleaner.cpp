@@ -31,14 +31,14 @@
 #include "CycleState.hpp"
 #include "EnvironmentVLHGC.hpp"
 
-void
-MM_GlobalCollectionNoScanCardCleaner::clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+void MM_GlobalCollectionNoScanCardCleaner::clean(
+    MM_EnvironmentBase* envModron, void* lowAddress, void* highAddress, Card* cardToClean)
 {
-	MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
-	Assert_MM_true(MM_CycleState::CT_GLOBAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
-	
-	Card fromState = *cardToClean;
-	Assert_MM_false(CARD_CLEAN == fromState);
-	Card toState = CARD_CLEAN;
-	*cardToClean = toState;
+    MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
+    Assert_MM_true(MM_CycleState::CT_GLOBAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
+
+    Card fromState = *cardToClean;
+    Assert_MM_false(CARD_CLEAN == fromState);
+    Card toState = CARD_CLEAN;
+    *cardToClean = toState;
 }

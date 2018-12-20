@@ -25,8 +25,7 @@
 
 #ifdef OMR_OPT_CUDA
 
-namespace
-{
+namespace {
 
 /**
  * Instances of this class convey the necessary information to trigger a callback
@@ -34,98 +33,92 @@ namespace
  */
 class Callback {
 private:
-	static char             threadName[];
-	static JavaVMAttachArgs vmAttachArgs;
+    static char threadName[];
+    static JavaVMAttachArgs vmAttachArgs;
 
-	JavaVM  * jvm;
-	jobject   runnable;
+    JavaVM* jvm;
+    jobject runnable;
 
-	static void
-	handler(J9CudaStream stream, int32_t error, uintptr_t data)
-	{
-		Trc_cuda_deviceCallbackHandler_entry(stream, error, data);
+    static void handler(J9CudaStream stream, int32_t error, uintptr_t data)
+    {
+        Trc_cuda_deviceCallbackHandler_entry(stream, error, data);
 
-		Callback * callback = (Callback *)data;
-		JNIEnv * env = NULL;
-		jint status = callback->jvm->AttachCurrentThreadAsDaemon((void **)&env, &vmAttachArgs);
+        Callback* callback = (Callback*)data;
+        JNIEnv* env = NULL;
+        jint status = callback->jvm->AttachCurrentThreadAsDaemon((void**)&env, &vmAttachArgs);
 
-		if (JNI_OK != status) {
-			Trc_cuda_deviceCallbackHandler_exitFail(status);
-		} else {
-			J9VMThread * thread = (J9VMThread *)env;
-			J9CudaGlobals * globals = thread->javaVM->cudaGlobals;
+        if (JNI_OK != status) {
+            Trc_cuda_deviceCallbackHandler_exitFail(status);
+        } else {
+            J9VMThread* thread = (J9VMThread*)env;
+            J9CudaGlobals* globals = thread->javaVM->cudaGlobals;
 
-			Assert_cuda_true(NULL != globals);
-			Assert_cuda_true(NULL != globals->runnable_run);
+            Assert_cuda_true(NULL != globals);
+            Assert_cuda_true(NULL != globals->runnable_run);
 
-			env->CallVoidMethod(callback->runnable, globals->runnable_run);
+            env->CallVoidMethod(callback->runnable, globals->runnable_run);
 
-			jthrowable throwable = env->ExceptionOccurred();
+            jthrowable throwable = env->ExceptionOccurred();
 
-			if (NULL != throwable) {
-				// This happens on a thread started by the CUDA runtime: there is no
-				// Java caller to catch this exception but we'll note that it occurred.
-				Trc_cuda_deviceCallbackHandler_exception(thread, throwable);
-				env->ExceptionClear();
-			}
+            if (NULL != throwable) {
+                // This happens on a thread started by the CUDA runtime: there is no
+                // Java caller to catch this exception but we'll note that it occurred.
+                Trc_cuda_deviceCallbackHandler_exception(thread, throwable);
+                env->ExceptionClear();
+            }
 
-			env->DeleteGlobalRef(callback->runnable);
+            env->DeleteGlobalRef(callback->runnable);
 
-			PORT_ACCESS_FROM_ENV(env);
+            PORT_ACCESS_FROM_ENV(env);
 
-			J9CUDA_FREE_MEMORY(callback);
+            J9CUDA_FREE_MEMORY(callback);
 
-			Trc_cuda_deviceCallbackHandler_exit(thread);
-		}
-	}
+            Trc_cuda_deviceCallbackHandler_exit(thread);
+        }
+    }
 
 public:
-	VMINLINE static void
-	insert(JNIEnv * env, jint deviceId, jlong stream, jobject runnable)
-	{
-		J9VMThread * thread = (J9VMThread *)env;
+    VMINLINE static void insert(JNIEnv* env, jint deviceId, jlong stream, jobject runnable)
+    {
+        J9VMThread* thread = (J9VMThread*)env;
 
-		Trc_cuda_deviceCallbackInsert_entry(thread, deviceId, (J9CudaStream)stream, runnable);
+        Trc_cuda_deviceCallbackInsert_entry(thread, deviceId, (J9CudaStream)stream, runnable);
 
-		PORT_ACCESS_FROM_ENV(env);
+        PORT_ACCESS_FROM_ENV(env);
 
-		Callback * callback = (Callback *)J9CUDA_ALLOCATE_MEMORY(sizeof(Callback));
-		int32_t error = J9CUDA_ERROR_MEMORY_ALLOCATION;
+        Callback* callback = (Callback*)J9CUDA_ALLOCATE_MEMORY(sizeof(Callback));
+        int32_t error = J9CUDA_ERROR_MEMORY_ALLOCATION;
 
-		if (NULL == callback) {
-			Trc_cuda_deviceCallbackInsert_allocFail(thread);
-			goto fail;
-		}
+        if (NULL == callback) {
+            Trc_cuda_deviceCallbackInsert_allocFail(thread);
+            goto fail;
+        }
 
-		callback->jvm      = (JavaVM *)thread->javaVM;
-		callback->runnable = env->NewGlobalRef(runnable);
+        callback->jvm = (JavaVM*)thread->javaVM;
+        callback->runnable = env->NewGlobalRef(runnable);
 
-		if (NULL == callback->runnable) {
-			Trc_cuda_deviceCallbackInsert_globalRefFail(thread);
-		} else {
-			error = j9cuda_streamAddCallback(
-					(uint32_t)deviceId,
-					(J9CudaStream)stream,
-					handler,
-					(uintptr_t)callback);
-		}
+        if (NULL == callback->runnable) {
+            Trc_cuda_deviceCallbackInsert_globalRefFail(thread);
+        } else {
+            error = j9cuda_streamAddCallback((uint32_t)deviceId, (J9CudaStream)stream, handler, (uintptr_t)callback);
+        }
 
-		if (0 != error) {
-			if (NULL != callback->runnable) {
-				env->DeleteGlobalRef(callback->runnable);
-			}
+        if (0 != error) {
+            if (NULL != callback->runnable) {
+                env->DeleteGlobalRef(callback->runnable);
+            }
 
-			J9CUDA_FREE_MEMORY(callback);
+            J9CUDA_FREE_MEMORY(callback);
 
-fail:
-			throwCudaException(env, error);
-		}
+        fail:
+            throwCudaException(env, error);
+        }
 
-		Trc_cuda_deviceCallbackInsert_exit(thread, error);
-	}
+        Trc_cuda_deviceCallbackInsert_exit(thread, error);
+    }
 };
 
-char             Callback::threadName[] = "cuda4j-callback";
+char Callback::threadName[] = "cuda4j-callback";
 JavaVMAttachArgs Callback::vmAttachArgs = { JNI_VERSION_1_6, threadName, NULL };
 
 } // namespace
@@ -145,21 +138,20 @@ JavaVMAttachArgs Callback::vmAttachArgs = { JNI_VERSION_1_6, threadName, NULL };
  * @param[in] stream    the stream, or null for the default stream
  * @param[in] callback  the callback object
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_addCallback
-  (JNIEnv * env, jclass, jint deviceId, jlong stream, jobject callback)
+void JNICALL Java_com_ibm_cuda_CudaDevice_addCallback(
+    JNIEnv* env, jclass, jint deviceId, jlong stream, jobject callback)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
 #ifdef OMR_OPT_CUDA
-	Trc_cuda_deviceAddCallback_entry(thread, deviceId, (uintptr_t)stream, (uintptr_t)callback);
+    Trc_cuda_deviceAddCallback_entry(thread, deviceId, (uintptr_t)stream, (uintptr_t)callback);
 
-	Callback::insert(env, deviceId, stream, callback);
+    Callback::insert(env, deviceId, stream, callback);
 #else /* OMR_OPT_CUDA */
-	throwCudaException(env, J9CUDA_ERROR_NO_DEVICE);
+    throwCudaException(env, J9CUDA_ERROR_NO_DEVICE);
 #endif /* OMR_OPT_CUDA */
 
-	Trc_cuda_deviceAddCallback_exit(thread);
+    Trc_cuda_deviceAddCallback_exit(thread);
 }
 
 /**
@@ -175,28 +167,26 @@ Java_com_ibm_cuda_CudaDevice_addCallback
  * @param[in] peerDeviceId  the peer device identifier
  * @return whether deviceId can access peerDeviceId
  */
-jboolean JNICALL
-Java_com_ibm_cuda_CudaDevice_canAccessPeer
-  (JNIEnv * env, jclass, jint deviceId, jint peerDeviceId)
+jboolean JNICALL Java_com_ibm_cuda_CudaDevice_canAccessPeer(JNIEnv* env, jclass, jint deviceId, jint peerDeviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceCanAccessPeer_entry(thread, deviceId, peerDeviceId);
+    Trc_cuda_deviceCanAccessPeer_entry(thread, deviceId, peerDeviceId);
 
-	BOOLEAN result = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    BOOLEAN result = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceCanAccessPeer((uint32_t)deviceId, (uint32_t)peerDeviceId, &result);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceCanAccessPeer((uint32_t)deviceId, (uint32_t)peerDeviceId, &result);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceCanAccessPeer_exit(thread, 0 != result);
+    Trc_cuda_deviceCanAccessPeer_exit(thread, 0 != result);
 
-	return (jboolean)(0 != result);
+    return (jboolean)(0 != result);
 }
 
 /**
@@ -211,25 +201,23 @@ Java_com_ibm_cuda_CudaDevice_canAccessPeer
  * @param[in] deviceId      the device identifier
  * @param[in] peerDeviceId  the peer device identifier
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_disablePeerAccess
-  (JNIEnv * env, jclass, jint deviceId, jint peerDeviceId)
+void JNICALL Java_com_ibm_cuda_CudaDevice_disablePeerAccess(JNIEnv* env, jclass, jint deviceId, jint peerDeviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceDisablePeerAccess_entry(thread, deviceId, peerDeviceId);
+    Trc_cuda_deviceDisablePeerAccess_entry(thread, deviceId, peerDeviceId);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceDisablePeerAccess((uint32_t)deviceId, (uint32_t)peerDeviceId);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceDisablePeerAccess((uint32_t)deviceId, (uint32_t)peerDeviceId);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceDisablePeerAccess_exit(thread);
+    Trc_cuda_deviceDisablePeerAccess_exit(thread);
 }
 
 /**
@@ -244,25 +232,23 @@ Java_com_ibm_cuda_CudaDevice_disablePeerAccess
  * @param[in] deviceId      the device identifier
  * @param[in] peerDeviceId  the peer device identifier
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_enablePeerAccess
-  (JNIEnv * env, jclass, jint deviceId, jint peerDeviceId)
+void JNICALL Java_com_ibm_cuda_CudaDevice_enablePeerAccess(JNIEnv* env, jclass, jint deviceId, jint peerDeviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceEnablePeerAccess_entry(thread, deviceId, peerDeviceId);
+    Trc_cuda_deviceEnablePeerAccess_entry(thread, deviceId, peerDeviceId);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceEnablePeerAccess((uint32_t)deviceId, (uint32_t)peerDeviceId);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceEnablePeerAccess((uint32_t)deviceId, (uint32_t)peerDeviceId);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceEnablePeerAccess_exit(thread);
+    Trc_cuda_deviceEnablePeerAccess_exit(thread);
 }
 
 /**
@@ -278,270 +264,268 @@ Java_com_ibm_cuda_CudaDevice_enablePeerAccess
  * @param[in] attribute  the attribute to query
  * @return the value of the requested attribute
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaDevice_getAttribute
-  (JNIEnv * env, jclass, jint deviceId, jint attribute)
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getAttribute(JNIEnv* env, jclass, jint deviceId, jint attribute)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetAttribute_entry(thread, deviceId, attribute);
+    Trc_cuda_deviceGetAttribute_entry(thread, deviceId, attribute);
 
-	int32_t value = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t value = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = J9CUDA_ERROR_INVALID_VALUE;
-	J9CudaDeviceAttribute j9attrib = J9CUDA_DEVICE_ATTRIBUTE_WARP_SIZE;
+    PORT_ACCESS_FROM_ENV(env);
+    error = J9CUDA_ERROR_INVALID_VALUE;
+    J9CudaDeviceAttribute j9attrib = J9CUDA_DEVICE_ATTRIBUTE_WARP_SIZE;
 
-	switch (attribute) {
-	default:
-		goto fail;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_ASYNC_ENGINE_COUNT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_CAN_MAP_HOST_MEMORY:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_CLOCK_RATE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CLOCK_RATE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_MODE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_MODE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_CONCURRENT_KERNELS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_ECC_ENABLED:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_ECC_ENABLED;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_INTEGRATED:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_INTEGRATED;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_KERNEL_EXEC_TIMEOUT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_L2_CACHE_SIZE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_L2_CACHE_SIZE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_X:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_Y:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_Z:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_X:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_Y:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_Z:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_PITCH:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_PITCH;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_THREADS_PER_BLOCK:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MEMORY_CLOCK_RATE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_MULTIPROCESSOR_COUNT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_BUS_ID:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_BUS_ID;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_DEVICE_ID:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_DEVICE_ID;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_DOMAIN_ID:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_SURFACE_ALIGNMENT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_TCC_DRIVER:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TCC_DRIVER;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_TEXTURE_ALIGNMENT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_TOTAL_CONSTANT_MEMORY:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_UNIFIED_ADDRESSING:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING;
-		break;
-	case com_ibm_cuda_CudaDevice_ATTRIBUTE_WARP_SIZE:
-		j9attrib = J9CUDA_DEVICE_ATTRIBUTE_WARP_SIZE;
-		break;
-	}
+    switch (attribute) {
+    default:
+        goto fail;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_ASYNC_ENGINE_COUNT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_CAN_MAP_HOST_MEMORY:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_CLOCK_RATE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CLOCK_RATE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_COMPUTE_MODE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_COMPUTE_MODE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_CONCURRENT_KERNELS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_ECC_ENABLED:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_ECC_ENABLED;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_INTEGRATED:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_INTEGRATED;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_KERNEL_EXEC_TIMEOUT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_L2_CACHE_SIZE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_L2_CACHE_SIZE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_X:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_Y:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_BLOCK_DIM_Z:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_X:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_Y:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_GRID_DIM_Z:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_PITCH:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_PITCH;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_THREADS_PER_BLOCK:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MEMORY_CLOCK_RATE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_MULTIPROCESSOR_COUNT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_BUS_ID:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_BUS_ID;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_DEVICE_ID:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_DEVICE_ID;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_PCI_DOMAIN_ID:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_SURFACE_ALIGNMENT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_TCC_DRIVER:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TCC_DRIVER;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_TEXTURE_ALIGNMENT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_TOTAL_CONSTANT_MEMORY:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_UNIFIED_ADDRESSING:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING;
+        break;
+    case com_ibm_cuda_CudaDevice_ATTRIBUTE_WARP_SIZE:
+        j9attrib = J9CUDA_DEVICE_ATTRIBUTE_WARP_SIZE;
+        break;
+    }
 
-	error = j9cuda_deviceGetAttribute((uint32_t)deviceId, j9attrib, &value);
+    error = j9cuda_deviceGetAttribute((uint32_t)deviceId, j9attrib, &value);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
+    if (0 != error) {
 #ifdef OMR_OPT_CUDA
-fail:
+    fail:
 #endif /* OMR_OPT_CUDA */
-		throwCudaException(env, error);
-	}
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetAttribute_exit(thread, value);
+    Trc_cuda_deviceGetAttribute_exit(thread, value);
 
-	return (jint)value;
+    return (jint)value;
 }
 
 /**
@@ -556,28 +540,26 @@ fail:
  * @param[in] deviceId   the device identifier
  * @return the device cache configuration
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaDevice_getCacheConfig
-  (JNIEnv * env, jclass, jint deviceId)
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getCacheConfig(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetCacheConfig_entry(thread, deviceId);
+    Trc_cuda_deviceGetCacheConfig_entry(thread, deviceId);
 
-	J9CudaCacheConfig config = J9CUDA_CACHE_CONFIG_PREFER_EQUAL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaCacheConfig config = J9CUDA_CACHE_CONFIG_PREFER_EQUAL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceGetCacheConfig((uint32_t)deviceId, &config);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceGetCacheConfig((uint32_t)deviceId, &config);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetCacheConfig_exit(thread, config);
+    Trc_cuda_deviceGetCacheConfig_exit(thread, config);
 
-	return (jint)config;
+    return (jint)config;
 }
 
 /**
@@ -592,29 +574,27 @@ Java_com_ibm_cuda_CudaDevice_getCacheConfig
  * @param[in] deviceId   the device identifier
  * @return the number of bytes of free memory on the device
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaDevice_getFreeMemory
-  (JNIEnv * env, jclass, jint deviceId)
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getFreeMemory(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetFreeMemory_entry(thread, deviceId);
+    Trc_cuda_deviceGetFreeMemory_entry(thread, deviceId);
 
-	uintptr_t freeBytes = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    uintptr_t freeBytes = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	uintptr_t totalBytes = 0;
-	error = j9cuda_deviceGetMemInfo((uint32_t)deviceId, &freeBytes, &totalBytes);
+    PORT_ACCESS_FROM_ENV(env);
+    uintptr_t totalBytes = 0;
+    error = j9cuda_deviceGetMemInfo((uint32_t)deviceId, &freeBytes, &totalBytes);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetFreeMemory_exit(thread, freeBytes);
+    Trc_cuda_deviceGetFreeMemory_exit(thread, freeBytes);
 
-	return (jlong)freeBytes;
+    return (jlong)freeBytes;
 }
 
 /**
@@ -629,29 +609,27 @@ Java_com_ibm_cuda_CudaDevice_getFreeMemory
  * @param[in] deviceId   the device identifier
  * @return the greatest stream priority
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaDevice_getGreatestStreamPriority
-  (JNIEnv * env, jclass, jint deviceId)
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getGreatestStreamPriority(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetGreatestStreamPriority_entry(thread, deviceId);
+    Trc_cuda_deviceGetGreatestStreamPriority_entry(thread, deviceId);
 
-	int32_t greatestPriority = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t greatestPriority = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	int32_t leastPriority = 0;
-	error = j9cuda_deviceGetStreamPriorityRange((uint32_t)deviceId, &leastPriority, &greatestPriority);
+    PORT_ACCESS_FROM_ENV(env);
+    int32_t leastPriority = 0;
+    error = j9cuda_deviceGetStreamPriorityRange((uint32_t)deviceId, &leastPriority, &greatestPriority);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetGreatestStreamPriority_exit(thread, greatestPriority);
+    Trc_cuda_deviceGetGreatestStreamPriority_exit(thread, greatestPriority);
 
-	return (jint)greatestPriority;
+    return (jint)greatestPriority;
 }
 
 /**
@@ -666,29 +644,27 @@ Java_com_ibm_cuda_CudaDevice_getGreatestStreamPriority
  * @param[in] deviceId   the device identifier
  * @return the least stream priority
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaDevice_getLeastStreamPriority
-  (JNIEnv * env, jclass, jint deviceId)
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getLeastStreamPriority(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetLeastStreamPriority_entry(thread, deviceId);
+    Trc_cuda_deviceGetLeastStreamPriority_entry(thread, deviceId);
 
-	int32_t leastPriority = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t leastPriority = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	int32_t greatestPriority = 0;
-	error = j9cuda_deviceGetStreamPriorityRange((uint32_t)deviceId, &leastPriority, &greatestPriority);
+    PORT_ACCESS_FROM_ENV(env);
+    int32_t greatestPriority = 0;
+    error = j9cuda_deviceGetStreamPriorityRange((uint32_t)deviceId, &leastPriority, &greatestPriority);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetLeastStreamPriority_exit(thread, leastPriority);
+    Trc_cuda_deviceGetLeastStreamPriority_exit(thread, leastPriority);
 
-	return (jint)leastPriority;
+    return (jint)leastPriority;
 }
 
 /**
@@ -704,28 +680,26 @@ Java_com_ibm_cuda_CudaDevice_getLeastStreamPriority
  * @param[in] limit      the requested limit
  * @return the value of the requested limit
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaDevice_getLimit
-  (JNIEnv * env, jclass, jint deviceId, jint limit)
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getLimit(JNIEnv* env, jclass, jint deviceId, jint limit)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetLimit_entry(thread, deviceId, limit);
+    Trc_cuda_deviceGetLimit_entry(thread, deviceId, limit);
 
-	uintptr_t value = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    uintptr_t value = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceGetLimit((uint32_t)deviceId, (J9CudaDeviceLimit)limit, &value);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceGetLimit((uint32_t)deviceId, (J9CudaDeviceLimit)limit, &value);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetLimit_exit(thread, value);
+    Trc_cuda_deviceGetLimit_exit(thread, value);
 
-	return (jlong)value;
+    return (jlong)value;
 }
 
 /**
@@ -740,34 +714,32 @@ Java_com_ibm_cuda_CudaDevice_getLimit
  * @param[in] deviceId   the device identifier
  * @return the name of the device
  */
-jstring JNICALL
-Java_com_ibm_cuda_CudaDevice_getName
-  (JNIEnv * env, jclass, jint deviceId)
+jstring JNICALL Java_com_ibm_cuda_CudaDevice_getName(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetName_entry(thread, deviceId);
+    Trc_cuda_deviceGetName_entry(thread, deviceId);
 
-	jstring result = NULL;
-	char name[256];
+    jstring result = NULL;
+    char name[256];
 
-	name[0] = 0;
+    name[0] = 0;
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceGetName((uint32_t)deviceId, (uint32_t)sizeof(name), name);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceGetName((uint32_t)deviceId, (uint32_t)sizeof(name), name);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	} else {
-		result = env->NewStringUTF(name);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    } else {
+        result = env->NewStringUTF(name);
+    }
 
-	Trc_cuda_deviceGetName_exit(thread, result, name);
+    Trc_cuda_deviceGetName_exit(thread, result, name);
 
-	return result;
+    return result;
 }
 
 /**
@@ -782,28 +754,26 @@ Java_com_ibm_cuda_CudaDevice_getName
  * @param[in] deviceId   the device identifier
  * @return the shared memory configuration
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaDevice_getSharedMemConfig
-  (JNIEnv * env, jclass, jint deviceId)
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getSharedMemConfig(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetSharedMemConfig_entry(thread, deviceId);
+    Trc_cuda_deviceGetSharedMemConfig_entry(thread, deviceId);
 
-	J9CudaSharedMemConfig config = J9CUDA_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaSharedMemConfig config = J9CUDA_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceGetSharedMemConfig((uint32_t)deviceId, &config);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceGetSharedMemConfig((uint32_t)deviceId, &config);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetSharedMemConfig_exit(thread, config);
+    Trc_cuda_deviceGetSharedMemConfig_exit(thread, config);
 
-	return (jint)config;
+    return (jint)config;
 }
 
 /**
@@ -818,29 +788,27 @@ Java_com_ibm_cuda_CudaDevice_getSharedMemConfig
  * @param[in] deviceId   the device identifier
  * @return the number of bytes of memory on the device
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaDevice_getTotalMemory
-  (JNIEnv * env, jclass, jint deviceId)
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getTotalMemory(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceGetTotalMemory_entry(thread, deviceId);
+    Trc_cuda_deviceGetTotalMemory_entry(thread, deviceId);
 
-	uintptr_t totalBytes = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    uintptr_t totalBytes = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	uintptr_t freeBytes = 0;
-	error = j9cuda_deviceGetMemInfo((uint32_t)deviceId, &freeBytes, &totalBytes);
+    PORT_ACCESS_FROM_ENV(env);
+    uintptr_t freeBytes = 0;
+    error = j9cuda_deviceGetMemInfo((uint32_t)deviceId, &freeBytes, &totalBytes);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceGetTotalMemory_exit(thread, totalBytes);
+    Trc_cuda_deviceGetTotalMemory_exit(thread, totalBytes);
 
-	return (jlong)totalBytes;
+    return (jlong)totalBytes;
 }
 
 /**
@@ -855,25 +823,23 @@ Java_com_ibm_cuda_CudaDevice_getTotalMemory
  * @param[in] deviceId  the device identifier
  * @param[in] config    the requested cache configuration
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_setCacheConfig
-  (JNIEnv * env, jclass, jint deviceId, jint config)
+void JNICALL Java_com_ibm_cuda_CudaDevice_setCacheConfig(JNIEnv* env, jclass, jint deviceId, jint config)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceSetCacheConfig_entry(thread, deviceId, config);
+    Trc_cuda_deviceSetCacheConfig_entry(thread, deviceId, config);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceSetCacheConfig((uint32_t)deviceId, (J9CudaCacheConfig)config);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceSetCacheConfig((uint32_t)deviceId, (J9CudaCacheConfig)config);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceSetCacheConfig_exit(thread);
+    Trc_cuda_deviceSetCacheConfig_exit(thread);
 }
 
 /**
@@ -889,28 +855,23 @@ Java_com_ibm_cuda_CudaDevice_setCacheConfig
  * @param[in] limit      the limit to be adjusted
  * @param[in] value      the new value of the limit
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_setLimit
-  (JNIEnv * env, jclass, jint deviceId, jint limit, jlong value)
+void JNICALL Java_com_ibm_cuda_CudaDevice_setLimit(JNIEnv* env, jclass, jint deviceId, jint limit, jlong value)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceSetLimit_entry(thread, deviceId, limit, value);
+    Trc_cuda_deviceSetLimit_entry(thread, deviceId, limit, value);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceSetLimit(
-			(uint32_t)deviceId,
-			(J9CudaDeviceLimit)limit,
-			(uintptr_t)value);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceSetLimit((uint32_t)deviceId, (J9CudaDeviceLimit)limit, (uintptr_t)value);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceSetLimit_exit(thread);
+    Trc_cuda_deviceSetLimit_exit(thread);
 }
 
 /**
@@ -925,25 +886,23 @@ Java_com_ibm_cuda_CudaDevice_setLimit
  * @param[in] deviceId  the device identifier
  * @param[in] config    the requested shared memory configuration
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_setSharedMemConfig
-  (JNIEnv * env, jclass, jint deviceId, jint config)
+void JNICALL Java_com_ibm_cuda_CudaDevice_setSharedMemConfig(JNIEnv* env, jclass, jint deviceId, jint config)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceSetSharedMemConfig_entry(thread, deviceId, config);
+    Trc_cuda_deviceSetSharedMemConfig_entry(thread, deviceId, config);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceSetSharedMemConfig((uint32_t)deviceId, (J9CudaSharedMemConfig)config);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceSetSharedMemConfig((uint32_t)deviceId, (J9CudaSharedMemConfig)config);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceSetSharedMemConfig_exit(thread);
+    Trc_cuda_deviceSetSharedMemConfig_exit(thread);
 }
 
 /**
@@ -957,23 +916,21 @@ Java_com_ibm_cuda_CudaDevice_setSharedMemConfig
  * @param[in] (unused)   the class pointer
  * @param[in] deviceId   the device identifier
  */
-void JNICALL
-Java_com_ibm_cuda_CudaDevice_synchronize
-  (JNIEnv * env, jclass, jint deviceId)
+void JNICALL Java_com_ibm_cuda_CudaDevice_synchronize(JNIEnv* env, jclass, jint deviceId)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_deviceSynchronize_entry(thread, deviceId);
+    Trc_cuda_deviceSynchronize_entry(thread, deviceId);
 
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_deviceSynchronize((uint32_t)deviceId);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_deviceSynchronize((uint32_t)deviceId);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_deviceSynchronize_exit(thread);
+    Trc_cuda_deviceSynchronize_exit(thread);
 }

@@ -29,34 +29,34 @@
 class MM_CompactSchemeCheckMarkRoots : public MM_RootScanner {
 private:
 public:
-	MM_CompactSchemeCheckMarkRoots(MM_EnvironmentStandard *env)
-		: MM_RootScanner(env, true)
-	{}
+    MM_CompactSchemeCheckMarkRoots(MM_EnvironmentStandard* env)
+        : MM_RootScanner(env, true)
+    {}
 
-	virtual void doSlot(omrobjectptr_t* slot)
-	{}
+    virtual void doSlot(omrobjectptr_t* slot) {}
 
-	virtual void doClass(J9Class *clazz)
-	{
-		GC_ClassIterator classIterator(_env, clazz);
-		while (volatile omrobjectptr_t *slot = classIterator.nextSlot()) {
-			/* discard volatile since we must be in stop-the-world mode */
-			doSlot((omrobjectptr_t*)slot);
-		}
-	}
+    virtual void doClass(J9Class* clazz)
+    {
+        GC_ClassIterator classIterator(_env, clazz);
+        while (volatile omrobjectptr_t* slot = classIterator.nextSlot()) {
+            /* discard volatile since we must be in stop-the-world mode */
+            doSlot((omrobjectptr_t*)slot);
+        }
+    }
 
-	virtual void doClassLoader(J9ClassLoader *classLoader)
-	{
-		if (J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
-			doSlot(&classLoader->classLoaderObject);
-			scanModularityObjects(classLoader);
-		}
-	}
+    virtual void doClassLoader(J9ClassLoader* classLoader)
+    {
+        if (J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
+            doSlot(&classLoader->classLoaderObject);
+            scanModularityObjects(classLoader);
+        }
+    }
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void doFinalizableObject(omrobjectptr_t object) {
-		omrobjectptr_t objectPtr = object;
-		doSlot(&objectPtr);
-	}
+    virtual void doFinalizableObject(omrobjectptr_t object)
+    {
+        omrobjectptr_t objectPtr = object;
+        doSlot(&objectPtr);
+    }
 #endif /* J9VM_GC_FINALIZATION */
 };
 

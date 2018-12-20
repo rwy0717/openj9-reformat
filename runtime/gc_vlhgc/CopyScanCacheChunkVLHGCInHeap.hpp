@@ -29,43 +29,44 @@
 #if !defined(COPYSCANCACHECHUNKVLHGCINHEAP_HPP_)
 #define COPYSCANCACHECHUNKVLHGCINHEAP_HPP_
 
-#include "CopyScanCacheChunkVLHGC.hpp" 
+#include "CopyScanCacheChunkVLHGC.hpp"
 
 #include "GCExtensions.hpp"
-
 
 /**
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_CopyScanCacheChunkVLHGCInHeap : public MM_CopyScanCacheChunkVLHGC
-{
+class MM_CopyScanCacheChunkVLHGCInHeap : public MM_CopyScanCacheChunkVLHGC {
 public:
-	/**
-	 * Returns the number of scan caches which are allocated as part of an instance of the receiver (since they are all currently the same size).
-	 * @param env[in] A GC thread
-	 * @return The number of caches which will be allocated as part of an instance of the receiver
-	 */
-	static UDATA numberOfCachesInChunk(MM_EnvironmentVLHGC *env);
-	/**
-	 * The number of bytes required to allocate an instance of the receiver (since they are all currently the same size).
-	 * @param env[in] A GC thread
-	 * @return The size, in bytes, of the memory extent required to hold one instance of the receiver
-	 */
-	static UDATA bytesRequiredToAllocateChunkInHeap(MM_EnvironmentVLHGC *env);
-	static MM_CopyScanCacheChunkVLHGCInHeap *newInstance(MM_EnvironmentVLHGC *env, void *buffer, UDATA bufferLengthInBytes, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk);
-	bool initialize(MM_EnvironmentVLHGC *env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk);
-	virtual void kill(MM_EnvironmentVLHGC *env);
+    /**
+     * Returns the number of scan caches which are allocated as part of an instance of the receiver (since they are all
+     * currently the same size).
+     * @param env[in] A GC thread
+     * @return The number of caches which will be allocated as part of an instance of the receiver
+     */
+    static UDATA numberOfCachesInChunk(MM_EnvironmentVLHGC* env);
+    /**
+     * The number of bytes required to allocate an instance of the receiver (since they are all currently the same
+     * size).
+     * @param env[in] A GC thread
+     * @return The size, in bytes, of the memory extent required to hold one instance of the receiver
+     */
+    static UDATA bytesRequiredToAllocateChunkInHeap(MM_EnvironmentVLHGC* env);
+    static MM_CopyScanCacheChunkVLHGCInHeap* newInstance(MM_EnvironmentVLHGC* env, void* buffer,
+        UDATA bufferLengthInBytes, MM_CopyScanCacheVLHGC** nextCacheAddr, MM_CopyScanCacheChunkVLHGC* nextChunk);
+    bool initialize(MM_EnvironmentVLHGC* env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC** nextCacheAddr,
+        MM_CopyScanCacheChunkVLHGC* nextChunk);
+    virtual void kill(MM_EnvironmentVLHGC* env);
 
-	/**
-	 * Create a CopyScanCacheChunkVLHGCInHeap object.
-	 */
-	MM_CopyScanCacheChunkVLHGCInHeap()
-		: MM_CopyScanCacheChunkVLHGC()
-	{
-		_typeId = __FUNCTION__;
-	};
+    /**
+     * Create a CopyScanCacheChunkVLHGCInHeap object.
+     */
+    MM_CopyScanCacheChunkVLHGCInHeap()
+        : MM_CopyScanCacheChunkVLHGC()
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* COPYSCANCACHECHUNKVLHGCINHEAP_HPP_ */
-

@@ -28,32 +28,30 @@
 #include "jcl_internal.h"
 
 /* java.lang.ref.Finalizer: private native static void runAllFinalizersImpl(); */
-void JNICALL
-Java_java_lang_ref_Finalizer_runAllFinalizersImpl(JNIEnv *env, jclass recv)
+void JNICALL Java_java_lang_ref_Finalizer_runAllFinalizersImpl(JNIEnv* env, jclass recv)
 {
-	J9VMThread *currentThread = (J9VMThread*)env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9MemoryManagerFunctions *mmFuncs = vm->memoryManagerFunctions;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9MemoryManagerFunctions* mmFuncs = vm->memoryManagerFunctions;
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-	vmFuncs->internalReleaseVMAccess(currentThread);
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+    vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-	mmFuncs->j9gc_runFinalizersOnExit(currentThread, TRUE);
-	mmFuncs->j9gc_finalizer_completeFinalizersOnExit(currentThread);
+    mmFuncs->j9gc_runFinalizersOnExit(currentThread, TRUE);
+    mmFuncs->j9gc_finalizer_completeFinalizersOnExit(currentThread);
 }
 
 /* java.lang.ref.Finalizer: private native static void runFinalizationImpl(); */
-void JNICALL
-Java_java_lang_ref_Finalizer_runFinalizationImpl(JNIEnv *env, jclass recv)
+void JNICALL Java_java_lang_ref_Finalizer_runFinalizationImpl(JNIEnv* env, jclass recv)
 {
-	J9VMThread *currentThread = (J9VMThread*)env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9MemoryManagerFunctions *mmFuncs = vm->memoryManagerFunctions;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9MemoryManagerFunctions* mmFuncs = vm->memoryManagerFunctions;
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-	vmFuncs->internalReleaseVMAccess(currentThread);
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+    vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-	mmFuncs->runFinalization(currentThread);
+    mmFuncs->runFinalization(currentThread);
 }

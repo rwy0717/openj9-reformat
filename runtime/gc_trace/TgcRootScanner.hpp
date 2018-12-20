@@ -32,7 +32,7 @@
  * Initialize the root scanner trace extension. Register hooks for the end of a GC cycle.
  *
  * @param[in] javaVM	The JavaVM structure
- * 
+ *
  * @return Return 0 on success, otherwise return positive integer
  */
 bool tgcRootScannerInitialize(J9JavaVM* javaVM);

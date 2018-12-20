@@ -22,12 +22,11 @@
 
 #include "SCTestCommon.h"
 
-void
-SetRomClassName(J9JavaVM* vm, J9ROMClass * rc, const char * name)
+void SetRomClassName(J9JavaVM* vm, J9ROMClass* rc, const char* name)
 {
-	J9UTF8 * romClassNameLocation = NULL;
-	romClassNameLocation = (J9UTF8 *) (((IDATA) rc) + sizeof(J9ROMClass));
-	J9UTF8_SET_LENGTH(romClassNameLocation, (U_16)strlen(name));
-	strcpy((char *) (J9UTF8_DATA(romClassNameLocation)), name);
-	NNSRP_SET(rc->className, romClassNameLocation);
+    J9UTF8* romClassNameLocation = NULL;
+    romClassNameLocation = (J9UTF8*)(((IDATA)rc) + sizeof(J9ROMClass));
+    J9UTF8_SET_LENGTH(romClassNameLocation, (U_16)strlen(name));
+    strcpy((char*)(J9UTF8_DATA(romClassNameLocation)), name);
+    NNSRP_SET(rc->className, romClassNameLocation);
 }

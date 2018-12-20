@@ -37,8 +37,8 @@
 class MM_HeapMap;
 class MM_MemorySubSpaceSemiSpace;
 
-extern void globalGCReportObjectEvents(MM_EnvironmentBase *env, MM_HeapMap *markMap);
-extern void localGCReportObjectEvents(MM_EnvironmentBase *env, MM_MemorySubSpaceSemiSpace *memorySubSpace);
+extern void globalGCReportObjectEvents(MM_EnvironmentBase* env, MM_HeapMap* markMap);
+extern void localGCReportObjectEvents(MM_EnvironmentBase* env, MM_MemorySubSpaceSemiSpace* memorySubSpace);
 
 #endif /* J9VM_PROF_EVENT_REPORTING */
 #endif /* GCOBJECTEVENTS_HPP_ */

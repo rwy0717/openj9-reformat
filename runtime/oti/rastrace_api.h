@@ -24,13 +24,13 @@
 #define rastrace_api_h
 
 /**
-* @file rastrace_api.h
-* @brief Public API for the RASTRACE module.
-*
-* This file contains public function prototypes and
-* type definitions for the RASTRACE module.
-*
-*/
+ * @file rastrace_api.h
+ * @brief Public API for the RASTRACE module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the RASTRACE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,25 +43,23 @@ extern "C" {
 /* ---------------- jvmri.c ---------------- */
 
 /**
-* @brief
-* @param vm
-* @return void
-*/
-void 
-rasStartDeferredThreads(J9JavaVM* vm);
+ * @brief
+ * @param vm
+ * @return void
+ */
+void rasStartDeferredThreads(J9JavaVM* vm);
 
 /* ---------------- trcengine.c ---------------- */
 
 /**
-* @brief
-* @param *vm
-* @param stage
-* @param *reserved
-* @return IDATA
-*/
-IDATA 
-J9VMDllMain(J9JavaVM *vm, IDATA stage, void *reserved);
-
+ * @brief
+ * @param *vm
+ * @param stage
+ * @param *reserved
+ * @return IDATA
+ */
+IDATA
+J9VMDllMain(J9JavaVM* vm, IDATA stage, void* reserved);
 
 #ifdef __cplusplus
 }

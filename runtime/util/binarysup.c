@@ -28,8 +28,8 @@
 IDATA
 compareUTF8Length(U_8* data1, UDATA length1, void* data2, UDATA length2)
 {
-	if(length1==length2) {
-		return memcmp(data2,data1,length1);
-	}
-	return length2-length1;
+    if (length1 == length2) {
+        return memcmp(data2, data1, length1);
+    }
+    return length2 - length1;
 }

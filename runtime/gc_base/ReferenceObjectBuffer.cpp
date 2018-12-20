@@ -35,78 +35,74 @@
 #include "ReferenceObjectList.hpp"
 
 MM_ReferenceObjectBuffer::MM_ReferenceObjectBuffer(UDATA maxObjectCount)
-	: MM_BaseVirtual()
-	, _maxObjectCount(maxObjectCount)
+    : MM_BaseVirtual()
+    , _maxObjectCount(maxObjectCount)
 {
-	_typeId = __FUNCTION__;
-	reset();
+    _typeId = __FUNCTION__;
+    reset();
 }
 
-void
-MM_ReferenceObjectBuffer::kill(MM_EnvironmentBase *env)
+void MM_ReferenceObjectBuffer::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-void 
-MM_ReferenceObjectBuffer::reset()
+void MM_ReferenceObjectBuffer::reset()
 {
-	_head = NULL;
-	_tail = NULL;
-	_region = NULL;
-	_referenceObjectType = 0;
-	/* set object count to appear full so that we force initialization on the next add */
-	_objectCount = _maxObjectCount;
+    _head = NULL;
+    _tail = NULL;
+    _region = NULL;
+    _referenceObjectType = 0;
+    /* set object count to appear full so that we force initialization on the next add */
+    _objectCount = _maxObjectCount;
 }
 
-void 
-MM_ReferenceObjectBuffer::flush(MM_EnvironmentBase* env)
+void MM_ReferenceObjectBuffer::flush(MM_EnvironmentBase* env)
 {
-	if (NULL != _head) {
-		flushImpl(env);
-		reset();
-	}
+    if (NULL != _head) {
+        flushImpl(env);
+        reset();
+    }
 }
 
 UDATA
-MM_ReferenceObjectBuffer::getReferenceObjectType(j9object_t object) 
-{ 
-	return J9CLASS_FLAGS(J9GC_J9OBJECT_CLAZZ(object)) & J9_JAVA_CLASS_REFERENCE_MASK;
-}
-
-void
-MM_ReferenceObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
+MM_ReferenceObjectBuffer::getReferenceObjectType(j9object_t object)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-
-	if ( (_objectCount < _maxObjectCount) && _region->isAddressInRegion(object) && (getReferenceObjectType(object) == _referenceObjectType)) {
-		/* object is permitted in this buffer */
-		Assert_MM_true(NULL != _head);
-		Assert_MM_true(NULL != _tail);
-
-		extensions->accessBarrier->setReferenceLink(object, _head);
-		_head = object;
-		_objectCount += 1;
-	} else {
-		MM_HeapRegionDescriptor *region = _region;
-
-		/* flush the buffer and start fresh */
-		flush(env);
-		
-		extensions->accessBarrier->setReferenceLink(object, NULL);
-		_head = object;
-		_tail = object;
-		_objectCount = 1;
-		if (NULL == region || !region->isAddressInRegion(object)) {
-			/* record the type of object and the region which contains this object. Other objects will be permitted in the buffer if they match */
-			MM_HeapRegionManager *regionManager = extensions->getHeap()->getHeapRegionManager();
-			region = regionManager->regionDescriptorForAddress(object);
-			Assert_MM_true(NULL != region);
-		}
-		_region = region;
-		_referenceObjectType = getReferenceObjectType(object);
-
-	}
+    return J9CLASS_FLAGS(J9GC_J9OBJECT_CLAZZ(object)) & J9_JAVA_CLASS_REFERENCE_MASK;
 }
 
+void MM_ReferenceObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
+{
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+
+    if ((_objectCount < _maxObjectCount) && _region->isAddressInRegion(object)
+        && (getReferenceObjectType(object) == _referenceObjectType)) {
+        /* object is permitted in this buffer */
+        Assert_MM_true(NULL != _head);
+        Assert_MM_true(NULL != _tail);
+
+        extensions->accessBarrier->setReferenceLink(object, _head);
+        _head = object;
+        _objectCount += 1;
+    } else {
+        MM_HeapRegionDescriptor* region = _region;
+
+        /* flush the buffer and start fresh */
+        flush(env);
+
+        extensions->accessBarrier->setReferenceLink(object, NULL);
+        _head = object;
+        _tail = object;
+        _objectCount = 1;
+        if (NULL == region || !region->isAddressInRegion(object)) {
+            /* record the type of object and the region which contains this object. Other objects will be permitted in
+             * the buffer if they match */
+            MM_HeapRegionManager* regionManager = extensions->getHeap()->getHeapRegionManager();
+            region = regionManager->regionDescriptorForAddress(object);
+            Assert_MM_true(NULL != region);
+        }
+        _region = region;
+        _referenceObjectType = getReferenceObjectType(object);
+    }
+}

@@ -38,26 +38,24 @@
  * Iterate through references to the interfaces implemented by a class.
  * @ingroup GC_Structs
  */
-class GC_ClassLocalInterfaceIterator
-{
-	J9ITable *_iTable;
-	J9ITable *_superclassITable;
-	
-public:
-	GC_ClassLocalInterfaceIterator(J9Class *clazz) :
-		_iTable((J9ITable*)clazz->iTable)
-	{
-	
-		J9Class *superclass = clazz->superclasses[J9CLASS_DEPTH(clazz) - 1];
-		if(superclass) {
-			_superclassITable = (J9ITable*)superclass->iTable;
-		} else {
-			_superclassITable = NULL;
-		}
-	};
+class GC_ClassLocalInterfaceIterator {
+    J9ITable* _iTable;
+    J9ITable* _superclassITable;
 
-	J9Class **nextSlot();
+public:
+    GC_ClassLocalInterfaceIterator(J9Class* clazz)
+        : _iTable((J9ITable*)clazz->iTable)
+    {
+
+        J9Class* superclass = clazz->superclasses[J9CLASS_DEPTH(clazz) - 1];
+        if (superclass) {
+            _superclassITable = (J9ITable*)superclass->iTable;
+        } else {
+            _superclassITable = NULL;
+        }
+    };
+
+    J9Class** nextSlot();
 };
 
 #endif /* CLASSLOCALINTERFACEITERATOR_HPP_ */
-

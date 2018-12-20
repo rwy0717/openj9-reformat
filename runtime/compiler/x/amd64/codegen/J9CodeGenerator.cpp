@@ -32,74 +32,58 @@
 #include "il/Node_inlines.hpp"
 #include "env/CompilerEnv.hpp"
 
-TR::Linkage *
-J9::X86::AMD64::CodeGenerator::createLinkage(TR_LinkageConventions lc)
-   {
-   TR::Linkage *linkage = NULL;
+TR::Linkage* J9::X86::AMD64::CodeGenerator::createLinkage(TR_LinkageConventions lc)
+{
+    TR::Linkage* linkage = NULL;
 
-   switch (lc)
-      {
-      case TR_CHelper:
-         linkage = new (self()->trHeapMemory()) TR::X86HelperLinkage(self());
-         break;
-      case TR_Helper:
-      case TR_Private:
-         {
-         TR::X86PrivateLinkage *p = NULL;
-         p = new (self()->trHeapMemory()) TR::AMD64PrivateLinkage(self());
-         p->IPicParameters.roundedSizeOfSlot = 10+3+2+5+2+2;
-         p->IPicParameters.defaultNumberOfSlots = 2;
-         p->IPicParameters.defaultSlotAddress = 0;
-         p->VPicParameters.roundedSizeOfSlot = 10+3+2+5+2+2;
-         p->VPicParameters.defaultNumberOfSlots = 1;
-         p->VPicParameters.defaultSlotAddress = 0;
-         linkage = p;
-         }
-         break;
+    switch (lc) {
+    case TR_CHelper:
+        linkage = new (self()->trHeapMemory()) TR::X86HelperLinkage(self());
+        break;
+    case TR_Helper:
+    case TR_Private: {
+        TR::X86PrivateLinkage* p = NULL;
+        p = new (self()->trHeapMemory()) TR::AMD64PrivateLinkage(self());
+        p->IPicParameters.roundedSizeOfSlot = 10 + 3 + 2 + 5 + 2 + 2;
+        p->IPicParameters.defaultNumberOfSlots = 2;
+        p->IPicParameters.defaultSlotAddress = 0;
+        p->VPicParameters.roundedSizeOfSlot = 10 + 3 + 2 + 5 + 2 + 2;
+        p->VPicParameters.defaultNumberOfSlots = 1;
+        p->VPicParameters.defaultSlotAddress = 0;
+        linkage = p;
+    } break;
 
-      case TR_J9JNILinkage:
-         {
-         TR::AMD64SystemLinkage *systemLinkage;
+    case TR_J9JNILinkage: {
+        TR::AMD64SystemLinkage* systemLinkage;
 
-         if (TR::Compiler->target.isWindows())
-            {
+        if (TR::Compiler->target.isWindows()) {
             systemLinkage = new (self()->trHeapMemory()) TR::AMD64J9Win64FastCallLinkage(self());
             linkage = new (self()->trHeapMemory()) TR::AMD64JNILinkage(systemLinkage, self());
-            }
-         else if (TR::Compiler->target.isLinux() || TR::Compiler->target.isOSX())
-            {
+        } else if (TR::Compiler->target.isLinux() || TR::Compiler->target.isOSX()) {
             systemLinkage = new (self()->trHeapMemory()) TR::AMD64J9ABILinkage(self());
             linkage = new (self()->trHeapMemory()) TR::AMD64JNILinkage(systemLinkage, self());
-            }
-         else
-            {
+        } else {
             TR_ASSERT(0, "linkage not supported: %d\n", lc);
             linkage = NULL;
-            }
-         }
-         break;
+        }
+    } break;
 
-      case TR_System:
-         if (TR::Compiler->target.isWindows())
-            {
+    case TR_System:
+        if (TR::Compiler->target.isWindows()) {
             linkage = new (self()->trHeapMemory()) TR::AMD64J9Win64FastCallLinkage(self());
-            }
-         else if (TR::Compiler->target.isLinux() || TR::Compiler->target.isOSX())
-            {
+        } else if (TR::Compiler->target.isLinux() || TR::Compiler->target.isOSX()) {
             linkage = new (self()->trHeapMemory()) TR::AMD64J9ABILinkage(self());
-            }
-         else
-            {
+        } else {
             TR_ASSERT(0, "linkage not supported: %d\n", lc);
             linkage = NULL;
-            }
+        }
 
-         break;
+        break;
 
-      default :
-         TR_ASSERT(0, "\nTestarossa error: Illegal linkage convention %d\n", lc);
-      }
+    default:
+        TR_ASSERT(0, "\nTestarossa error: Illegal linkage convention %d\n", lc);
+    }
 
-   self()->setLinkage(lc, linkage);
-   return linkage;
-   }
+    self()->setLinkage(lc, linkage);
+    return linkage;
+}

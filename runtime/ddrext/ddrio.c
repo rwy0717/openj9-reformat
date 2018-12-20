@@ -25,75 +25,75 @@
 #include "com_ibm_j9ddr_corereaders_debugger_JniOutputStream.h"
 #include <stdlib.h>
 
-void appendToBuffer(char * str);
+void appendToBuffer(char* str);
 
-char *pendingOutput = NULL;
+char* pendingOutput = NULL;
 size_t bufferedLen = 0;
 
-JNIEXPORT void JNICALL
-Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write__I(JNIEnv * env, jobject self, jint b)
+JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write__I(
+    JNIEnv* env, jobject self, jint b)
 {
-	char str[2];
-	str[0] = b;
-	str[1] = 0;
-	appendToBuffer(str);
+    char str[2];
+    str[0] = b;
+    str[1] = 0;
+    appendToBuffer(str);
 }
 
-
-JNIEXPORT void JNICALL
-Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write___3BII(JNIEnv * env, jobject self, jbyteArray buffer, jint off, jint len)
+JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write___3BII(
+    JNIEnv* env, jobject self, jbyteArray buffer, jint off, jint len)
 {
-	char* str;
-	jsize arrayLen = (*env)->GetArrayLength(env, buffer);
-	jbyte* outBuffer = (*env)->GetByteArrayElements(env, buffer, NULL);
+    char* str;
+    jsize arrayLen = (*env)->GetArrayLength(env, buffer);
+    jbyte* outBuffer = (*env)->GetByteArrayElements(env, buffer, NULL);
 
-	str = malloc(len+1);
-	memcpy(str, outBuffer, len);
-	str[len] = '\0';
-	(*env)->ReleaseByteArrayElements(env, buffer, outBuffer, JNI_ABORT);
+    str = malloc(len + 1);
+    memcpy(str, outBuffer, len);
+    str[len] = '\0';
+    (*env)->ReleaseByteArrayElements(env, buffer, outBuffer, JNI_ABORT);
 
-
-	appendToBuffer(str);
-	free(str);
+    appendToBuffer(str);
+    free(str);
 }
 
-void dbgext_flushoutput() {
-	if( pendingOutput != NULL ) {
-		// Mark the buffer as free.
-		// (But we can't free it until after it's displayed.)
-		bufferedLen = 0;
-		dbgWriteString(pendingOutput);
-	}
+void dbgext_flushoutput()
+{
+    if (pendingOutput != NULL) {
+        // Mark the buffer as free.
+        // (But we can't free it until after it's displayed.)
+        bufferedLen = 0;
+        dbgWriteString(pendingOutput);
+    }
 }
 
-void appendToBuffer(char * str) {
-	if( str == NULL || strlen(str) == 0 ) {
-		return;
-	}
-	// The output has just been cleared.
-	if( bufferedLen == 0 && pendingOutput != NULL ) {
-		free(pendingOutput);
-		pendingOutput = NULL;
-	}
-	if( bufferedLen == 0 ) {
-		// New buffer.
-		size_t len = strlen(str);
-		pendingOutput = malloc(len+1);
-		pendingOutput[0] = '\0';
-		strcat(pendingOutput, str);
-		bufferedLen = len;
-		pendingOutput[bufferedLen] = '\0';
-	} else {
-		// Extend existing buffer.
-		char * newOutput = NULL;
-		size_t len = strlen(str) + bufferedLen;
-		newOutput = malloc( len + 1);
-		newOutput[0] = '\0';
-		strcat(newOutput, pendingOutput);
-		strcat(newOutput, str);
-		bufferedLen = len;
-		newOutput[bufferedLen] = '\0';
-		free(pendingOutput);
-		pendingOutput = newOutput;
-	}
+void appendToBuffer(char* str)
+{
+    if (str == NULL || strlen(str) == 0) {
+        return;
+    }
+    // The output has just been cleared.
+    if (bufferedLen == 0 && pendingOutput != NULL) {
+        free(pendingOutput);
+        pendingOutput = NULL;
+    }
+    if (bufferedLen == 0) {
+        // New buffer.
+        size_t len = strlen(str);
+        pendingOutput = malloc(len + 1);
+        pendingOutput[0] = '\0';
+        strcat(pendingOutput, str);
+        bufferedLen = len;
+        pendingOutput[bufferedLen] = '\0';
+    } else {
+        // Extend existing buffer.
+        char* newOutput = NULL;
+        size_t len = strlen(str) + bufferedLen;
+        newOutput = malloc(len + 1);
+        newOutput[0] = '\0';
+        strcat(newOutput, pendingOutput);
+        strcat(newOutput, str);
+        bufferedLen = len;
+        newOutput[bufferedLen] = '\0';
+        free(pendingOutput);
+        pendingOutput = newOutput;
+    }
 }

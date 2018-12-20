@@ -74,14 +74,13 @@ static jvmtiTst_Error * testGetConstantPool_checkStaticConstants_referedUtf8(tes
 static jvmtiTst_Error * testGetConstantPool_checkStaticConstants_referedNameAndSig(testClassCPDescriptor *cpDescriptor, U_16 nasCpIndex, const char *expectedName, const char *expectedSignature);
 static jvmtiTst_Error * testGetConstantPool_checkStaticConstants_referedReference(testClassCPDescriptor *cpDescriptor, U_16 refCpIndex, U_8 expectedReferenceType, const char *expectedClassName, const char *expectedName, const char *expectedSignature);
 
-static jvmtiTst_Error * testGetConstantPool_checkStaticConstants_referedDoubleLong(testClassCPDescriptor *cpDescriptor, U_8  cpItemType, U_16 cpIndex, U_32 expectedValue_hi, U_32 expectedValue_lo); 
+static jvmtiTst_Error * testGetConstantPool_checkStaticConstants_referedDoubleLong(testClassCPDescriptor *cpDescriptor, U_8  cpItemType, U_16 cpIndex, U_32 expectedValue_hi, U_32 expectedValue_lo);
 
-#define CHECK_FOR_EOF(nextRead) \
-	if((index + (nextRead)) > dataEnd) \
-	{ \
-		errorCode = (U_32)J9NLS_CFR_ERR_UNEXPECTED_EOF__ID; \
-		goto _errorFound; \
-	}
+#define CHECK_FOR_EOF(nextRead)                             \
+    if ((index + (nextRead)) > dataEnd) {                   \
+        errorCode = (U_32)J9NLS_CFR_ERR_UNEXPECTED_EOF__ID; \
+        goto _errorFound;                                   \
+    }
 
 
 jvmtiTst_Error *

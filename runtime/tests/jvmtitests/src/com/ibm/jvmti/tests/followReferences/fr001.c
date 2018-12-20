@@ -202,5 +202,5 @@ static jint JNICALL
 testFollowReferences_stringPrimitiveCallback(jlong class_tag, jlong size, jlong* tag_ptr, const jchar* value, jint value_length, void* user_data)
 {
 }
- 
+
 #endif

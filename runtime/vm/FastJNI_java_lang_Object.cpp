@@ -30,52 +30,48 @@
 extern "C" {
 
 /* java.lang.Object: public final native void wait(long millis, int nanos) throws InterruptedException; */
-void JNICALL
-Fast_java_lang_Object_wait(J9VMThread *currentThread, j9object_t receiverObject, jlong millis, jint nanos)
+void JNICALL Fast_java_lang_Object_wait(J9VMThread* currentThread, j9object_t receiverObject, jlong millis, jint nanos)
 {
-	if (0 == monitorWaitImpl(currentThread, receiverObject, (I_64)millis, (I_32)nanos, TRUE)) {
-		/* No need to check return value here - pop frames cannot occur as this method is native */
-		VM_VMHelpers::checkAsyncMessages(currentThread);
-	}
+    if (0 == monitorWaitImpl(currentThread, receiverObject, (I_64)millis, (I_32)nanos, TRUE)) {
+        /* No need to check return value here - pop frames cannot occur as this method is native */
+        VM_VMHelpers::checkAsyncMessages(currentThread);
+    }
 }
 
 /* java.lang.Object: public final native void notifyAll(); */
-void JNICALL
-Fast_java_lang_Object_notifyAll(J9VMThread *currentThread, j9object_t receiverObject)
+void JNICALL Fast_java_lang_Object_notifyAll(J9VMThread* currentThread, j9object_t receiverObject)
 {
-	omrthread_monitor_t monitorPtr = NULL;
+    omrthread_monitor_t monitorPtr = NULL;
 
-	if (VM_ObjectMonitor::getMonitorForNotify(currentThread, receiverObject, &monitorPtr, true)) {
-		if (0 != omrthread_monitor_notify_all(monitorPtr)) {
-			setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
-		}
-	} else if (NULL != monitorPtr) {
-		setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
-	}
+    if (VM_ObjectMonitor::getMonitorForNotify(currentThread, receiverObject, &monitorPtr, true)) {
+        if (0 != omrthread_monitor_notify_all(monitorPtr)) {
+            setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
+        }
+    } else if (NULL != monitorPtr) {
+        setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
+    }
 }
 
 /* java.lang.Object: public final native void notify(); */
-void JNICALL
-Fast_java_lang_Object_notify(J9VMThread *currentThread, j9object_t receiverObject)
+void JNICALL Fast_java_lang_Object_notify(J9VMThread* currentThread, j9object_t receiverObject)
 {
-	omrthread_monitor_t monitorPtr = NULL;
+    omrthread_monitor_t monitorPtr = NULL;
 
-	if (VM_ObjectMonitor::getMonitorForNotify(currentThread, receiverObject, &monitorPtr, true)) {
-		if (0 != omrthread_monitor_notify(monitorPtr)) {
-			setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
-		}
-	} else if (NULL != monitorPtr) {
-		setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
-	}
+    if (VM_ObjectMonitor::getMonitorForNotify(currentThread, receiverObject, &monitorPtr, true)) {
+        if (0 != omrthread_monitor_notify(monitorPtr)) {
+            setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
+        }
+    } else if (NULL != monitorPtr) {
+        setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
+    }
 }
 
 J9_FAST_JNI_METHOD_TABLE(java_lang_Object)
-	J9_FAST_JNI_METHOD("wait", "(JI)V", Fast_java_lang_Object_wait,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
-	J9_FAST_JNI_METHOD("notifyAll", "()V", Fast_java_lang_Object_notifyAll,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
-	J9_FAST_JNI_METHOD("notify", "()V", Fast_java_lang_Object_notify,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
+J9_FAST_JNI_METHOD(
+    "wait", "(JI)V", Fast_java_lang_Object_wait, J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
+J9_FAST_JNI_METHOD(
+    "notifyAll", "()V", Fast_java_lang_Object_notifyAll, J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
+J9_FAST_JNI_METHOD(
+    "notify", "()V", Fast_java_lang_Object_notify, J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
 J9_FAST_JNI_METHOD_TABLE_END
-
 }

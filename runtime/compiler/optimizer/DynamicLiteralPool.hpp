@@ -23,85 +23,82 @@
 #ifndef DYNAMICLITERALPOOL_INCL
 #define DYNAMICLITERALPOOL_INCL
 
-#include <stddef.h>                           // for NULL
-#include <stdint.h>                           // for int32_t, uint32_t, etc
-#include "compile/Compilation.hpp"            // for Compilation
-#include "env/TRMemory.hpp"                   // for TR_Memory, etc
+#include <stddef.h> // for NULL
+#include <stdint.h> // for int32_t, uint32_t, etc
+#include "compile/Compilation.hpp" // for Compilation
+#include "env/TRMemory.hpp" // for TR_Memory, etc
 #include "env/jittypes.h"
-#include "il/Block.hpp"                       // for Block
-#include "il/ILOpCodes.hpp"                   // for ILOpCodes, etc
-#include "il/Node.hpp"                        // for Node, etc
-#include "infra/Assert.hpp"                   // for TR_ASSERT
-#include "infra/List.hpp"                     // for List, TR_ScratchList
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include "il/Block.hpp" // for Block
+#include "il/ILOpCodes.hpp" // for ILOpCodes, etc
+#include "il/Node.hpp" // for Node, etc
+#include "infra/Assert.hpp" // for TR_ASSERT
+#include "infra/List.hpp" // for List, TR_ScratchList
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
+namespace TR {
+class SymbolReference;
+}
+namespace TR {
+class TreeTop;
+}
 
-namespace TR { class SymbolReference; }
-namespace TR { class TreeTop; }
+class TR_DynamicLiteralPool : public TR::Optimization {
+public:
+    TR_DynamicLiteralPool(TR::OptimizationManager* manager);
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_DynamicLiteralPool(manager);
+    }
 
+    virtual int32_t perform();
+    virtual int32_t performOnBlock(TR::Block*);
+    virtual const char* optDetailString() const throw();
 
-class TR_DynamicLiteralPool : public TR::Optimization
-   {
-   public:
-   TR_DynamicLiteralPool(TR::OptimizationManager *manager);
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_DynamicLiteralPool(manager);
-      }
+    int32_t process(TR::TreeTop*, TR::TreeTop*);
 
-   virtual int32_t perform();
-   virtual int32_t performOnBlock(TR::Block *);
-   virtual const char * optDetailString() const throw();
+    TR::SymbolReference* getLitPoolAddressSym()
+    {
+        if (_litPoolAddressSym == NULL)
+            initLiteralPoolBase();
+        return _litPoolAddressSym;
+    }
+    TR::Node* getAloadFromCurrentBlock(TR::Node* parent)
+    {
+        if (_aloadFromCurrentBlock == NULL) {
+            setAloadFromCurrentBlock(TR::Node::createWithSymRef(parent, TR::aload, 0, getLitPoolAddressSym()));
+            dumpOptDetails(comp(), "New aload needed, it is: %p!\n", _aloadFromCurrentBlock);
+        } else {
+            dumpOptDetails(comp(), "Can re-use aload %p!\n", _aloadFromCurrentBlock);
+        }
+        return _aloadFromCurrentBlock;
+    }
+    void setAloadFromCurrentBlock(TR::Node* aloadNode) { _aloadFromCurrentBlock = aloadNode; }
 
-   int32_t process(TR::TreeTop *, TR::TreeTop *);
+    TR::Node* getVMThreadAloadFromCurrentBlock(TR::Node* parent);
+    void setVMThreadAloadFromCurrentBlock(TR::Node* aloadNode) { _vmThreadAloadFromCurrentBlock = aloadNode; }
 
-   TR::SymbolReference * getLitPoolAddressSym()
-      {
-      if (_litPoolAddressSym==NULL) initLiteralPoolBase();
-      return _litPoolAddressSym;
-      }
-   TR::Node * getAloadFromCurrentBlock(TR::Node *parent)
-      {
-      if (_aloadFromCurrentBlock==NULL)
-         {
-         setAloadFromCurrentBlock(TR::Node::createWithSymRef(parent, TR::aload, 0, getLitPoolAddressSym()));
-         dumpOptDetails(comp(), "New aload needed, it is: %p!\n", _aloadFromCurrentBlock);
-         }
-      else
-         {
-         dumpOptDetails(comp(), "Can re-use aload %p!\n",_aloadFromCurrentBlock);
-         }
-      return _aloadFromCurrentBlock;
-      }
-   void setAloadFromCurrentBlock(TR::Node *aloadNode)  {_aloadFromCurrentBlock = aloadNode;}
+    int32_t getNumChild() { return _numChild; }
+    void setNumChild(int32_t n) { _numChild = n; }
 
-   TR::Node *getVMThreadAloadFromCurrentBlock(TR::Node *parent);
-   void setVMThreadAloadFromCurrentBlock(TR::Node *aloadNode)  {_vmThreadAloadFromCurrentBlock = aloadNode;}
+private:
+    TR::SymbolReference* _litPoolAddressSym;
+    TR::Block* _currentBlock;
+    TR::Node* _aloadFromCurrentBlock;
+    TR::Node* _vmThreadAloadFromCurrentBlock;
+    bool _changed;
+    int32_t _numChild;
 
-   int32_t getNumChild() {return  _numChild;}
-   void    setNumChild(int32_t n) {_numChild=n;}
-
-   private:
-
-   TR::SymbolReference * _litPoolAddressSym;
-   TR::Block           * _currentBlock;
-   TR::Node            * _aloadFromCurrentBlock;
-   TR::Node            * _vmThreadAloadFromCurrentBlock;
-   bool                 _changed;
-   int32_t             _numChild;
-
-   void initLiteralPoolBase();
-   bool processBlock(TR::Block *block, vcount_t visitCount);
-   bool visitTreeTop(TR::TreeTop *, TR::Node *grandParent, TR::Node *parent, TR::Node *node, vcount_t visitCount);
-   bool transformLitPoolConst(TR::Node *grandParent, TR::Node *parent, TR::Node *child);
-   bool transformConstToIndirectLoad(TR::Node *parent, TR::Node *child);
-   bool transformStaticSymRefToIndirectLoad(TR::TreeTop *, TR::Node *parent, TR::Node * & child);
-   bool transformNeeded(TR::Node *grandParent, TR::Node *parent, TR::Node *child);
-   bool addNewAloadChild(TR::Node *node);
-   bool handleNodeUsingSystemStack(TR::TreeTop *, TR::Node *parent, TR::Node *node, vcount_t visitCount);
-   bool handleNodeUsingVMThread(TR::TreeTop *, TR::Node *parent, TR::Node *node, vcount_t visitCount);
-   };
+    void initLiteralPoolBase();
+    bool processBlock(TR::Block* block, vcount_t visitCount);
+    bool visitTreeTop(TR::TreeTop*, TR::Node* grandParent, TR::Node* parent, TR::Node* node, vcount_t visitCount);
+    bool transformLitPoolConst(TR::Node* grandParent, TR::Node* parent, TR::Node* child);
+    bool transformConstToIndirectLoad(TR::Node* parent, TR::Node* child);
+    bool transformStaticSymRefToIndirectLoad(TR::TreeTop*, TR::Node* parent, TR::Node*& child);
+    bool transformNeeded(TR::Node* grandParent, TR::Node* parent, TR::Node* child);
+    bool addNewAloadChild(TR::Node* node);
+    bool handleNodeUsingSystemStack(TR::TreeTop*, TR::Node* parent, TR::Node* node, vcount_t visitCount);
+    bool handleNodeUsingVMThread(TR::TreeTop*, TR::Node* parent, TR::Node* node, vcount_t visitCount);
+};
 
 #endif
-

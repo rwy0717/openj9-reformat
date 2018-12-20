@@ -23,43 +23,46 @@
 #ifndef PROFILEGENERATOR_INCL
 #define PROFILEGENERATOR_INCL
 
-#include <stdint.h>                           // for int32_t
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-namespace TR { class CFG; }
-namespace TR { class Node; }
-namespace TR { class TreeTop; }
+namespace TR {
+class CFG;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class TreeTop;
+}
 
 // Profile generator
 //
 // Create a sample-based profiling version of the method
 //
 
-class TR_ProfileGenerator : public TR::Optimization
-   {
-   public:
+class TR_ProfileGenerator : public TR::Optimization {
+public:
+    TR_ProfileGenerator(TR::OptimizationManager* manager);
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_ProfileGenerator(manager);
+    }
 
-   TR_ProfileGenerator(TR::OptimizationManager *manager);
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_ProfileGenerator(manager);
-      }
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
+private:
+    int32_t prepareBlocks();
+    void createProfiledMethod();
+    TR::Node* copyRegDeps(TR::Node* from, bool shareChildren);
 
-   private :
-
-   int32_t    prepareBlocks();
-   void       createProfiledMethod();
-   TR::Node    *copyRegDeps(TR::Node *from, bool shareChildren);
-
-   TR::CFG     *_cfg;
-   TR::TreeTop *_firstOriginalTree;
-   TR::TreeTop *_lastOriginalTree;
-   static bool      _dynamnicProfilingCount;
-   TR::TreeTop *_asyncTree;
-   };
+    TR::CFG* _cfg;
+    TR::TreeTop* _firstOriginalTree;
+    TR::TreeTop* _lastOriginalTree;
+    static bool _dynamnicProfilingCount;
+    TR::TreeTop* _asyncTree;
+};
 
 #endif

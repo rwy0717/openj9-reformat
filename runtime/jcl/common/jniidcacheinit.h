@@ -24,6 +24,6 @@
 
 BOOLEAN initializeJavaLangStringIDCache(JNIEnv* env);
 
-BOOLEAN initializeSunReflectConstantPoolIDCache(JNIEnv* env); 
+BOOLEAN initializeSunReflectConstantPoolIDCache(JNIEnv* env);
 
 #endif /* JNIIDCACHEINIT_H_ */

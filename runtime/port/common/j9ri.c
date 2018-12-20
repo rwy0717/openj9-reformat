@@ -29,7 +29,6 @@
 #include "ut_j9prt.h"
 #include "j9ri.h"
 
-
 /* Functions added for Jazz design 55557 */
 
 /**
@@ -39,13 +38,12 @@
  * @param[in] riParams pointer to generic runtime instrumentation parameters structure.
  * @param[in] riControlBlock pointer to machine architecture dependent control block
  */
-void
-j9ri_params_init(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams, void *riControlBlock)
+void j9ri_params_init(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams, void* riControlBlock)
 {
-	Trc_PRT_ri_params_init_Entry();
-	riParams->flags = 0;
-	riParams->controlBlock = riControlBlock;
-	Trc_PRT_ri_params_init_Exit();
+    Trc_PRT_ri_params_init_Entry();
+    riParams->flags = 0;
+    riParams->controlBlock = riControlBlock;
+    Trc_PRT_ri_params_init_Exit();
 }
 
 /**
@@ -55,12 +53,11 @@ j9ri_params_init(struct J9PortLibrary *portLibrary, struct J9RIParameters *riPar
  * @return negative error code on failure, 0 on success.
  * Currently all platforms other than zlinux return 0
  */
-int32_t
-j9ri_enableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_enableRISupport(struct J9PortLibrary* portLibrary)
 {
-	Trc_PRT_ri_enableSupport_Entry();
-	Trc_PRT_ri_enableSupport_Exit();
-	return 0;
+    Trc_PRT_ri_enableSupport_Entry();
+    Trc_PRT_ri_enableSupport_Exit();
+    return 0;
 }
 
 /**
@@ -69,15 +66,12 @@ j9ri_enableRISupport(struct J9PortLibrary *portLibrary)
  * @return negative error code on failure, 0 on success.
  * Currently all platforms other than zlinux return 0
  */
-int32_t
-j9ri_disableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_disableRISupport(struct J9PortLibrary* portLibrary)
 {
-	Trc_PRT_ri_disableSupport_Entry();
-	Trc_PRT_ri_disableSupport_Exit();
-	return 0;
+    Trc_PRT_ri_disableSupport_Entry();
+    Trc_PRT_ri_disableSupport_Exit();
+    return 0;
 }
-
-
 
 /**
  * Set up hardware and/or operating structures for runtime instrumentation.
@@ -88,13 +82,11 @@ j9ri_disableRISupport(struct J9PortLibrary *portLibrary)
  * @param[in] portLibrary The port library
  * @param[in] riParams pointer to generic runtime instrumentation parameters structure.
  */
-void
-j9ri_initialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_initialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_initialize_Entry();
+    Trc_PRT_ri_initialize_Entry();
 
-	Trc_PRT_ri_initialize_Exit();
-
+    Trc_PRT_ri_initialize_Exit();
 }
 
 /**
@@ -106,13 +98,11 @@ j9ri_initialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riPara
  * @param[in] portLibrary The port library
  * @param[in] riParams pointer to generic runtime instrumentation parameters structure.
  */
-void
-j9ri_deinitialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_deinitialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_deinitialize_Entry();
+    Trc_PRT_ri_deinitialize_Entry();
 
-	Trc_PRT_ri_deinitialize_Exit();
-
+    Trc_PRT_ri_deinitialize_Exit();
 }
 
 /**
@@ -124,11 +114,10 @@ j9ri_deinitialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riPa
  * @param[in] portLibrary The port library
  * @param[in] riParams pointer to generic runtime instrumentation parameters structure.
  */
-void
-j9ri_enable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_enable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_enable_Entry();
-	Trc_PRT_ri_enable_Exit();
+    Trc_PRT_ri_enable_Entry();
+    Trc_PRT_ri_enable_Exit();
 }
 
 /**
@@ -141,9 +130,8 @@ j9ri_enable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
  * @param[in] portLibrary The port library
  * @param[in] riParams pointer to generic runtime instrumentation parameters structure.
  */
-void
-j9ri_disable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_disable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_disable_Entry();
-	Trc_PRT_ri_disable_Exit();
+    Trc_PRT_ri_disable_Entry();
+    Trc_PRT_ri_disable_Exit();
 }

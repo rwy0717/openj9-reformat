@@ -25,31 +25,26 @@
 
 #include "il/symbol/J9MethodSymbol.hpp"
 
-#include <stddef.h>                            // for NULL
-#include "codegen/LinkageConventionsEnum.hpp"  // for TR_LinkageConventions, etc
+#include <stddef.h> // for NULL
+#include "codegen/LinkageConventionsEnum.hpp" // for TR_LinkageConventions, etc
 
 class TR_Method;
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE MethodSymbol : public J9::MethodSymbolConnector
-   {
+class OMR_EXTENSIBLE MethodSymbol : public J9::MethodSymbolConnector {
 
 protected:
-
-   MethodSymbol(TR_LinkageConventions lc = TR_Private, TR_Method* m = NULL) :
-      J9::MethodSymbolConnector(lc, m) { }
+    MethodSymbol(TR_LinkageConventions lc = TR_Private, TR_Method* m = NULL)
+        : J9::MethodSymbolConnector(lc, m)
+    {}
 
 private:
+    // When adding another class to the heirarchy, add it as a friend here
+    friend class J9::MethodSymbol;
+    friend class OMR::MethodSymbol;
+};
 
-   // When adding another class to the heirarchy, add it as a friend here
-   friend class J9::MethodSymbol;
-   friend class OMR::MethodSymbol;
-
-   };
-
-}
+} // namespace TR
 
 #endif
-

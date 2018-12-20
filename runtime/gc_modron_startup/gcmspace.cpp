@@ -20,8 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
- 
+
 /**
  * @file
  * @ingroup GC_Modron_Startup
@@ -51,25 +50,30 @@
 
 extern "C" {
 /**
- * Shim for low level Memory Spaces allocation which only exists to create the correct fake env for internalAllocateMemorySpaceWithMaximumWithEnv.
- * Provided sizes are already adjusted (aligned etc).
+ * Shim for low level Memory Spaces allocation which only exists to create the correct fake env for
+ * internalAllocateMemorySpaceWithMaximumWithEnv. Provided sizes are already adjusted (aligned etc).
  * @return the pointer to the list (pool) of memory spaces allocated
  */
-MM_MemorySpace *
-internalAllocateMemorySpaceWithMaximum(J9JavaVM * javaVM, UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags)
+MM_MemorySpace* internalAllocateMemorySpaceWithMaximum(J9JavaVM* javaVM, UDATA minimumSpaceSize,
+    UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize,
+    UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags)
 {
-	MM_MemorySpace *result = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	if (extensions->isMetronomeGC()) {
+    MM_MemorySpace* result = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    if (extensions->isMetronomeGC()) {
 #if defined(J9VM_GC_REALTIME)
-		MM_EnvironmentRealtime env(javaVM);
-		result = internalAllocateMemorySpaceWithMaximumWithEnv(&env, javaVM, minimumSpaceSize, minimumNewSpaceSize, initialNewSpaceSize, maximumNewSpaceSize, minimumTenureSpaceSize, initialTenureSpaceSize, maximumTenureSpaceSize, memoryMax, baseAddress, tenureFlags);
+        MM_EnvironmentRealtime env(javaVM);
+        result = internalAllocateMemorySpaceWithMaximumWithEnv(&env, javaVM, minimumSpaceSize, minimumNewSpaceSize,
+            initialNewSpaceSize, maximumNewSpaceSize, minimumTenureSpaceSize, initialTenureSpaceSize,
+            maximumTenureSpaceSize, memoryMax, baseAddress, tenureFlags);
 #endif /* J9VM_GC_REALTIME */
-	} else {
-		MM_EnvironmentBase env(javaVM->omrVM);
-		result = internalAllocateMemorySpaceWithMaximumWithEnv(&env, javaVM, minimumSpaceSize, minimumNewSpaceSize, initialNewSpaceSize, maximumNewSpaceSize, minimumTenureSpaceSize, initialTenureSpaceSize, maximumTenureSpaceSize, memoryMax, baseAddress, tenureFlags);
-	}
-	return result;
+    } else {
+        MM_EnvironmentBase env(javaVM->omrVM);
+        result = internalAllocateMemorySpaceWithMaximumWithEnv(&env, javaVM, minimumSpaceSize, minimumNewSpaceSize,
+            initialNewSpaceSize, maximumNewSpaceSize, minimumTenureSpaceSize, initialTenureSpaceSize,
+            maximumTenureSpaceSize, memoryMax, baseAddress, tenureFlags);
+    }
+    return result;
 }
 
 /**
@@ -77,60 +81,60 @@ internalAllocateMemorySpaceWithMaximum(J9JavaVM * javaVM, UDATA minimumSpaceSize
  * Provided sizes are already adjusted (aligned etc).
  * @return the pointer to the list (pool) of memory spaces allocated
  */
-MM_MemorySpace *
-internalAllocateMemorySpaceWithMaximumWithEnv(MM_EnvironmentBase *env, J9JavaVM *javaVM, UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags)
+MM_MemorySpace* internalAllocateMemorySpaceWithMaximumWithEnv(MM_EnvironmentBase* env, J9JavaVM* javaVM,
+    UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize,
+    UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax,
+    UDATA baseAddress, UDATA tenureFlags)
 {
-	MM_MemorySpace *memorySpace = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	MM_Heap *heap = extensions->heap;
+    MM_MemorySpace* memorySpace = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_Heap* heap = extensions->heap;
 
-	/* create set of parameters and clean them */
-	MM_InitializationParameters parameters;	
-	MM_Configuration *configuration = extensions->configuration;
+    /* create set of parameters and clean them */
+    MM_InitializationParameters parameters;
+    MM_Configuration* configuration = extensions->configuration;
 
-	/*
-	 * This function uses goto! All function-scope variables must be declared above
-	 * this comment. Failure to do so will cause compile errors on GNU and IBM compilers.
-	 */
-	configuration->prepareParameters(javaVM->omrVM, minimumSpaceSize, minimumNewSpaceSize, initialNewSpaceSize, maximumNewSpaceSize,
-					 minimumTenureSpaceSize, initialTenureSpaceSize, maximumTenureSpaceSize,
-					 memoryMax, tenureFlags, &parameters);
-	
-	memorySpace = configuration->createDefaultMemorySpace(env, heap, &parameters);
-	
-	if(NULL == memorySpace) {
-		goto cleanup;
-	}
+    /*
+     * This function uses goto! All function-scope variables must be declared above
+     * this comment. Failure to do so will cause compile errors on GNU and IBM compilers.
+     */
+    configuration->prepareParameters(javaVM->omrVM, minimumSpaceSize, minimumNewSpaceSize, initialNewSpaceSize,
+        maximumNewSpaceSize, minimumTenureSpaceSize, initialTenureSpaceSize, maximumTenureSpaceSize, memoryMax,
+        tenureFlags, &parameters);
 
-	if (baseAddress) {
-		if(!memorySpace->inflate(env)) {
-			goto cleanup;
-		}
-	} else {
-		/* TODO: remove this branch, once physical memory is created with new API */
-		/* defer inflation if base address is fixed */
-		if ((MEMORY_TYPE_FIXED & tenureFlags) != MEMORY_TYPE_FIXED) {
-			if(!memorySpace->inflate(env)) {
-				goto cleanup;
-			}
-		}
-	}
+    memorySpace = configuration->createDefaultMemorySpace(env, heap, &parameters);
 
-	TRIGGER_J9HOOK_MM_PRIVATE_HEAP_NEW(
-		MM_GCExtensions::getExtensions(javaVM)->privateHookInterface,
-		env->getOmrVMThread(),
-		memorySpace);
+    if (NULL == memorySpace) {
+        goto cleanup;
+    }
 
-	if (NULL == heap->getDefaultMemorySpace()) {
-		heap->setDefaultMemorySpace(memorySpace);
-	}
+    if (baseAddress) {
+        if (!memorySpace->inflate(env)) {
+            goto cleanup;
+        }
+    } else {
+        /* TODO: remove this branch, once physical memory is created with new API */
+        /* defer inflation if base address is fixed */
+        if ((MEMORY_TYPE_FIXED & tenureFlags) != MEMORY_TYPE_FIXED) {
+            if (!memorySpace->inflate(env)) {
+                goto cleanup;
+            }
+        }
+    }
 
-	return memorySpace;
+    TRIGGER_J9HOOK_MM_PRIVATE_HEAP_NEW(
+        MM_GCExtensions::getExtensions(javaVM)->privateHookInterface, env->getOmrVMThread(), memorySpace);
+
+    if (NULL == heap->getDefaultMemorySpace()) {
+        heap->setDefaultMemorySpace(memorySpace);
+    }
+
+    return memorySpace;
 
 cleanup:
 
-	/* TODO: Cleanup for the memorySpace class (if necessary) */
-	return NULL;
+    /* TODO: Cleanup for the memorySpace class (if necessary) */
+    return NULL;
 }
 
 } /* extern "C" */

@@ -41,92 +41,81 @@
  * @return
  *
  */
-void JNICALL
-_jvmtiTest_printf(agentEnv *env, int level, int indentLevel, char * format, ...)
+void JNICALL _jvmtiTest_printf(agentEnv* env, int level, int indentLevel, char* format, ...)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
 
-	if (env->outputLevel >= level) {
-		va_list args;
-		va_start(args, format);
-		vprintf(format, args);
-		va_end(args);
-	}
+    if (env->outputLevel >= level) {
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+    }
 }
 
-#if defined (WIN32) || defined(WIN64) || defined(J9ZOS390)
-void
-tprintf(agentEnv *env, int level, char * format, ...)
+#if defined(WIN32) || defined(WIN64) || defined(J9ZOS390)
+void tprintf(agentEnv* env, int level, char* format, ...)
 {
-	va_list args;
+    va_list args;
 
-	if (env->outputLevel >= level) {
-		va_start(args, format);
-		vprintf(format, args);
-		va_end(args);
-	}
+    if (env->outputLevel >= level) {
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+    }
 }
 
-void
-iprintf(agentEnv *env, int level, int indentLevel, char * format, ...)
+void iprintf(agentEnv* env, int level, int indentLevel, char* format, ...)
 {
-	va_list args;
+    va_list args;
 
-	if (env->outputLevel >= level) {
-		va_start(args, format);
-		vprintf(format, args);
-		va_end(args);
-	}
+    if (env->outputLevel >= level) {
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+    }
 }
 #endif
 
 /* Dumps a buffer in hex, prefix (if non NULL) gets prepended to each line */
-void JNICALL
-_dumpdata(char *prefix, const char *data, const size_t len)
+void JNICALL _dumpdata(char* prefix, const char* data, const size_t len)
 {
-	int j, k;
-	unsigned long i;
-	char line[128], *ptr;
+    int j, k;
+    unsigned long i;
+    char line[128], *ptr;
 
-
-	for (i = 0; i < len;) {
-		ptr = line;
-		ptr += sprintf(ptr, "  0x%08lx : ", i);
-		for (j = 0; j < 16 && i < len;) {
-			for (k = 0; k < 4 && i < len; i++, j++, k++) {
-				ptr += sprintf(ptr, "%02X ", ((int) data[i]) & 0xff);
-			}
-			ptr += sprintf(ptr, " ");
-		}
-		printf("%s > %s\n", prefix ? prefix : "", line);
-	}
+    for (i = 0; i < len;) {
+        ptr = line;
+        ptr += sprintf(ptr, "  0x%08lx : ", i);
+        for (j = 0; j < 16 && i < len;) {
+            for (k = 0; k < 4 && i < len; i++, j++, k++) {
+                ptr += sprintf(ptr, "%02X ", ((int)data[i]) & 0xff);
+            }
+            ptr += sprintf(ptr, " ");
+        }
+        printf("%s > %s\n", prefix ? prefix : "", line);
+    }
 }
 
-void JNICALL
-_dumpdata_hex_ascii(char *prefix, int dataPrintIndex, const char *data, const size_t len)
+void JNICALL _dumpdata_hex_ascii(char* prefix, int dataPrintIndex, const char* data, const size_t len)
 {
-	int j, k;
-	unsigned long i;
-	char line[128], *ptr;
-	char asciiLine[128], *asciiPtr;
+    int j, k;
+    unsigned long i;
+    char line[128], *ptr;
+    char asciiLine[128], *asciiPtr;
 
-	for (i = 0; i < len;) {
-		ptr = line;
-		asciiPtr = asciiLine;
-		ptr += sprintf(ptr, "  0x%08lx : ", dataPrintIndex + i);
-		asciiPtr += sprintf(asciiLine, "  [");
-		for (j = 0; j < 16 && i < len;) {
-			for (k = 0; k < 4 && i < len; i++, j++, k++) {
-				ptr += sprintf(ptr, "%02X ", ((int) data[i]) & 0xff);
-				asciiPtr += sprintf(asciiPtr, "%c",
-						     isprint((char)  (data[i] & 0xff)) ?
-						     ((char)  data[i]) & 0xff : '.');
-			}
-			ptr += sprintf(ptr, " ");
-		}
-		printf("%s > %s - %s]\n", prefix ? prefix : "", line, asciiLine);
-	}
+    for (i = 0; i < len;) {
+        ptr = line;
+        asciiPtr = asciiLine;
+        ptr += sprintf(ptr, "  0x%08lx : ", dataPrintIndex + i);
+        asciiPtr += sprintf(asciiLine, "  [");
+        for (j = 0; j < 16 && i < len;) {
+            for (k = 0; k < 4 && i < len; i++, j++, k++) {
+                ptr += sprintf(ptr, "%02X ", ((int)data[i]) & 0xff);
+                asciiPtr += sprintf(asciiPtr, "%c", isprint((char)(data[i] & 0xff)) ? ((char)data[i]) & 0xff : '.');
+            }
+            ptr += sprintf(ptr, " ");
+        }
+        printf("%s > %s - %s]\n", prefix ? prefix : "", line, asciiLine);
+    }
 }
-
-
-

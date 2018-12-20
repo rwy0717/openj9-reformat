@@ -31,26 +31,25 @@
  * We stop at the square root because if it can not be divided by square root or any number before,
  * then it is definitely a prime number.
  *
- *@param	number	A number to be checked whether it is prime or not. 
- *@return	TRUE, if the number is prime, FALSE otherwise. 
+ *@param	number	A number to be checked whether it is prime or not.
+ *@return	TRUE, if the number is prime, FALSE otherwise.
  */
-static BOOLEAN
-isPrime(UDATA number)
+static BOOLEAN isPrime(UDATA number)
 {
-	UDATA sqrtNumber;
-	UDATA i;
+    UDATA sqrtNumber;
+    UDATA i;
 
-	if (number < 2) {
-		return FALSE;
-	}
+    if (number < 2) {
+        return FALSE;
+    }
 
-	sqrtNumber = (UDATA)sqrt((double)number);
-	for (i = 2; i <= sqrtNumber; i++) {
-		if ((number % i) == 0) {
-			return FALSE;
-		}
-	}
-	return TRUE;
+    sqrtNumber = (UDATA)sqrt((double)number);
+    for (i = 2; i <= sqrtNumber; i++) {
+        if ((number % i) == 0) {
+            return FALSE;
+        }
+    }
+    return TRUE;
 }
 
 /**
@@ -65,18 +64,16 @@ isPrime(UDATA number)
  * otherwise returns biggest prime number smaller than or equal to number passed to this function.
  *
  */
-static UDATA
-testFindPreviousOrEqualPrime(UDATA number)
+static UDATA testFindPreviousOrEqualPrime(UDATA number)
 {
-	if (number < 2) {
-		return 0;
-	}
+    if (number < 2) {
+        return 0;
+    }
 
-	while (!isPrime(number)) {
-		number--;
-	}
-	return number;
-
+    while (!isPrime(number)) {
+        number--;
+    }
+    return number;
 }
 
 /**
@@ -89,18 +86,18 @@ testFindPreviousOrEqualPrime(UDATA number)
  *
  * Return smallest prime number which is bigger than or equal to number passed to this function.
  */
-static UDATA
-testFindNextOrEqualPrime(UDATA number)
+static UDATA testFindNextOrEqualPrime(UDATA number)
 {
-	while (!isPrime(number)) {
-		number++;
-	}
-	return number;
+    while (!isPrime(number)) {
+        number++;
+    }
+    return number;
 }
 
 /**
- *	It tries to test the function findLargestPrimeLessThanOrEqualTo for every number in the supported range of primeNumberHelper
- *	If it fails, then it increments the failCount and continue testing the function for other numbers instead of returning.
+ *	It tries to test the function findLargestPrimeLessThanOrEqualTo for every number in the supported range of
+ *primeNumberHelper If it fails, then it increments the failCount and continue testing the function for other numbers
+ *instead of returning.
  *
  *	@param portLib					Pointer to the port library.
  *	@param id						Pointer to the test name.
@@ -110,31 +107,34 @@ testFindNextOrEqualPrime(UDATA number)
  *	@return void
  *
  */
-static void
-testFindLargestPrimeLessThanOrEqualTo(J9PortLibrary *portLib, char * id, UDATA *passCount, UDATA *failCount, UDATA supportedUpperRange)
+static void testFindLargestPrimeLessThanOrEqualTo(
+    J9PortLibrary* portLib, char* id, UDATA* passCount, UDATA* failCount, UDATA supportedUpperRange)
 {
-	PORT_ACCESS_FROM_PORT(portLib);
-	UDATA previousOrEqualPrime;
-	UDATA previousOrEqualPrime2;
-	UDATA i;
+    PORT_ACCESS_FROM_PORT(portLib);
+    UDATA previousOrEqualPrime;
+    UDATA previousOrEqualPrime2;
+    UDATA i;
 
-	j9tty_printf(PORTLIB, "\tTesting findLargestPrimeLessThanOrEqualTo(number) for every number in the range 0 - %u\n", supportedUpperRange);
+    j9tty_printf(PORTLIB, "\tTesting findLargestPrimeLessThanOrEqualTo(number) for every number in the range 0 - %u\n",
+        supportedUpperRange);
 
-	for (i = 0; i < supportedUpperRange; i++ ) {
-		previousOrEqualPrime = testFindPreviousOrEqualPrime(i);
-		previousOrEqualPrime2 = findLargestPrimeLessThanOrEqualTo(i);
-		if (previousOrEqualPrime != previousOrEqualPrime2) {
-			j9tty_printf(PORTLIB, "\t%s failure. Number = %u. LargestPrimeLessThanOrEqualTo = %u. Found = %u\n", id, i, previousOrEqualPrime, previousOrEqualPrime2);
-			(*failCount)++;
-		} else {
-			(*passCount)++;
-		}
-	}
+    for (i = 0; i < supportedUpperRange; i++) {
+        previousOrEqualPrime = testFindPreviousOrEqualPrime(i);
+        previousOrEqualPrime2 = findLargestPrimeLessThanOrEqualTo(i);
+        if (previousOrEqualPrime != previousOrEqualPrime2) {
+            j9tty_printf(PORTLIB, "\t%s failure. Number = %u. LargestPrimeLessThanOrEqualTo = %u. Found = %u\n", id, i,
+                previousOrEqualPrime, previousOrEqualPrime2);
+            (*failCount)++;
+        } else {
+            (*passCount)++;
+        }
+    }
 }
 
 /**
- *	It tries to test the function findSmallestPrimeGreaterThanOrEqualTo for every number in the supported range of primeNumberHelper
- *	If it fails, then it increments the failCount and continue testing the function for other numbers instead of returning.
+ *	It tries to test the function findSmallestPrimeGreaterThanOrEqualTo for every number in the supported range of
+ *primeNumberHelper If it fails, then it increments the failCount and continue testing the function for other numbers
+ *instead of returning.
  *
  *	@param portLib					Pointer to the port library.
  *	@param id						Pointer to the test name.
@@ -144,33 +144,36 @@ testFindLargestPrimeLessThanOrEqualTo(J9PortLibrary *portLib, char * id, UDATA *
  *	@return void
  *
  */
-static void
-testFindSmallestPrimeGreaterThanOrEqualTo(J9PortLibrary *portLib, char * id, UDATA *passCount, UDATA *failCount, UDATA supportedUpperRange)
+static void testFindSmallestPrimeGreaterThanOrEqualTo(
+    J9PortLibrary* portLib, char* id, UDATA* passCount, UDATA* failCount, UDATA supportedUpperRange)
 {
-	PORT_ACCESS_FROM_PORT(portLib);
-	UDATA nextOrEqualPrime;
-	UDATA nextOrEqualPrime2;
-	UDATA i;
+    PORT_ACCESS_FROM_PORT(portLib);
+    UDATA nextOrEqualPrime;
+    UDATA nextOrEqualPrime2;
+    UDATA i;
 
-	j9tty_printf(PORTLIB, "\tTesting findSmallestPrimeGreaterThanOrEqualTo(number) for every number in the range 0 - %u\n", supportedUpperRange);
-	for (i = 0; i < supportedUpperRange; i++ ) {
-		nextOrEqualPrime = testFindNextOrEqualPrime(i);
-		/**
-		 * If the found prime number is not in the supported range of primeNumberHelper,
-		 * then  we expect primeNumberHelper to return PRIMENUMBERHELPER_OUTOFRANGE
-		 *
-		 */
-		if (nextOrEqualPrime > supportedUpperRange) {
-			nextOrEqualPrime = PRIMENUMBERHELPER_OUTOFRANGE;
-		}
-		nextOrEqualPrime2 = findSmallestPrimeGreaterThanOrEqualTo(i);
-		if (nextOrEqualPrime != nextOrEqualPrime2) {
-			j9tty_printf(PORTLIB, "\t%s failure. Number = %u. FindSmallestPrimeGreaterThanOrEqualTo = %u. Found = %u\n", id, i, nextOrEqualPrime, nextOrEqualPrime2);
-			(*failCount)++;
-		} else {
-			(*passCount)++;
-		}
-	}
+    j9tty_printf(PORTLIB,
+        "\tTesting findSmallestPrimeGreaterThanOrEqualTo(number) for every number in the range 0 - %u\n",
+        supportedUpperRange);
+    for (i = 0; i < supportedUpperRange; i++) {
+        nextOrEqualPrime = testFindNextOrEqualPrime(i);
+        /**
+         * If the found prime number is not in the supported range of primeNumberHelper,
+         * then  we expect primeNumberHelper to return PRIMENUMBERHELPER_OUTOFRANGE
+         *
+         */
+        if (nextOrEqualPrime > supportedUpperRange) {
+            nextOrEqualPrime = PRIMENUMBERHELPER_OUTOFRANGE;
+        }
+        nextOrEqualPrime2 = findSmallestPrimeGreaterThanOrEqualTo(i);
+        if (nextOrEqualPrime != nextOrEqualPrime2) {
+            j9tty_printf(PORTLIB, "\t%s failure. Number = %u. FindSmallestPrimeGreaterThanOrEqualTo = %u. Found = %u\n",
+                id, i, nextOrEqualPrime, nextOrEqualPrime2);
+            (*failCount)++;
+        } else {
+            (*passCount)++;
+        }
+    }
 }
 
 /**
@@ -183,22 +186,23 @@ testFindSmallestPrimeGreaterThanOrEqualTo(J9PortLibrary *portLib, char * id, UDA
  *	@param supportedUpperRange		Max number that is supported by primeNumberHelper.
  *
  */
-static void
-testPrimeUpperRange(J9PortLibrary *portLib, char * id, UDATA *passCount, UDATA *failCount, UDATA supportedUpperRange)
+static void testPrimeUpperRange(
+    J9PortLibrary* portLib, char* id, UDATA* passCount, UDATA* failCount, UDATA supportedUpperRange)
 {
-	PORT_ACCESS_FROM_PORT(portLib);
-	/* Check that the supported upper range is at least twice the size of max U_16, as required for checkDuplicateMembers() in cfreader.c. */
-	UDATA minimumNeededUpperRange = 65535 * 2;
+    PORT_ACCESS_FROM_PORT(portLib);
+    /* Check that the supported upper range is at least twice the size of max U_16, as required for
+     * checkDuplicateMembers() in cfreader.c. */
+    UDATA minimumNeededUpperRange = 65535 * 2;
 
-	j9tty_printf(PORTLIB, "\tTesting testPrimeUpperRange(%u >= %u)\n", supportedUpperRange, minimumNeededUpperRange);
-	if (supportedUpperRange < minimumNeededUpperRange) {
-		j9tty_printf(PORTLIB, "\t%s failure. supportedUpperRange=%u is less than %u\n", id, supportedUpperRange, minimumNeededUpperRange);
-		(*failCount)++;
-	} else {
-		(*passCount)++;
-	}
+    j9tty_printf(PORTLIB, "\tTesting testPrimeUpperRange(%u >= %u)\n", supportedUpperRange, minimumNeededUpperRange);
+    if (supportedUpperRange < minimumNeededUpperRange) {
+        j9tty_printf(PORTLIB, "\t%s failure. supportedUpperRange=%u is less than %u\n", id, supportedUpperRange,
+            minimumNeededUpperRange);
+        (*failCount)++;
+    } else {
+        (*passCount)++;
+    }
 }
-
 
 /**
  * It verifies the functionality of primeNumberHelper.
@@ -211,24 +215,25 @@ testPrimeUpperRange(J9PortLibrary *portLib, char * id, UDATA *passCount, UDATA *
  * @param 	failCount  	Pointer to the failed tests counter.
  * @return 	0
  */
-I_32
-verifyPrimeNumberHelper(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount)
+I_32 verifyPrimeNumberHelper(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount)
 {
-	I_32 rc = 0;
-	UDATA upperRange;
-	UDATA start, end;
-	PORT_ACCESS_FROM_PORT(portLib);
+    I_32 rc = 0;
+    UDATA upperRange;
+    UDATA start, end;
+    PORT_ACCESS_FROM_PORT(portLib);
 
-	j9tty_printf(PORTLIB, "Testing primeNumberHelper functions...\n");
+    j9tty_printf(PORTLIB, "Testing primeNumberHelper functions...\n");
 
-	start = j9time_usec_clock();
-	upperRange = getSupportedBiggestNumberByPrimeNumberHelper();
-	testPrimeUpperRange(portLib, "testPrimeUpperRange", passCount, failCount, upperRange);
-	testFindLargestPrimeLessThanOrEqualTo(portLib, "testFindLargestPrimeLessThanOrEqualTo", passCount, failCount, upperRange);
-	testFindSmallestPrimeGreaterThanOrEqualTo(portLib, "testFindSmallestPrimeGreaterThanOrEqualTo", passCount, failCount, upperRange);
-	end = j9time_usec_clock();
-	j9tty_printf(PORTLIB, "Finished testing primeNumberHelper functions.\n");
-	j9tty_printf(PORTLIB, "Testing primeNumberHelper functions execution time was %d (usec).\n", (end-start));
+    start = j9time_usec_clock();
+    upperRange = getSupportedBiggestNumberByPrimeNumberHelper();
+    testPrimeUpperRange(portLib, "testPrimeUpperRange", passCount, failCount, upperRange);
+    testFindLargestPrimeLessThanOrEqualTo(
+        portLib, "testFindLargestPrimeLessThanOrEqualTo", passCount, failCount, upperRange);
+    testFindSmallestPrimeGreaterThanOrEqualTo(
+        portLib, "testFindSmallestPrimeGreaterThanOrEqualTo", passCount, failCount, upperRange);
+    end = j9time_usec_clock();
+    j9tty_printf(PORTLIB, "Finished testing primeNumberHelper functions.\n");
+    j9tty_printf(PORTLIB, "Testing primeNumberHelper functions execution time was %d (usec).\n", (end - start));
 
-	return rc;
+    return rc;
 }

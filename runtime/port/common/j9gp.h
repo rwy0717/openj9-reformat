@@ -22,14 +22,12 @@
 #ifndef j9gp_h
 #define j9gp_h
 
-void j9gp_register_handler(struct J9PortLibrary *portLibrary, handler_fn fn, void *aUserData );
-int32_t j9gp_startup(struct J9PortLibrary *portLibrary);
-void j9gp_shutdown(struct J9PortLibrary *portLibrary);
-uintptr_t j9gp_protect(struct J9PortLibrary *portLibrary, protected_fn fn, void *arg );
-uint32_t j9gp_info_count(struct J9PortLibrary *portLibrary, void *info, uint32_t category);
-uint32_t j9gp_info(struct J9PortLibrary *portLibrary, void *info, uint32_t category, int32_t index, const char **name, void **value);
+void j9gp_register_handler(struct J9PortLibrary* portLibrary, handler_fn fn, void* aUserData);
+int32_t j9gp_startup(struct J9PortLibrary* portLibrary);
+void j9gp_shutdown(struct J9PortLibrary* portLibrary);
+uintptr_t j9gp_protect(struct J9PortLibrary* portLibrary, protected_fn fn, void* arg);
+uint32_t j9gp_info_count(struct J9PortLibrary* portLibrary, void* info, uint32_t category);
+uint32_t j9gp_info(
+    struct J9PortLibrary* portLibrary, void* info, uint32_t category, int32_t index, const char** name, void** value);
 
-
-#endif     /* j9gp_h */
- 
-
+#endif /* j9gp_h */

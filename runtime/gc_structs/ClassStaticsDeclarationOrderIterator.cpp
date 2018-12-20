@@ -37,24 +37,24 @@
  * @return the next static slot in the class containing an object reference
  * @return NULL if there are no more such slots
  */
-j9object_t *
-GC_ClassStaticsDeclarationOrderIterator::nextSlot()
+j9object_t* GC_ClassStaticsDeclarationOrderIterator::nextSlot()
 {
-	j9object_t *slot;
+    j9object_t* slot;
 
-	while (NULL != _fieldShape) {
-		/* In order to maintain the correct index of the static fields for this class we need to walk all the
-		 * super classes (which fullTraversalFieldOffsetsNextDo does) however we also should only be reporting
-		 * slots which come from this class, so we do the check here.
-		 */
-		if (_clazz == _walkState.currentClass) {
-			slot = (j9object_t *) ((U_8 *)_clazz->ramStatics + _walkState.fieldOffsetWalkState.result.offset);
-			_index = _walkState.referenceIndexOffset + _walkState.classIndexAdjust + _walkState.fieldOffsetWalkState.result.index - 1;
-			_fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
-			return slot;
-		}
-		_fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
-	}
-	
-	return NULL;
+    while (NULL != _fieldShape) {
+        /* In order to maintain the correct index of the static fields for this class we need to walk all the
+         * super classes (which fullTraversalFieldOffsetsNextDo does) however we also should only be reporting
+         * slots which come from this class, so we do the check here.
+         */
+        if (_clazz == _walkState.currentClass) {
+            slot = (j9object_t*)((U_8*)_clazz->ramStatics + _walkState.fieldOffsetWalkState.result.offset);
+            _index = _walkState.referenceIndexOffset + _walkState.classIndexAdjust
+                + _walkState.fieldOffsetWalkState.result.index - 1;
+            _fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
+            return slot;
+        }
+        _fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
+    }
+
+    return NULL;
 }

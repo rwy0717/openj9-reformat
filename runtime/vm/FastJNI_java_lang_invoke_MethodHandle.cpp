@@ -33,30 +33,29 @@ extern "C" {
  * Return the result of J9_CP_TYPE(J9Class->romClass->cpShapeDescription, index).
  * See the JNI version in sun_reflect_ConstantPool.c
  */
-jint JNICALL
-Fast_java_lang_invoke_MethodHandle_getCPTypeAt(J9VMThread *vmThread, j9object_t constantPoolOop, jint cpIndex)
+jint JNICALL Fast_java_lang_invoke_MethodHandle_getCPTypeAt(
+    J9VMThread* vmThread, j9object_t constantPoolOop, jint cpIndex)
 {
-	UDATA cpType = J9CPTYPE_UNUSED;
+    UDATA cpType = J9CPTYPE_UNUSED;
 
-	if (NULL == constantPoolOop) {
-		setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGNULLPOINTEREXCEPTION, NULL);
-	} else {
-		J9Class const *ramClass = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, constantPoolOop);
-		J9ROMClass const *romClass = ramClass->romClass;
+    if (NULL == constantPoolOop) {
+        setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGNULLPOINTEREXCEPTION, NULL);
+    } else {
+        J9Class const* ramClass = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, constantPoolOop);
+        J9ROMClass const* romClass = ramClass->romClass;
 
-		if ((0 <= cpIndex) && ((U_32)cpIndex < romClass->romConstantPoolCount)) {
-			U_32 *cpShapeDescription = J9ROMCLASS_CPSHAPEDESCRIPTION(romClass);
-			cpType = J9_CP_TYPE(cpShapeDescription, cpIndex);
-		} else {
-			setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
-		}
-	}
-	return (jint)cpType;
+        if ((0 <= cpIndex) && ((U_32)cpIndex < romClass->romConstantPoolCount)) {
+            U_32* cpShapeDescription = J9ROMCLASS_CPSHAPEDESCRIPTION(romClass);
+            cpType = J9_CP_TYPE(cpShapeDescription, cpIndex);
+        } else {
+            setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
+        }
+    }
+    return (jint)cpType;
 }
 
 J9_FAST_JNI_METHOD_TABLE(java_lang_invoke_MethodHandle)
-	J9_FAST_JNI_METHOD("getCPTypeAt", "(Ljava/lang/Class;I)I", Fast_java_lang_invoke_MethodHandle_getCPTypeAt,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS | J9_FAST_JNI_DO_NOT_PASS_RECEIVER)
+J9_FAST_JNI_METHOD("getCPTypeAt", "(Ljava/lang/Class;I)I", Fast_java_lang_invoke_MethodHandle_getCPTypeAt,
+    J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS | J9_FAST_JNI_DO_NOT_PASS_RECEIVER)
 J9_FAST_JNI_METHOD_TABLE_END
-
 }

@@ -29,41 +29,43 @@
 #ifndef TRJ9_CODEGENERATORBASE_CONNECTOR
 #define TRJ9_CODEGENERATORBASE_CONNECTOR
 
-namespace J9 { namespace ARM { class CodeGenerator; } }
-namespace J9 { typedef J9::ARM::CodeGenerator CodeGeneratorConnector; }
+namespace J9 {
+namespace ARM {
+class CodeGenerator;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::ARM::CodeGenerator CodeGeneratorConnector;
+}
 
 #else
 #error J9::ARM::CodeGenerator expected to be a primary connector, but a J9 connector is already defined
 #endif
 
-
 #include "compiler/codegen/J9CodeGenerator.hpp"
 #include "codegen/LinkageConventionsEnum.hpp"
 
-namespace TR { class Recompilation; }
-
-namespace J9
-{
-
-namespace ARM
-{
-
-class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator
-   {
-   public:
-
-   CodeGenerator();
-
-   TR::Recompilation *allocateRecompilationInfo();
-
-   TR::Linkage *createLinkage(TR_LinkageConventions lc);
-
-   void doBinaryEncoding();
-
-   };
-
+namespace TR {
+class Recompilation;
 }
 
-}
+namespace J9 {
+
+namespace ARM {
+
+class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator {
+public:
+    CodeGenerator();
+
+    TR::Recompilation* allocateRecompilationInfo();
+
+    TR::Linkage* createLinkage(TR_LinkageConventions lc);
+
+    void doBinaryEncoding();
+};
+
+} // namespace ARM
+
+} // namespace J9
 
 #endif

@@ -39,9 +39,9 @@ extern "C" {
 #define JIMAGE_MINOR_VERSION 1
 
 /* Macros to get type and length from "type" byte in attribute */
-#define JIMAGE_TYPE_BYTE_TYPE_MASK 0xF8	/* highest five bits in "type" byte represent type */
+#define JIMAGE_TYPE_BYTE_TYPE_MASK 0xF8 /* highest five bits in "type" byte represent type */
 #define JIMAGE_TYPE_BYTE_TYPE_SHIFT 3
-#define JIMAGE_TYPE_BYTE_LENGTH_MASK 0x7		/* lowest three bits in "type" byte represent date length */
+#define JIMAGE_TYPE_BYTE_LENGTH_MASK 0x7 /* lowest three bits in "type" byte represent date length */
 
 /* Macros representing attribute type */
 #define J9JIMAGE_ATTRIBUTE_TYPE_END 0
@@ -61,10 +61,12 @@ extern "C" {
 #define JIMAGE_REDIRECT_TABLE_OFFSET(header) JIMAGE_HEADER_SIZE(header)
 #define JIMAGE_REDIRECT_TABLE_SIZE(header) ((header).tableLength * sizeof(I_32))
 
-#define JIMAGE_LOCATION_OFFSETS_TABLE_OFFSET(header) (JIMAGE_REDIRECT_TABLE_OFFSET(header) + JIMAGE_REDIRECT_TABLE_SIZE(header))
+#define JIMAGE_LOCATION_OFFSETS_TABLE_OFFSET(header) \
+    (JIMAGE_REDIRECT_TABLE_OFFSET(header) + JIMAGE_REDIRECT_TABLE_SIZE(header))
 #define JIMAGE_LOCATION_OFFSETS_TABLE_SIZE(header) ((header).tableLength * sizeof(U_32))
 
-#define JIMAGE_LOCATION_DATA_OFFSET(header) (JIMAGE_LOCATION_OFFSETS_TABLE_OFFSET(header) + JIMAGE_LOCATION_OFFSETS_TABLE_SIZE(header))
+#define JIMAGE_LOCATION_DATA_OFFSET(header) \
+    (JIMAGE_LOCATION_OFFSETS_TABLE_OFFSET(header) + JIMAGE_LOCATION_OFFSETS_TABLE_SIZE(header))
 #define JIMAGE_LOCATION_DATA_SIZE(header) ((header).locationsSize)
 
 #define JIMAGE_STRING_DATA_OFFSET(header) (JIMAGE_LOCATION_DATA_OFFSET(header) + JIMAGE_LOCATION_DATA_SIZE(header))
@@ -75,50 +77,50 @@ extern "C" {
 #define JIMAGE_DECOMPRESSOR_MAGIC_BYTE 0xCAFEFAFA
 
 typedef struct JImageHeader {
-	U_32 magic;
-	U_16 majorVersion;
-	U_16 minorVersion;
-	U_32 flags;
-	U_32 resourceCount;
-	U_32 tableLength;
-	U_32 locationsSize;
-	U_32 stringsSize;
+    U_32 magic;
+    U_16 majorVersion;
+    U_16 minorVersion;
+    U_32 flags;
+    U_32 resourceCount;
+    U_32 tableLength;
+    U_32 locationsSize;
+    U_32 stringsSize;
 } JImageHeader;
 
 typedef struct J9JImageHeader {
-	struct JImageHeader *jimageHeader;	/* pointer to header in jimage file */
-	I_32 *redirectTable; 				/* pointer to redirect table of jimage file */
-	U_32 *locationsOffsetTable;			/* pointer to locations offset table in jimage file */
-	U_8 *locationsData;					/* pointer to locations data in jimage file */
-	U_8 *stringsData;					/* pointer to strings data in jimage file */
-	U_64 resources;						/* offset of resources data in jimage file */
+    struct JImageHeader* jimageHeader; /* pointer to header in jimage file */
+    I_32* redirectTable; /* pointer to redirect table of jimage file */
+    U_32* locationsOffsetTable; /* pointer to locations offset table in jimage file */
+    U_8* locationsData; /* pointer to locations data in jimage file */
+    U_8* stringsData; /* pointer to strings data in jimage file */
+    U_64 resources; /* offset of resources data in jimage file */
 } J9JImageHeader;
 
 typedef struct J9JImage {
-	IDATA fd;
-	char *fileName;
-	U_64 fileLength;
-	struct J9JImageHeader *j9jimageHeader;
-	J9MmapHandle *jimageMmap;
+    IDATA fd;
+    char* fileName;
+    U_64 fileLength;
+    struct J9JImageHeader* j9jimageHeader;
+    J9MmapHandle* jimageMmap;
 } J9JImage;
 
 typedef struct DecompressorInfo {
-	U_32 magic;
-	U_32 resourceLength;
-	U_32 uncompressedSize;
-	U_32 decompressorNameOffset;
-	U_32 decompressorConfigNameOffset;
-	U_8 decompressorFlag;
+    U_32 magic;
+    U_32 resourceLength;
+    U_32 uncompressedSize;
+    U_32 decompressorNameOffset;
+    U_32 decompressorConfigNameOffset;
+    U_8 decompressorFlag;
 } DecompressorInfo;
 
 typedef struct J9JImageLocation {
-	char *moduleString;
-	char *parentString;
-	char *baseString;
-	char *extensionString;
-	U_64 compressedSize;
-	U_64 uncompressedSize;
-	U_64 resourceOffset;
+    char* moduleString;
+    char* parentString;
+    char* baseString;
+    char* extensionString;
+    U_64 compressedSize;
+    U_64 uncompressedSize;
+    U_64 resourceOffset;
 } J9JImageLocation;
 
 #ifdef __cplusplus

@@ -29,18 +29,14 @@
 /**
  * @return the next classloader in the list, NULL otherwise
  */
-J9ClassLoader *
-GC_ClassLoaderLinkedListIterator::nextSlot()
+J9ClassLoader* GC_ClassLoaderLinkedListIterator::nextSlot()
 {
-	_currentLoader = _nextLoader;
-	if (NULL != _nextLoader) {
-		_nextLoader = J9_LINEAR_LINKED_LIST_NEXT_DO(gcLinkNext, gcLinkPrevious, _classLoaderManager->_classLoaders, _currentLoader);
-	}
-	return _currentLoader;
+    _currentLoader = _nextLoader;
+    if (NULL != _nextLoader) {
+        _nextLoader = J9_LINEAR_LINKED_LIST_NEXT_DO(
+            gcLinkNext, gcLinkPrevious, _classLoaderManager->_classLoaders, _currentLoader);
+    }
+    return _currentLoader;
 }
 
-void
-GC_ClassLoaderLinkedListIterator::removeSlot()
-{
-	_classLoaderManager->unlinkClassLoader(_currentLoader);
-}
+void GC_ClassLoaderLinkedListIterator::removeSlot() { _classLoaderManager->unlinkClassLoader(_currentLoader); }

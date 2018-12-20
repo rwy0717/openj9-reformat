@@ -24,13 +24,13 @@
 #define jnichk_internal_h
 
 /**
-* @file jnichk_internal.h
-* @brief Internal prototypes used within the JNICHK module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the JNICHK module.
-*
-*/
+ * @file jnichk_internal.h
+ * @brief Internal prototypes used within the JNICHK module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the JNICHK module.
+ *
+ */
 
 #include "j9.h"
 #include "jni.h"
@@ -40,7 +40,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define CRITICAL_UNSAFE 0 /* it is unsafe to call from within a critical region (see getPrimitiveArrayCritical and getStringCritical) */
+#define CRITICAL_UNSAFE \
+    0 /* it is unsafe to call from within a critical region (see getPrimitiveArrayCritical and getStringCritical) */
 #define CRITICAL_SAFE 1 /* it is safe to call from within a critical region */
 #define CRITICAL_WARN 2 /* works on J9, but is counter to the JNI specification - warn when in pedantic mode */
 
@@ -91,14 +92,13 @@
 #define JNIC_NONNULLOBJECT '0'
 #define JNIC_WEAKREF 'w'
 #define JNIC_GLOBALREF '*'
-#define JNIC_LOCALREF '?'		
+#define JNIC_LOCALREF '?'
 
 /* Global Ref tracking hash table entry */
 typedef struct JNICHK_GREF_HASHENTRY {
-	UDATA reference;
-	BOOLEAN alive;
-} JNICHK_GREF_HASHENTRY;		
-
+    UDATA reference;
+    BOOLEAN alive;
+} JNICHK_GREF_HASHENTRY;
 
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
 
@@ -108,20 +108,20 @@ typedef struct JNICHK_GREF_HASHENTRY {
 
 #else /* J9VM_INTERP_ATOMIC_FREE_JNI */
 
-#define enterVM(currentThread) \
-	BOOLEAN hasNoVMAccess = J9_ARE_NO_BITS_SET((currentThread)->publicFlags, J9_PUBLIC_FLAGS_VM_ACCESS); \
-	do { \
-		if (hasNoVMAccess) { \
-			acquireVMAccess(currentThread); \
-		} \
-	} while(0)
+#define enterVM(currentThread)                                                                           \
+    BOOLEAN hasNoVMAccess = J9_ARE_NO_BITS_SET((currentThread)->publicFlags, J9_PUBLIC_FLAGS_VM_ACCESS); \
+    do {                                                                                                 \
+        if (hasNoVMAccess) {                                                                             \
+            acquireVMAccess(currentThread);                                                              \
+        }                                                                                                \
+    } while (0)
 
-#define exitVM(currentThread) \
-	do { \
-		if (hasNoVMAccess) { \
-			releaseVMAccess(currentThread); \
-		} \
-	} while(0)
+#define exitVM(currentThread)               \
+    do {                                    \
+        if (hasNoVMAccess) {                \
+            releaseVMAccess(currentThread); \
+        }                                   \
+    } while (0)
 
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
 
@@ -132,454 +132,404 @@ extern "C" {
 /* ---------------- jnicheck.c ---------------- */
 
 /**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jboolean(JNIEnv* env, void * vaptr, jboolean result);
-
-
-/**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jbyte(JNIEnv* env, void * vaptr, jbyte result);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jboolean(JNIEnv* env, void* vaptr, jboolean result);
 
 /**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jchar(JNIEnv* env, void * vaptr, jchar result);
-
-
-/**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jdouble(JNIEnv* env, void * vaptr, jdouble result);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jbyte(JNIEnv* env, void* vaptr, jbyte result);
 
 /**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jfloat(JNIEnv* env, void * vaptr, jfloat result);
-
-
-/**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jint(JNIEnv* env, void * vaptr, jint result);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jchar(JNIEnv* env, void* vaptr, jchar result);
 
 /**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jlong(JNIEnv* env, void * vaptr, jlong result);
-
-
-/**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jobject(JNIEnv* env, void * vaptr, jobject result);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jdouble(JNIEnv* env, void* vaptr, jdouble result);
 
 /**
-* @brief
-* @param env
-* @param vaptr
-* @param result
-* @return void
-*/
-void jniCallInReturn_jshort(JNIEnv* env, void * vaptr, jshort result);
-
-
-/**
-* @brief
-* @param env
-* @param vaptr
-* @return void
-*/
-void jniCallInReturn_void(JNIEnv* env, void * vaptr);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jfloat(JNIEnv* env, void* vaptr, jfloat result);
 
 /**
-* @brief
-* @param env
-* @param nlsModule
-* @param nlsIndex
-* @param ...
-* @return void
-*/
-void 
-jniCheckAdviceNLS(JNIEnv* env, U_32 nlsModule, U_32 nlsIndex, ...);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jint(JNIEnv* env, void* vaptr, jint result);
 
 /**
-* @brief
-* @param function
-* @param exceptionSafe
-* @param criticalSafe
-* @param refTracking
-* @param descriptor
-* @param env
-* @param ...
-* @return void
-*/
-void 
-jniCheckArgs(const char* function, int exceptionSafe, int criticalSafe, J9JniCheckLocalRefState* refTracking, const U_32* descriptor, JNIEnv* env, ...);
-
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jlong(JNIEnv* env, void* vaptr, jlong result);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param array
-* @param start
-* @param len
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jobject(JNIEnv* env, void* vaptr, jobject result);
+
+/**
+ * @brief
+ * @param env
+ * @param vaptr
+ * @param result
+ * @return void
+ */
+void jniCallInReturn_jshort(JNIEnv* env, void* vaptr, jshort result);
+
+/**
+ * @brief
+ * @param env
+ * @param vaptr
+ * @return void
+ */
+void jniCallInReturn_void(JNIEnv* env, void* vaptr);
+
+/**
+ * @brief
+ * @param env
+ * @param nlsModule
+ * @param nlsIndex
+ * @param ...
+ * @return void
+ */
+void jniCheckAdviceNLS(JNIEnv* env, U_32 nlsModule, U_32 nlsIndex, ...);
+
+/**
+ * @brief
+ * @param function
+ * @param exceptionSafe
+ * @param criticalSafe
+ * @param refTracking
+ * @param descriptor
+ * @param env
+ * @param ...
+ * @return void
+ */
+void jniCheckArgs(const char* function, int exceptionSafe, int criticalSafe, J9JniCheckLocalRefState* refTracking,
+    const U_32* descriptor, JNIEnv* env, ...);
+
+/**
+ * @brief
+ * @param env
+ * @param function
+ * @param array
+ * @param start
+ * @param len
+ * @return void
+ */
 void jniCheckArrayRange(JNIEnv* env, const char* function, jarray array, jint start, jsize len);
 
+/**
+ * @brief
+ * @param function
+ * @param env
+ * @param receiver
+ * @param methodType
+ * @param returnType
+ * @param method
+ * @param args
+ * @return void
+ */
+void jniCheckCallA(const char* function, JNIEnv* env, jobject receiver, UDATA methodType, UDATA returnType,
+    jmethodID method, jvalue* args);
 
 /**
-* @brief
-* @param function
-* @param env
-* @param receiver
-* @param methodType
-* @param returnType
-* @param method
-* @param args
-* @return void
-*/
-void 
-jniCheckCallA(const char* function, JNIEnv* env, jobject receiver, UDATA methodType, UDATA returnType, jmethodID method, jvalue* args);
-
-
-/**
-* @brief
-* @param function
-* @param env
-* @param receiver
-* @param methodType
-* @param returnType
-* @param method
-* @param originalArgs
-* @return void
-*/
-void 
-jniCheckCallV(const char* function, JNIEnv* env, jobject receiver, UDATA methodType, UDATA returnType, jmethodID method, va_list originalArgs);
-
+ * @brief
+ * @param function
+ * @param env
+ * @param receiver
+ * @param methodType
+ * @param returnType
+ * @param method
+ * @param originalArgs
+ * @return void
+ */
+void jniCheckCallV(const char* function, JNIEnv* env, jobject receiver, UDATA methodType, UDATA returnType,
+    jmethodID method, va_list originalArgs);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param aJobject
-* @param expectedClass
-* @param expectedType
-* @return void
-*/
-void jniCheckClass(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject, J9Class* expectedClass, const char* expectedType);
-
-
-/**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param aJobject
-* @return void
-*/
-void 
-jniCheckDirectBuffer(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param aJobject
+ * @param expectedClass
+ * @param expectedType
+ * @return void
+ */
+void jniCheckClass(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject, J9Class* expectedClass,
+    const char* expectedType);
 
 /**
-* @brief
-* @param env
-* @param nlsModule
-* @param nlsIndex
-* @param ...
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param aJobject
+ * @return void
+ */
+void jniCheckDirectBuffer(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject);
+
+/**
+ * @brief
+ * @param env
+ * @param nlsModule
+ * @param nlsIndex
+ * @param ...
+ * @return void
+ */
 void jniCheckFatalErrorNLS(JNIEnv* env, U_32 nlsModule, U_32 nlsIndex, ...);
 
+/**
+ * @brief
+ * @param void
+ * @return const char*
+ */
+const char* jniCheckGetPotentialPendingException(void);
 
 /**
-* @brief
-* @param void
-* @return const char*
-*/
-const char*
-jniCheckGetPotentialPendingException(void);
-
-
-/**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param reference
-* @return void
-*/
-void jniCheckGlobalRef(JNIEnv* env,  const char* function, IDATA argNum, jobject reference);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param reference
+ * @return void
+ */
+void jniCheckGlobalRef(JNIEnv* env, const char* function, IDATA argNum, jobject reference);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param reference
-* @return void
-*/
-void jniCheckLocalRef(JNIEnv* env,  const char* function, IDATA argNum, jobject reference);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param reference
+ * @return void
+ */
+void jniCheckLocalRef(JNIEnv* env, const char* function, IDATA argNum, jobject reference);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param savedState
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param savedState
+ * @return void
+ */
 void jniCheckLocalRefTracking(JNIEnv* env, const char* function, J9JniCheckLocalRefState* savedState);
 
-
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param obj
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param obj
+ * @return void
+ */
 void jniCheckNull(JNIEnv* env, const char* function, IDATA argNum, jobject obj);
 
+/**
+ * @brief
+ * @param env
+ * @param function
+ * @return void
+ */
+void jniCheckPopLocalFrame(JNIEnv* env, const char* function);
 
 /**
-* @brief
-* @param env
-* @param function
-* @return void
-*/
-void
-jniCheckPopLocalFrame(JNIEnv* env, const char* function);
-
-
-/**
-* @brief
-* @param env
-* @param function
-* @param type
-* @param arg
-* @param argNum
-* @param min
-* @param max
-* @return void
-*/
-void 
-jniCheckRange(JNIEnv* env,  const char* function, const char* type, IDATA arg, IDATA argNum, IDATA min, IDATA max);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param type
+ * @param arg
+ * @param argNum
+ * @param min
+ * @param max
+ * @return void
+ */
+void jniCheckRange(JNIEnv* env, const char* function, const char* type, IDATA arg, IDATA argNum, IDATA min, IDATA max);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param reference
-* @return void
-*/
-void 
-jniCheckRef(JNIEnv* env,  const char* function, IDATA argNum, jobject reference);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param reference
+ * @return void
+ */
+void jniCheckRef(JNIEnv* env, const char* function, IDATA argNum, jobject reference);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param aJobject
-* @return void
-*/
-void 
-jniCheckReflectMethod(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param aJobject
+ * @return void
+ */
+void jniCheckReflectMethod(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject);
 
 /**
-* @brief
-* @param function
-* @return void
-*/
-void
-jniCheckSetPotentialPendingException(const char* function);
-
+ * @brief
+ * @param function
+ * @return void
+ */
+void jniCheckSetPotentialPendingException(const char* function);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param string
-* @param start
-* @param len
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param string
+ * @param start
+ * @param len
+ * @return void
+ */
 void jniCheckStringRange(JNIEnv* env, const char* function, jstring string, jint start, jsize len);
 
-
 /**
-* @brief
-* @param env
-* @param function
-* @param string
-* @param start
-* @param len
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param string
+ * @param start
+ * @param len
+ * @return void
+ */
 void jniCheckStringUTFRange(JNIEnv* env, const char* function, jstring string, jint start, jsize len);
 
-
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param aJobject
-* @param type
-* @return void
-*/
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param aJobject
+ * @param type
+ * @return void
+ */
 void jniCheckSubclass(JNIEnv* env, const char* function, IDATA argNum, jobject aJobject, const char* type);
 
+/**
+ * @brief
+ * @param env
+ * @param nlsModule
+ * @param nlsIndex
+ * @param ...
+ * @return void
+ */
+void jniCheckWarningNLS(JNIEnv* env, U_32 nlsModule, U_32 nlsIndex, ...);
 
 /**
-* @brief
-* @param env
-* @param nlsModule
-* @param nlsIndex
-* @param ...
-* @return void
-*/
-void 
-jniCheckWarningNLS(JNIEnv* env, U_32 nlsModule, U_32 nlsIndex, ...);
-
+ * @brief
+ * @param env
+ * @param function
+ * @param argNum
+ * @param reference
+ * @return void
+ */
+void jniCheckWeakGlobalRef(JNIEnv* env, const char* function, IDATA argNum, jobject reference);
 
 /**
-* @brief
-* @param env
-* @param function
-* @param argNum
-* @param reference
-* @return void
-*/
-void jniCheckWeakGlobalRef(JNIEnv* env,  const char* function, IDATA argNum, jobject reference);
-
-
-/**
-* @brief
-* @param function
-* @param env
-* @param name
-* @return void
-*/
+ * @brief
+ * @param function
+ * @param env
+ * @param name
+ * @return void
+ */
 void jniVerboseFindClass(const char* function, JNIEnv* env, const char* name);
 
-
 /**
-* @brief
-* @param function
-* @param env
-* @param clazz
-* @param name
-* @param sig
-* @return void
-*/
+ * @brief
+ * @param function
+ * @param env
+ * @param clazz
+ * @param name
+ * @param sig
+ * @return void
+ */
 void jniVerboseGetID(const char* function, JNIEnv* env, jclass clazz, const char* name, const char* sig);
-
 
 /* ---------------- jnicmem.c ---------------- */
 
 /**
-* @brief
-* @param env
-* @return void
-*/
-void 
-jniCheckForUnreleasedMemory(JNIEnv* env);
-
+ * @brief
+ * @param env
+ * @return void
+ */
+void jniCheckForUnreleasedMemory(JNIEnv* env);
 
 /**
-* @brief
-* @param vmThread
-* @return jint
-*/
-jint
-jniCheckMemoryInit(J9JavaVM* javaVM);
-
+ * @brief
+ * @param vmThread
+ * @return jint
+ */
+jint jniCheckMemoryInit(J9JavaVM* javaVM);
 
 /**
-* @brief
-* @param env
-* @param functionName
-* @param object
-* @param memory
-* @param recordCRC
-* @return void
-*/
-void 
-jniRecordMemoryAcquire(JNIEnv* env, const char* functionName, jobject object, const void* memory, jint recordCRC);
-
+ * @brief
+ * @param env
+ * @param functionName
+ * @param object
+ * @param memory
+ * @param recordCRC
+ * @return void
+ */
+void jniRecordMemoryAcquire(JNIEnv* env, const char* functionName, jobject object, const void* memory, jint recordCRC);
 
 /**
-* @brief
-* @param env
-* @param acquireFunction
-* @param releaseFunction
-* @param object
-* @param memory
-* @param checkCRC
-* @param mode
-* @return void
-*/
-void 
-jniRecordMemoryRelease(JNIEnv* env, const char* acquireFunction, const char* releaseFunction, jobject object, const void* memory, jint checkCRC, jint mode);
+ * @brief
+ * @param env
+ * @param acquireFunction
+ * @param releaseFunction
+ * @param object
+ * @param memory
+ * @param checkCRC
+ * @param mode
+ * @return void
+ */
+void jniRecordMemoryRelease(JNIEnv* env, const char* acquireFunction, const char* releaseFunction, jobject object,
+    const void* memory, jint checkCRC, jint mode);
 
 /**
  * @brief Flush any cached JNI memory if memorycheck is enabled so that it may be validated immediately
  * @param env The current thread
  * @return void
  */
-void
-jniCheckFlushJNICache(JNIEnv* env);
+void jniCheckFlushJNICache(JNIEnv* env);
 
 /* ---------------- jnicbuf.c ---------------- */
 
@@ -604,7 +554,6 @@ U_32 computeStringCRC(const char* buf);
  * @return void
  */
 void checkStringCRC(JNIEnv* env, const char* fnName, U_32 argNum, const char* buf, U_32 oldCRC);
-
 
 /**
  * Compute the CRC of a buffer.
@@ -639,7 +588,7 @@ void checkDataCRC(JNIEnv* env, const char* fnName, U_32 argNum, const void* buf,
  * @return U_32 the CRC for the buffer
  * @see checkArgsCRC
  */
-U_32 computeArgsCRC(const jvalue *args, jmethodID methodID);
+U_32 computeArgsCRC(const jvalue* args, jmethodID methodID);
 
 /**
  * Check that the specified buffer has not changed since its CRC was initially computed.
@@ -652,17 +601,16 @@ U_32 computeArgsCRC(const jvalue *args, jmethodID methodID);
  * @param oldCRC The CRC value computed by computeArgsCRC
  * @return void
  */
-void checkArgsCRC(JNIEnv* env, const char* fnName, U_32 argNum, const jvalue *args, jmethodID methodID, U_32 oldCRC);
+void checkArgsCRC(JNIEnv* env, const char* fnName, U_32 argNum, const jvalue* args, jmethodID methodID, U_32 oldCRC);
 
 /**
  * Check if the class making the JNI call is in a System library class or not.
  * @param env The JNIEnv pointer for the current thread.
  * @return JNI_TRUE if the class is a bootstrap class, JNI_FALSE otherwise.
  */
-jboolean inBootstrapClass (JNIEnv* env);
+jboolean inBootstrapClass(JNIEnv* env);
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* jnichk_internal_h */
-

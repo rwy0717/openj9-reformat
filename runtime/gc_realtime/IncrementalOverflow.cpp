@@ -36,71 +36,65 @@
 #include "RealtimeMarkingScheme.hpp"
 #include "WorkPackets.hpp"
 
-
 /****************************************
  * Initialization
  ****************************************
  */
 
-MM_IncrementalOverflow *
-MM_IncrementalOverflow::newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets)
+MM_IncrementalOverflow* MM_IncrementalOverflow::newInstance(MM_EnvironmentBase* env, MM_WorkPackets* workPackets)
 {
-	MM_IncrementalOverflow *overflow;
-	
-	overflow = (MM_IncrementalOverflow *)env->getForge()->allocate(sizeof(MM_IncrementalOverflow), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (overflow) {
-		new(overflow) MM_IncrementalOverflow(env, workPackets);
-		if (!overflow->initialize(env)) {
-			overflow->kill(env);
-			overflow = NULL;
-		}
-	}
-	return overflow;
+    MM_IncrementalOverflow* overflow;
+
+    overflow = (MM_IncrementalOverflow*)env->getForge()->allocate(
+        sizeof(MM_IncrementalOverflow), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (overflow) {
+        new (overflow) MM_IncrementalOverflow(env, workPackets);
+        if (!overflow->initialize(env)) {
+            overflow->kill(env);
+            overflow = NULL;
+        }
+    }
+    return overflow;
 }
 
 /**
  * Initialize a MM_IncrementalOverflow object.
- * 
+ *
  * @return true on success, false otherwise
  */
-bool
-MM_IncrementalOverflow::initialize(MM_EnvironmentBase *env)
+bool MM_IncrementalOverflow::initialize(MM_EnvironmentBase* env)
 {
-	if (!MM_WorkPacketOverflow::initialize(env)) {
-		return false;
-	}
-	
-	_extensions = MM_GCExtensions::getExtensions(env);
+    if (!MM_WorkPacketOverflow::initialize(env)) {
+        return false;
+    }
 
-	return true;
+    _extensions = MM_GCExtensions::getExtensions(env);
+
+    return true;
 }
 
 /**
  * Cleanup the resources for a MM_IncrementalOverflow object
  */
-void
-MM_IncrementalOverflow::tearDown(MM_EnvironmentBase *env)
-{	
-	MM_WorkPacketOverflow::tearDown(env);
-}
+void MM_IncrementalOverflow::tearDown(MM_EnvironmentBase* env) { MM_WorkPacketOverflow::tearDown(env); }
 
 /**
  * Push the region to be overflowed onto the local cache.  If it is already
  * on the cache just return.
  */
-MMINLINE void
-MM_IncrementalOverflow::pushLocal(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region, MM_OverflowType type)
+MMINLINE void MM_IncrementalOverflow::pushLocal(
+    MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region, MM_OverflowType type)
 {
-	MM_EnvironmentRealtime *envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
-	MM_HeapRegionDescriptorRealtime **cache = envRealtime->getOverflowCache();
-	
-	/* If the local cache is full flush it */
-	if (envRealtime->getOverflowCacheUsedCount() >= envRealtime->getExtensions()->overflowCacheCount) {
-		flushLocal(envRealtime, type);
-	}
+    MM_EnvironmentRealtime* envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
+    MM_HeapRegionDescriptorRealtime** cache = envRealtime->getOverflowCache();
 
-	cache[envRealtime->getOverflowCacheUsedCount()] = region;
-	envRealtime->incrementOverflowCacheUsedCount();
+    /* If the local cache is full flush it */
+    if (envRealtime->getOverflowCacheUsedCount() >= envRealtime->getExtensions()->overflowCacheCount) {
+        flushLocal(envRealtime, type);
+    }
+
+    cache[envRealtime->getOverflowCacheUsedCount()] = region;
+    envRealtime->incrementOverflowCacheUsedCount();
 }
 
 /**
@@ -108,13 +102,12 @@ MM_IncrementalOverflow::pushLocal(MM_EnvironmentBase *env, MM_HeapRegionDescript
  * @note this function does not use any locks when manipulating the list.  The caller
  * is responsible for handling the lock.
  */
-MMINLINE void
-MM_IncrementalOverflow::pushNoLock(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region)
+MMINLINE void MM_IncrementalOverflow::pushNoLock(MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region)
 {
-	if (NULL == region->getNextOverflowRegion()) {
-		region->setNextOverflowRegion((MM_HeapRegionDescriptorRealtime *)((UDATA)_overflowList | 1));
-		_overflowList = region;
-	}
+    if (NULL == region->getNextOverflowRegion()) {
+        region->setNextOverflowRegion((MM_HeapRegionDescriptorRealtime*)((UDATA)_overflowList | 1));
+        _overflowList = region;
+    }
 }
 
 /**
@@ -122,232 +115,225 @@ MM_IncrementalOverflow::pushNoLock(MM_EnvironmentBase *env, MM_HeapRegionDescrip
  * to the global cache.  If these regions are being overflowed due to the workstack
  * check for yielding before the flush begins.
  */
-MMINLINE void
-MM_IncrementalOverflow::flushLocal(MM_EnvironmentBase *env, MM_OverflowType type)
+MMINLINE void MM_IncrementalOverflow::flushLocal(MM_EnvironmentBase* env, MM_OverflowType type)
 {
-	MM_EnvironmentRealtime *envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
-	UDATA currentCount = envRealtime->getOverflowCacheUsedCount();
-	MM_HeapRegionDescriptorRealtime **cache = envRealtime->getOverflowCache();
-	UDATA count = 0;
-	
-	omrthread_monitor_enter(_overflowListMonitor);
-	for (count = 0; count < currentCount; count++) {
-		MM_HeapRegionDescriptorRealtime *localRegion = cache[count];
-		pushNoLock(env, localRegion);
-	}
-	omrthread_monitor_exit(_overflowListMonitor);
-	envRealtime->resetOverflowCacheUsedCount();
+    MM_EnvironmentRealtime* envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
+    UDATA currentCount = envRealtime->getOverflowCacheUsedCount();
+    MM_HeapRegionDescriptorRealtime** cache = envRealtime->getOverflowCache();
+    UDATA count = 0;
+
+    omrthread_monitor_enter(_overflowListMonitor);
+    for (count = 0; count < currentCount; count++) {
+        MM_HeapRegionDescriptorRealtime* localRegion = cache[count];
+        pushNoLock(env, localRegion);
+    }
+    omrthread_monitor_exit(_overflowListMonitor);
+    envRealtime->resetOverflowCacheUsedCount();
 }
 
 /**
  * Push a region onto the global overflow list.
  */
-MMINLINE void
-MM_IncrementalOverflow::push(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region)
+MMINLINE void MM_IncrementalOverflow::push(MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region)
 {
-	omrthread_monitor_enter(_overflowListMonitor);
-	
-	pushNoLock(env, region);
-	
-	omrthread_monitor_exit(_overflowListMonitor);
+    omrthread_monitor_enter(_overflowListMonitor);
+
+    pushNoLock(env, region);
+
+    omrthread_monitor_exit(_overflowListMonitor);
 }
 
 /**
  * Pop a region off of the global overflow list.
  */
-MMINLINE MM_HeapRegionDescriptorRealtime *
-MM_IncrementalOverflow::pop(MM_EnvironmentBase *env)
+MMINLINE MM_HeapRegionDescriptorRealtime* MM_IncrementalOverflow::pop(MM_EnvironmentBase* env)
 {
-	MM_HeapRegionDescriptorRealtime *region = NULL;
-	
-	/* The _overflowListMonitor must be held while modifying the overflow list */
-	omrthread_monitor_enter(_overflowListMonitor);
-	
-	if (NULL != _overflowList) {
-		region = _overflowList;
-		_overflowList = (MM_HeapRegionDescriptorRealtime*)((UDATA)region->getNextOverflowRegion() & ~1);
-		region->setNextOverflowRegion(NULL);
-	}
-	
-	omrthread_monitor_exit(_overflowListMonitor);
-	
-	return region;
+    MM_HeapRegionDescriptorRealtime* region = NULL;
+
+    /* The _overflowListMonitor must be held while modifying the overflow list */
+    omrthread_monitor_enter(_overflowListMonitor);
+
+    if (NULL != _overflowList) {
+        region = _overflowList;
+        _overflowList = (MM_HeapRegionDescriptorRealtime*)((UDATA)region->getNextOverflowRegion() & ~1);
+        region->setNextOverflowRegion(NULL);
+    }
+
+    omrthread_monitor_exit(_overflowListMonitor);
+
+    return region;
 }
 
 /**
  * Empty the packet by overflowing all if it's items
- * 
+ *
  * @param env The current Environment
  * @param packet The packet to empty
  * @param type - ignored by incremental handler
  */
-void
-MM_IncrementalOverflow::emptyToOverflow(MM_EnvironmentBase *env, MM_Packet *packet, MM_OverflowType type)
+void MM_IncrementalOverflow::emptyToOverflow(MM_EnvironmentBase* env, MM_Packet* packet, MM_OverflowType type)
 {
-	void *item;
-	
-	_extensions->globalGCStats.metronomeStats.incrementWorkPacketOverflowCount();
+    void* item;
 
-	while(NULL != (item = packet->pop(env))) {
-		overflowItemInternal(env, item, type);
-	}
-	/* Finished overflowing this region so flush the remaining entries in the local cache */
-	flushLocal(env, type);
-	
-	Assert_MM_true(packet->isEmpty());
-	
-	_overflowThisGCCycle = 1;
+    _extensions->globalGCStats.metronomeStats.incrementWorkPacketOverflowCount();
+
+    while (NULL != (item = packet->pop(env))) {
+        overflowItemInternal(env, item, type);
+    }
+    /* Finished overflowing this region so flush the remaining entries in the local cache */
+    flushLocal(env, type);
+
+    Assert_MM_true(packet->isEmpty());
+
+    _overflowThisGCCycle = 1;
 }
 
 /**
  * Fill the packet from overflowed items
- * 
+ *
  * @param env The current Environment
  * @param packet The packet to fill
  */
-void
-MM_IncrementalOverflow::fillFromOverflow(MM_EnvironmentBase *env, MM_Packet *packet)
+void MM_IncrementalOverflow::fillFromOverflow(MM_EnvironmentBase* env, MM_Packet* packet)
 {
-	MM_EnvironmentRealtime *envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
-	MM_HeapRegionDescriptorRealtime* region;
-	MM_RealtimeGC *realtimeGC = envRealtime->getExtensions()->realtimeGC;
-	MM_RealtimeMarkingScheme *markingScheme = realtimeGC->getMarkingScheme();
-	bool roomLeft = true;
-	
-	while (roomLeft && ((region = pop(envRealtime)) != NULL)) {
+    MM_EnvironmentRealtime* envRealtime = MM_EnvironmentRealtime::getEnvironment(env);
+    MM_HeapRegionDescriptorRealtime* region;
+    MM_RealtimeGC* realtimeGC = envRealtime->getExtensions()->realtimeGC;
+    MM_RealtimeMarkingScheme* markingScheme = realtimeGC->getMarkingScheme();
+    bool roomLeft = true;
+
+    while (roomLeft && ((region = pop(envRealtime)) != NULL)) {
 #if defined(J9VM_GC_ARRAYLETS)
-		if (region->isArraylet()) {
-			UDATA arrayletIndex = 0;
-			UDATA arrayletLeafLogSize = envRealtime->getOmrVM()->_arrayletLeafLogSize;
-			UDATA arrayletsPerRegion = envRealtime->getExtensions()->arrayletsPerRegion;
-			
-			while (arrayletIndex < arrayletsPerRegion) {
-				if (region->isArrayletUsed(arrayletIndex)) {
-					/* Only return arraylets if they contain pointers (scan stack can't deal with base type
-					 * leaves) and whose spine is marked to prevent the arraylet leaf elements from being kept
-					 * alive (more floating garbage)
-					 */
-					J9Object* arrayletParent = (J9Object*)region->getArrayletParent(arrayletIndex);
-					if (_extensions->objectModel.isObjectArray(arrayletParent) && markingScheme->isMarked(arrayletParent)) {
-						UDATA* arraylet = region->getArraylet(arrayletIndex, arrayletLeafLogSize);
-						if (packet->isFull(envRealtime)) {
-							push(envRealtime, region);
-							roomLeft = false;
-							break;
-						}
-						packet->push(envRealtime, (void *)ARRAYLET_TO_ITEM(arraylet));
-					}
-				}
-				arrayletIndex += 1;
-				realtimeGC->_sched->condYieldFromGC(env);
-			}
-		} else 
-#endif /* defined(J9VM_GC_ARRAYLETS) */		
-		if (region->isCanonical()) {
-			if (region->isSmall()) {
-				/* A small region is divided into cells.
-				 * Iterate over the cells returning the objects contained within inuse cells
-				 */
-				UDATA numCells = region->getNumCells();
-				UDATA cellSize = region->getCellSize();
-				UDATA *baseAddress = (UDATA *)region->getLowAddress();
-				UDATA cellIndex = 0;
-				while(cellIndex < numCells) {				
-					J9Object *object = (J9Object*)((UDATA)baseAddress + (cellIndex * cellSize));
-					if (!_extensions->objectModel.isDeadObject(object)) {
-						if(_extensions->objectModel.isOverflowBitSet(object)) {
-							if (packet->isFull(envRealtime)) {
-								push(envRealtime, region);
-								roomLeft = false;
-								break;
-							}
-							if(_extensions->objectModel.atomicClearOverflowBit(object)) {
-								packet->push(envRealtime, (void *)OBJECT_TO_ITEM(object));
-							}
-						}
-						cellIndex += 1;
-					} else {
-						cellIndex += (MM_HeapLinkedFreeHeader::getHeapLinkedFreeHeader(object)->getSize() / cellSize);
-					}
-					
-					realtimeGC->_sched->condYieldFromGC(env);
-				}
-				/* ran off end of region */
-			} else if (region->isLarge()) {
-				/* A region that is both large and canonical contains exactly 1 object */
-				UDATA *cell = (UDATA *)region->getLowAddress();
-				J9Object *object = (J9Object *)cell;
-				if (_extensions->objectModel.isOverflowBitSet(object)) {
-					if (packet->isFull(envRealtime)) {
-						push(envRealtime, region);
-						roomLeft = false;
-						break;
-					}
-				    if (_extensions->objectModel.atomicClearOverflowBit(object)) {
-						packet->push(envRealtime, (void *)OBJECT_TO_ITEM(object));
-					}
-				}
-				realtimeGC->_sched->condYieldFromGC(env);
-			}
-		}
-	}
+        if (region->isArraylet()) {
+            UDATA arrayletIndex = 0;
+            UDATA arrayletLeafLogSize = envRealtime->getOmrVM()->_arrayletLeafLogSize;
+            UDATA arrayletsPerRegion = envRealtime->getExtensions()->arrayletsPerRegion;
+
+            while (arrayletIndex < arrayletsPerRegion) {
+                if (region->isArrayletUsed(arrayletIndex)) {
+                    /* Only return arraylets if they contain pointers (scan stack can't deal with base type
+                     * leaves) and whose spine is marked to prevent the arraylet leaf elements from being kept
+                     * alive (more floating garbage)
+                     */
+                    J9Object* arrayletParent = (J9Object*)region->getArrayletParent(arrayletIndex);
+                    if (_extensions->objectModel.isObjectArray(arrayletParent)
+                        && markingScheme->isMarked(arrayletParent)) {
+                        UDATA* arraylet = region->getArraylet(arrayletIndex, arrayletLeafLogSize);
+                        if (packet->isFull(envRealtime)) {
+                            push(envRealtime, region);
+                            roomLeft = false;
+                            break;
+                        }
+                        packet->push(envRealtime, (void*)ARRAYLET_TO_ITEM(arraylet));
+                    }
+                }
+                arrayletIndex += 1;
+                realtimeGC->_sched->condYieldFromGC(env);
+            }
+        } else
+#endif /* defined(J9VM_GC_ARRAYLETS) */
+            if (region->isCanonical()) {
+            if (region->isSmall()) {
+                /* A small region is divided into cells.
+                 * Iterate over the cells returning the objects contained within inuse cells
+                 */
+                UDATA numCells = region->getNumCells();
+                UDATA cellSize = region->getCellSize();
+                UDATA* baseAddress = (UDATA*)region->getLowAddress();
+                UDATA cellIndex = 0;
+                while (cellIndex < numCells) {
+                    J9Object* object = (J9Object*)((UDATA)baseAddress + (cellIndex * cellSize));
+                    if (!_extensions->objectModel.isDeadObject(object)) {
+                        if (_extensions->objectModel.isOverflowBitSet(object)) {
+                            if (packet->isFull(envRealtime)) {
+                                push(envRealtime, region);
+                                roomLeft = false;
+                                break;
+                            }
+                            if (_extensions->objectModel.atomicClearOverflowBit(object)) {
+                                packet->push(envRealtime, (void*)OBJECT_TO_ITEM(object));
+                            }
+                        }
+                        cellIndex += 1;
+                    } else {
+                        cellIndex += (MM_HeapLinkedFreeHeader::getHeapLinkedFreeHeader(object)->getSize() / cellSize);
+                    }
+
+                    realtimeGC->_sched->condYieldFromGC(env);
+                }
+                /* ran off end of region */
+            } else if (region->isLarge()) {
+                /* A region that is both large and canonical contains exactly 1 object */
+                UDATA* cell = (UDATA*)region->getLowAddress();
+                J9Object* object = (J9Object*)cell;
+                if (_extensions->objectModel.isOverflowBitSet(object)) {
+                    if (packet->isFull(envRealtime)) {
+                        push(envRealtime, region);
+                        roomLeft = false;
+                        break;
+                    }
+                    if (_extensions->objectModel.atomicClearOverflowBit(object)) {
+                        packet->push(envRealtime, (void*)OBJECT_TO_ITEM(object));
+                    }
+                }
+                realtimeGC->_sched->condYieldFromGC(env);
+            }
+        }
+    }
 }
 
 /**
  * Overflow the item.  To overflow incremental items the object
  * and the object's region have to both be marked as overflowed.
- * 
+ *
  * @param env The current Environment
  * @param item The item to overflow
  * @param type - ignored by incremental handler
  */
-void 
-MM_IncrementalOverflow::overflowItem(MM_EnvironmentBase *env, void *item, MM_OverflowType type)
+void MM_IncrementalOverflow::overflowItem(MM_EnvironmentBase* env, void* item, MM_OverflowType type)
 {
-	_extensions->globalGCStats.metronomeStats.incrementObjectOverflowCount();
+    _extensions->globalGCStats.metronomeStats.incrementObjectOverflowCount();
 
-	overflowItemInternal(env, item, type);
-	flushLocal(env, type);
-	
-	_overflowThisGCCycle = 1;
+    overflowItemInternal(env, item, type);
+    flushLocal(env, type);
+
+    _overflowThisGCCycle = 1;
 }
 
 /**
  * Overflow the item.  To overflow incremental items the object
  * and the object's region have to both be marked as overflowed.
- * 
+ *
  * @param env The current Environment
  * @param item The item to overflow
  * @param type - ignored by incremental handler
  */
-MMINLINE void 
-MM_IncrementalOverflow::overflowItemInternal(MM_EnvironmentBase *env, void *item, MM_OverflowType type)
+MMINLINE void MM_IncrementalOverflow::overflowItemInternal(MM_EnvironmentBase* env, void* item, MM_OverflowType type)
 {
-	MM_HeapRegionManager *manager = _extensions->heap->getHeapRegionManager();
-	MM_HeapRegionDescriptorRealtime* region;
-	
-	if (!IS_ITEM_ARRAYLET((UDATA)item)) {
-		/* Set overflow bit in the object's flags */
-		J9Object *objectPtr = ITEM_TO_OBJECT((UDATA)item);
-		if (!_extensions->objectModel.atomicSetOverflowBit(objectPtr)) {
-			return;
-		}
-	}
+    MM_HeapRegionManager* manager = _extensions->heap->getHeapRegionManager();
+    MM_HeapRegionDescriptorRealtime* region;
 
-	/* Arraylets are not individually marked, only the region they belong to */
-	/* TODO: Consider marking individual arraylet. For example, tag low bit of its spine back pointer),
-	 * or even introduce arraylet flags in its region. */
+    if (!IS_ITEM_ARRAYLET((UDATA)item)) {
+        /* Set overflow bit in the object's flags */
+        J9Object* objectPtr = ITEM_TO_OBJECT((UDATA)item);
+        if (!_extensions->objectModel.atomicSetOverflowBit(objectPtr)) {
+            return;
+        }
+    }
 
-	/* For both arraylets and objects, mark the region as containing overflow objects */
-	region = (MM_HeapRegionDescriptorRealtime *)manager->tableDescriptorForAddress(item);
-	pushLocal(env, region, type);
+    /* Arraylets are not individually marked, only the region they belong to */
+    /* TODO: Consider marking individual arraylet. For example, tag low bit of its spine back pointer),
+     * or even introduce arraylet flags in its region. */
+
+    /* For both arraylets and objects, mark the region as containing overflow objects */
+    region = (MM_HeapRegionDescriptorRealtime*)manager->tableDescriptorForAddress(item);
+    pushLocal(env, region, type);
 }
 
-void
-MM_IncrementalOverflow::reset(MM_EnvironmentBase *env)
+void MM_IncrementalOverflow::reset(MM_EnvironmentBase* env)
 {
-	/* the _overflowListMonitor must be held while modifying the overflow list */
-	omrthread_monitor_enter(_overflowListMonitor);
-	_overflowList = NULL;
-	omrthread_monitor_exit(_overflowListMonitor);
+    /* the _overflowListMonitor must be held while modifying the overflow list */
+    omrthread_monitor_enter(_overflowListMonitor);
+    _overflowList = NULL;
+    omrthread_monitor_exit(_overflowListMonitor);
 }

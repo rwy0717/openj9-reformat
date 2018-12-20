@@ -24,13 +24,13 @@
 #define jvmti_api_h
 
 /**
-* @file jvmti_api.h
-* @brief Public API for the JVMTI module.
-*
-* This file contains public function prototypes and
-* type definitions for the JVMTI module.
-*
-*/
+ * @file jvmti_api.h
+ * @brief Public API for the JVMTI module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the JVMTI module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* jvmti_api_h */
-

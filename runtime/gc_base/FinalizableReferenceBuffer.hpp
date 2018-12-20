@@ -34,64 +34,62 @@
 #include "ObjectAccessBarrier.hpp"
 #include "FinalizeListManager.hpp"
 
-class GC_FinalizableReferenceBuffer
-{
+class GC_FinalizableReferenceBuffer {
 private:
-	j9object_t _head; /**< the head of the linked list of reference objects */
-	j9object_t _tail; /**< the tail of the linked list of reference objects */
-	UDATA _count; /**< the number of buffered objects */
-	MM_GCExtensions * const _extensions; /**< a cached pointer to the extensions structure */
+    j9object_t _head; /**< the head of the linked list of reference objects */
+    j9object_t _tail; /**< the tail of the linked list of reference objects */
+    UDATA _count; /**< the number of buffered objects */
+    MM_GCExtensions* const _extensions; /**< a cached pointer to the extensions structure */
 protected:
 public:
-
 private:
 protected:
 public:
-	/**
-	 * Add the specified reference object to the buffer.
-	 * @param env[in] the current thread
-	 * @param object[in] the object to add
-	 */
-	void add(MM_EnvironmentBase* env, j9object_t object)
-	{
-		if (NULL == _head) {
-			Assert_MM_true(NULL == _tail);
-			Assert_MM_true(0 == _count);
-			_extensions->accessBarrier->setReferenceLink(object, NULL);
-			_head = object;
-			_tail = object;
-			_count = 1;
-		} else {
-			Assert_MM_true(NULL != _tail);
-			Assert_MM_true(0 != _count);
-			_extensions->accessBarrier->setReferenceLink(object, _head);
-			_head = object;
-			_count += 1;
-		}
-	}
+    /**
+     * Add the specified reference object to the buffer.
+     * @param env[in] the current thread
+     * @param object[in] the object to add
+     */
+    void add(MM_EnvironmentBase* env, j9object_t object)
+    {
+        if (NULL == _head) {
+            Assert_MM_true(NULL == _tail);
+            Assert_MM_true(0 == _count);
+            _extensions->accessBarrier->setReferenceLink(object, NULL);
+            _head = object;
+            _tail = object;
+            _count = 1;
+        } else {
+            Assert_MM_true(NULL != _tail);
+            Assert_MM_true(0 != _count);
+            _extensions->accessBarrier->setReferenceLink(object, _head);
+            _head = object;
+            _count += 1;
+        }
+    }
 
-	void flush(MM_EnvironmentBase* env)
-	{
-		if (NULL != _head) {
-			Assert_MM_true(NULL != _tail);
-			Assert_MM_true(0 != _count);
-			GC_FinalizeListManager *finalizeListManager = _extensions->finalizeListManager;
-			finalizeListManager->addReferenceObjects(_head, _tail, _count);
-			_head = NULL;
-			_tail = NULL;
-			_count = 0;
-		}
-	}
+    void flush(MM_EnvironmentBase* env)
+    {
+        if (NULL != _head) {
+            Assert_MM_true(NULL != _tail);
+            Assert_MM_true(0 != _count);
+            GC_FinalizeListManager* finalizeListManager = _extensions->finalizeListManager;
+            finalizeListManager->addReferenceObjects(_head, _tail, _count);
+            _head = NULL;
+            _tail = NULL;
+            _count = 0;
+        }
+    }
 
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 */
-	GC_FinalizableReferenceBuffer(MM_GCExtensions *extensions) :
-		_head(NULL)
-		,_tail(NULL)
-		,_count(0)
-		,_extensions(extensions)
-	{}
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     */
+    GC_FinalizableReferenceBuffer(MM_GCExtensions* extensions)
+        : _head(NULL)
+        , _tail(NULL)
+        , _count(0)
+        , _extensions(extensions)
+    {}
 };
 #endif /* FINALIZABLEREFERENCEBUFFER_HPP_ */

@@ -40,26 +40,27 @@
  * @see SH_ClasspathManagerImpl.hpp
  * @ingroup Shared_Common
  */
-class SH_ClasspathManager : public SH_Manager
-{
+class SH_ClasspathManager : public SH_Manager {
 public:
-	virtual IDATA update(J9VMThread* currentThread, ClasspathItem* cp, I_16 cpeIndex, ClasspathWrapper** foundCP) = 0;
+    virtual IDATA update(J9VMThread* currentThread, ClasspathItem* cp, I_16 cpeIndex, ClasspathWrapper** foundCP) = 0;
 
-	virtual IDATA validate(J9VMThread* currentThread, ROMClassWrapper* foundROMClass, ClasspathItem* compareTo, IDATA confirmedEntries, I_16* foundAtIndex, ClasspathEntryItem** staleItem) = 0;
-	
-	virtual void notifyClasspathEntryStateChange(J9VMThread* currentThread, const J9UTF8* path, UDATA newState) = 0;
+    virtual IDATA validate(J9VMThread* currentThread, ROMClassWrapper* foundROMClass, ClasspathItem* compareTo,
+        IDATA confirmedEntries, I_16* foundAtIndex, ClasspathEntryItem** staleItem)
+        = 0;
 
-	virtual void markClasspathsStale(J9VMThread* currentThread, ClasspathEntryItem* cpei) = 0;
+    virtual void notifyClasspathEntryStateChange(J9VMThread* currentThread, const J9UTF8* path, UDATA newState) = 0;
 
-	virtual void setTimestamps(J9VMThread* currentThread, ClasspathWrapper* cpw) = 0;
- 
-	virtual bool isStale(ClasspathWrapper* cpw) = 0;
+    virtual void markClasspathsStale(J9VMThread* currentThread, ClasspathEntryItem* cpei) = 0;
 
-	virtual bool touchForClassFiles(J9VMThread* currentThread, const char* className, UDATA classNameLen, ClasspathItem* cp, I_16 toIndex) = 0;
+    virtual void setTimestamps(J9VMThread* currentThread, ClasspathWrapper* cpw) = 0;
 
-	virtual void getNumItemsByType(UDATA* numClasspaths, UDATA* numURLs, UDATA* numTokens) = 0;
+    virtual bool isStale(ClasspathWrapper* cpw) = 0;
+
+    virtual bool touchForClassFiles(
+        J9VMThread* currentThread, const char* className, UDATA classNameLen, ClasspathItem* cp, I_16 toIndex)
+        = 0;
+
+    virtual void getNumItemsByType(UDATA* numClasspaths, UDATA* numURLs, UDATA* numTokens) = 0;
 };
 
 #endif /* !defined(CLASSPATHMANAGER_HPP_INCLUDED) */
-
-

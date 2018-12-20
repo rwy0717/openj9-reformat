@@ -29,12 +29,11 @@
 
 #include "jvmti_test.h"
 
-void
-jvmtitest_usleep(UDATA millis)
+void jvmtitest_usleep(UDATA millis)
 {
 #if defined(WIN32) || defined(WIN64)
-	Sleep((DWORD)millis);
+    Sleep((DWORD)millis);
 #else
-	usleep(millis);
+    usleep(millis);
 #endif
 }

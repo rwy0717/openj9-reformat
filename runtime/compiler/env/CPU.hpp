@@ -25,15 +25,13 @@
 
 #include "env/J9CPU.hpp"
 
-namespace TR
-{
-class CPU : public J9::CPUConnector
-   {
-   public:
-
-   CPU() : J9::CPUConnector() {}
-
-   };
-}
+namespace TR {
+class CPU : public J9::CPUConnector {
+public:
+    CPU()
+        : J9::CPUConnector()
+    {}
+};
+} // namespace TR
 
 #endif

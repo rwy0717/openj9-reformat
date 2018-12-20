@@ -1,4 +1,4 @@
- 
+
 /*******************************************************************************
  * Copyright (c) 1991, 2014 IBM Corp. and others
  *
@@ -44,58 +44,60 @@ class MM_ProcessorInfo;
 #define SCHED_FIFO 0
 #endif /* WIN32 */
 
-
-		
 /**
  * @todo Provide class documentation
  * @ingroup GC_Metronome
  */
-class MM_OSInterface : public MM_BaseVirtual
-{
-/* Data members / types */
+class MM_OSInterface : public MM_BaseVirtual {
+    /* Data members / types */
 public:
-	MM_GCExtensions *_extensions;
-	U_64 _j9time_hires_clock_nanoSecondMultiplyFactor;  /**< The results of j9time_hires_clock must be multiplied by this value, if non-zero, to obtain time in micro-seconds. */
-	U_64 _j9time_hires_clock_nanoSecondDivideFactor;  /**< If the MultiplyFactor is zero, the results of j9time_hires_clock must be divided by this value, to obtain time in micro-seconds. */
-	I_64 _j9time_hires_clock_nanoSecondOffset;  /**< After multiplying by the above factor, subtract the offset to obtain time relative to machine boot time. */
-	U_64 _ticksPerMicroSecond;
+    MM_GCExtensions* _extensions;
+    U_64 _j9time_hires_clock_nanoSecondMultiplyFactor; /**< The results of j9time_hires_clock must be multiplied by this
+                                                          value, if non-zero, to obtain time in micro-seconds. */
+    U_64 _j9time_hires_clock_nanoSecondDivideFactor; /**< If the MultiplyFactor is zero, the results of
+                                                        j9time_hires_clock must be divided by this value, to obtain time
+                                                        in micro-seconds. */
+    I_64 _j9time_hires_clock_nanoSecondOffset; /**< After multiplying by the above factor, subtract the offset to obtain
+                                                  time relative to machine boot time. */
+    U_64 _ticksPerMicroSecond;
+
 protected:
 private:
-	J9JavaVM *_vm;
-	UDATA _numProcessors;
-	U_64 _physicalMemoryBytes;
-	MM_ProcessorInfo *_processorInfo;
-	char _hostname[256];
-	char *_ipAddrString;
-	
-/* Methods */
+    J9JavaVM* _vm;
+    UDATA _numProcessors;
+    U_64 _physicalMemoryBytes;
+    MM_ProcessorInfo* _processorInfo;
+    char _hostname[256];
+    char* _ipAddrString;
+
+    /* Methods */
 public:
-	static MM_OSInterface *newInstance(MM_EnvironmentBase *env);
-	bool initialize(MM_EnvironmentBase *env);
-	virtual void kill(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
-	void startup();
-	bool changePriority(IDATA policy, IDATA priority);
-	IDATA minPriority();
-	IDATA maxPriority();
-	static UDATA getTid();
-	U_64 nanoTime();
-	void maskSignals();
-	bool hiresTimerAvailable();
-	bool rtcTimerAvailable();
-	bool itTimerAvailable();
-	UDATA getNumbersOfProcessors() {return _numProcessors;}
-	UDATA getParameter(UDATA which, char *keyBuffer, I_32 keyBufferSize, char *valueBuffer, I_32 valueBufferSize);
-	
-	MM_OSInterface() :
-		_processorInfo(NULL),
-		_ipAddrString(NULL)
-	{
-		_typeId = __FUNCTION__;
-	}
+    static MM_OSInterface* newInstance(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env);
+    virtual void kill(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
+    void startup();
+    bool changePriority(IDATA policy, IDATA priority);
+    IDATA minPriority();
+    IDATA maxPriority();
+    static UDATA getTid();
+    U_64 nanoTime();
+    void maskSignals();
+    bool hiresTimerAvailable();
+    bool rtcTimerAvailable();
+    bool itTimerAvailable();
+    UDATA getNumbersOfProcessors() { return _numProcessors; }
+    UDATA getParameter(UDATA which, char* keyBuffer, I_32 keyBufferSize, char* valueBuffer, I_32 valueBufferSize);
+
+    MM_OSInterface()
+        : _processorInfo(NULL)
+        , _ipAddrString(NULL)
+    {
+        _typeId = __FUNCTION__;
+    }
+
 protected:
 private:
 };
-
 
 #endif /* OSINTERFACE_HPP_ */

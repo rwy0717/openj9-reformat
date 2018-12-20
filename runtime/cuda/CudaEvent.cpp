@@ -36,28 +36,26 @@
  * @param[in] flags     the event creation flags
  * @return a new event
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaEvent_create
-  (JNIEnv * env, jclass, jint deviceId, jint flags)
+jlong JNICALL Java_com_ibm_cuda_CudaEvent_create(JNIEnv* env, jclass, jint deviceId, jint flags)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventCreate_entry(thread, deviceId, flags);
+    Trc_cuda_eventCreate_entry(thread, deviceId, flags);
 
-	J9CudaEvent event = NULL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaEvent event = NULL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_eventCreate((uint32_t)deviceId, (uint32_t)flags, &event);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_eventCreate((uint32_t)deviceId, (uint32_t)flags, &event);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_eventCreate_exit(thread, event);
+    Trc_cuda_eventCreate_exit(thread, event);
 
-	return (jlong)event;
+    return (jlong)event;
 }
 
 #ifdef OMR_OPT_CUDA
@@ -74,23 +72,21 @@ Java_com_ibm_cuda_CudaEvent_create
  * @param[in] deviceId  the device identifier
  * @param[in] event     the event
  */
-void JNICALL
-Java_com_ibm_cuda_CudaEvent_destroy
-  (JNIEnv * env, jclass, jint deviceId, jlong event)
+void JNICALL Java_com_ibm_cuda_CudaEvent_destroy(JNIEnv* env, jclass, jint deviceId, jlong event)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventDestroy_entry(thread, deviceId, (J9CudaEvent)event);
+    Trc_cuda_eventDestroy_entry(thread, deviceId, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_eventDestroy((uint32_t)deviceId, (J9CudaEvent)event);
+    int32_t error = j9cuda_eventDestroy((uint32_t)deviceId, (J9CudaEvent)event);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_eventDestroy_exit(thread, error);
+    Trc_cuda_eventDestroy_exit(thread, error);
 }
 
 /**
@@ -106,26 +102,24 @@ Java_com_ibm_cuda_CudaEvent_destroy
  * @param[in] priorEvent  the earlier event
  * @return the elapsed time in milliseconds between the two events
  */
-jfloat JNICALL
-Java_com_ibm_cuda_CudaEvent_elapsedTimeSince
-  (JNIEnv * env, jclass, jlong event, jlong priorEvent)
+jfloat JNICALL Java_com_ibm_cuda_CudaEvent_elapsedTimeSince(JNIEnv* env, jclass, jlong event, jlong priorEvent)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventElapsedTimeSince_entry(thread, (J9CudaEvent)priorEvent, (J9CudaEvent)event);
+    Trc_cuda_eventElapsedTimeSince_entry(thread, (J9CudaEvent)priorEvent, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	float elapsed = 0.0f;
-	int32_t error = j9cuda_eventElapsedTime((J9CudaEvent)priorEvent, (J9CudaEvent)event, &elapsed);
+    float elapsed = 0.0f;
+    int32_t error = j9cuda_eventElapsedTime((J9CudaEvent)priorEvent, (J9CudaEvent)event, &elapsed);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_eventElapsedTimeSince_exit(thread, (jint)error, (jfloat)elapsed);
+    Trc_cuda_eventElapsedTimeSince_exit(thread, (jint)error, (jfloat)elapsed);
 
-	return (jfloat)elapsed;
+    return (jfloat)elapsed;
 }
 
 /**
@@ -140,21 +134,19 @@ Java_com_ibm_cuda_CudaEvent_elapsedTimeSince
  * @param[in] event     the event
  * @return 0 if the event has been recorded; else cudaErrorNotReady or another error
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaEvent_query
-  (JNIEnv * env, jclass, jlong event)
+jint JNICALL Java_com_ibm_cuda_CudaEvent_query(JNIEnv* env, jclass, jlong event)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventQuery_entry(thread, (J9CudaEvent)event);
+    Trc_cuda_eventQuery_entry(thread, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_eventQuery((J9CudaEvent)event);
+    int32_t error = j9cuda_eventQuery((J9CudaEvent)event);
 
-	Trc_cuda_eventQuery_exit(thread, error);
+    Trc_cuda_eventQuery_exit(thread, error);
 
-	return (jint)error;
+    return (jint)error;
 }
 
 /**
@@ -170,23 +162,21 @@ Java_com_ibm_cuda_CudaEvent_query
  * @param[in] stream    the stream, or null for the default stream
  * @param[in] event     the event to be recorded
  */
-void JNICALL
-Java_com_ibm_cuda_CudaEvent_record
-  (JNIEnv * env, jclass, jint deviceId, jlong stream, jlong event)
+void JNICALL Java_com_ibm_cuda_CudaEvent_record(JNIEnv* env, jclass, jint deviceId, jlong stream, jlong event)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventRecord_entry(thread, deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
+    Trc_cuda_eventRecord_entry(thread, deviceId, (J9CudaStream)stream, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_eventRecord((uint32_t)deviceId, (J9CudaEvent)event, (J9CudaStream)stream);
+    int32_t error = j9cuda_eventRecord((uint32_t)deviceId, (J9CudaEvent)event, (J9CudaStream)stream);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_eventRecord_exit(thread);
+    Trc_cuda_eventRecord_exit(thread);
 }
 
 /**
@@ -200,23 +190,21 @@ Java_com_ibm_cuda_CudaEvent_record
  * @param[in] (unused)  the class pointer
  * @param[in] event     the event to be recorded
  */
-void JNICALL
-Java_com_ibm_cuda_CudaEvent_synchronize
-  (JNIEnv * env, jclass, jlong event)
+void JNICALL Java_com_ibm_cuda_CudaEvent_synchronize(JNIEnv* env, jclass, jlong event)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_eventSynchronize_entry(thread, (J9CudaEvent)event);
+    Trc_cuda_eventSynchronize_entry(thread, (J9CudaEvent)event);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_eventSynchronize((J9CudaEvent)event);
+    int32_t error = j9cuda_eventSynchronize((J9CudaEvent)event);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_eventSynchronize_exit(thread, (jint)error);
+    Trc_cuda_eventSynchronize_exit(thread, (jint)error);
 }
 
 #endif /* OMR_OPT_CUDA */

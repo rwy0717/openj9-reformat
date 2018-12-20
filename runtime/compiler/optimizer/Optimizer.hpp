@@ -25,25 +25,27 @@
 
 #include "optimizer/J9Optimizer.hpp"
 
-#include <stddef.h>                    // for NULL
-#include <stdint.h>                    // for uint16_t
+#include <stddef.h> // for NULL
+#include <stdint.h> // for uint16_t
 
-namespace TR { class Compilation; }
-namespace TR { class ResolvedMethodSymbol; }
+namespace TR {
+class Compilation;
+}
+namespace TR {
+class ResolvedMethodSymbol;
+}
 struct OptimizationStrategy;
 
-namespace TR
-{
+namespace TR {
 
-class Optimizer : public J9::OptimizerConnector
-   {
-   public:
+class Optimizer : public J9::OptimizerConnector {
+public:
+    Optimizer(TR::Compilation* comp, TR::ResolvedMethodSymbol* methodSymbol, bool isIlGen,
+        const OptimizationStrategy* strategy = NULL, uint16_t VNType = 0)
+        : J9::OptimizerConnector(comp, methodSymbol, isIlGen, strategy, VNType)
+    {}
+};
 
-   Optimizer(TR::Compilation *comp, TR::ResolvedMethodSymbol *methodSymbol, bool isIlGen,
-         const OptimizationStrategy *strategy = NULL, uint16_t VNType = 0) :
-      J9::OptimizerConnector(comp, methodSymbol, isIlGen, strategy, VNType) {}
-   };
-
-}
+} // namespace TR
 
 #endif

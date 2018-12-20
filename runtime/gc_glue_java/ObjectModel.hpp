@@ -52,17 +52,17 @@
 
 #if defined(OMR_GC_REALTIME)
 /* this bit is set in the object header slot if an overflow condition is raised */
-#define GC_OVERFLOW	 0x4
+#define GC_OVERFLOW 0x4
 #endif /* defined(OMR_GC_REALTIME) */
 
 /*
  * #defines representing the scope depth stored in each object header
  * use two low bits of Collector Bits for Depth
  */
-#define OBJECT_HEADER_DEPTH_ZERO	0
-#define OBJECT_HEADER_DEPTH_MAX		3
-#define OBJECT_HEADER_DEPTH_SHIFT	OMR_OBJECT_METADATA_AGE_SHIFT
-#define OBJECT_HEADER_DEPTH_MASK	(OBJECT_HEADER_DEPTH_MAX << OBJECT_HEADER_DEPTH_SHIFT)
+#define OBJECT_HEADER_DEPTH_ZERO 0
+#define OBJECT_HEADER_DEPTH_MAX 3
+#define OBJECT_HEADER_DEPTH_SHIFT OMR_OBJECT_METADATA_AGE_SHIFT
+#define OBJECT_HEADER_DEPTH_MASK (OBJECT_HEADER_DEPTH_MAX << OBJECT_HEADER_DEPTH_SHIFT)
 
 /* check that we have enough collector bits to be used for Depth */
 #if (0 != (OBJECT_HEADER_DEPTH_MASK & ~(OMR_OBJECT_METADATA_AGE_MASK)))
@@ -70,8 +70,8 @@
 #endif /* (0 != (OBJECT_HEADER_DEPTH_MASK & ~(OMR_OBJECT_METADATA_AGE_MASK))) */
 
 /*
- * #defines representing the 2 bits stored in immortal object header used as mark and overflow bits by ReferenceChainWalker.
- * Both bits occupy the arraylet layout bits which have been deprecated
+ * #defines representing the 2 bits stored in immortal object header used as mark and overflow bits by
+ * ReferenceChainWalker. Both bits occupy the arraylet layout bits which have been deprecated
  */
 #define OBJECT_HEADER_REFERENCE_CHAIN_WALKER_IMMORTAL_MARKED 0x40
 #define OBJECT_HEADER_REFERENCE_CHAIN_WALKER_IMMORTAL_OVERFLOW 0xC0
@@ -87,668 +87,623 @@ class MM_GCExtensionsBase;
  * Provides information for a given object.
  * @ingroup GC_Base
  */
-class GC_ObjectModel : public GC_ObjectModelBase
-{
-/*
- * Member data and types
- */
+class GC_ObjectModel : public GC_ObjectModelBase {
+    /*
+     * Member data and types
+     */
 private:
-	J9JavaVM* _javaVM; /***< pointer to the Java VM */
-	GC_MixedObjectModel *_mixedObjectModel; /**< pointer to the mixed object model in extensions (so that we can delegate to it) */
-	GC_ArrayObjectModel *_indexableObjectModel; /**< pointer to the indexable object model in extensions (so that we can delegate to it) */
-	J9Class *_classClass; /**< java.lang.Class class pointer for detecting special objects */
-	J9Class *_classLoaderClass; /**< java.lang.ClassLoader class pointer for detecting special objects */
-	J9Class *_atomicMarkableReferenceClass; /**< java.util.concurrent.atomic.AtomicMarkableReference class pointer for detecting special objects */
+    J9JavaVM* _javaVM; /***< pointer to the Java VM */
+    GC_MixedObjectModel*
+        _mixedObjectModel; /**< pointer to the mixed object model in extensions (so that we can delegate to it) */
+    GC_ArrayObjectModel* _indexableObjectModel; /**< pointer to the indexable object model in extensions (so that we can
+                                                   delegate to it) */
+    J9Class* _classClass; /**< java.lang.Class class pointer for detecting special objects */
+    J9Class* _classLoaderClass; /**< java.lang.ClassLoader class pointer for detecting special objects */
+    J9Class* _atomicMarkableReferenceClass; /**< java.util.concurrent.atomic.AtomicMarkableReference class pointer for
+                                               detecting special objects */
 
 protected:
 public:
-	/**
- 	* Return values for getScanType().
- 	*/
-	enum ScanType {
-		SCAN_INVALID_OBJECT = 0,
-		SCAN_MIXED_OBJECT = 1,
-		SCAN_POINTER_ARRAY_OBJECT = 2,
-		SCAN_PRIMITIVE_ARRAY_OBJECT = 3,
-		SCAN_REFERENCE_MIXED_OBJECT = 4,
-		SCAN_CLASS_OBJECT = 5,
-		SCAN_CLASSLOADER_OBJECT = 6,
-		SCAN_ATOMIC_MARKABLE_REFERENCE_OBJECT = 7,
-		SCAN_OWNABLESYNCHRONIZER_OBJECT = 8,
-	};
+    /**
+     * Return values for getScanType().
+     */
+    enum ScanType {
+        SCAN_INVALID_OBJECT = 0,
+        SCAN_MIXED_OBJECT = 1,
+        SCAN_POINTER_ARRAY_OBJECT = 2,
+        SCAN_PRIMITIVE_ARRAY_OBJECT = 3,
+        SCAN_REFERENCE_MIXED_OBJECT = 4,
+        SCAN_CLASS_OBJECT = 5,
+        SCAN_CLASSLOADER_OBJECT = 6,
+        SCAN_ATOMIC_MARKABLE_REFERENCE_OBJECT = 7,
+        SCAN_OWNABLESYNCHRONIZER_OBJECT = 8,
+    };
 
-	/**
-	 * Values for the 'state' field in java.lang.ref.Reference.
-	 * Note that these values are mirrored in the Java code. Do not change them.
-	 */
-	enum ReferenceState {
-		REF_STATE_INITIAL = 0, /**< indicates the initial (normal) state for a Reference object. Referent is weak. */
-		REF_STATE_CLEARED = 1, /**< indicates that the Reference object has been cleared, either by the GC or by the Java clear() API. Referent is null or strong. */ 
-		REF_STATE_ENQUEUED = 2, /**< indicates that the Reference object has been cleared and enqueued on its ReferenceQueue. Referent is null or strong. */
-		REF_STATE_REMEMBERED = 3, /**< indicates that the Reference object was discovered by a global cycle and that the current local GC cycle must return it to that list and restore the state to INITIAL. */
-	};
-	
-/*
- * Member functions
- */
+    /**
+     * Values for the 'state' field in java.lang.ref.Reference.
+     * Note that these values are mirrored in the Java code. Do not change them.
+     */
+    enum ReferenceState {
+        REF_STATE_INITIAL = 0, /**< indicates the initial (normal) state for a Reference object. Referent is weak. */
+        REF_STATE_CLEARED = 1, /**< indicates that the Reference object has been cleared, either by the GC or by the
+                                  Java clear() API. Referent is null or strong. */
+        REF_STATE_ENQUEUED = 2, /**< indicates that the Reference object has been cleared and enqueued on its
+                                   ReferenceQueue. Referent is null or strong. */
+        REF_STATE_REMEMBERED
+        = 3, /**< indicates that the Reference object was discovered by a global cycle and that the current local GC
+                cycle must return it to that list and restore the state to INITIAL. */
+    };
+
+    /*
+     * Member functions
+     */
 private:
-	/**
-	 * Determine the scan type for an instant of the specified class.
-	 * The class has the J9_JAVA_CLASS_GC_SPECIAL bit set.
-	 * @param[in] objectClazz the class of the object to identify
-	 * @return one of the ScanType constants 
-	 */
-	ScanType getSpecialClassScanType(J9Class *objectClazz);
-	
-	/**
-	 * Examine all classes as they are loaded to determine if they require the J9_JAVA_CLASS_GC_SPECIAL bit.
-	 * These classes are handled specially by GC_ObjectModel::getScanType()
-	 */
-	static void internalClassLoadHook(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+    /**
+     * Determine the scan type for an instant of the specified class.
+     * The class has the J9_JAVA_CLASS_GC_SPECIAL bit set.
+     * @param[in] objectClazz the class of the object to identify
+     * @return one of the ScanType constants
+     */
+    ScanType getSpecialClassScanType(J9Class* objectClazz);
 
-	/**
-	 * Update all of the  GC special class pointers to their most current version after a class
-	 * redefinition has occurred.
-	 */
-	static void classesRedefinedHook(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
-	
-	/**
-	 * Returns the shape of an class.
-	 * @param objectPtr Pointer to object whose shape is required.
-	 * @return The shape of the object
-	 */
-	MMINLINE UDATA
-	getClassShape(J9Object *objectPtr)
-	{
-		J9Class* clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
-		return J9GC_CLASS_SHAPE(clazz);
-	}
+    /**
+     * Examine all classes as they are loaded to determine if they require the J9_JAVA_CLASS_GC_SPECIAL bit.
+     * These classes are handled specially by GC_ObjectModel::getScanType()
+     */
+    static void internalClassLoadHook(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+
+    /**
+     * Update all of the  GC special class pointers to their most current version after a class
+     * redefinition has occurred.
+     */
+    static void classesRedefinedHook(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+
+    /**
+     * Returns the shape of an class.
+     * @param objectPtr Pointer to object whose shape is required.
+     * @return The shape of the object
+     */
+    MMINLINE UDATA getClassShape(J9Object* objectPtr)
+    {
+        J9Class* clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
+        return J9GC_CLASS_SHAPE(clazz);
+    }
 
 public:
-	/**
-	 * Determine the ScanType code for objects of the specified class. This code determines how instances should be scanned.
-	 * @param clazz[in] the class of the object to be scanned
-	 * @return a ScanType code, SCAN_INVALID_OBJECT if the code cannot be determined due to an error
-	 */
-	MMINLINE ScanType
-	getScanType(J9Class *clazz)
-	{
-		ScanType result = SCAN_INVALID_OBJECT;
+    /**
+     * Determine the ScanType code for objects of the specified class. This code determines how instances should be
+     * scanned.
+     * @param clazz[in] the class of the object to be scanned
+     * @return a ScanType code, SCAN_INVALID_OBJECT if the code cannot be determined due to an error
+     */
+    MMINLINE ScanType getScanType(J9Class* clazz)
+    {
+        ScanType result = SCAN_INVALID_OBJECT;
 
-		switch(J9GC_CLASS_SHAPE(clazz)) {
-		case OBJECT_HEADER_SHAPE_MIXED:
-		{
-			UDATA classFlags = J9CLASS_FLAGS(clazz) & (J9_JAVA_CLASS_REFERENCE_MASK | J9_JAVA_CLASS_GC_SPECIAL | J9_JAVA_CLASS_OWNABLE_SYNCHRONIZER);
-			if (0 == classFlags) {
-				result = SCAN_MIXED_OBJECT;
-			} else {
-				if (0 != (classFlags & J9_JAVA_CLASS_REFERENCE_MASK)) {
-					result = SCAN_REFERENCE_MIXED_OBJECT;
-				} else if (0 != (classFlags & J9_JAVA_CLASS_GC_SPECIAL)) {
-					result = getSpecialClassScanType(clazz);
-				} else if (0 != (classFlags & J9_JAVA_CLASS_OWNABLE_SYNCHRONIZER)) {
-					result = SCAN_OWNABLESYNCHRONIZER_OBJECT;
-				} else {
-					/* Assert_MM_unreachable(); */
-					assert(false);
-				}
-			}
-			break;
-		}
-		case OBJECT_HEADER_SHAPE_POINTERS:
-			result = SCAN_POINTER_ARRAY_OBJECT;
-			break;
-		case OBJECT_HEADER_SHAPE_DOUBLES:
-		case OBJECT_HEADER_SHAPE_BYTES:
-		case OBJECT_HEADER_SHAPE_WORDS:
-		case OBJECT_HEADER_SHAPE_LONGS:
-			/* Must be a primitive array*/
-			result = SCAN_PRIMITIVE_ARRAY_OBJECT;
-			break;
-		default:
-			result = SCAN_INVALID_OBJECT;
-		}
+        switch (J9GC_CLASS_SHAPE(clazz)) {
+        case OBJECT_HEADER_SHAPE_MIXED: {
+            UDATA classFlags = J9CLASS_FLAGS(clazz)
+                & (J9_JAVA_CLASS_REFERENCE_MASK | J9_JAVA_CLASS_GC_SPECIAL | J9_JAVA_CLASS_OWNABLE_SYNCHRONIZER);
+            if (0 == classFlags) {
+                result = SCAN_MIXED_OBJECT;
+            } else {
+                if (0 != (classFlags & J9_JAVA_CLASS_REFERENCE_MASK)) {
+                    result = SCAN_REFERENCE_MIXED_OBJECT;
+                } else if (0 != (classFlags & J9_JAVA_CLASS_GC_SPECIAL)) {
+                    result = getSpecialClassScanType(clazz);
+                } else if (0 != (classFlags & J9_JAVA_CLASS_OWNABLE_SYNCHRONIZER)) {
+                    result = SCAN_OWNABLESYNCHRONIZER_OBJECT;
+                } else {
+                    /* Assert_MM_unreachable(); */
+                    assert(false);
+                }
+            }
+            break;
+        }
+        case OBJECT_HEADER_SHAPE_POINTERS:
+            result = SCAN_POINTER_ARRAY_OBJECT;
+            break;
+        case OBJECT_HEADER_SHAPE_DOUBLES:
+        case OBJECT_HEADER_SHAPE_BYTES:
+        case OBJECT_HEADER_SHAPE_WORDS:
+        case OBJECT_HEADER_SHAPE_LONGS:
+            /* Must be a primitive array*/
+            result = SCAN_PRIMITIVE_ARRAY_OBJECT;
+            break;
+        default:
+            result = SCAN_INVALID_OBJECT;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	MMINLINE ScanType
-	getScanType(J9Object *objectPtr)
-	{
-		J9Class *clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
-		return getScanType(clazz);
-	}
-	
-	/**
-	 * Returns the depth of an object.
-	 * @param objectPtr Pointer to object whose depth is required.
-	 * @return The depth of the object
-	 */
-	MMINLINE UDATA
-	getObjectDepth(J9Object *objectPtr)
-	{
-		return (getRememberedBits(objectPtr) & OBJECT_HEADER_DEPTH_MASK);
-	}
+    MMINLINE ScanType getScanType(J9Object* objectPtr)
+    {
+        J9Class* clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
+        return getScanType(clazz);
+    }
 
-	/**
-	 * Returns TRUE if a class is indexable, FALSE otherwise.
-	 * @param clazz Pointer to the class
-	 * @return TRUE if a class is indexable, FALSE otherwise
-	 */
-	MMINLINE bool
-	isIndexable(J9Class* clazz)
-	{
-		return J9GC_CLASS_IS_ARRAY(clazz);
-	}
+    /**
+     * Returns the depth of an object.
+     * @param objectPtr Pointer to object whose depth is required.
+     * @return The depth of the object
+     */
+    MMINLINE UDATA getObjectDepth(J9Object* objectPtr)
+    {
+        return (getRememberedBits(objectPtr) & OBJECT_HEADER_DEPTH_MASK);
+    }
 
-	using GC_ObjectModelBase::isIndexable;
+    /**
+     * Returns TRUE if a class is indexable, FALSE otherwise.
+     * @param clazz Pointer to the class
+     * @return TRUE if a class is indexable, FALSE otherwise
+     */
+    MMINLINE bool isIndexable(J9Class* clazz) { return J9GC_CLASS_IS_ARRAY(clazz); }
 
-	/**
-	 * Returns TRUE if an object has a OBJECT_HEADER_SHAPE_POINTERS shape, FALSE otherwise.
-	 * @param objectPtr Pointer to an object
-	 * @return TRUE if an object has a OBJECT_HEADER_SHAPE_POINTERS shape, FALSE otherwise
-	 */
-	MMINLINE bool
-	isObjectArray(J9Object *objectPtr)
-	{
-		J9Class* clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
-		return (OBJECT_HEADER_SHAPE_POINTERS == J9GC_CLASS_SHAPE(clazz));
-	}
+    using GC_ObjectModelBase::isIndexable;
 
-	/**
-	 * @see isObjectArray(J9Object *objectPtr)
-	 */
-	MMINLINE bool
-	isObjectArray(J9IndexableObject *objectPtr)
-	{
-		return isObjectArray((J9Object*)objectPtr);
-	}
-	
-	/**
-	 * Returns TRUE if an object is primitive array, FALSE otherwise.
-	 * @param objectPtr Pointer to an object
-	 * @return TRUE if an object is primitive array, FALSE otherwise
-	 */
-	MMINLINE bool
-	isPrimitiveArray(J9Object *objectPtr)
-	{
-		bool isPrimitiveArray = false;
+    /**
+     * Returns TRUE if an object has a OBJECT_HEADER_SHAPE_POINTERS shape, FALSE otherwise.
+     * @param objectPtr Pointer to an object
+     * @return TRUE if an object has a OBJECT_HEADER_SHAPE_POINTERS shape, FALSE otherwise
+     */
+    MMINLINE bool isObjectArray(J9Object* objectPtr)
+    {
+        J9Class* clazz = J9GC_J9OBJECT_CLAZZ(objectPtr);
+        return (OBJECT_HEADER_SHAPE_POINTERS == J9GC_CLASS_SHAPE(clazz));
+    }
 
-		switch(getClassShape(objectPtr)) {
-		case OBJECT_HEADER_SHAPE_BYTES:
-		case OBJECT_HEADER_SHAPE_WORDS:
-		case OBJECT_HEADER_SHAPE_LONGS:
-		case OBJECT_HEADER_SHAPE_DOUBLES:
-			isPrimitiveArray = true;
-			break;
-		default:
-			isPrimitiveArray = false;
-			break;
-		}
+    /**
+     * @see isObjectArray(J9Object *objectPtr)
+     */
+    MMINLINE bool isObjectArray(J9IndexableObject* objectPtr) { return isObjectArray((J9Object*)objectPtr); }
 
-		return isPrimitiveArray;
-	}
+    /**
+     * Returns TRUE if an object is primitive array, FALSE otherwise.
+     * @param objectPtr Pointer to an object
+     * @return TRUE if an object is primitive array, FALSE otherwise
+     */
+    MMINLINE bool isPrimitiveArray(J9Object* objectPtr)
+    {
+        bool isPrimitiveArray = false;
 
-	/**
-	 * @see isPrimitiveArray(J9Object *objectPtr)
-	 */
-	MMINLINE bool
-	isPrimitiveArray(J9IndexableObject *objectPtr)
-	{
-		return isPrimitiveArray((J9Object*)objectPtr);
-	}
-	
-	/**
-	 * Determine whether or not the given object is a double array
-	 *
-	 * @return true if objectPtr is a double array
-	 * @return false otherwise
-	 */
-	MMINLINE bool
-	isDoubleArray(J9Object* objectPtr)
-	{
-		return (OBJECT_HEADER_SHAPE_DOUBLES == getClassShape(objectPtr));
-	}
+        switch (getClassShape(objectPtr)) {
+        case OBJECT_HEADER_SHAPE_BYTES:
+        case OBJECT_HEADER_SHAPE_WORDS:
+        case OBJECT_HEADER_SHAPE_LONGS:
+        case OBJECT_HEADER_SHAPE_DOUBLES:
+            isPrimitiveArray = true;
+            break;
+        default:
+            isPrimitiveArray = false;
+            break;
+        }
 
-	/**
-	 * @see isDoubleArray(J9Object* objectPtr)
-	 */
-	MMINLINE bool
-	isDoubleArray(J9IndexableObject *objectPtr)
-	{
-		return isDoubleArray((J9Object*)objectPtr);
-	}
-	
-	/**
-	 * Check is indexable bit set properly:
-	 * must be set for arrays and primitive arrays
-	 * must not be set for all others
-	 * @param objectPtr Pointer to an object
-	 * @return TRUE if indexable bit is set properly
-	 */
-	MMINLINE bool
-	checkIndexableFlag(J9Object *objectPtr)
-	{
-		bool result = false;
+        return isPrimitiveArray;
+    }
 
-		if (isObjectArray(objectPtr) || isPrimitiveArray(objectPtr)) {
-			if (isIndexable(objectPtr)) {
-				result = true;
-			}
-		} else {
-			if (!isIndexable(objectPtr)) {
-				result = true;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Determine the basic hash code for the specified object. This may modify the object. For example, it may
-	 * set the HAS_BEEN_HASHED bit in the object's header. Object must not be NULL.
-	 * 
-	 * @param object[in] the object to be hashed
-	 * @return the persistent, basic hash code for the object 
-	 */
-	MMINLINE I_32
-	getObjectHashCode(J9JavaVM *vm, J9Object *object)
-	{
-		I_32 result = 0;
-#if defined (OMR_GC_MODRON_COMPACTION) || defined (J9VM_GC_GENERATIONAL)
-		if (hasBeenMoved(object)) {
-			UDATA hashOffset = getHashcodeOffset(object);
-			result = *(I_32*)((U_8*)object + hashOffset);
-		} else {
-			atomicSetObjectFlags(object, 0, OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
-			result = convertValueToHash(vm, (UDATA)object);
-		}
+    /**
+     * @see isPrimitiveArray(J9Object *objectPtr)
+     */
+    MMINLINE bool isPrimitiveArray(J9IndexableObject* objectPtr) { return isPrimitiveArray((J9Object*)objectPtr); }
+
+    /**
+     * Determine whether or not the given object is a double array
+     *
+     * @return true if objectPtr is a double array
+     * @return false otherwise
+     */
+    MMINLINE bool isDoubleArray(J9Object* objectPtr)
+    {
+        return (OBJECT_HEADER_SHAPE_DOUBLES == getClassShape(objectPtr));
+    }
+
+    /**
+     * @see isDoubleArray(J9Object* objectPtr)
+     */
+    MMINLINE bool isDoubleArray(J9IndexableObject* objectPtr) { return isDoubleArray((J9Object*)objectPtr); }
+
+    /**
+     * Check is indexable bit set properly:
+     * must be set for arrays and primitive arrays
+     * must not be set for all others
+     * @param objectPtr Pointer to an object
+     * @return TRUE if indexable bit is set properly
+     */
+    MMINLINE bool checkIndexableFlag(J9Object* objectPtr)
+    {
+        bool result = false;
+
+        if (isObjectArray(objectPtr) || isPrimitiveArray(objectPtr)) {
+            if (isIndexable(objectPtr)) {
+                result = true;
+            }
+        } else {
+            if (!isIndexable(objectPtr)) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Determine the basic hash code for the specified object. This may modify the object. For example, it may
+     * set the HAS_BEEN_HASHED bit in the object's header. Object must not be NULL.
+     *
+     * @param object[in] the object to be hashed
+     * @return the persistent, basic hash code for the object
+     */
+    MMINLINE I_32 getObjectHashCode(J9JavaVM* vm, J9Object* object)
+    {
+        I_32 result = 0;
+#if defined(OMR_GC_MODRON_COMPACTION) || defined(J9VM_GC_GENERATIONAL)
+        if (hasBeenMoved(object)) {
+            UDATA hashOffset = getHashcodeOffset(object);
+            result = *(I_32*)((U_8*)object + hashOffset);
+        } else {
+            atomicSetObjectFlags(object, 0, OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
+            result = convertValueToHash(vm, (UDATA)object);
+        }
 #else /* defined (OMR_GC_MODRON_COMPACTION) || defined (J9VM_GC_GENERATIONAL) */
-		result = computeObjectAddressToHash(vm, object);
+        result = computeObjectAddressToHash(vm, object);
 #endif /* defined (OMR_GC_MODRON_COMPACTION) || defined (J9VM_GC_GENERATIONAL) */
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * Initialize the basic hash code for the specified object.
-	 * Space for the hash slot must already exist.
-	 *
-	 * @note Sets OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS flags
-	 * @param object[in] the object to be initialized.
-	 */
-	MMINLINE void
-	initializeHashSlot(J9JavaVM* vm, J9Object *objectPtr)
-	{
-#if defined (OMR_GC_MODRON_COMPACTION) || defined (J9VM_GC_GENERATIONAL)
-		UDATA hashOffset = getHashcodeOffset(objectPtr);
-		U_32 *hashCodePointer = (U_32*)((U_8*)objectPtr + hashOffset);
+    /**
+     * Initialize the basic hash code for the specified object.
+     * Space for the hash slot must already exist.
+     *
+     * @note Sets OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS flags
+     * @param object[in] the object to be initialized.
+     */
+    MMINLINE void initializeHashSlot(J9JavaVM* vm, J9Object* objectPtr)
+    {
+#if defined(OMR_GC_MODRON_COMPACTION) || defined(J9VM_GC_GENERATIONAL)
+        UDATA hashOffset = getHashcodeOffset(objectPtr);
+        U_32* hashCodePointer = (U_32*)((U_8*)objectPtr + hashOffset);
 
-		*hashCodePointer = convertValueToHash(vm, (UDATA)objectPtr);
-		setObjectHasBeenMoved(objectPtr);
+        *hashCodePointer = convertValueToHash(vm, (UDATA)objectPtr);
+        setObjectHasBeenMoved(objectPtr);
 #endif /* defined (OMR_GC_MODRON_COMPACTION) || defined (J9VM_GC_GENERATIONAL) */
-	}
+    }
 
-	/**
-	 * Returns TRUE if an object has been hashed or moved, FALSE otherwise.
-	 * @param objectPtr Object to test
-	 * @return TRUE if an object has been hashed or moved, FALSE otherwise
-	 */
-	MMINLINE bool
-	hasBeenHashed(J9Object *objectPtr)
-	{
-		return hasBeenHashed(getObjectFlags(objectPtr));
-	}
+    /**
+     * Returns TRUE if an object has been hashed or moved, FALSE otherwise.
+     * @param objectPtr Object to test
+     * @return TRUE if an object has been hashed or moved, FALSE otherwise
+     */
+    MMINLINE bool hasBeenHashed(J9Object* objectPtr) { return hasBeenHashed(getObjectFlags(objectPtr)); }
 
-	MMINLINE bool
-	hasBeenHashed(uintptr_t objectFlags)
-	{
-		return 0 != (objectFlags & (OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS));
-	}
+    MMINLINE bool hasBeenHashed(uintptr_t objectFlags)
+    {
+        return 0 != (objectFlags & (OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS));
+    }
 
-	/**
-	 * Returns TRUE if an object has been hashed but not moved, FALSE otherwise.
-	 * @param objectPtr Object to test
-	 * @return TRUE if an object has been hashed but not moved, FALSE otherwise
-	 */
-	MMINLINE bool
-	hasJustBeenHashed(J9Object *objectPtr)
-	{
-		return hasJustBeenHashed(getObjectFlags(objectPtr));
-	}
+    /**
+     * Returns TRUE if an object has been hashed but not moved, FALSE otherwise.
+     * @param objectPtr Object to test
+     * @return TRUE if an object has been hashed but not moved, FALSE otherwise
+     */
+    MMINLINE bool hasJustBeenHashed(J9Object* objectPtr) { return hasJustBeenHashed(getObjectFlags(objectPtr)); }
 
-	MMINLINE bool
-	hasJustBeenHashed(uintptr_t objectFlags)
-	{
-		return OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS == (objectFlags & OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
-	}
+    MMINLINE bool hasJustBeenHashed(uintptr_t objectFlags)
+    {
+        return OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS == (objectFlags & OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
+    }
 
-	/**
-	 * Returns TRUE if an object has been moved, regardless of state of hashed bit, FALSE otherwise.
-	 * @param objectPtr Object to test
-	 * @return TRUE if an object has been moved, regardless of state of hashed bit, FALSE otherwise
-	 */
-	MMINLINE bool
-	hasBeenMoved(J9Object *objectPtr)
-	{
-		return hasBeenMoved(getObjectFlags(objectPtr));
-	}
+    /**
+     * Returns TRUE if an object has been moved, regardless of state of hashed bit, FALSE otherwise.
+     * @param objectPtr Object to test
+     * @return TRUE if an object has been moved, regardless of state of hashed bit, FALSE otherwise
+     */
+    MMINLINE bool hasBeenMoved(J9Object* objectPtr) { return hasBeenMoved(getObjectFlags(objectPtr)); }
 
-	MMINLINE bool
-	hasBeenMoved(uintptr_t objectFlags)
-	{
-		return OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS == (objectFlags & OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS);
-	}
+    MMINLINE bool hasBeenMoved(uintptr_t objectFlags)
+    {
+        return OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS == (objectFlags & OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS);
+    }
 
-	/**
-	 * Returns TRUE if an object has been moved and hashed bit cleared, FALSE otherwise.
-	 * @param objectPtr Object to test
-	 * @return TRUE if an object has been moved and hashed bit cleared, FALSE otherwise
-	 */
-	MMINLINE bool
-	hasRecentlyBeenMoved(J9Object *objectPtr)
-	{
-		return hasRecentlyBeenMoved(getObjectFlags(objectPtr));
-	}
+    /**
+     * Returns TRUE if an object has been moved and hashed bit cleared, FALSE otherwise.
+     * @param objectPtr Object to test
+     * @return TRUE if an object has been moved and hashed bit cleared, FALSE otherwise
+     */
+    MMINLINE bool hasRecentlyBeenMoved(J9Object* objectPtr) { return hasRecentlyBeenMoved(getObjectFlags(objectPtr)); }
 
-	MMINLINE bool
-	hasRecentlyBeenMoved(uintptr_t objectFlags)
-	{
-		return OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS == (objectFlags & (OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS));
-	}
+    MMINLINE bool hasRecentlyBeenMoved(uintptr_t objectFlags)
+    {
+        return OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS
+            == (objectFlags & (OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS));
+    }
 
-	/**
-	 * Set OBJECT_HEADER_HAS_BEEN_MOVED and OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS flags
-	 * @param objectPtr Pointer to an object
-	 */
-	MMINLINE void
-	setObjectHasBeenMoved(omrobjectptr_t objectPtr)
-	{
-		setObjectFlags(objectPtr, 0, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
-	}
+    /**
+     * Set OBJECT_HEADER_HAS_BEEN_MOVED and OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS flags
+     * @param objectPtr Pointer to an object
+     */
+    MMINLINE void setObjectHasBeenMoved(omrobjectptr_t objectPtr)
+    {
+        setObjectFlags(objectPtr, 0, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
+    }
 
-	/**
-	 * Set OBJECT_HEADER_HAS_BEEN_MOVED flag / clear OBJECT_HEADER_HAS_BEEN_HASHED bit
-	 * @param objectPtr Pointer to an object
-	 */
-	MMINLINE void
-	setObjectJustHasBeenMoved(omrobjectptr_t objectPtr)
-	{
-		setObjectFlags(objectPtr, OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS);
-	}
+    /**
+     * Set OBJECT_HEADER_HAS_BEEN_MOVED flag / clear OBJECT_HEADER_HAS_BEEN_HASHED bit
+     * @param objectPtr Pointer to an object
+     */
+    MMINLINE void setObjectJustHasBeenMoved(omrobjectptr_t objectPtr)
+    {
+        setObjectFlags(objectPtr, OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS);
+    }
 
-	MMINLINE void
-	preMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
-	{
-		bool hashed = hasBeenHashed(objectPtr);
-		bool moved = hasBeenMoved(objectPtr);
+    MMINLINE void preMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+    {
+        bool hashed = hasBeenHashed(objectPtr);
+        bool moved = hasBeenMoved(objectPtr);
 
-		vmThread->movedObjectHashCodeCache.hasBeenHashed = hashed;
-		vmThread->movedObjectHashCodeCache.hasBeenMoved = moved;
+        vmThread->movedObjectHashCodeCache.hasBeenHashed = hashed;
+        vmThread->movedObjectHashCodeCache.hasBeenMoved = moved;
 
-		if (hashed && !moved) {
-			/* calculate this BEFORE we (potentially) destroy the object */
-			vmThread->movedObjectHashCodeCache.originalHashCode = computeObjectAddressToHash((J9JavaVM *)vmThread->_vm->_language_vm, objectPtr);
-		}
-	}
+        if (hashed && !moved) {
+            /* calculate this BEFORE we (potentially) destroy the object */
+            vmThread->movedObjectHashCodeCache.originalHashCode
+                = computeObjectAddressToHash((J9JavaVM*)vmThread->_vm->_language_vm, objectPtr);
+        }
+    }
 
-	/**
-	 * This method may be called during heap compaction, after the object has been moved to a new location.
-	 * The implementation may apply any information extracted and cached in the calling thread at this point.
-	 *
-	 * @param[in] vmThread points to the calling thread
-	 * @param[in] objectPtr points to the object that has just been moved
-	 * @param[in] objectPtrOffsetInBytes byte offset from objectPtr to location to store extracted information
-	 * @see preMove(OMR_VMThread*, omrobjectptr_t)
-	 */
-	MMINLINE void
-	postMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
-	{
-		if (vmThread->movedObjectHashCodeCache.hasBeenHashed && !vmThread->movedObjectHashCodeCache.hasBeenMoved) {
-			*(uint32_t*)((uintptr_t)objectPtr + getHashcodeOffset(objectPtr)) = vmThread->movedObjectHashCodeCache.originalHashCode;
-			setObjectFlags(objectPtr, 0, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
-		}
-	}
+    /**
+     * This method may be called during heap compaction, after the object has been moved to a new location.
+     * The implementation may apply any information extracted and cached in the calling thread at this point.
+     *
+     * @param[in] vmThread points to the calling thread
+     * @param[in] objectPtr points to the object that has just been moved
+     * @param[in] objectPtrOffsetInBytes byte offset from objectPtr to location to store extracted information
+     * @see preMove(OMR_VMThread*, omrobjectptr_t)
+     */
+    MMINLINE void postMove(OMR_VMThread* vmThread, omrobjectptr_t objectPtr)
+    {
+        if (vmThread->movedObjectHashCodeCache.hasBeenHashed && !vmThread->movedObjectHashCodeCache.hasBeenMoved) {
+            *(uint32_t*)((uintptr_t)objectPtr + getHashcodeOffset(objectPtr))
+                = vmThread->movedObjectHashCodeCache.originalHashCode;
+            setObjectFlags(
+                objectPtr, 0, OBJECT_HEADER_HAS_BEEN_MOVED_IN_CLASS | OBJECT_HEADER_HAS_BEEN_HASHED_IN_CLASS);
+        }
+    }
 
-	MMINLINE uintptr_t
-	getHashcodeOffset(omrobjectptr_t objectPtr) {
-		return getObjectModelDelegate()->getHashcodeOffset(objectPtr);
-	}
+    MMINLINE uintptr_t getHashcodeOffset(omrobjectptr_t objectPtr)
+    {
+        return getObjectModelDelegate()->getHashcodeOffset(objectPtr);
+    }
 
-	/**
-	 * Same as getConsumedSizeInBytesWithHeader, except that it returns the size
-	 * the object will consume if it is moved. i.e. it includes space for the
-	 * hash code slot.
-	 * @param objectPtr Pointer to an object
-	 * @return The consumed heap size of an object, in bytes, including the header
-	 */
-	MMINLINE UDATA
-	getConsumedSizeInBytesWithHeaderForMove(J9Object *objectPtr)
-	{
-		return adjustSizeInBytes(getObjectModelDelegate()->getObjectSizeInBytesWithHeader(objectPtr, hasBeenHashed(objectPtr)));
-	}
+    /**
+     * Same as getConsumedSizeInBytesWithHeader, except that it returns the size
+     * the object will consume if it is moved. i.e. it includes space for the
+     * hash code slot.
+     * @param objectPtr Pointer to an object
+     * @return The consumed heap size of an object, in bytes, including the header
+     */
+    MMINLINE UDATA getConsumedSizeInBytesWithHeaderForMove(J9Object* objectPtr)
+    {
+        return adjustSizeInBytes(
+            getObjectModelDelegate()->getObjectSizeInBytesWithHeader(objectPtr, hasBeenHashed(objectPtr)));
+    }
 
-	/**
-	 * Same as getConsumedSizeInBytesWithHeader, except that it returns the size
-	 * the object will consume if it is moved. i.e. it includes space for the
-	 * hash code slot.
-	 * @param objectPtr Pointer to an object
-	 * @return The consumed heap size of an object, in bytes, including the header
-	 */
-	MMINLINE UDATA
-	getConsumedSizeInBytesWithHeaderBeforeMove(J9Object *objectPtr)
-	{
-		return adjustSizeInBytes(getObjectModelDelegate()->getObjectSizeInBytesWithHeader(objectPtr, hasBeenMoved(objectPtr) && !hasRecentlyBeenMoved(objectPtr)));
-	}
+    /**
+     * Same as getConsumedSizeInBytesWithHeader, except that it returns the size
+     * the object will consume if it is moved. i.e. it includes space for the
+     * hash code slot.
+     * @param objectPtr Pointer to an object
+     * @return The consumed heap size of an object, in bytes, including the header
+     */
+    MMINLINE UDATA getConsumedSizeInBytesWithHeaderBeforeMove(J9Object* objectPtr)
+    {
+        return adjustSizeInBytes(getObjectModelDelegate()->getObjectSizeInBytesWithHeader(
+            objectPtr, hasBeenMoved(objectPtr) && !hasRecentlyBeenMoved(objectPtr)));
+    }
 
 #if defined(J9VM_GC_MODRON_SCAVENGER)
-	/**
-	 * Extract the class pointer from an unforwarded object.
-	 *
-	 * This method will assert if the object has been marked as forwarded.
-	 *
-	 * @param[in] pointer to forwardedHeader the MM_ForwardedHeader instance encapsulating the object
-	 * @return pointer to the J9Class from the object encapsulated by forwardedHeader
-	 * @see MM_ForwardingHeader::isForwardedObject()
-	 */
-	MMINLINE J9Class *
-	getPreservedClass(MM_ForwardedHeader *forwardedHeader)
-	{
-		return (J9Class *)((uintptr_t)(forwardedHeader->getPreservedSlot()) & J9GC_J9OBJECT_CLAZZ_ADDRESS_MASK);
-	}
+    /**
+     * Extract the class pointer from an unforwarded object.
+     *
+     * This method will assert if the object has been marked as forwarded.
+     *
+     * @param[in] pointer to forwardedHeader the MM_ForwardedHeader instance encapsulating the object
+     * @return pointer to the J9Class from the object encapsulated by forwardedHeader
+     * @see MM_ForwardingHeader::isForwardedObject()
+     */
+    MMINLINE J9Class* getPreservedClass(MM_ForwardedHeader* forwardedHeader)
+    {
+        return (J9Class*)((uintptr_t)(forwardedHeader->getPreservedSlot()) & J9GC_J9OBJECT_CLAZZ_ADDRESS_MASK);
+    }
 
-	/**
-	 * Extract the size (as getSizeInElements()) from an unforwarded object
-	 *
-	 * This method will assert if the object is not indexable or has been marked as forwarded.
-	 *
-	 * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
-	 * @return the size (#elements) of the array encapsulated by forwardedHeader
-	 * @see MM_ForwardingHeader::isForwardedObject()
-	 */
-	MMINLINE uint32_t
-	getPreservedIndexableSize(MM_ForwardedHeader *forwardedHeader)
-	{
-		ForwardedHeaderAssert(isIndexable(getPreservedClass(forwardedHeader)));
+    /**
+     * Extract the size (as getSizeInElements()) from an unforwarded object
+     *
+     * This method will assert if the object is not indexable or has been marked as forwarded.
+     *
+     * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
+     * @return the size (#elements) of the array encapsulated by forwardedHeader
+     * @see MM_ForwardingHeader::isForwardedObject()
+     */
+    MMINLINE uint32_t getPreservedIndexableSize(MM_ForwardedHeader* forwardedHeader)
+    {
+        ForwardedHeaderAssert(isIndexable(getPreservedClass(forwardedHeader)));
 
-		/* in compressed headers, the size of the object is stored in the low-order half of the uintptr_t read when we read clazz
-		 * so read it from there instead of the heap (since the heap copy would have been over-written by the forwarding
-		 * pointer if another thread copied the object underneath us). In non-compressed, this field should still be readable
-		 * out of the heap.
-		 */
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
-		uint32_t size = forwardedHeader->getPreservedOverlap();
+        /* in compressed headers, the size of the object is stored in the low-order half of the uintptr_t read when we
+         * read clazz so read it from there instead of the heap (since the heap copy would have been over-written by the
+         * forwarding pointer if another thread copied the object underneath us). In non-compressed, this field should
+         * still be readable out of the heap.
+         */
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+        uint32_t size = forwardedHeader->getPreservedOverlap();
 #else /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
-		uint32_t size = ((J9IndexableObjectContiguous *)forwardedHeader->getObject())->size;
+        uint32_t size = ((J9IndexableObjectContiguous*)forwardedHeader->getObject())->size;
 #endif /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
 
 #if defined(OMR_GC_HYBRID_ARRAYLETS)
-		if (0 == size) {
-			/* Discontiguous */
-			size = ((J9IndexableObjectDiscontiguous *)forwardedHeader->getObject())->size;
-		}
+        if (0 == size) {
+            /* Discontiguous */
+            size = ((J9IndexableObjectDiscontiguous*)forwardedHeader->getObject())->size;
+        }
 #endif
 
-		return size;
-	}
-	
-	/**
-	 * Extract the array layout from preserved info in Forwarded header
-	 * (this mimics getArrayLayout())
-	 *
-	 * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
-	 * @return the ArrayLayout for the forwarded object
-	 */
-	GC_ArrayletObjectModel::ArrayLayout
-	getPreservedArrayLayout(MM_ForwardedHeader *forwardedHeader)
-	{
-		GC_ArrayletObjectModel::ArrayLayout layout = GC_ArrayletObjectModel::InlineContiguous;
+        return size;
+    }
+
+    /**
+     * Extract the array layout from preserved info in Forwarded header
+     * (this mimics getArrayLayout())
+     *
+     * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
+     * @return the ArrayLayout for the forwarded object
+     */
+    GC_ArrayletObjectModel::ArrayLayout getPreservedArrayLayout(MM_ForwardedHeader* forwardedHeader)
+    {
+        GC_ArrayletObjectModel::ArrayLayout layout = GC_ArrayletObjectModel::InlineContiguous;
 #if defined(J9VM_GC_HYBRID_ARRAYLETS)
-#if defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER)
-		uint32_t size = forwardedHeader->getPreservedOverlap();
+#if defined(OMR_INTERP_COMPRESSED_OBJECT_HEADER)
+        uint32_t size = forwardedHeader->getPreservedOverlap();
 #else /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
-		uint32_t size = ((J9IndexableObjectContiguous *)forwardedHeader->getObject())->size;
-#endif /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */		
-		
-		if (0 != size) {
-			return layout;
-		}
+        uint32_t size = ((J9IndexableObjectContiguous*)forwardedHeader->getObject())->size;
+#endif /* defined (OMR_INTERP_COMPRESSED_OBJECT_HEADER) */
+
+        if (0 != size) {
+            return layout;
+        }
 #endif /* J9VM_GC_HYBRID_ARRAYLETS */
 
-		/* we know we are dealing with heap object, so we don't need to check against _arrayletRangeBase/Top, like getArrayLayout does */
-		J9Class *clazz = getPreservedClass(forwardedHeader);
-		uintptr_t dataSizeInBytes = _indexableObjectModel->getDataSizeInBytes(clazz, getPreservedIndexableSize(forwardedHeader));
-		layout = _indexableObjectModel->getArrayletLayout(clazz, dataSizeInBytes);
-		
-		return layout;	
-	}
+        /* we know we are dealing with heap object, so we don't need to check against _arrayletRangeBase/Top, like
+         * getArrayLayout does */
+        J9Class* clazz = getPreservedClass(forwardedHeader);
+        uintptr_t dataSizeInBytes
+            = _indexableObjectModel->getDataSizeInBytes(clazz, getPreservedIndexableSize(forwardedHeader));
+        layout = _indexableObjectModel->getArrayletLayout(clazz, dataSizeInBytes);
 
-	/**
-	 * Update the new version of this object after it has been copied. This undoes any damaged
-	 * caused by installing the forwarding pointer into the original prior to the copy, and sets
-	 * the object age.
-	 *
-	 * This will install the correct (i.e. unforwarded) class pointer, update the hashed/moved
-	 * flags and install the hash code if the object has been hashed but not previously moved.
-	 *
-	 * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
-	 * @param[in] destinationObjectPtr pointer to the copied object to be fixed up
-	 * @param[in] objectAge the age to set in the copied object
-	 */
-	MMINLINE void
-	fixupForwardedObject(MM_ForwardedHeader *forwardedHeader, omrobjectptr_t destinationObjectPtr, uintptr_t objectAge)
-	{
-		GC_ObjectModelBase::fixupForwardedObject(forwardedHeader, destinationObjectPtr, objectAge);
+        return layout;
+    }
 
-		/*	To have ability to backout last scavenge we need to recognize objects just moved (moved first time) in current scavenge
-		 *
-		 *	Bits	State
-		 *	--------------------------------
-		 * 	m h		moved / hashed bits
-		 * 	0 0		not moved / not hashed
-		 * 	0 1		not moved / hashed
-		 * 	1 0		just moved / hashed
-		 *  1 1		moved / hashed
-		 *	--------------------------------
-		 */
-		if (hasBeenMoved(getPreservedFlags(forwardedHeader))) {
-			if (hasRecentlyBeenMoved(getPreservedFlags(forwardedHeader))) {
-				/* Moved bit set / hashed bit not set means "moved previous scavenge" so set moved/hashed */
-				setObjectHasBeenMoved(destinationObjectPtr);
-			}
-		} else if (hasBeenHashed(getPreservedFlags(forwardedHeader))) {
-			/* The object has been hashed and has not been moved so we must store the previous address into the hashcode slot at hashcode offset. */
-			uintptr_t hashOffset;
-			J9Class *clazz = getPreservedClass(forwardedHeader);
-			if (isIndexable(clazz)) {
-				hashOffset = _indexableObjectModel->getHashcodeOffset(clazz, getPreservedArrayLayout(forwardedHeader), getPreservedIndexableSize(forwardedHeader));
-			} else {
-				hashOffset = _mixedObjectModel->getHashcodeOffset(clazz);
-			}
-			uint32_t *hashCodePointer = (uint32_t*)((uint8_t*) destinationObjectPtr + hashOffset);
-			*hashCodePointer = convertValueToHash(_javaVM, (uintptr_t)forwardedHeader->getObject());
-			setObjectJustHasBeenMoved(destinationObjectPtr);
-		}
-	}
+    /**
+     * Update the new version of this object after it has been copied. This undoes any damaged
+     * caused by installing the forwarding pointer into the original prior to the copy, and sets
+     * the object age.
+     *
+     * This will install the correct (i.e. unforwarded) class pointer, update the hashed/moved
+     * flags and install the hash code if the object has been hashed but not previously moved.
+     *
+     * @param[in] forwardedHeader pointer to the MM_ForwardedHeader instance encapsulating the object
+     * @param[in] destinationObjectPtr pointer to the copied object to be fixed up
+     * @param[in] objectAge the age to set in the copied object
+     */
+    MMINLINE void fixupForwardedObject(
+        MM_ForwardedHeader* forwardedHeader, omrobjectptr_t destinationObjectPtr, uintptr_t objectAge)
+    {
+        GC_ObjectModelBase::fixupForwardedObject(forwardedHeader, destinationObjectPtr, objectAge);
+
+        /*	To have ability to backout last scavenge we need to recognize objects just moved (moved first time) in
+         *current scavenge
+         *
+         *	Bits	State
+         *	--------------------------------
+         * 	m h		moved / hashed bits
+         * 	0 0		not moved / not hashed
+         * 	0 1		not moved / hashed
+         * 	1 0		just moved / hashed
+         *  1 1		moved / hashed
+         *	--------------------------------
+         */
+        if (hasBeenMoved(getPreservedFlags(forwardedHeader))) {
+            if (hasRecentlyBeenMoved(getPreservedFlags(forwardedHeader))) {
+                /* Moved bit set / hashed bit not set means "moved previous scavenge" so set moved/hashed */
+                setObjectHasBeenMoved(destinationObjectPtr);
+            }
+        } else if (hasBeenHashed(getPreservedFlags(forwardedHeader))) {
+            /* The object has been hashed and has not been moved so we must store the previous address into the hashcode
+             * slot at hashcode offset. */
+            uintptr_t hashOffset;
+            J9Class* clazz = getPreservedClass(forwardedHeader);
+            if (isIndexable(clazz)) {
+                hashOffset = _indexableObjectModel->getHashcodeOffset(
+                    clazz, getPreservedArrayLayout(forwardedHeader), getPreservedIndexableSize(forwardedHeader));
+            } else {
+                hashOffset = _mixedObjectModel->getHashcodeOffset(clazz);
+            }
+            uint32_t* hashCodePointer = (uint32_t*)((uint8_t*)destinationObjectPtr + hashOffset);
+            *hashCodePointer = convertValueToHash(_javaVM, (uintptr_t)forwardedHeader->getObject());
+            setObjectJustHasBeenMoved(destinationObjectPtr);
+        }
+    }
 
 #endif /* defined(J9VM_GC_MODRON_SCAVENGER) */
 
 #if defined(OMR_GC_REALTIME)
-	/**
-	 * Set GC_OVERFLOW bit atomically
-	 * @param objectPtr Pointer to an object
-	 * @return true, if GC_OVERFLOW bit has been set this call
-	 */
-	MMINLINE bool
-	atomicSetOverflowBit(J9Object *objectPtr)
-	{
-		return atomicSetObjectFlags(objectPtr, 0, GC_OVERFLOW);
-	}
+    /**
+     * Set GC_OVERFLOW bit atomically
+     * @param objectPtr Pointer to an object
+     * @return true, if GC_OVERFLOW bit has been set this call
+     */
+    MMINLINE bool atomicSetOverflowBit(J9Object* objectPtr) { return atomicSetObjectFlags(objectPtr, 0, GC_OVERFLOW); }
 
-	/**
-	 * Clear GC_OVERFLOW bit atomically
-	 * @param objectPtr Pointer to an object
-	 * @return true, if GC_OVERFLOW bit has been cleared this call
-	 */
-	MMINLINE bool
-	atomicClearOverflowBit(J9Object *objectPtr)
-	{
-		return atomicSetObjectFlags(objectPtr, GC_OVERFLOW, 0);
-	}
+    /**
+     * Clear GC_OVERFLOW bit atomically
+     * @param objectPtr Pointer to an object
+     * @return true, if GC_OVERFLOW bit has been cleared this call
+     */
+    MMINLINE bool atomicClearOverflowBit(J9Object* objectPtr)
+    {
+        return atomicSetObjectFlags(objectPtr, GC_OVERFLOW, 0);
+    }
 
-	/**
-	 * Return back true if GC_OVERFLOW bit is set
-	 * @param objectPtr Pointer to an object
-	 * @return true, if GC_OVERFLOW bit is set
-	 */
-	MMINLINE bool
-	isOverflowBitSet(J9Object *objectPtr)
-	{
-		return (GC_OVERFLOW == (J9GC_J9OBJECT_FLAGS_FROM_CLAZZ(objectPtr) & GC_OVERFLOW));
-	}
+    /**
+     * Return back true if GC_OVERFLOW bit is set
+     * @param objectPtr Pointer to an object
+     * @return true, if GC_OVERFLOW bit is set
+     */
+    MMINLINE bool isOverflowBitSet(J9Object* objectPtr)
+    {
+        return (GC_OVERFLOW == (J9GC_J9OBJECT_FLAGS_FROM_CLAZZ(objectPtr) & GC_OVERFLOW));
+    }
 #endif /* defined(OMR_GC_REALTIME) */
 
-	/**
-	 * Set class in clazz slot in object header, with header flags.
-	 * @param objectPtr Pointer to an object
-	 * @param clazz class pointer to set
-	 * @param flags flag bits to set
-	 */
-	MMINLINE void
-	setObjectClassAndFlags(J9Object *objectPtr, J9Class* clazz, uintptr_t flags)
-	{
-		uintptr_t classBits = (uintptr_t)clazz;
-		uintptr_t flagsBits = flags & (uintptr_t)OMR_OBJECT_METADATA_FLAGS_MASK;
-		*(getObjectHeaderSlotAddress(objectPtr)) = (fomrobject_t)(classBits | flagsBits);
-	}
+    /**
+     * Set class in clazz slot in object header, with header flags.
+     * @param objectPtr Pointer to an object
+     * @param clazz class pointer to set
+     * @param flags flag bits to set
+     */
+    MMINLINE void setObjectClassAndFlags(J9Object* objectPtr, J9Class* clazz, uintptr_t flags)
+    {
+        uintptr_t classBits = (uintptr_t)clazz;
+        uintptr_t flagsBits = flags & (uintptr_t)OMR_OBJECT_METADATA_FLAGS_MASK;
+        *(getObjectHeaderSlotAddress(objectPtr)) = (fomrobject_t)(classBits | flagsBits);
+    }
 
-	/**
-	 * Set class in clazz slot in object header, preserving header flags
-	 * @param objectPtr Pointer to an object
-	 * @param clazz class pointer to set
-	 */
-	MMINLINE void
-	setObjectClass(J9Object *objectPtr, J9Class* clazz)
-	{
-		setObjectClassAndFlags(objectPtr, clazz, getObjectFlags(objectPtr));
-	}
+    /**
+     * Set class in clazz slot in object header, preserving header flags
+     * @param objectPtr Pointer to an object
+     * @param clazz class pointer to set
+     */
+    MMINLINE void setObjectClass(J9Object* objectPtr, J9Class* clazz)
+    {
+        setObjectClassAndFlags(objectPtr, clazz, getObjectFlags(objectPtr));
+    }
 
-	/**
-	 * Initialize the receiver, a new instance of GC_ObjectModel
-	 * 
-	 * @return true on success, false on failure
-	 */
-	virtual bool initialize(MM_GCExtensionsBase *extensions);
-	
-	/**
-	 * Tear down the receiver
-	 */
-	virtual void tearDown(MM_GCExtensionsBase *extensions);
+    /**
+     * Initialize the receiver, a new instance of GC_ObjectModel
+     *
+     * @return true on success, false on failure
+     */
+    virtual bool initialize(MM_GCExtensionsBase* extensions);
 
-	/**
-	 * Constructor.
-	 */
-	GC_ObjectModel()
-		: GC_ObjectModelBase()
-	{}
+    /**
+     * Tear down the receiver
+     */
+    virtual void tearDown(MM_GCExtensionsBase* extensions);
+
+    /**
+     * Constructor.
+     */
+    GC_ObjectModel()
+        : GC_ObjectModelBase()
+    {}
 };
 
 #endif /* OBJECTMODEL_HPP_ */

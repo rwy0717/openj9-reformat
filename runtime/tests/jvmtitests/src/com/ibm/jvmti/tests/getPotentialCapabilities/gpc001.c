@@ -24,53 +24,49 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
-
+static agentEnv* env;
 
 static jvmtiCapabilities initialCapabilities;
 
-jint JNICALL
-gpc001(agentEnv * agent_env, char * args)
+jint JNICALL gpc001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiPhase phase;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiPhase phase;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	
-	err = (*jvmti_env)->GetPhase(jvmti_env, &phase);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to GetPhase");
-		return JNI_ERR;
-	}
-	
-	if (phase != JVMTI_PHASE_ONLOAD) {
-		error(env, JVMTI_ERROR_WRONG_PHASE, "Wrong phase [%d], expected JVMTI_PHASE_ONLOAD");
-		return JNI_ERR;
-	}
-	
-	
-	err = (*jvmti_env)->GetPotentialCapabilities(jvmti_env, &initialCapabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to GetPotentialCapabilities");
-		return JNI_ERR;
-	}
+    err = (*jvmti_env)->GetPhase(jvmti_env, &phase);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to GetPhase");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    if (phase != JVMTI_PHASE_ONLOAD) {
+        error(env, JVMTI_ERROR_WRONG_PHASE, "Wrong phase [%d], expected JVMTI_PHASE_ONLOAD");
+        return JNI_ERR;
+    }
+
+    err = (*jvmti_env)->GetPotentialCapabilities(jvmti_env, &initialCapabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to GetPotentialCapabilities");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-
-static void
-getCapabilities(jvmtiCapabilities * caps, int * availableCount, int * unavailableCount)
+static void getCapabilities(jvmtiCapabilities* caps, int* availableCount, int* unavailableCount)
 {
-	#define PRINT_CAPABILITY(capability) \
-		printf("\t%d %s\n", caps->capability, #capability); \
-		if (caps->capability) \
-			(*availableCount)++; else (*unavailableCount)++;
-	
-	PRINT_CAPABILITY(can_tag_objects);
-	PRINT_CAPABILITY(can_generate_field_modification_events);
+#define PRINT_CAPABILITY(capability)                    \
+    printf("\t%d %s\n", caps->capability, #capability); \
+    if (caps->capability)                               \
+        (*availableCount)++;                            \
+    else                                                \
+        (*unavailableCount)++;
+
+    PRINT_CAPABILITY(can_tag_objects);
+    PRINT_CAPABILITY(can_generate_field_modification_events);
     PRINT_CAPABILITY(can_generate_field_access_events);
     PRINT_CAPABILITY(can_get_bytecodes);
     PRINT_CAPABILITY(can_get_synthetic_attribute);
@@ -104,7 +100,7 @@ getCapabilities(jvmtiCapabilities * caps, int * availableCount, int * unavailabl
     PRINT_CAPABILITY(can_generate_object_free_events);
 
     /* JVMTI 1.1 */
-    
+
     PRINT_CAPABILITY(can_force_early_return);
     PRINT_CAPABILITY(can_get_owned_monitor_stack_depth_info);
     PRINT_CAPABILITY(can_get_constant_pool);
@@ -113,7 +109,7 @@ getCapabilities(jvmtiCapabilities * caps, int * availableCount, int * unavailabl
     PRINT_CAPABILITY(can_retransform_any_class);
     PRINT_CAPABILITY(can_generate_resource_exhaustion_heap_events);
     PRINT_CAPABILITY(can_generate_resource_exhaustion_threads_events);
-	
+
     /* JVMTI 9.0 */
     if (JVMTI_VERSION_9_0 == env->jvmtiVersion) {
         PRINT_CAPABILITY(can_generate_early_vmstart);
@@ -121,22 +117,22 @@ getCapabilities(jvmtiCapabilities * caps, int * availableCount, int * unavailabl
     }
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getPotentialCapabilities_gpc001_verifyOnLoadCapabilities(JNIEnv *jni_env, jclass cls)
+jboolean JNICALL Java_com_ibm_jvmti_tests_getPotentialCapabilities_gpc001_verifyOnLoadCapabilities(
+    JNIEnv* jni_env, jclass cls)
 {
-	int availableCount = 0;
-	int unavailableCount = 0;
-	
-	getCapabilities(&initialCapabilities, &availableCount, &unavailableCount);
+    int availableCount = 0;
+    int unavailableCount = 0;
+
+    getCapabilities(&initialCapabilities, &availableCount, &unavailableCount);
 
     if (initialCapabilities.can_retransform_any_class == 0) {
-    	unavailableCount--;
+        unavailableCount--;
     }
-    
+
     if (initialCapabilities.can_redefine_any_class == 0) {
-    	unavailableCount--;
+        unavailableCount--;
     }
-    
+
     /* s390 thread/port lib does not support this functionality */
     if (initialCapabilities.can_get_current_thread_cpu_time == 0) {
         unavailableCount--;
@@ -148,73 +144,73 @@ Java_com_ibm_jvmti_tests_getPotentialCapabilities_gpc001_verifyOnLoadCapabilitie
     }
 
     if (unavailableCount != 0) {
-    	error(env, JVMTI_ERROR_INTERNAL, "Unexpected number [%d] of unavailable capabilities. Expected 0", unavailableCount);
-    	return JNI_FALSE;
+        error(env, JVMTI_ERROR_INTERNAL, "Unexpected number [%d] of unavailable capabilities. Expected 0",
+            unavailableCount);
+        return JNI_FALSE;
     }
 
     if (JVMTI_VERSION_9_0 == env->jvmtiVersion) {
-    	if (0 == initialCapabilities.can_generate_early_vmstart) {
-    		error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_vmstart should be available in onload phase.");
-    		return JNI_FALSE;
-    	}
+        if (0 == initialCapabilities.can_generate_early_vmstart) {
+            error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_vmstart should be available in onload phase.");
+            return JNI_FALSE;
+        }
 
-    	if (0 == initialCapabilities.can_generate_early_class_hook_events) {
-    		error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_class_hook_events should be available in onload phase.");
-    		return JNI_FALSE;
-    	}
+        if (0 == initialCapabilities.can_generate_early_class_hook_events) {
+            error(
+                env, JVMTI_ERROR_INTERNAL, "can_generate_early_class_hook_events should be available in onload phase.");
+            return JNI_FALSE;
+        }
     }
-    
-	return JNI_TRUE;
+
+    return JNI_TRUE;
 }
 
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getPotentialCapabilities_gpc001_verifyLiveCapabilities(JNIEnv *jni_env, jclass cls)
+jboolean JNICALL Java_com_ibm_jvmti_tests_getPotentialCapabilities_gpc001_verifyLiveCapabilities(
+    JNIEnv* jni_env, jclass cls)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	int availableCount = 0;
-	int unavailableCount = 0;
- 	jvmtiCapabilities capabilities;
-	jvmtiPhase phase;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(env);
+    int availableCount = 0;
+    int unavailableCount = 0;
+    jvmtiCapabilities capabilities;
+    jvmtiPhase phase;
+    jvmtiError err;
 
-	err = (*jvmti_env)->GetPhase(jvmti_env, &phase);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to GetPhase");
-		return JNI_ERR;
-	}
-	
-	if (phase != JVMTI_PHASE_LIVE) {
-		error(env, JVMTI_ERROR_WRONG_PHASE, "Wrong phase [%d], expected JVMTI_PHASE_LIVE");
-		return JNI_ERR;
-	}
-	
-	
-	err = (*jvmti_env)->GetPotentialCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to GetPotentialCapabilities");
-		return JNI_ERR;
-	}
- 
-	getCapabilities(&capabilities, &availableCount, &unavailableCount);
+    err = (*jvmti_env)->GetPhase(jvmti_env, &phase);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to GetPhase");
+        return JNI_ERR;
+    }
+
+    if (phase != JVMTI_PHASE_LIVE) {
+        error(env, JVMTI_ERROR_WRONG_PHASE, "Wrong phase [%d], expected JVMTI_PHASE_LIVE");
+        return JNI_ERR;
+    }
+
+    err = (*jvmti_env)->GetPotentialCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to GetPotentialCapabilities");
+        return JNI_ERR;
+    }
+
+    getCapabilities(&capabilities, &availableCount, &unavailableCount);
 
     if (availableCount <= 0) {
-    	error(env, JVMTI_ERROR_INTERNAL, "Unexpected number [%d] of available capabilities.", availableCount);
-    	return JNI_FALSE;
+        error(env, JVMTI_ERROR_INTERNAL, "Unexpected number [%d] of available capabilities.", availableCount);
+        return JNI_FALSE;
     }
-    
+
     if (JVMTI_VERSION_9_0 == env->jvmtiVersion) {
-    	if (1 == capabilities.can_generate_early_vmstart) {
-    		error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_vmstart should not be available in live phase.");
-    		return JNI_FALSE;
-    	}
+        if (1 == capabilities.can_generate_early_vmstart) {
+            error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_vmstart should not be available in live phase.");
+            return JNI_FALSE;
+        }
 
-    	if (1 == capabilities.can_generate_early_class_hook_events) {
-    		error(env, JVMTI_ERROR_INTERNAL, "can_generate_early_class_hook_events should not be available in the live phase.");
-    		return JNI_FALSE;
-    	}
+        if (1 == capabilities.can_generate_early_class_hook_events) {
+            error(env, JVMTI_ERROR_INTERNAL,
+                "can_generate_early_class_hook_events should not be available in the live phase.");
+            return JNI_FALSE;
+        }
     }
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 }

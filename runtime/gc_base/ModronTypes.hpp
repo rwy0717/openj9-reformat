@@ -32,7 +32,7 @@
 #include "j9.h"
 #include "j9cfg.h"
 #include "modronopt.h"
- 
+
 /**
  * @ingroup GC_Base
  * @name Iterators

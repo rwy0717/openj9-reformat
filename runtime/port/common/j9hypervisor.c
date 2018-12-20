@@ -30,8 +30,4 @@
 #include "j9port.h"
 #include "ut_j9prt.h"
 
-intptr_t
-detect_hypervisor(struct J9PortLibrary *portLibrary)
-{
-	return J9PORT_ERROR_HYPERVISOR_UNSUPPORTED;
-}
+intptr_t detect_hypervisor(struct J9PortLibrary* portLibrary) { return J9PORT_ERROR_HYPERVISOR_UNSUPPORTED; }

@@ -31,19 +31,17 @@
 
 extern "C" {
 
-jobject JNICALL
-Java_java_lang_J9VMInternals_getStackTrace(JNIEnv * env, jclass recv, jobject throwable, jboolean pruneConstructors)
+jobject JNICALL Java_java_lang_J9VMInternals_getStackTrace(
+    JNIEnv* env, jclass recv, jobject throwable, jboolean pruneConstructors)
 {
-	J9VMThread *currentThread = (J9VMThread*)env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
 
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-	j9object_t traceObject = (j9object_t)getStackTrace(currentThread, (j9object_t*)throwable, (UDATA)pruneConstructors);
-	jobject result = vmFuncs->j9jni_createLocalRef(env, traceObject);
-	vmFuncs->internalExitVMToJNI(currentThread);
-	return result;
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+    j9object_t traceObject = (j9object_t)getStackTrace(currentThread, (j9object_t*)throwable, (UDATA)pruneConstructors);
+    jobject result = vmFuncs->j9jni_createLocalRef(env, traceObject);
+    vmFuncs->internalExitVMToJNI(currentThread);
+    return result;
 }
-
-
 }

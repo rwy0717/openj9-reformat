@@ -40,23 +40,22 @@
 #include "Check.hpp"
 
 /**
- * 
+ *
  */
-class GC_CheckJVMTIObjectTagTables : public GC_Check
-{
+class GC_CheckJVMTIObjectTagTables : public GC_Check {
 private:
-	virtual void check(); /**< run the check */
-	virtual void print(); /**< dump the check structure to tty */
+    virtual void check(); /**< run the check */
+    virtual void print(); /**< dump the check structure to tty */
 
 public:
-	static GC_Check *newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine);
-	virtual void kill();
+    static GC_Check* newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine);
+    virtual void kill();
 
-	virtual const char *getCheckName() { return "JVMTI OBJECT TAG TABLES"; };
+    virtual const char* getCheckName() { return "JVMTI OBJECT TAG TABLES"; };
 
-	GC_CheckJVMTIObjectTagTables(J9JavaVM *javaVM, GC_CheckEngine *engine) :
-		GC_Check(javaVM, engine)
-	{}
+    GC_CheckJVMTIObjectTagTables(J9JavaVM* javaVM, GC_CheckEngine* engine)
+        : GC_Check(javaVM, engine)
+    {}
 };
 
 #endif /* J9VM_OPT_JVMTI */

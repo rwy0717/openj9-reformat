@@ -22,15 +22,14 @@
 
 #include "j9protos.h"
 
-UtInterface *
-getTraceInterfaceFromVM(J9JavaVM *j9vm)
+UtInterface* getTraceInterfaceFromVM(J9JavaVM* j9vm)
 {
-	UtInterface *utIntf = NULL;
-	JavaVM *vm = (JavaVM*)j9vm;
-	if (NULL != vm) {
-		if (JNI_OK != (*vm)->GetEnv(vm, (void**)&utIntf, UTE_VERSION_1_1)) {
-			utIntf = NULL;
-		}
-	}
-	return utIntf;
+    UtInterface* utIntf = NULL;
+    JavaVM* vm = (JavaVM*)j9vm;
+    if (NULL != vm) {
+        if (JNI_OK != (*vm)->GetEnv(vm, (void**)&utIntf, UTE_VERSION_1_1)) {
+            utIntf = NULL;
+        }
+    }
+    return utIntf;
 }

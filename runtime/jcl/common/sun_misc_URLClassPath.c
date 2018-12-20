@@ -23,8 +23,7 @@
 #include "jni.h"
 #include "jclprots.h"
 
-jobject JNICALL
-Java_sun_misc_URLClassPath_getLookupCacheURLs(JNIEnv *env, jobject unusedObject, jobject classLoader)
+jobject JNICALL Java_sun_misc_URLClassPath_getLookupCacheURLs(JNIEnv* env, jobject unusedObject, jobject classLoader)
 {
-	return NULL;
+    return NULL;
 }

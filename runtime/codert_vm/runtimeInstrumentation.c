@@ -24,57 +24,55 @@
 
 /**
  * Handler for the async message to update the RI fields in a thread.
- * 
+ *
  * @param[in] currentThread The current J9VMThread
  * @param[in] handlerKey Handler key of the current async event
  * @param[in] userData The J9JavaVM pointer
  */
-static void
-riAsyncHandler(J9VMThread *currentThread, IDATA handlerKey, void *userData)
+static void riAsyncHandler(J9VMThread* currentThread, IDATA handlerKey, void* userData)
 {
-	/**
-	 * Update the current flag values.  There is no need to take action based on the new flags.
-	 * The RI state will be updated on the next transition back to compiled code. 
-	 */
-	currentThread->jitCurrentRIFlags = currentThread->jitPendingRIFlags;
+    /**
+     * Update the current flag values.  There is no need to take action based on the new flags.
+     * The RI state will be updated on the next transition back to compiled code.
+     */
+    currentThread->jitCurrentRIFlags = currentThread->jitPendingRIFlags;
 }
 
 UDATA
-initializeJITRuntimeInstrumentation(J9JavaVM *vm)
+initializeJITRuntimeInstrumentation(J9JavaVM* vm)
 {
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	IDATA handlerKey = vmFuncs->J9RegisterAsyncEvent(vm, riAsyncHandler, vm);
-	UDATA rc = 1;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    IDATA handlerKey = vmFuncs->J9RegisterAsyncEvent(vm, riAsyncHandler, vm);
+    UDATA rc = 1;
 
-	if (handlerKey >= 0) {
-		vm->jitRIHandlerKey = handlerKey;
-		rc = 0;
-	}
+    if (handlerKey >= 0) {
+        vm->jitRIHandlerKey = handlerKey;
+        rc = 0;
+    }
 
-	return rc;
+    return rc;
 }
 
-void
-shutdownJITRuntimeInstrumentation(J9JavaVM *vm)
+void shutdownJITRuntimeInstrumentation(J9JavaVM* vm)
 {
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
 
-	vmFuncs->J9UnregisterAsyncEvent(vm, vm->jitRIHandlerKey);
-	vm->jitRIHandlerKey = -1;
+    vmFuncs->J9UnregisterAsyncEvent(vm, vm->jitRIHandlerKey);
+    vm->jitRIHandlerKey = -1;
 }
 
 UDATA
-updateJITRuntimeInstrumentationFlags(J9VMThread *targetThread, UDATA newFlags)
+updateJITRuntimeInstrumentationFlags(J9VMThread* targetThread, UDATA newFlags)
 {
-	J9JavaVM *vm = targetThread->javaVM;
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	UDATA rc = 1;
+    J9JavaVM* vm = targetThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    UDATA rc = 1;
 
-	if (targetThread->privateFlags & J9_PRIVATE_FLAGS_RI_INITIALIZED) {
-		targetThread->jitPendingRIFlags = newFlags;
-		vmFuncs->J9SignalAsyncEvent(vm, targetThread, vm->jitRIHandlerKey);
-		rc = 0;
-	}
+    if (targetThread->privateFlags & J9_PRIVATE_FLAGS_RI_INITIALIZED) {
+        targetThread->jitPendingRIFlags = newFlags;
+        vmFuncs->J9SignalAsyncEvent(vm, targetThread, vm->jitRIHandlerKey);
+        rc = 0;
+    }
 
-	return rc;
+    return rc;
 }

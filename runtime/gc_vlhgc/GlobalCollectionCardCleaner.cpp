@@ -32,17 +32,17 @@
 #include "EnvironmentVLHGC.hpp"
 #include "GlobalMarkingScheme.hpp"
 
-void
-MM_GlobalCollectionCardCleaner::clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+void MM_GlobalCollectionCardCleaner::clean(
+    MM_EnvironmentBase* envModron, void* lowAddress, void* highAddress, Card* cardToClean)
 {
-	MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
-	Assert_MM_true(MM_CycleState::CT_GLOBAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
-	Assert_MM_true(NULL != _markingScheme);
-	
-	Card fromState = *cardToClean;
-	Assert_MM_false(CARD_CLEAN == fromState);
-	Card toState = CARD_CLEAN;
-	*cardToClean = toState;
-	
-	_markingScheme->scanObjectsInRange(env, lowAddress, highAddress);
+    MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
+    Assert_MM_true(MM_CycleState::CT_GLOBAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
+    Assert_MM_true(NULL != _markingScheme);
+
+    Card fromState = *cardToClean;
+    Assert_MM_false(CARD_CLEAN == fromState);
+    Card toState = CARD_CLEAN;
+    *cardToClean = toState;
+
+    _markingScheme->scanObjectsInRange(env, lowAddress, highAddress);
 }

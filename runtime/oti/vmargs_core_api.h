@@ -30,22 +30,22 @@
 
 #if !defined(JNI_H)
 typedef struct JavaVMOption {
-	char *optionString;
-	void *extraInfo;
+    char* optionString;
+    void* extraInfo;
 } JavaVMOption;
 #endif /* !defined(JNI_H) */
 
 /* Temporary buffer for argument while constructing the list */
 typedef struct J9JavaVMArgInfo {
-	JavaVMOption vmOpt;
-	J9CmdLineOption cmdLineOpt;
-	struct J9JavaVMArgInfo *next; /* used to create linked list */
+    JavaVMOption vmOpt;
+    J9CmdLineOption cmdLineOpt;
+    struct J9JavaVMArgInfo* next; /* used to create linked list */
 } J9JavaVMArgInfo;
 
 typedef struct J9JavaVMArgInfoList {
-	J9Pool *pool;
-	J9JavaVMArgInfo *head; /* used to create linked list */
-	J9JavaVMArgInfo *tail; /* used to create linked list */
+    J9Pool* pool;
+    J9JavaVMArgInfo* head; /* used to create linked list */
+    J9JavaVMArgInfo* tail; /* used to create linked list */
 } J9JavaVMArgInfoList;
 
 #define CONSUMABLE_ARG 1
@@ -59,8 +59,7 @@ typedef struct J9JavaVMArgInfoList {
 #define RC_FAILED -70
 #define RC_MALFORMED -71
 
-J9JavaVMArgInfo *
-newJavaVMArgInfo(J9JavaVMArgInfoList *vmArgumentsList, char *optString, uintptr_t flags);
+J9JavaVMArgInfo* newJavaVMArgInfo(J9JavaVMArgInfoList* vmArgumentsList, char* optString, uintptr_t flags);
 
 /*
  * Add a -Xoptionsfile argument, plus contents of specified file.
@@ -71,8 +70,8 @@ newJavaVMArgInfo(J9JavaVMArgInfoList *vmArgumentsList, char *optString, uintptr_
  * @param verboseFlags set to VERBOSE_INIT for verbosity
  * @return 0 on success, negative value on failure
  */
-intptr_t
-addXOptionsFile(J9PortLibrary* portLib, const char *xOptionsfileArg, J9JavaVMArgInfoList *vmArgumentsList, uintptr_t verboseFlags);
+intptr_t addXOptionsFile(
+    J9PortLibrary* portLib, const char* xOptionsfileArg, J9JavaVMArgInfoList* vmArgumentsList, uintptr_t verboseFlags);
 
 /**
  * Scan an argument buffer containing multiple options to find the options and add them to the list.
@@ -85,8 +84,8 @@ addXOptionsFile(J9PortLibrary* portLib, const char *xOptionsfileArg, J9JavaVMArg
  * @param parseOptionsFileFlag Set to false to ignore embedded -Xoptionsfile arguments
  * @return number of arguments on success, negative on error
  */
-intptr_t
-parseOptionsBuffer(J9PortLibrary* portLib, char* argumentBuffer, J9JavaVMArgInfoList *vmArgumentsList, uintptr_t verboseFlags, BOOLEAN parseOptionsFileFlag);
+intptr_t parseOptionsBuffer(J9PortLibrary* portLib, char* argumentBuffer, J9JavaVMArgInfoList* vmArgumentsList,
+    uintptr_t verboseFlags, BOOLEAN parseOptionsFileFlag);
 
 /**
  * Scan fileText containing multiple options to find the options and add them to the list.
@@ -97,8 +96,8 @@ parseOptionsBuffer(J9PortLibrary* portLib, char* argumentBuffer, J9JavaVMArgInfo
  * @param verboseFlags turn on verbosity
  * @return 0 on success, negative on error
  */
-intptr_t
-parseOptionsFileText(J9PortLibrary* portLibrary, const char* fileText, J9JavaVMArgInfoList *vmArgumentsList, uintptr_t verboseFlags);
+intptr_t parseOptionsFileText(
+    J9PortLibrary* portLibrary, const char* fileText, J9JavaVMArgInfoList* vmArgumentsList, uintptr_t verboseFlags);
 
 /**
  * Parses the Hypervisor Environment Variable string into a J9JavaVMArgInfoList list
@@ -110,7 +109,6 @@ parseOptionsFileText(J9PortLibrary* portLibrary, const char* fileText, J9JavaVMA
  *
  * @return	0 on Success, Negative error code on failure
  */
-intptr_t
-parseHypervisorEnvVar(J9PortLibrary *portLib, char *argBuffer, J9JavaVMArgInfoList *hypervisorArgumentsList);
+intptr_t parseHypervisorEnvVar(J9PortLibrary* portLib, char* argBuffer, J9JavaVMArgInfoList* hypervisorArgumentsList);
 
 #endif /* vmargs_core_api_h */

@@ -30,16 +30,17 @@
  * Create an new instance of a MM_VerboseEventGlobalGCStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventGlobalGCStart::newInstance(MM_GlobalGCIncrementStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventGlobalGCStart::newInstance(
+    MM_GlobalGCIncrementStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventGlobalGCStart *eventObject;
-	
-	eventObject = (MM_VerboseEventGlobalGCStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventGlobalGCStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventGlobalGCStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventGlobalGCStart* eventObject;
+
+    eventObject = (MM_VerboseEventGlobalGCStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventGlobalGCStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventGlobalGCStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -47,38 +48,33 @@ MM_VerboseEventGlobalGCStart::newInstance(MM_GlobalGCIncrementStartEvent *event,
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventGlobalGCStart::consumeEvents(void)
+void MM_VerboseEventGlobalGCStart::consumeEvents(void)
 {
-	/* Consume global data */
-	_lastGlobalTime = _manager->getLastGlobalGCTime();
+    /* Consume global data */
+    _lastGlobalTime = _manager->getLastGlobalGCTime();
 }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventGlobalGCStart::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventGlobalGCStart::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
-	U_64 timeInMicroSeconds;
-	U_64 prevTime;
+    UDATA indentLevel = _manager->getIndentLevel();
+    PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
+    U_64 timeInMicroSeconds;
+    U_64 prevTime;
 
-	if (1 == _globalGCCount) {
-		prevTime = _manager->getInitializedTime();
-	} else {
-		prevTime = _lastGlobalTime;
-	}
-	timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+    if (1 == _globalGCCount) {
+        prevTime = _manager->getInitializedTime();
+    } else {
+        prevTime = _lastGlobalTime;
+    }
+    timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
 
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<gc type=\"global\" id=\"%zu\" totalid=\"%zu\" intervalms=\"%llu.%03.3llu\">",
-		_globalGCCount,
-		_localGCCount + _globalGCCount,
-		timeInMicroSeconds / 1000,
-		timeInMicroSeconds % 1000
-	);
-	
-	_manager->incrementIndent();
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<gc type=\"global\" id=\"%zu\" totalid=\"%zu\" intervalms=\"%llu.%03.3llu\">", _globalGCCount,
+        _localGCCount + _globalGCCount, timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
+
+    _manager->incrementIndent();
 }

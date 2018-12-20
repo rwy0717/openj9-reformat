@@ -23,48 +23,32 @@
 #ifndef TR_COMPILATION_INCL
 #define TR_COMPILATION_INCL
 
-#include "compile/J9Compilation.hpp"  // for CompilationConnector
+#include "compile/J9Compilation.hpp" // for CompilationConnector
 
 class TR_FrontEnd;
 class TR_Memory;
 class TR_OptimizationPlan;
 class TR_ResolvedMethod;
-namespace TR { class IlGenRequest; }
-namespace TR { class Options; }
+namespace TR {
+class IlGenRequest;
+}
+namespace TR {
+class Options;
+}
 struct J9VMThread;
 
-namespace TR
-{
-class OMR_EXTENSIBLE Compilation : public J9::CompilationConnector
-   {
-   public:
+namespace TR {
+class OMR_EXTENSIBLE Compilation : public J9::CompilationConnector {
+public:
+    Compilation(int32_t compThreadId, J9VMThread* j9vmThread, TR_FrontEnd* fe, TR_ResolvedMethod* method,
+        TR::IlGenRequest& request, TR::Options& options, TR::Region& heapMemoryRegion, TR_Memory* memory,
+        TR_OptimizationPlan* optimizationPlan, TR_RelocationRuntime* reloRuntime)
+        : J9::CompilationConnector(compThreadId, j9vmThread, fe, method, request, options, heapMemoryRegion, memory,
+              optimizationPlan, reloRuntime)
+    {}
 
-   Compilation(
-         int32_t compThreadId,
-         J9VMThread *j9vmThread,
-         TR_FrontEnd *fe,
-         TR_ResolvedMethod *method,
-         TR::IlGenRequest &request,
-         TR::Options &options,
-         TR::Region &heapMemoryRegion,
-         TR_Memory *memory,
-         TR_OptimizationPlan *optimizationPlan,
-         TR_RelocationRuntime *reloRuntime) :
-      J9::CompilationConnector(
-         compThreadId,
-         j9vmThread,
-         fe,
-         method,
-         request,
-         options,
-         heapMemoryRegion,
-         memory,
-         optimizationPlan,
-         reloRuntime)
-      {}
-
-   ~Compilation() {}
-   };
-}
+    ~Compilation() {}
+};
+} // namespace TR
 
 #endif

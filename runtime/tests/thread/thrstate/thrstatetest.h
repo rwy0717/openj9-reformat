@@ -37,52 +37,54 @@
 #endif
 
 /* testsetup.c */
-extern void setJ9ThreadState(omrthread_t thr, UDATA flags, omrthread_monitor_t blocker,
-		omrthread_t owner, UDATA count);
-extern void setVMThreadState(J9VMThread *vmthread, omrthread_t osThread,
-		UDATA publicFlags, j9object_t blockingEnterObject, UDATA lockWord);
-extern void setJ9MonitorState(omrthread_monitor_t monitor, omrthread_t owner,	UDATA count);
-extern UDATA getFlatLock(J9VMThread *owner, UDATA count);
-extern UDATA getInflLock(J9ObjectMonitor *monitor);
+extern void setJ9ThreadState(omrthread_t thr, UDATA flags, omrthread_monitor_t blocker, omrthread_t owner, UDATA count);
+extern void setVMThreadState(
+    J9VMThread* vmthread, omrthread_t osThread, UDATA publicFlags, j9object_t blockingEnterObject, UDATA lockWord);
+extern void setJ9MonitorState(omrthread_monitor_t monitor, omrthread_t owner, UDATA count);
+extern UDATA getFlatLock(J9VMThread* owner, UDATA count);
+extern UDATA getInflLock(J9ObjectMonitor* monitor);
 
-extern UDATA checkObjAnswers(JNIEnv *env, J9VMThread *vmthread, UDATA exp_vmstate, j9object_t exp_lockObj, J9VMThread *exp_owner, UDATA exp_count);
-extern UDATA checkRawAnswers(JNIEnv *env, J9VMThread *vmthread, UDATA exp_vmstate, j9object_t exp_lockObj, omrthread_monitor_t exp_rawLock, J9VMThread *exp_owner, UDATA exp_count);
-extern UDATA checkOldAnswers(JNIEnv *env, J9VMThread *vmthread, UDATA exp_vmstate, omrthread_monitor_t exp_rawLock, J9VMThread *exp_owner, UDATA exp_count);
+extern UDATA checkObjAnswers(JNIEnv* env, J9VMThread* vmthread, UDATA exp_vmstate, j9object_t exp_lockObj,
+    J9VMThread* exp_owner, UDATA exp_count);
+extern UDATA checkRawAnswers(JNIEnv* env, J9VMThread* vmthread, UDATA exp_vmstate, j9object_t exp_lockObj,
+    omrthread_monitor_t exp_rawLock, J9VMThread* exp_owner, UDATA exp_count);
+extern UDATA checkOldAnswers(JNIEnv* env, J9VMThread* vmthread, UDATA exp_vmstate, omrthread_monitor_t exp_rawLock,
+    J9VMThread* exp_owner, UDATA exp_count);
 
-extern UDATA test_setup(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
-extern UDATA test_cleanup(JNIEnv *env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_setup(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
+extern UDATA test_cleanup(JNIEnv* env, BOOLEAN ignoreExpectedFailures);
 
-extern void printTestData(JNIEnv *env);
-extern void cleanupTestData(JNIEnv *env);
+extern void printTestData(JNIEnv* env);
+extern void cleanupTestData(JNIEnv* env);
 
 typedef struct testdata_t {
-	J9VMThread *selfVmthread;
-	J9VMThread *otherVmthread;
-	J9VMThread *vmthread3;
-	omrthread_t selfOsthread;
-	omrthread_t otherOsthread;
-	omrthread_t unattachedOsthread;
-	omrthread_t osthread3;
-	jobject blockingObjectRef;
-	j9object_t blockingObject;
-	J9ObjectMonitor *objMonitor;
-	J9ObjectMonitor *rawMonitor;
+    J9VMThread* selfVmthread;
+    J9VMThread* otherVmthread;
+    J9VMThread* vmthread3;
+    omrthread_t selfOsthread;
+    omrthread_t otherOsthread;
+    omrthread_t unattachedOsthread;
+    omrthread_t osthread3;
+    jobject blockingObjectRef;
+    j9object_t blockingObject;
+    J9ObjectMonitor* objMonitor;
+    J9ObjectMonitor* rawMonitor;
 
-	j9object_t objectNoMonitor;
-	jobject objectNoMonitorRef;
-	
-	volatile IDATA selfOsthreadDone;
-	volatile IDATA otherOsthreadDone;
-	volatile IDATA unattachedOsthreadDone;
-	volatile IDATA thirdOsthreadDone;
-	
-	/* unused */
-	jobject ownableSyncRef;
-	j9object_t ownableSync;
+    j9object_t objectNoMonitor;
+    jobject objectNoMonitorRef;
+
+    volatile IDATA selfOsthreadDone;
+    volatile IDATA otherOsthreadDone;
+    volatile IDATA unattachedOsthreadDone;
+    volatile IDATA thirdOsthreadDone;
+
+    /* unused */
+    jobject ownableSyncRef;
+    j9object_t ownableSync;
 } testdata_t;
 extern testdata_t GlobalTestData;
 
-#define J9OBJECT_FROM_JOBJECT(jobj) (*((j9object_t *)(jobj)))
+#define J9OBJECT_FROM_JOBJECT(jobj) (*((j9object_t*)(jobj)))
 
 #define MON_COUNT ((UDATA)3)
 #define TESTDATA(zzz) (GlobalTestData.zzz)
@@ -99,7 +101,7 @@ extern testdata_t GlobalTestData;
 /*
  * v = vmthread
  * n = osthread
- * 
+ *
  * state flags:
  * 	St = started
  * 	D = dead
@@ -109,24 +111,24 @@ extern testdata_t GlobalTestData;
  * 	N = notified
  * 	P = parked
  * 	S = sleeping
- * 
+ *
  * object monitors:
  * z = null blockingEnterObject
  * f = flat blockingEnterObject monitor
  * a = inflated blockingEnterObject monitor
  * U = out-of-line blockingEnterObject monitor, has montable entry
  * u = out-of-line blockingEnterObject monitor, no montable entry
- * 
+ *
  * raw monitors:
  * m = null monitor
  * M = non-null monitor (raw)
- * 
+ *
  * monitor owners:
  * o = null owner
  * O = self
  * N = other (not attached)
  * V = other (attached)
- * 
+ *
  * owned count:
  * c = 0 count
  * C = >0 count

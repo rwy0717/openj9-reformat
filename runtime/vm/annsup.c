@@ -27,84 +27,50 @@
 #include "annsup.h"
 #include "vm_internal.h"
 
-/* this file is being left in existence to provide a dummy implementation of these functions to allow to continued existence of the JIT code that uses these functions
- * these functions however are no longer supported
+/* this file is being left in existence to provide a dummy implementation of these functions to allow to continued
+ * existence of the JIT code that uses these functions these functions however are no longer supported
  */
 
 UDATA
-getAnnotationsFromAnnotationInfo(J9AnnotationInfo *annInfo, UDATA annotationType, char *memberName, U_32 memberNameLength, char *memberSignature, U_32 memberSignatureLength, J9AnnotationInfoEntry **annotations)
+getAnnotationsFromAnnotationInfo(J9AnnotationInfo* annInfo, UDATA annotationType, char* memberName,
+    U_32 memberNameLength, char* memberSignature, U_32 memberSignatureLength, J9AnnotationInfoEntry** annotations)
 {
-	return 0;
+    return 0;
 }
 
+J9AnnotationInfo* getAnnotationInfoFromClass(J9JavaVM* vm, J9Class* clazz) { return NULL; }
 
-J9AnnotationInfo *
-getAnnotationInfoFromClass(J9JavaVM *vm, J9Class *clazz)
+J9UTF8* annotationElementIteratorNext(J9AnnotationState* state, void** data) { return NULL; }
+
+J9UTF8* annotationElementIteratorStart(J9AnnotationState* state, J9AnnotationInfoEntry* annotation, void** data)
 {
-	return NULL;
-}
-
-
-
-J9UTF8 *
-annotationElementIteratorNext(J9AnnotationState *state, void **data) 
-{
-	return NULL;
-}
-
-
-
-J9UTF8 *
-annotationElementIteratorStart(J9AnnotationState *state, J9AnnotationInfoEntry *annotation, void **data) 
-{
-	return NULL;
+    return NULL;
 }
 
 UDATA
-getAllAnnotationsFromAnnotationInfo(J9AnnotationInfo *annInfo, J9AnnotationInfoEntry **annotations)
+getAllAnnotationsFromAnnotationInfo(J9AnnotationInfo* annInfo, J9AnnotationInfoEntry** annotations) { return 0; }
+
+void* elementArrayIteratorNext(J9AnnotationState* state) { return NULL; }
+
+void* elementArrayIteratorStart(J9AnnotationState* state, UDATA start, U_32 count) { return NULL; }
+
+J9AnnotationInfoEntry* getAnnotationDefaultsForAnnotation(
+    J9VMThread* currentThread, J9Class* containingClass, J9AnnotationInfoEntry* annotation, UDATA flags)
 {
-	return 0;
+    return NULL;
 }
 
+void* getNamedElementFromAnnotation(J9AnnotationInfoEntry* annotation, char* name, U_32 nameLength) { return NULL; }
 
-void *
-elementArrayIteratorNext(J9AnnotationState *state) 
+J9AnnotationInfoEntry* getAnnotationFromAnnotationInfo(J9AnnotationInfo* annInfo, UDATA annotationType,
+    char* memberName, U_32 memberNameLength, char* memberSignature, U_32 memberSignatureLength, char* annotationName,
+    U_32 annotationNameLength)
 {
-	return NULL;
+    return NULL;
 }
 
-
-
-void *
-elementArrayIteratorStart(J9AnnotationState *state, UDATA start, U_32 count) 
+J9AnnotationInfoEntry* getAnnotationDefaultsForNamedAnnotation(
+    J9VMThread* currentThread, J9Class* containingClass, char* className, U_32 classNameLength, UDATA flags)
 {
-	return NULL;
+    return NULL;
 }
-
-J9AnnotationInfoEntry *
-getAnnotationDefaultsForAnnotation(J9VMThread *currentThread, J9Class *containingClass, J9AnnotationInfoEntry *annotation, UDATA flags)
-{
-	return NULL;
-}
-
-
-void *
-getNamedElementFromAnnotation(J9AnnotationInfoEntry *annotation, char *name, U_32 nameLength)
-{
-	return NULL;
-}
-
-
-J9AnnotationInfoEntry *
-getAnnotationFromAnnotationInfo(J9AnnotationInfo *annInfo, UDATA annotationType, char *memberName, U_32 memberNameLength, char *memberSignature, U_32 memberSignatureLength, char *annotationName, U_32 annotationNameLength)
-{
-	return NULL;
-}
-
-
-J9AnnotationInfoEntry *
-getAnnotationDefaultsForNamedAnnotation(J9VMThread *currentThread, J9Class *containingClass, char *className, U_32 classNameLength, UDATA flags)
-{
-	return NULL;
-}
-

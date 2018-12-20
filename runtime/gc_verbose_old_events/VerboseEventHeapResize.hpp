@@ -34,51 +34,49 @@
  * Stores the data relating to a resizing of the heap.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventHeapResize : public MM_VerboseEvent
-{
+class MM_VerboseEventHeapResize : public MM_VerboseEvent {
 private:
-	/* passed data */
-	UDATA _resizeType; /**< the type of resize */
-	UDATA _subSpaceType; /**< the type of subspace, old or new */
-	UDATA _ratio; /**< the percentage of time being spent in gc */
-	UDATA _amount; /**< how many bytes have been requested */
-	UDATA _newHeapSize; /**< the heap size following the resize */
-	U_64 _timeTaken; /**< the time to resize the heap in ms */
-	UDATA _reason; /**< the reason code for the resize */
-	
-	bool _consumed; /**< flag to indicate if this resize event has been consumed by another */
-	
+    /* passed data */
+    UDATA _resizeType; /**< the type of resize */
+    UDATA _subSpaceType; /**< the type of subspace, old or new */
+    UDATA _ratio; /**< the percentage of time being spent in gc */
+    UDATA _amount; /**< how many bytes have been requested */
+    UDATA _newHeapSize; /**< the heap size following the resize */
+    U_64 _timeTaken; /**< the time to resize the heap in ms */
+    UDATA _reason; /**< the reason code for the resize */
+
+    bool _consumed; /**< flag to indicate if this resize event has been consumed by another */
+
 public:
-	UDATA getSubSpaceType() { return _subSpaceType; };
-	UDATA getAmount() { return _amount; };
-	UDATA getNewHeapSize() { return _newHeapSize; };
-	U_64 getTimeTaken() { return _timeTaken; };
-	UDATA getReason() { return _reason; };
-	
-	void setConsumed(bool consumed) { _consumed = consumed; };
+    UDATA getSubSpaceType() { return _subSpaceType; };
+    UDATA getAmount() { return _amount; };
+    UDATA getNewHeapSize() { return _newHeapSize; };
+    U_64 getTimeTaken() { return _timeTaken; };
+    UDATA getReason() { return _reason; };
 
-	static MM_VerboseEvent *newInstance(MM_HeapResizeEvent *event, J9HookInterface** hookInterface);
+    void setConsumed(bool consumed) { _consumed = consumed; };
 
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_HeapResizeEvent* event, J9HookInterface** hookInterface);
 
-	/* this doesn't return true or false, because some RESIZE events produce
-	 * output but some don't (they are consumed as resize events are merged) */
-	MMINLINE virtual bool definesOutputRoutine() { return !_consumed; };
-	
-	MMINLINE virtual bool endsEventChain() { return false; };
-		
-	MM_VerboseEventHeapResize(MM_HeapResizeEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_resizeType(event->resizeType),
-	_subSpaceType(event->subSpaceType),
-	_ratio(event->ratio),
-	_amount(event->amount),
-	_newHeapSize(event->newHeapSize),
-	_timeTaken(event->timeTaken),
-	_reason(event->reason),
-	_consumed(false)
-	{};
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    /* this doesn't return true or false, because some RESIZE events produce
+     * output but some don't (they are consumed as resize events are merged) */
+    MMINLINE virtual bool definesOutputRoutine() { return !_consumed; };
+
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventHeapResize(MM_HeapResizeEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _resizeType(event->resizeType)
+        , _subSpaceType(event->subSpaceType)
+        , _ratio(event->ratio)
+        , _amount(event->amount)
+        , _newHeapSize(event->newHeapSize)
+        , _timeTaken(event->timeTaken)
+        , _reason(event->reason)
+        , _consumed(false) {};
 };
 
 #endif /* EVENT_HEAP_RESIZE_HPP_ */

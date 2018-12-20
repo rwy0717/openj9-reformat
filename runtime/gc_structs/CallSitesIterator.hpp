@@ -37,54 +37,49 @@
  * Iterate over all call site slots in a class which contain an object reference.
  * @ingroup GC_Structs
  */
-class GC_CallSitesIterator
-{
-	U_32 _callSiteTotal;
-	U_32 _callSiteCount;
-	j9object_t *_callSitePtr;
-	
+class GC_CallSitesIterator {
+    U_32 _callSiteTotal;
+    U_32 _callSiteCount;
+    j9object_t* _callSitePtr;
+
 public:
-	GC_CallSitesIterator(J9Class *clazz) :
-		_callSiteCount(clazz->romClass->callSiteCount),
-		_callSitePtr(clazz->callSites)
-	{
-		/* check if the class's call sites have been abandoned due to hot
-		 * code replace. If so, this class has no call sites of its own
-		 */
-		if (_callSitePtr == NULL) {
-			_callSiteCount = 0;
-		}
-		_callSiteTotal = _callSiteCount;
-	};
+    GC_CallSitesIterator(J9Class* clazz)
+        : _callSiteCount(clazz->romClass->callSiteCount)
+        , _callSitePtr(clazz->callSites)
+    {
+        /* check if the class's call sites have been abandoned due to hot
+         * code replace. If so, this class has no call sites of its own
+         */
+        if (_callSitePtr == NULL) {
+            _callSiteCount = 0;
+        }
+        _callSiteTotal = _callSiteCount;
+    };
 
-	/**
-	 * @return the next call site slot in the class containing an object reference
-	 * @return NULL if there are no more such slots
-	 */
-	j9object_t *
-	nextSlot()
-	{
-		j9object_t *slotPtr;
-		
-		if(0 == _callSiteCount) {
-			return NULL;
-		}
+    /**
+     * @return the next call site slot in the class containing an object reference
+     * @return NULL if there are no more such slots
+     */
+    j9object_t* nextSlot()
+    {
+        j9object_t* slotPtr;
 
-		_callSiteCount -= 1;
-		slotPtr = _callSitePtr++;
+        if (0 == _callSiteCount) {
+            return NULL;
+        }
 
-		return slotPtr;
-	}
+        _callSiteCount -= 1;
+        slotPtr = _callSitePtr++;
 
-	/**
-	 * Gets the current call site index.
-	 * @return zero based call site index of the entry returned by the last call of nextSlot.
-	 * @return -1 if nextSlot has yet to be called.
-	 */
-	MMINLINE IDATA getIndex() {
-		return _callSiteTotal - _callSiteCount - 1;
-	}
+        return slotPtr;
+    }
+
+    /**
+     * Gets the current call site index.
+     * @return zero based call site index of the entry returned by the last call of nextSlot.
+     * @return -1 if nextSlot has yet to be called.
+     */
+    MMINLINE IDATA getIndex() { return _callSiteTotal - _callSiteCount - 1; }
 };
 
 #endif /* CALLSITESITERATOR_HPP_ */
-

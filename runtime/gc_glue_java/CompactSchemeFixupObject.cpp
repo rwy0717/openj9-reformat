@@ -35,72 +35,68 @@
 #include "PointerContiguousArrayIterator.hpp"
 #include "Task.hpp"
 
-void
-MM_CompactSchemeFixupObject::fixupMixedObject(omrobjectptr_t objectPtr)
+void MM_CompactSchemeFixupObject::fixupMixedObject(omrobjectptr_t objectPtr)
 {
-	GC_MixedObjectIterator it(_omrVM, objectPtr);
-	GC_SlotObject *slotObject;
+    GC_MixedObjectIterator it(_omrVM, objectPtr);
+    GC_SlotObject* slotObject;
 
-	while (NULL != (slotObject = it.nextSlot())) {
-		_compactScheme->fixupObjectSlot(slotObject);
-	}
+    while (NULL != (slotObject = it.nextSlot())) {
+        _compactScheme->fixupObjectSlot(slotObject);
+    }
 }
 
-void
-MM_CompactSchemeFixupObject::fixupArrayObject(omrobjectptr_t objectPtr)
+void MM_CompactSchemeFixupObject::fixupArrayObject(omrobjectptr_t objectPtr)
 {
-	GC_PointerContiguousArrayIterator it(_omrVM, objectPtr);
-	GC_SlotObject *slotObject;
+    GC_PointerContiguousArrayIterator it(_omrVM, objectPtr);
+    GC_SlotObject* slotObject;
 
-	while (NULL != (slotObject = it.nextSlot())) {
-		_compactScheme->fixupObjectSlot(slotObject);
-	}
+    while (NULL != (slotObject = it.nextSlot())) {
+        _compactScheme->fixupObjectSlot(slotObject);
+    }
 }
 
-MMINLINE void
-MM_CompactSchemeFixupObject::addOwnableSynchronizerObjectInList(MM_EnvironmentBase *env, omrobjectptr_t objectPtr)
+MMINLINE void MM_CompactSchemeFixupObject::addOwnableSynchronizerObjectInList(
+    MM_EnvironmentBase* env, omrobjectptr_t objectPtr)
 {
-	/* if isObjectInOwnableSynchronizerList() return NULL, it means the object isn't in OwanbleSynchronizerList,
-	 * it could be the constructing object which would be added in the list after the construction finish later. ignore the object to avoid duplicated reference in the list. */
-	if (NULL != _extensions->accessBarrier->isObjectInOwnableSynchronizerList(objectPtr)) {
-		env->getGCEnvironment()->_ownableSynchronizerObjectBuffer->add(env, objectPtr);
-	}
+    /* if isObjectInOwnableSynchronizerList() return NULL, it means the object isn't in OwanbleSynchronizerList,
+     * it could be the constructing object which would be added in the list after the construction finish later. ignore
+     * the object to avoid duplicated reference in the list. */
+    if (NULL != _extensions->accessBarrier->isObjectInOwnableSynchronizerList(objectPtr)) {
+        env->getGCEnvironment()->_ownableSynchronizerObjectBuffer->add(env, objectPtr);
+    }
 }
 
-void
-MM_CompactSchemeFixupObject::fixupObject(MM_EnvironmentStandard *env, omrobjectptr_t objectPtr)
+void MM_CompactSchemeFixupObject::fixupObject(MM_EnvironmentStandard* env, omrobjectptr_t objectPtr)
 {
-	switch(env->getExtensions()->objectModel.getScanType(objectPtr)) {
-	case GC_ObjectModel::SCAN_ATOMIC_MARKABLE_REFERENCE_OBJECT:
-	case GC_ObjectModel::SCAN_MIXED_OBJECT:
-	case GC_ObjectModel::SCAN_CLASS_OBJECT:
-	case GC_ObjectModel::SCAN_CLASSLOADER_OBJECT:
-	case GC_ObjectModel::SCAN_REFERENCE_MIXED_OBJECT:
-		fixupMixedObject(objectPtr);
-		break;
+    switch (env->getExtensions()->objectModel.getScanType(objectPtr)) {
+    case GC_ObjectModel::SCAN_ATOMIC_MARKABLE_REFERENCE_OBJECT:
+    case GC_ObjectModel::SCAN_MIXED_OBJECT:
+    case GC_ObjectModel::SCAN_CLASS_OBJECT:
+    case GC_ObjectModel::SCAN_CLASSLOADER_OBJECT:
+    case GC_ObjectModel::SCAN_REFERENCE_MIXED_OBJECT:
+        fixupMixedObject(objectPtr);
+        break;
 
-	case GC_ObjectModel::SCAN_POINTER_ARRAY_OBJECT:
-		fixupArrayObject(objectPtr);
-		break;
+    case GC_ObjectModel::SCAN_POINTER_ARRAY_OBJECT:
+        fixupArrayObject(objectPtr);
+        break;
 
-	case GC_ObjectModel::SCAN_PRIMITIVE_ARRAY_OBJECT:
-		/* nothing to do */
-		break;
+    case GC_ObjectModel::SCAN_PRIMITIVE_ARRAY_OBJECT:
+        /* nothing to do */
+        break;
 
-	case GC_ObjectModel::SCAN_OWNABLESYNCHRONIZER_OBJECT:
-		addOwnableSynchronizerObjectInList(env, objectPtr);
-		fixupMixedObject(objectPtr);
-		break;
+    case GC_ObjectModel::SCAN_OWNABLESYNCHRONIZER_OBJECT:
+        addOwnableSynchronizerObjectInList(env, objectPtr);
+        fixupMixedObject(objectPtr);
+        break;
 
-	default:
-		Assert_MM_unreachable();
-	}
+    default:
+        Assert_MM_unreachable();
+    }
 }
 
-
-void
-MM_CompactSchemeFixupObject::verifyForwardingPtr(omrobjectptr_t objectPtr, omrobjectptr_t forwardingPtr)
+void MM_CompactSchemeFixupObject::verifyForwardingPtr(omrobjectptr_t objectPtr, omrobjectptr_t forwardingPtr)
 {
-	assume0(forwardingPtr <= objectPtr);
-	assume0(J9GC_J9OBJECT_CLAZZ(forwardingPtr) && ((UDATA)J9GC_J9OBJECT_CLAZZ(forwardingPtr) & 0x3) == 0);
+    assume0(forwardingPtr <= objectPtr);
+    assume0(J9GC_J9OBJECT_CLAZZ(forwardingPtr) && ((UDATA)J9GC_J9OBJECT_CLAZZ(forwardingPtr) & 0x3) == 0);
 }

@@ -41,7 +41,7 @@ extern "C" {
  *
  * @throws OutOfMemoryError
  */
-void * JNICALL toReflectedField(JNIEnv *env, jclass clazz, void *fieldID, jboolean isStatic);
+void* JNICALL toReflectedField(JNIEnv* env, jclass clazz, void* fieldID, jboolean isStatic);
 
 /**
  * Create a j.l.reflect.Method from a jmethodID.
@@ -55,7 +55,7 @@ void * JNICALL toReflectedField(JNIEnv *env, jclass clazz, void *fieldID, jboole
  *
  * @throws OutOfMemoryError
  */
-void * JNICALL toReflectedMethod(JNIEnv *env, jclass clazz, void *methodID, jboolean isStatic);
+void* JNICALL toReflectedMethod(JNIEnv* env, jclass clazz, void* methodID, jboolean isStatic);
 
 #ifdef __cplusplus
 } /* extern "C" */

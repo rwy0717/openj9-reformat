@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef ROMCLASSVERBOSEPHASE_HPP_
 #define ROMCLASSVERBOSEPHASE_HPP_
 
@@ -33,34 +32,30 @@
  * ROMClassVerbosePhase is a helper class for -verbose:romclass reporting.
  * Instances are intended to be stack allocated and their lifetimes correspond to phases of ROM class creation.
  */
-class ROMClassVerbosePhase
-{
+class ROMClassVerbosePhase {
 public:
-	ROMClassVerbosePhase(ROMClassCreationContext *context, ROMClassCreationPhase phase) :
-		_context(context),
-		_phase(phase),
-		_result(NULL)
-	{
-		_context->recordPhaseStart(_phase);
-	}
+    ROMClassVerbosePhase(ROMClassCreationContext* context, ROMClassCreationPhase phase)
+        : _context(context)
+        , _phase(phase)
+        , _result(NULL)
+    {
+        _context->recordPhaseStart(_phase);
+    }
 
-	ROMClassVerbosePhase(ROMClassCreationContext *context, ROMClassCreationPhase phase, BuildResult *result) :
-		_context(context),
-		_phase(phase),
-		_result(result)
-	{
-		_context->recordPhaseStart(_phase);
-	}
+    ROMClassVerbosePhase(ROMClassCreationContext* context, ROMClassCreationPhase phase, BuildResult* result)
+        : _context(context)
+        , _phase(phase)
+        , _result(result)
+    {
+        _context->recordPhaseStart(_phase);
+    }
 
-	~ROMClassVerbosePhase()
-	{
-		_context->recordPhaseEnd(_phase, NULL == _result ? OK : *_result);
-	}
+    ~ROMClassVerbosePhase() { _context->recordPhaseEnd(_phase, NULL == _result ? OK : *_result); }
 
 private:
-	ROMClassCreationContext *_context;
-	ROMClassCreationPhase _phase;
-	BuildResult *_result;
+    ROMClassCreationContext* _context;
+    ROMClassCreationPhase _phase;
+    BuildResult* _result;
 };
 
 /*
@@ -70,9 +65,9 @@ private:
 #define RECORD_HOT_PHASES 0
 
 #if RECORD_HOT_PHASES
-	#define ROMCLASS_VERBOSE_PHASE_HOT(context, phase) ROMClassVerbosePhase v(context, phase)
+#define ROMCLASS_VERBOSE_PHASE_HOT(context, phase) ROMClassVerbosePhase v(context, phase)
 #else
-	#define ROMCLASS_VERBOSE_PHASE_HOT(context, phase)
+#define ROMCLASS_VERBOSE_PHASE_HOT(context, phase)
 #endif
 
 #endif /* ROMCLASSVERBOSEPHASE_HPP_ */

@@ -27,17 +27,20 @@
 #include "j9.h"
 #include "ut_j9shr.h"
 
-#define ROUND_UP_TO(granularity, number) ( (((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
-#define ROUND_DOWN_TO(granularity, number) ( (((number) % (granularity)) ? ((number) - ((number) % (granularity))) : (number)))
+#define ROUND_UP_TO(granularity, number) \
+    ((((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
+#define ROUND_DOWN_TO(granularity, number) \
+    ((((number) % (granularity)) ? ((number) - ((number) % (granularity))) : (number)))
 
-class AbstractMemoryPermission
-{
-	public:
-	virtual IDATA setRegionPermissions(J9PortLibrary* portLibrary, void *address, UDATA length, UDATA flags) = 0;
-	virtual bool isVerbosePages(void) = 0;
-	virtual bool isMemProtectEnabled(void) = 0;
-	virtual bool isMemProtectPartialPagesEnabled(void) = 0;
-	virtual void changePartialPageProtection(J9VMThread *currentThread, void *addr, bool readOnly, bool phaseCheck = true) = 0;
+class AbstractMemoryPermission {
+public:
+    virtual IDATA setRegionPermissions(J9PortLibrary* portLibrary, void* address, UDATA length, UDATA flags) = 0;
+    virtual bool isVerbosePages(void) = 0;
+    virtual bool isMemProtectEnabled(void) = 0;
+    virtual bool isMemProtectPartialPagesEnabled(void) = 0;
+    virtual void changePartialPageProtection(
+        J9VMThread* currentThread, void* addr, bool readOnly, bool phaseCheck = true)
+        = 0;
 };
 
 #endif /*ABSTRACT_MEMORY_PERMS_HPP_INCLUDED*/

@@ -23,55 +23,51 @@
 #if !defined(REMEMBEREDSETCARDLISTBUFFERITERATOR_HPP)
 #define REMEMBEREDSETCARDLISTBUFFERITERATOR_HPP
 
-
 #include "RememberedSetCardList.hpp"
 
-class GC_RememberedSetCardListBufferIterator
-{
+class GC_RememberedSetCardListBufferIterator {
 private:
-	MM_RememberedSetCardList *_rscl; /**< RememberedSetCardList being iterated */
+    MM_RememberedSetCardList* _rscl; /**< RememberedSetCardList being iterated */
 
-	MM_RememberedSetCardBucket *_currentBucket;				/**< current bucket pointer */
-	MM_RememberedSetCard *_bufferCardList; 					/**< current buffer */
-	MM_CardBufferControlBlock *_cardBufferControlBlockPrevious;	/**< previous buffer control block */
-	MM_CardBufferControlBlock *_cardBufferControlBlockCurrent;	/**< current buffer control block */
-	MM_CardBufferControlBlock *_cardBufferControlBlockNext; 	/**< next buffer control block */
+    MM_RememberedSetCardBucket* _currentBucket; /**< current bucket pointer */
+    MM_RememberedSetCard* _bufferCardList; /**< current buffer */
+    MM_CardBufferControlBlock* _cardBufferControlBlockPrevious; /**< previous buffer control block */
+    MM_CardBufferControlBlock* _cardBufferControlBlockCurrent; /**< current buffer control block */
+    MM_CardBufferControlBlock* _cardBufferControlBlockNext; /**< next buffer control block */
 
 private:
-	/**
-	 * Next bucket within the list that has at least one buffer in it.
-	 * @return true if there was a new bucket
-	 */
-	bool nextBucket(MM_EnvironmentBase* env);
+    /**
+     * Next bucket within the list that has at least one buffer in it.
+     * @return true if there was a new bucket
+     */
+    bool nextBucket(MM_EnvironmentBase* env);
 
 protected:
 public:
+    /**
+     * Construct a CardList Iterator for a given CardList
+     *
+     * @param rscl CardList being iterated
+     */
+    GC_RememberedSetCardListBufferIterator(MM_RememberedSetCardList* rscl)
+        : _rscl(rscl)
+        , _currentBucket(NULL)
+        , _bufferCardList(NULL)
+        , _cardBufferControlBlockPrevious(NULL)
+        , _cardBufferControlBlockCurrent(NULL)
+        , _cardBufferControlBlockNext(NULL)
+    {}
 
-	/**
-	 * Construct a CardList Iterator for a given CardList
-	 *
-	 * @param rscl CardList being iterated
-	 */
-	GC_RememberedSetCardListBufferIterator(MM_RememberedSetCardList *rscl)
-		: _rscl(rscl)
-		, _currentBucket(NULL)
-		, _bufferCardList(NULL)
-		, _cardBufferControlBlockPrevious(NULL)
-		, _cardBufferControlBlockCurrent(NULL)
-		, _cardBufferControlBlockNext(NULL)
-		{}
+    /**
+     * Next buffer given a current buffer (control block). Initializes _bufferCardList and resets _cardIndex.
+     * @return true if there was a new buffer
+     */
+    MM_CardBufferControlBlock* nextBuffer(MM_EnvironmentBase* env, MM_RememberedSetCard** lastCard);
 
-	/**
-	 * Next buffer given a current buffer (control block). Initializes _bufferCardList and resets _cardIndex.
-	 * @return true if there was a new buffer
-	 */
-	MM_CardBufferControlBlock *nextBuffer(MM_EnvironmentBase* env, MM_RememberedSetCard **lastCard);
-
-	/**
-	 * Unlink current buffer. Caller of the iterator is supposed to relocate the content of the buffer.
-	 */
-	void unlinkCurrentBuffer(MM_EnvironmentBase* env);
-
+    /**
+     * Unlink current buffer. Caller of the iterator is supposed to relocate the content of the buffer.
+     */
+    void unlinkCurrentBuffer(MM_EnvironmentBase* env);
 };
 
 #endif /* REMEMBEREDSETCARDLISTBUFFERITERATOR_HPP */

@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "j9dbgext.h"
 #include "j9comp.h"
 #include "j9protos.h"
@@ -28,49 +27,45 @@
 #include <string.h>
 #include <ctype.h>
 
-static char const *notVisibleMsg =
-		"Error: J9SIZEOF_%s was not visible at compile time\n"
-		"to fix this, add %s to cVisibleStructs (j9.h) and recompile %s\n"
-		"\n"
-		"(or if %s is in a different header, include that header in %s)";
-#define PRINT_NOT_VISIBLE_MSG(x)  dbgPrint(notVisibleMsg, x, x, __FILE__, x, __FILE__)
+static char const* notVisibleMsg = "Error: J9SIZEOF_%s was not visible at compile time\n"
+                                   "to fix this, add %s to cVisibleStructs (j9.h) and recompile %s\n"
+                                   "\n"
+                                   "(or if %s is in a different header, include that header in %s)";
+#define PRINT_NOT_VISIBLE_MSG(x) dbgPrint(notVisibleMsg, x, x, __FILE__, x, __FILE__)
 
-void
-run_command( const char *cmd )
+void run_command(const char* cmd)
 {
-	size_t len = 0;
-	const char* options;
+    size_t len = 0;
+    const char* options;
 
-	while(cmd[len] && !isspace(cmd[len])) {
-		len++;
-	}
+    while (cmd[len] && !isspace(cmd[len])) {
+        len++;
+    }
 
-	options = cmd + len;
-	while (isspace(*options)) {
-		options++;
-	}
+    options = cmd + len;
+    while (isspace(*options)) {
+        options++;
+    }
 
-	if( (len == sizeof("!j9help") - 1) && (memcmp( cmd, "!j9help", sizeof("!j9help") - 1 ) == 0) ) {
-		dbgext_j9help(options);
-		return;
-	}
+    if ((len == sizeof("!j9help") - 1) && (memcmp(cmd, "!j9help", sizeof("!j9help") - 1) == 0)) {
+        dbgext_j9help(options);
+        return;
+    }
 
-	if( (len == sizeof("!findvm") - 1) && (memcmp( cmd, "!findvm", sizeof("!findvm") - 1 ) == 0) ) {
-		dbgext_findvm(options);
-		return;
-	}
+    if ((len == sizeof("!findvm") - 1) && (memcmp(cmd, "!findvm", sizeof("!findvm") - 1) == 0)) {
+        dbgext_findvm(options);
+        return;
+    }
 
-	if( (len == sizeof("!trprint") - 1) && (memcmp( cmd, "!trprint", sizeof("!trprint") - 1 ) == 0) ) {
-		dbgext_trprint(options);
-		return;
-	}
+    if ((len == sizeof("!trprint") - 1) && (memcmp(cmd, "!trprint", sizeof("!trprint") - 1) == 0)) {
+        dbgext_trprint(options);
+        return;
+    }
 
-	if( (len == sizeof("!setvm") - 1) && (memcmp( cmd, "!setvm", sizeof("!setvm") - 1 ) == 0) ) {
-		dbgext_setvm(options);
-		return;
-	}
+    if ((len == sizeof("!setvm") - 1) && (memcmp(cmd, "!setvm", sizeof("!setvm") - 1) == 0)) {
+        dbgext_setvm(options);
+        return;
+    }
 
-
-	dbgPrint("Unknown J9 plugin command %s\n", cmd);
-
+    dbgPrint("Unknown J9 plugin command %s\n", cmd);
 }

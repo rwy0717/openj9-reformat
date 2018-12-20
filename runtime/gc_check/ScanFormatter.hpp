@@ -35,41 +35,40 @@
 
 #define NUMBER_ELEMENTS_DISPLAYED_PER_LINE 8
 
-class GC_ScanFormatter : public MM_Base
-{
+class GC_ScanFormatter : public MM_Base {
 private:
-	J9PortLibrary *_portLibrary;
-	
-	UDATA _currentCount;
-	bool _displayedData;
+    J9PortLibrary* _portLibrary;
+
+    UDATA _currentCount;
+    bool _displayedData;
 
 public:
-	void section(const char *type, void *pointer);
-	void section(const char *type);
-	void endSection();
-	void entry(void *pointer);
-	void end(const char *type, void *pointer);
-	void end(const char *type);
+    void section(const char* type, void* pointer);
+    void section(const char* type);
+    void endSection();
+    void entry(void* pointer);
+    void end(const char* type, void* pointer);
+    void end(const char* type);
 
-	GC_ScanFormatter(J9PortLibrary *portLibrary, const char *title, void *pointer) :
-		MM_Base(),
-		_portLibrary(portLibrary),
-		_currentCount(0),
-		_displayedData(false)
-	{
-		PORT_ACCESS_FROM_PORT(_portLibrary);
-		j9tty_printf(PORTLIB, "<gc check: Start scan %s (%p)>\n", title, pointer);
-	}
-	
-	GC_ScanFormatter(J9PortLibrary *portLibrary, const char *title) :
-		MM_Base(),
-		_portLibrary(portLibrary),
-		_currentCount(0),
-		_displayedData(false)
-	{
-		PORT_ACCESS_FROM_PORT(_portLibrary);
-		j9tty_printf(PORTLIB, "<gc check: Start scan %s>\n", title);
-	}
+    GC_ScanFormatter(J9PortLibrary* portLibrary, const char* title, void* pointer)
+        : MM_Base()
+        , _portLibrary(portLibrary)
+        , _currentCount(0)
+        , _displayedData(false)
+    {
+        PORT_ACCESS_FROM_PORT(_portLibrary);
+        j9tty_printf(PORTLIB, "<gc check: Start scan %s (%p)>\n", title, pointer);
+    }
+
+    GC_ScanFormatter(J9PortLibrary* portLibrary, const char* title)
+        : MM_Base()
+        , _portLibrary(portLibrary)
+        , _currentCount(0)
+        , _displayedData(false)
+    {
+        PORT_ACCESS_FROM_PORT(_portLibrary);
+        j9tty_printf(PORTLIB, "<gc check: Start scan %s>\n", title);
+    }
 };
 
 #endif /* SCANFORMATTER_HPP_ */

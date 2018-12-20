@@ -27,27 +27,31 @@
 
 #include "codegen/IA32J9SystemLinkage.hpp"
 
-namespace TR { class CodeGenerator; }
-namespace TR { class Node; }
-namespace TR { class Register; }
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class Register;
+}
 
 namespace TR {
 
-class IA32JNILinkage: public TR::IA32J9SystemLinkage
-   {
-   public:
-   IA32JNILinkage(TR::CodeGenerator *cg): TR::IA32J9SystemLinkage(cg) {}
-   virtual TR::Register *buildDirectDispatch(TR::Node *callNode, bool spillFPRegs);
+class IA32JNILinkage : public TR::IA32J9SystemLinkage {
+public:
+    IA32JNILinkage(TR::CodeGenerator* cg)
+        : TR::IA32J9SystemLinkage(cg)
+    {}
+    virtual TR::Register* buildDirectDispatch(TR::Node* callNode, bool spillFPRegs);
 
-   private:
-   TR::Register *buildJNIDispatch(TR::Node *callNode);
+private:
+    TR::Register* buildJNIDispatch(TR::Node* callNode);
+};
 
-   };
-
-}
-
-#endif
+} // namespace TR
 
 #endif
 
-
+#endif

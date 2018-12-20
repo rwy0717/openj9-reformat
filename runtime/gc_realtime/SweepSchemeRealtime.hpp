@@ -32,59 +32,58 @@ class MM_EnvironmentBase;
 class MM_MarkMap;
 class MM_Scheduler;
 
-class MM_SweepSchemeRealtime : public MM_SweepSchemeSegregated
-{
-	/*
-	 * Data members
-	 */
+class MM_SweepSchemeRealtime : public MM_SweepSchemeSegregated {
+    /*
+     * Data members
+     */
 private:
-	MM_RealtimeGC *_realtimeGC; /**< The staccatoGC that this sweepScheme is associated with */
-	MM_Scheduler *_scheduler;
-	UDATA _coalesceFreeRegionCount;
-	UDATA _sweepSmallRegionCount;
-	UDATA _yieldSmallRegionCount;
+    MM_RealtimeGC* _realtimeGC; /**< The staccatoGC that this sweepScheme is associated with */
+    MM_Scheduler* _scheduler;
+    UDATA _coalesceFreeRegionCount;
+    UDATA _sweepSmallRegionCount;
+    UDATA _yieldSmallRegionCount;
 
 protected:
 public:
-
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
-	virtual void yieldFromSweep(MM_EnvironmentBase *env, UDATA yieldSlackTime = 0);
+    virtual void yieldFromSweep(MM_EnvironmentBase* env, UDATA yieldSlackTime = 0);
 
-	virtual UDATA resetCoalesceFreeRegionCount(MM_EnvironmentBase *env);
-	virtual bool updateCoalesceFreeRegionCount(UDATA range);
+    virtual UDATA resetCoalesceFreeRegionCount(MM_EnvironmentBase* env);
+    virtual bool updateCoalesceFreeRegionCount(UDATA range);
 
-	virtual UDATA resetSweepSmallRegionCount(MM_EnvironmentBase *env, UDATA yieldSmallRegionCount);
-	virtual bool updateSweepSmallRegionCount();
+    virtual UDATA resetSweepSmallRegionCount(MM_EnvironmentBase* env, UDATA yieldSmallRegionCount);
+    virtual bool updateSweepSmallRegionCount();
 
 protected:
-	virtual void preSweep(MM_EnvironmentBase *env);
-	virtual void postSweep(MM_EnvironmentBase *env);
+    virtual void preSweep(MM_EnvironmentBase* env);
+    virtual void postSweep(MM_EnvironmentBase* env);
 
-	virtual void incrementalSweepArraylet(MM_EnvironmentBase *env);
+    virtual void incrementalSweepArraylet(MM_EnvironmentBase* env);
 
-	MM_SweepSchemeRealtime(MM_EnvironmentBase *env, MM_RealtimeGC *realtimeGC, MM_Scheduler *scheduler, MM_MarkMap *markMap) :
-		MM_SweepSchemeSegregated(env, markMap)
-		,_realtimeGC(realtimeGC)
-		,_scheduler(scheduler)
-		,_coalesceFreeRegionCount(0)
-		,_sweepSmallRegionCount(0)
-		,_yieldSmallRegionCount(0)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_SweepSchemeRealtime(
+        MM_EnvironmentBase* env, MM_RealtimeGC* realtimeGC, MM_Scheduler* scheduler, MM_MarkMap* markMap)
+        : MM_SweepSchemeSegregated(env, markMap)
+        , _realtimeGC(realtimeGC)
+        , _scheduler(scheduler)
+        , _coalesceFreeRegionCount(0)
+        , _sweepSmallRegionCount(0)
+        , _yieldSmallRegionCount(0)
+    {
+        _typeId = __FUNCTION__;
+    };
 
 public:
-	static MM_SweepSchemeRealtime *newInstance(MM_EnvironmentBase *env, MM_RealtimeGC *realtimeGC, MM_Scheduler *scheduler, MM_MarkMap *markMap);
-	void kill(MM_EnvironmentBase *env);
+    static MM_SweepSchemeRealtime* newInstance(
+        MM_EnvironmentBase* env, MM_RealtimeGC* realtimeGC, MM_Scheduler* scheduler, MM_MarkMap* markMap);
+    void kill(MM_EnvironmentBase* env);
 
-	void
-	sweep(MM_EnvironmentBase *env)
-	{
-		MM_SweepSchemeSegregated::sweep(env, _realtimeGC->_memoryPool, _realtimeGC->isFixHeapForWalk());
-	}
+    void sweep(MM_EnvironmentBase* env)
+    {
+        MM_SweepSchemeSegregated::sweep(env, _realtimeGC->_memoryPool, _realtimeGC->isFixHeapForWalk());
+    }
 };
 
 #endif /* SWEEPSCHEMEREALTIME_HPP_ */

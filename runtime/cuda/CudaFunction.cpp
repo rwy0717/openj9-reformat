@@ -39,30 +39,26 @@
  * @param[in] attribute  the attribute to query
  * @return the value of the requested attribute
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaFunction_getAttribute
-  (JNIEnv * env, jclass, jint deviceId, jlong function, jint attribute)
+jint JNICALL Java_com_ibm_cuda_CudaFunction_getAttribute(
+    JNIEnv* env, jclass, jint deviceId, jlong function, jint attribute)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_functionGetAttribute_entry(thread, deviceId, (J9CudaFunction)function, attribute);
+    Trc_cuda_functionGetAttribute_entry(thread, deviceId, (J9CudaFunction)function, attribute);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t value = 0;
-	int32_t error = j9cuda_funcGetAttribute(
-			(uint32_t)deviceId,
-			(J9CudaFunction)function,
-			(J9CudaFunctionAttribute)attribute,
-			&value);
+    int32_t value = 0;
+    int32_t error = j9cuda_funcGetAttribute(
+        (uint32_t)deviceId, (J9CudaFunction)function, (J9CudaFunctionAttribute)attribute, &value);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_functionGetAttribute_exit(thread, value);
+    Trc_cuda_functionGetAttribute_exit(thread, value);
 
-	return (jint)value;
+    return (jint)value;
 }
 
 /**
@@ -86,67 +82,50 @@ Java_com_ibm_cuda_CudaFunction_getAttribute
  * @param[in] stream          the stream, or null for the default stream
  * @param[in] argValues       the array of argument values
  */
-void JNICALL
-Java_com_ibm_cuda_CudaFunction_launch
-  (JNIEnv * env, jclass,
-		  jint deviceId, jlong function,
-		  jint grdDimX, jint grdDimY, jint grdDimZ,
-		  jint blkDimX, jint blkDimY, jint blkDimZ,
-		  jint sharedMemBytes, jlong stream,
-		  jlongArray argValues)
+void JNICALL Java_com_ibm_cuda_CudaFunction_launch(JNIEnv* env, jclass, jint deviceId, jlong function, jint grdDimX,
+    jint grdDimY, jint grdDimZ, jint blkDimX, jint blkDimY, jint blkDimZ, jint sharedMemBytes, jlong stream,
+    jlongArray argValues)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_functionLaunch_entry(
-			thread,
-			deviceId,
-			(J9CudaFunction)function,
-			grdDimX, grdDimY, grdDimZ,
-	        blkDimX, blkDimY, blkDimZ,
-	        sharedMemBytes,
-	        (J9CudaStream)stream,
-	        argValues);
+    Trc_cuda_functionLaunch_entry(thread, deviceId, (J9CudaFunction)function, grdDimX, grdDimY, grdDimZ, blkDimX,
+        blkDimY, blkDimZ, sharedMemBytes, (J9CudaStream)stream, argValues);
 
-	int32_t error = J9CUDA_ERROR_OPERATING_SYSTEM;
-	jlong * values = env->GetLongArrayElements(argValues, NULL);
+    int32_t error = J9CUDA_ERROR_OPERATING_SYSTEM;
+    jlong* values = env->GetLongArrayElements(argValues, NULL);
 
-	if (NULL == values) {
-		Trc_cuda_functionLaunch_getFail(thread);
-	} else {
-		PORT_ACCESS_FROM_ENV(env);
+    if (NULL == values) {
+        Trc_cuda_functionLaunch_getFail(thread);
+    } else {
+        PORT_ACCESS_FROM_ENV(env);
 
-		jsize    argCount = env->GetArrayLength(argValues);
-		void  ** args     = (void **)J9CUDA_ALLOCATE_MEMORY(argCount * sizeof(void *));
+        jsize argCount = env->GetArrayLength(argValues);
+        void** args = (void**)J9CUDA_ALLOCATE_MEMORY(argCount * sizeof(void*));
 
-		if (NULL == args) {
-			Trc_cuda_functionLaunch_allocFail(thread);
-			error = J9CUDA_ERROR_MEMORY_ALLOCATION;
-		} else {
-			// gather addresses of parameters
-			for (jsize i = 0; i < argCount; ++i) {
-				args[i] = &values[i];
-			}
+        if (NULL == args) {
+            Trc_cuda_functionLaunch_allocFail(thread);
+            error = J9CUDA_ERROR_MEMORY_ALLOCATION;
+        } else {
+            // gather addresses of parameters
+            for (jsize i = 0; i < argCount; ++i) {
+                args[i] = &values[i];
+            }
 
-			error = j9cuda_launchKernel(
-					(uint32_t)deviceId,
-			        (J9CudaFunction)function,
-			        (uint32_t)grdDimX, (uint32_t)grdDimY, (uint32_t)grdDimZ,
-			        (uint32_t)blkDimX, (uint32_t)blkDimY, (uint32_t)blkDimZ,
-			        (uint32_t)sharedMemBytes,
-			        (J9CudaStream)stream,
-			        (void **)args);
+            error = j9cuda_launchKernel((uint32_t)deviceId, (J9CudaFunction)function, (uint32_t)grdDimX,
+                (uint32_t)grdDimY, (uint32_t)grdDimZ, (uint32_t)blkDimX, (uint32_t)blkDimY, (uint32_t)blkDimZ,
+                (uint32_t)sharedMemBytes, (J9CudaStream)stream, (void**)args);
 
-			J9CUDA_FREE_MEMORY(args);
-		}
+            J9CUDA_FREE_MEMORY(args);
+        }
 
-		env->ReleaseLongArrayElements(argValues, values, JNI_ABORT);
-	}
+        env->ReleaseLongArrayElements(argValues, values, JNI_ABORT);
+    }
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_functionLaunch_exit(thread);
+    Trc_cuda_functionLaunch_exit(thread);
 }
 
 /**
@@ -162,26 +141,22 @@ Java_com_ibm_cuda_CudaFunction_launch
  * @param[in] function  the function pointer
  * @param[in] config    the requested cache configuration
  */
-void JNICALL
-Java_com_ibm_cuda_CudaFunction_setCacheConfig
-  (JNIEnv * env, jclass, jint deviceId, jlong function, jint config)
+void JNICALL Java_com_ibm_cuda_CudaFunction_setCacheConfig(
+    JNIEnv* env, jclass, jint deviceId, jlong function, jint config)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_functionSetCacheConfig_entry(thread, deviceId, (J9CudaFunction)function, config);
+    Trc_cuda_functionSetCacheConfig_entry(thread, deviceId, (J9CudaFunction)function, config);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_funcSetCacheConfig(
-			(uint32_t)deviceId,
-			(J9CudaFunction)function,
-			(J9CudaCacheConfig)config);
+    int32_t error = j9cuda_funcSetCacheConfig((uint32_t)deviceId, (J9CudaFunction)function, (J9CudaCacheConfig)config);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_functionSetCacheConfig_exit(thread);
+    Trc_cuda_functionSetCacheConfig_exit(thread);
 }
 
 /**
@@ -197,26 +172,23 @@ Java_com_ibm_cuda_CudaFunction_setCacheConfig
  * @param[in] function  the function pointer
  * @param[in] config    the requested shared memory configuration
  */
-void JNICALL
-Java_com_ibm_cuda_CudaFunction_setSharedMemConfig
-  (JNIEnv * env, jclass, jint deviceId, jlong function, jint config)
+void JNICALL Java_com_ibm_cuda_CudaFunction_setSharedMemConfig(
+    JNIEnv* env, jclass, jint deviceId, jlong function, jint config)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_functionSetSharedMemConfig_entry(thread, deviceId, (J9CudaFunction)function, config);
+    Trc_cuda_functionSetSharedMemConfig_entry(thread, deviceId, (J9CudaFunction)function, config);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_funcSetSharedMemConfig(
-			(uint32_t)deviceId,
-			(J9CudaFunction)function,
-			(J9CudaSharedMemConfig)config);
+    int32_t error
+        = j9cuda_funcSetSharedMemConfig((uint32_t)deviceId, (J9CudaFunction)function, (J9CudaSharedMemConfig)config);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_functionSetSharedMemConfig_exit(thread);
+    Trc_cuda_functionSetSharedMemConfig_exit(thread);
 }
 
 #endif /* OMR_OPT_CUDA */

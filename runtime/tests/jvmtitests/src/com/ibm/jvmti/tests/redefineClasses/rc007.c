@@ -23,77 +23,74 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-
-jint JNICALL
-rc007(agentEnv * agent_env, char * args)
+jint JNICALL rc007(agentEnv* agent_env, char* args)
 {
-	jvmtiError err;
-	jvmtiCapabilities capabilities;
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    jvmtiCapabilities capabilities;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env; 
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_redefine_classes = 1;	
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to AddCapabilities");
-		return JNI_ERR;
-	}						
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_redefine_classes = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to AddCapabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_redefineClasses_rc007_redefineClasses(JNIEnv * jni_env, jclass klass,
-		jclass originalClass1, jint classBytesSize1, jbyteArray classBytes1,
-		jclass originalClass2, jint classBytesSize2, jbyteArray classBytes2)
+jboolean JNICALL Java_com_ibm_jvmti_tests_redefineClasses_rc007_redefineClasses(JNIEnv* jni_env, jclass klass,
+    jclass originalClass1, jint classBytesSize1, jbyteArray classBytes1, jclass originalClass2, jint classBytesSize2,
+    jbyteArray classBytes2)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jbyte * class_bytes0;
-	jbyte * class_bytes1;
-	jvmtiClassDefinition classdef[2];
-	jvmtiError err; 
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jbyte* class_bytes0;
+    jbyte* class_bytes1;
+    jvmtiClassDefinition classdef[2];
+    jvmtiError err;
 
-	err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize1, (unsigned char **) &class_bytes0);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Unable to allocate temp buffer for the class file");
-		return JNI_FALSE;
-	}
-	
-	(*jni_env)->GetByteArrayRegion(jni_env, classBytes1, 0, classBytesSize1, class_bytes0); 
+    err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize1, (unsigned char**)&class_bytes0);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Unable to allocate temp buffer for the class file");
+        return JNI_FALSE;
+    }
 
-	classdef[0].class_bytes = (unsigned char *) class_bytes0;
-	classdef[0].class_byte_count = classBytesSize1;
-	classdef[0].klass = originalClass1;
-	
-	err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize2, (unsigned char **) &class_bytes1);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Unable to allocate temp buffer for the class file");
-		return JNI_FALSE;
-	}
-	
-	(*jni_env)->GetByteArrayRegion(jni_env, classBytes2, 0, classBytesSize2, class_bytes1); 
+    (*jni_env)->GetByteArrayRegion(jni_env, classBytes1, 0, classBytesSize1, class_bytes0);
 
-	classdef[1].class_bytes = (unsigned char *) class_bytes1;
-	classdef[1].class_byte_count = classBytesSize2;
-	classdef[1].klass = originalClass2;
+    classdef[0].class_bytes = (unsigned char*)class_bytes0;
+    classdef[0].class_byte_count = classBytesSize1;
+    classdef[0].klass = originalClass1;
 
-	/* Redefine both classes in a single call. */
+    err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize2, (unsigned char**)&class_bytes1);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Unable to allocate temp buffer for the class file");
+        return JNI_FALSE;
+    }
+
+    (*jni_env)->GetByteArrayRegion(jni_env, classBytes2, 0, classBytesSize2, class_bytes1);
+
+    classdef[1].class_bytes = (unsigned char*)class_bytes1;
+    classdef[1].class_byte_count = classBytesSize2;
+    classdef[1].klass = originalClass2;
+
+    /* Redefine both classes in a single call. */
     err = (*jvmti_env)->RedefineClasses(jvmti_env, 2, classdef);
-   
-    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char *) class_bytes0);
+
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)class_bytes0);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "RedefineClasses failed");
-    	return JNI_FALSE;
+        error(env, err, "RedefineClasses failed");
+        return JNI_FALSE;
     }
-    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char *) class_bytes1);
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)class_bytes1);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "RedefineClasses failed");
-    	return JNI_FALSE;
+        error(env, err, "RedefineClasses failed");
+        return JNI_FALSE;
     }
-   
-	return JNI_TRUE;
+
+    return JNI_TRUE;
 }

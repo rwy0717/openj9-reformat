@@ -24,13 +24,13 @@
 #define callconv_api_h
 
 /**
-* @file callconv_api.h
-* @brief Public API for the CALLCONV module.
-*
-* This file contains public function prototypes and
-* type definitions for the CALLCONV module.
-*
-*/
+ * @file callconv_api.h
+ * @brief Public API for the CALLCONV module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the CALLCONV module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -42,129 +42,105 @@ extern "C" {
 /* ---------------- callroot.c ---------------- */
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void
-testAllBlocks(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void testAllBlocks(void);
 
 /* ---------------- callconvmain.c ---------------- */
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-asmCallFailure(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void asmCallFailure(void);
 
 /**
-* @brief
-* @param *detail
-* @return void
-*/
-void 
-asmFailure(char *detail);
-
+ * @brief
+ * @param *detail
+ * @return void
+ */
+void asmFailure(char* detail);
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-callFailure(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void callFailure(void);
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-callOutFailure(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void callOutFailure(void);
 
 /**
-* @brief
-* @param *detailedName
-* @param index
-* @return void
-*/
-void 
-cFailure(char *detailedName, int index);
-
+ * @brief
+ * @param *detailedName
+ * @param index
+ * @return void
+ */
+void cFailure(char* detailedName, int index);
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-dumpSummary(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void dumpSummary(void);
 
 /**
-* @brief
-* @param *detailedName
-* @return void
-*/
-void 
-returnFailure(char *detailedName);
-
+ * @brief
+ * @param *detailedName
+ * @return void
+ */
+void returnFailure(char* detailedName);
 
 /**
-* @brief
-* @param *testname
-* @return void
-*/
-void 
-setAsmTestName(char *testname);
-
+ * @brief
+ * @param *testname
+ * @return void
+ */
+void setAsmTestName(char* testname);
 
 /**
-* @brief
-* @param *testname
-* @return I_32
-*/
-I_32 
-shouldRun(char *testname);
-
+ * @brief
+ * @param *testname
+ * @return I_32
+ */
+I_32 shouldRun(char* testname);
 
 /**
-* @brief
-* @param d1
-* @param d2
-* @param d3
-* @param d4
-* @param d5
-* @param d6
-* @param d7
-* @param d8
-* @param d9
-* @param d10
-* @return IDATA
-*/
-IDATA 
+ * @brief
+ * @param d1
+ * @param d2
+ * @param d3
+ * @param d4
+ * @param d5
+ * @param d6
+ * @param d7
+ * @param d8
+ * @param d9
+ * @param d10
+ * @return IDATA
+ */
+IDATA
 sorbet(double d1, double d2, double d3, double d4, double d5, double d6, double d7, double d8, double d9, double d10);
 
-
 /**
-* @brief
-* @param count
-* @param ...
-* @return void
-*/
-void 
-testStackAlignment(I_32 count, ...);
-
+ * @brief
+ * @param count
+ * @param ...
+ * @return void
+ */
+void testStackAlignment(I_32 count, ...);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* callconv_api_h */
-

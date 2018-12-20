@@ -29,35 +29,35 @@
 #include "pool_api.h"
 
 /* DO NOT use UDATA/IDATA in the cache headers so that 32-bit/64-bit JVMs can read each others headers
- * This is why OSCache_sysv_header3 was added.  
- * 
+ * This is why OSCache_sysv_header3 was added.
+ *
  * Versioning is achieved by using the typedef aliases below
  */
 
 typedef struct OSCache_sysv_header1 {
-	char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH+1];
-	UDATA version;
-	U_64 modlevel;
-	UDATA size;
-	UDATA maxGeneration;
-	UDATA available;
+    char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH + 1];
+    UDATA version;
+    U_64 modlevel;
+    UDATA size;
+    UDATA maxGeneration;
+    UDATA available;
 } OSCache_sysv_header1;
 
 typedef struct OSCache_sysv_header2 {
-	char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH+1];
-	OSCache_header1 oscHdr;
-	UDATA inDefaultControlDir;
-	UDATA cacheInitComplete;
-	UDATA unused[9];
+    char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH + 1];
+    OSCache_header1 oscHdr;
+    UDATA inDefaultControlDir;
+    UDATA cacheInitComplete;
+    UDATA unused[9];
 } OSCache_sysv_header2;
 
 typedef struct OSCache_sysv_header3 {
-	char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH+1];
-	OSCache_header2 oscHdr;
-	U_32 inDefaultControlDir;
-	I_32 attachedSemid;
-	U_32 unused32[4];
-	U_64 unused64[5];
+    char eyecatcher[J9PORT_SHMEM_EYECATCHER_LENGTH + 1];
+    OSCache_header2 oscHdr;
+    U_32 inDefaultControlDir;
+    I_32 attachedSemid;
+    U_32 unused32[4];
+    U_64 unused64[5];
 } OSCache_sysv_header3;
 
 typedef OSCache_sysv_header3 OSCachesysv_header_version_current;
@@ -74,11 +74,11 @@ typedef OSCache_sysv_header1 OSCachesysv_header_version_G01;
  * It is returned by @ref SH_OSCachesysv::checkSemaphoreAccess().
  */
 typedef enum SH_SysvSemAccess {
-	J9SH_SEM_ACCESS_ALLOWED 				= 0,
-	J9SH_SEM_ACCESS_CANNOT_BE_DETERMINED,
-	J9SH_SEM_ACCESS_OWNER_NOT_CREATOR,
-	J9SH_SEM_ACCESS_GROUP_ACCESS_REQUIRED,
-	J9SH_SEM_ACCESS_OTHERS_NOT_ALLOWED
+    J9SH_SEM_ACCESS_ALLOWED = 0,
+    J9SH_SEM_ACCESS_CANNOT_BE_DETERMINED,
+    J9SH_SEM_ACCESS_OWNER_NOT_CREATOR,
+    J9SH_SEM_ACCESS_GROUP_ACCESS_REQUIRED,
+    J9SH_SEM_ACCESS_OTHERS_NOT_ALLOWED
 } SH_SysvSemAccess;
 
 /**
@@ -86,175 +86,176 @@ typedef enum SH_SysvSemAccess {
  * It is returned by @ref SH_OSCachesysv::checkSharedMemoryAccess().
  */
 typedef enum SH_SysvShmAccess {
-	J9SH_SHM_ACCESS_ALLOWED 						= 0,
-	J9SH_SHM_ACCESS_CANNOT_BE_DETERMINED,
-	J9SH_SHM_ACCESS_OWNER_NOT_CREATOR,
-	J9SH_SHM_ACCESS_GROUP_ACCESS_REQUIRED,
-	J9SH_SHM_ACCESS_GROUP_ACCESS_READONLY_REQUIRED,
-	J9SH_SHM_ACCESS_OTHERS_NOT_ALLOWED
+    J9SH_SHM_ACCESS_ALLOWED = 0,
+    J9SH_SHM_ACCESS_CANNOT_BE_DETERMINED,
+    J9SH_SHM_ACCESS_OWNER_NOT_CREATOR,
+    J9SH_SHM_ACCESS_GROUP_ACCESS_REQUIRED,
+    J9SH_SHM_ACCESS_GROUP_ACCESS_READONLY_REQUIRED,
+    J9SH_SHM_ACCESS_OTHERS_NOT_ALLOWED
 } SH_SysvShmAccess;
 
 /**
  * A class to manage Shared Classes on Operating System level
- * 
+ *
  * This class provides and abstraction of a shared memory region and its control
  * mutex.
  *
  */
-class SH_OSCachesysv : public SH_OSCache
-{
+class SH_OSCachesysv : public SH_OSCache {
 public:
-	SH_OSCachesysv(J9PortLibrary* portlib, J9JavaVM* vm, const char* cachedirname, const char* cacheName, J9SharedClassPreinitConfig* piconfig_, IDATA numLocks, UDATA createFlag,
-			UDATA verboseFlags, U_64 runtimeFlags, I_32 openMode, J9PortShcVersion* versionData, SH_OSCache::SH_OSCacheInitializer* initializer);
+    SH_OSCachesysv(J9PortLibrary* portlib, J9JavaVM* vm, const char* cachedirname, const char* cacheName,
+        J9SharedClassPreinitConfig* piconfig_, IDATA numLocks, UDATA createFlag, UDATA verboseFlags, U_64 runtimeFlags,
+        I_32 openMode, J9PortShcVersion* versionData, SH_OSCache::SH_OSCacheInitializer* initializer);
 
-	virtual bool startup(J9JavaVM* vm, const char* ctrlDirName, UDATA cacheDirPerm, const char* cacheName, J9SharedClassPreinitConfig* piconfig_, IDATA numLocks, UDATA createFlag,
-			UDATA verboseFlags, U_64 runtimeFlags, I_32 openMode, UDATA storageKeyTesting, J9PortShcVersion* versionData, SH_OSCache::SH_OSCacheInitializer* i, UDATA reason);
+    virtual bool startup(J9JavaVM* vm, const char* ctrlDirName, UDATA cacheDirPerm, const char* cacheName,
+        J9SharedClassPreinitConfig* piconfig_, IDATA numLocks, UDATA createFlag, UDATA verboseFlags, U_64 runtimeFlags,
+        I_32 openMode, UDATA storageKeyTesting, J9PortShcVersion* versionData, SH_OSCache::SH_OSCacheInitializer* i,
+        UDATA reason);
 
-	/**
-	 * Override new operator
-	 * @param [in] size  The size of the object
-	 * @param [in] memoryPtr  Pointer to the address where the object must be located
-	 *
-	 * @return The value of memoryPtr
-	 */
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    /**
+     * Override new operator
+     * @param [in] size  The size of the object
+     * @param [in] memoryPtr  Pointer to the address where the object must be located
+     *
+     * @return The value of memoryPtr
+     */
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
-	static SH_OSCache* newInstance(J9PortLibrary* portlib, SH_OSCache* memForConstructor);
+    static SH_OSCache* newInstance(J9PortLibrary* portlib, SH_OSCache* memForConstructor);
 
-	static UDATA getRequiredConstrBytes(void);
-	
-	IDATA destroy(bool suppressVerbose, bool isReset = false);
+    static UDATA getRequiredConstrBytes(void);
 
-	void cleanup(void);
+    IDATA destroy(bool suppressVerbose, bool isReset = false);
 
-	IDATA getWriteLockID(void);
-	IDATA getReadWriteLockID(void);
-	IDATA acquireWriteLock(UDATA lockID);
-	IDATA releaseWriteLock(UDATA lockID);
-  	
-	static IDATA getCacheStats(J9JavaVM* vm, const char* ctrlDirName, UDATA groupPerm, const char* filePath, SH_OSCache_Info* cacheInfo, UDATA reason);
-	
-	void *attach(J9VMThread *currentThread, J9PortShcVersion* expectedVersionData);
-	
-#if defined (J9SHR_MSYNC_SUPPORT)
-	IDATA syncUpdates(void* start, UDATA length, U_32 flags); 
+    void cleanup(void);
+
+    IDATA getWriteLockID(void);
+    IDATA getReadWriteLockID(void);
+    IDATA acquireWriteLock(UDATA lockID);
+    IDATA releaseWriteLock(UDATA lockID);
+
+    static IDATA getCacheStats(J9JavaVM* vm, const char* ctrlDirName, UDATA groupPerm, const char* filePath,
+        SH_OSCache_Info* cacheInfo, UDATA reason);
+
+    void* attach(J9VMThread* currentThread, J9PortShcVersion* expectedVersionData);
+
+#if defined(J9SHR_MSYNC_SUPPORT)
+    IDATA syncUpdates(void* start, UDATA length, U_32 flags);
 #endif
-	
-	IDATA getError(void);
-	
-	void runExitCode(void);
-	
-	IDATA getLockCapabilities(void);
-	
-	IDATA setRegionPermissions(struct J9PortLibrary* portLibrary, void *address, UDATA length, UDATA flags);
-	
-	UDATA getPermissionsRegionGranularity(struct J9PortLibrary* portLibrary);
 
-	virtual U_32 getTotalSize();
+    IDATA getError(void);
 
-	static UDATA getHeaderSize(void);
+    void runExitCode(void);
 
-	static IDATA findAllKnownCaches(struct J9PortLibrary* portlib, UDATA j2seVersion, struct J9Pool* cacheList);
+    IDATA getLockCapabilities(void);
 
-	static UDATA findfirst(struct J9PortLibrary *portLibrary, char *cacheDir, char *resultbuf);
-	
-	static I_32 findnext(struct J9PortLibrary *portLibrary, UDATA findHandle, char *resultbuf);
-	
-	static void findclose(struct J9PortLibrary *portLibrary, UDATA findhandle);
+    IDATA setRegionPermissions(struct J9PortLibrary* portLibrary, void* address, UDATA length, UDATA flags);
 
-	static IDATA getSysvHeaderFieldOffsetForGen(UDATA headerGen, UDATA fieldID);
+    UDATA getPermissionsRegionGranularity(struct J9PortLibrary* portLibrary);
 
-	virtual UDATA getJavacoreData(J9JavaVM *vm, J9SharedClassJavacoreDataDescriptor* descriptor);
+    virtual U_32 getTotalSize();
 
-	SH_CacheAccess isCacheAccessible(void) const;
+    static UDATA getHeaderSize(void);
 
-	IDATA restoreFromSnapshot(J9JavaVM* vm, const char* snapshotName, UDATA numLocks, SH_OSCache::SH_OSCacheInitializer* i, bool* cacheExist);
+    static IDATA findAllKnownCaches(struct J9PortLibrary* portlib, UDATA j2seVersion, struct J9Pool* cacheList);
 
-/* protected: */
-	/*This constructor should only be used by this class and parent*/
-	SH_OSCachesysv() {};
-	virtual void initialize(J9PortLibrary* portLib_, char* memForConstructor, UDATA generation);
+    static UDATA findfirst(struct J9PortLibrary* portLibrary, char* cacheDir, char* resultbuf);
 
-protected :
-	
-	virtual void errorHandler(U_32 moduleName, U_32 id, LastErrorInfo *lastErrorInfo);
-	virtual void * getAttachedMemory();
-  
+    static I_32 findnext(struct J9PortLibrary* portLibrary, UDATA findHandle, char* resultbuf);
+
+    static void findclose(struct J9PortLibrary* portLibrary, UDATA findhandle);
+
+    static IDATA getSysvHeaderFieldOffsetForGen(UDATA headerGen, UDATA fieldID);
+
+    virtual UDATA getJavacoreData(J9JavaVM* vm, J9SharedClassJavacoreDataDescriptor* descriptor);
+
+    SH_CacheAccess isCacheAccessible(void) const;
+
+    IDATA restoreFromSnapshot(
+        J9JavaVM* vm, const char* snapshotName, UDATA numLocks, SH_OSCache::SH_OSCacheInitializer* i, bool* cacheExist);
+
+    /* protected: */
+    /*This constructor should only be used by this class and parent*/
+    SH_OSCachesysv() {};
+    virtual void initialize(J9PortLibrary* portLib_, char* memForConstructor, UDATA generation);
+
+protected:
+    virtual void errorHandler(U_32 moduleName, U_32 id, LastErrorInfo* lastErrorInfo);
+    virtual void* getAttachedMemory();
+
 private:
-	j9shmem_handle* _shmhandle;
-	j9shsem_handle* _semhandle;
+    j9shmem_handle* _shmhandle;
+    j9shsem_handle* _semhandle;
 
-	IDATA _attach_count;
-	UDATA _totalNumSems;
-	UDATA _userSemCntr;
-	U_32 _actualCacheSize;
+    IDATA _attach_count;
+    UDATA _totalNumSems;
+    UDATA _userSemCntr;
+    U_32 _actualCacheSize;
 
-	char* _shmFileName;
-	char* _semFileName;
-	bool _openSharedMemory;
-	
-	UDATA _storageKeyTesting;
+    char* _shmFileName;
+    char* _semFileName;
+    bool _openSharedMemory;
 
-	const J9SharedClassPreinitConfig* config;
+    UDATA _storageKeyTesting;
 
-	SH_OSCache::SH_OSCacheInitializer* _initializer;
-	UDATA _groupPerm;
+    const J9SharedClassPreinitConfig* config;
 
-	I_32 _semid;
+    SH_OSCache::SH_OSCacheInitializer* _initializer;
+    UDATA _groupPerm;
 
-	SH_SysvSemAccess _semAccess;
-	SH_SysvShmAccess _shmAccess;
+    I_32 _semid;
 
-	J9ControlFileStatus _controlFileStatus;
+    SH_SysvSemAccess _semAccess;
+    SH_SysvShmAccess _shmAccess;
 
-	IDATA detach(void);
+    J9ControlFileStatus _controlFileStatus;
 
-	IDATA openCache(const char* ctrlDirName, J9PortShcVersion* versionData, bool semCreated);
+    IDATA detach(void);
 
-	IDATA shmemOpenWrapper(const char *cacheName, LastErrorInfo *lastErrorInfo);
+    IDATA openCache(const char* ctrlDirName, J9PortShcVersion* versionData, bool semCreated);
 
-	IDATA initializeHeader(const char* ctrlDirName, J9PortShcVersion* versionData, LastErrorInfo lastErrorInfo);
-	IDATA verifyCacheHeader(J9PortShcVersion* versionData);
+    IDATA shmemOpenWrapper(const char* cacheName, LastErrorInfo* lastErrorInfo);
 
-	IDATA detachRegion(void);
+    IDATA initializeHeader(const char* ctrlDirName, J9PortShcVersion* versionData, LastErrorInfo lastErrorInfo);
+    IDATA verifyCacheHeader(J9PortShcVersion* versionData);
 
-	IDATA enterHeaderMutex(LastErrorInfo *lastErrorInfo);
-	IDATA exitHeaderMutex(LastErrorInfo *lastErrorInfo);
+    IDATA detachRegion(void);
 
-	UDATA isCacheActive(void);
+    IDATA enterHeaderMutex(LastErrorInfo* lastErrorInfo);
+    IDATA exitHeaderMutex(LastErrorInfo* lastErrorInfo);
 
-	/* Private Error handling functions */
-	void printErrorMessage(LastErrorInfo *lastErrorInfo);
+    UDATA isCacheActive(void);
 
-	void cleanupSysvResources(void);
+    /* Private Error handling functions */
+    void printErrorMessage(LastErrorInfo* lastErrorInfo);
 
-	void setError(IDATA ec);
+    void cleanupSysvResources(void);
 
-	static void* getSysvHeaderFieldAddressForGen(void* header, UDATA headerGen, UDATA fieldID);
+    void setError(IDATA ec);
 
-	IDATA getNewWriteLockID(void);
-	
-	SH_SysvSemAccess checkSemaphoreAccess(LastErrorInfo *lastErrorInfo);
-	SH_SysvShmAccess checkSharedMemoryAccess(LastErrorInfo *lastErrorInfo);
+    static void* getSysvHeaderFieldAddressForGen(void* header, UDATA headerGen, UDATA fieldID);
+
+    IDATA getNewWriteLockID(void);
+
+    SH_SysvSemAccess checkSemaphoreAccess(LastErrorInfo* lastErrorInfo);
+    SH_SysvShmAccess checkSharedMemoryAccess(LastErrorInfo* lastErrorInfo);
 
 #if !defined(WIN32)
-	/*Helpers for opening Unix SysV Semaphores and control files*/
-	IDATA OpenSysVSemaphoreHelper(J9PortShcVersion* versionData, LastErrorInfo *lastErrorInfo);
-	IDATA DestroySysVSemHelper();
-	IDATA OpenSysVMemoryHelper(const char* cacheName, U_32 perm, LastErrorInfo *lastErrorInfo);
-	static IDATA StatSysVMemoryHelper(J9PortLibrary* portLibrary, const char* cacheDirName, UDATA groupPerm, const char* cacheNameWithVGen, J9PortShmemStatistic * statbuf);
-	IDATA DestroySysVMemoryHelper();
-	static UDATA SysVCacheFileTypeHelper(U_64 currentVersion, UDATA genVersion);
-	I_32 getControlFilePerm(char *cacheDirName, char *filetype, bool *isNotReadable, bool *isReadOnly);
-	I_32 verifySemaphoreGroupAccess(LastErrorInfo *lastErrorInfo);
-	I_32 verifySharedMemoryGroupAccess(LastErrorInfo *lastErrorInfo);
+    /*Helpers for opening Unix SysV Semaphores and control files*/
+    IDATA OpenSysVSemaphoreHelper(J9PortShcVersion* versionData, LastErrorInfo* lastErrorInfo);
+    IDATA DestroySysVSemHelper();
+    IDATA OpenSysVMemoryHelper(const char* cacheName, U_32 perm, LastErrorInfo* lastErrorInfo);
+    static IDATA StatSysVMemoryHelper(J9PortLibrary* portLibrary, const char* cacheDirName, UDATA groupPerm,
+        const char* cacheNameWithVGen, J9PortShmemStatistic* statbuf);
+    IDATA DestroySysVMemoryHelper();
+    static UDATA SysVCacheFileTypeHelper(U_64 currentVersion, UDATA genVersion);
+    I_32 getControlFilePerm(char* cacheDirName, char* filetype, bool* isNotReadable, bool* isReadOnly);
+    I_32 verifySemaphoreGroupAccess(LastErrorInfo* lastErrorInfo);
+    I_32 verifySharedMemoryGroupAccess(LastErrorInfo* lastErrorInfo);
 #endif
 
-	static IDATA  getCacheStatsHelper(J9JavaVM* vm, const char* cacheDirName, UDATA groupPerm, const char* cacheNameWithVGen, SH_OSCache_Info* cacheInfo, UDATA reason);
-
+    static IDATA getCacheStatsHelper(J9JavaVM* vm, const char* cacheDirName, UDATA groupPerm,
+        const char* cacheNameWithVGen, SH_OSCache_Info* cacheInfo, UDATA reason);
 };
 
 #endif /* !defined(OSCACHESYSV_HPP_INCLUDED) */
-
-
-

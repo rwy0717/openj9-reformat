@@ -25,60 +25,56 @@
 
 #include "codegen/Relocation.hpp"
 
-//class TR::Instruction;
+// class TR::Instruction;
 
 namespace TR {
 
-class ARMRelocation 
-{
-   public:
-   TR_ALLOC(TR_Memory::ARMRelocation)
+class ARMRelocation {
+public:
+    TR_ALLOC(TR_Memory::ARMRelocation)
 
-      ARMRelocation(TR::Instruction   *src,
-                    uint8_t           *trg,
-                    TR_ExternalRelocationTargetKind k):
-            _srcInstruction(src), _relTarget(trg), _kind(k)
-            {}
+    ARMRelocation(TR::Instruction* src, uint8_t* trg, TR_ExternalRelocationTargetKind k)
+        : _srcInstruction(src)
+        , _relTarget(trg)
+        , _kind(k)
+    {}
 
-            TR::Instruction *getSourceInstruction() {return _srcInstruction;}
-            void setSourceInstruction(TR::Instruction *i) {_srcInstruction = i;}
+    TR::Instruction* getSourceInstruction() { return _srcInstruction; }
+    void setSourceInstruction(TR::Instruction* i) { _srcInstruction = i; }
 
-            uint8_t *getRelocationTarget() {return _relTarget;}
-            void setRelocationTarget(uint8_t *t) {_relTarget = t;}
+    uint8_t* getRelocationTarget() { return _relTarget; }
+    void setRelocationTarget(uint8_t* t) { _relTarget = t; }
 
-            TR_ExternalRelocationTargetKind getKind() {return _kind;}
-            void setKind(TR_ExternalRelocationTargetKind k) {_kind = k;}
+    TR_ExternalRelocationTargetKind getKind() { return _kind; }
+    void setKind(TR_ExternalRelocationTargetKind k) { _kind = k; }
 
-            virtual void mapRelocation(TR::CodeGenerator *codeGen) = 0;
+    virtual void mapRelocation(TR::CodeGenerator* codeGen) = 0;
 
-   private:
-      TR::Instruction                 *_srcInstruction;
-      uint8_t                         *_relTarget;
-      TR_ExternalRelocationTargetKind  _kind;
+private:
+    TR::Instruction* _srcInstruction;
+    uint8_t* _relTarget;
+    TR_ExternalRelocationTargetKind _kind;
 };
 
-class ARMPairedRelocation: public TR::ARMRelocation
-{
-   public:
-      ARMPairedRelocation(TR::Instruction *src1,
-                          TR::Instruction *src2,
-                          uint8_t           *trg,
-                          TR_ExternalRelocationTargetKind k,
-                          TR::Node *node) :
-            TR::ARMRelocation(src1, trg, k), _src2Instruction(src2), _node(node)
-            {}
+class ARMPairedRelocation : public TR::ARMRelocation {
+public:
+    ARMPairedRelocation(
+        TR::Instruction* src1, TR::Instruction* src2, uint8_t* trg, TR_ExternalRelocationTargetKind k, TR::Node* node)
+        : TR::ARMRelocation(src1, trg, k)
+        , _src2Instruction(src2)
+        , _node(node)
+    {}
 
-            TR::Instruction *getSource2Instruction() {return _src2Instruction;}
-            void setSource2Instruction(TR::Instruction *src) {_src2Instruction = src;}
-            TR::Node* getNode(){return _node;}
-            virtual void mapRelocation(TR::CodeGenerator *codeGen);
+    TR::Instruction* getSource2Instruction() { return _src2Instruction; }
+    void setSource2Instruction(TR::Instruction* src) { _src2Instruction = src; }
+    TR::Node* getNode() { return _node; }
+    virtual void mapRelocation(TR::CodeGenerator* codeGen);
 
-   private:
-      TR::Instruction                 *_src2Instruction;
-      TR::Node                        *_node;
+private:
+    TR::Instruction* _src2Instruction;
+    TR::Node* _node;
 };
 
-}
+} // namespace TR
 
 #endif
-

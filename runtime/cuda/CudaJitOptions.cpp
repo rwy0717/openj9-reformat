@@ -23,36 +23,34 @@
 #include "CudaCommon.hpp"
 #include "java/com_ibm_cuda_CudaJitOptions.h"
 
-namespace
-{
+namespace {
 
 /**
  * Destroy a JIT options instance.
  */
-void
-destroyOptions(JNIEnv * env, J9CudaJitOptions * options)
+void destroyOptions(JNIEnv* env, J9CudaJitOptions* options)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_jitOptionsDestroy0_entry(thread, options);
+    Trc_cuda_jitOptionsDestroy0_entry(thread, options);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	void * errorLog = options->errorLogBuffer;
+    void* errorLog = options->errorLogBuffer;
 
-	if (NULL != errorLog) {
-		J9CUDA_FREE_MEMORY(errorLog);
-	}
+    if (NULL != errorLog) {
+        J9CUDA_FREE_MEMORY(errorLog);
+    }
 
-	void * infoLog = options->infoLogBuffer;
+    void* infoLog = options->infoLogBuffer;
 
-	if (NULL != infoLog) {
-		J9CUDA_FREE_MEMORY(infoLog);
-	}
+    if (NULL != infoLog) {
+        J9CUDA_FREE_MEMORY(infoLog);
+    }
 
-	J9CUDA_FREE_MEMORY(options);
+    J9CUDA_FREE_MEMORY(options);
 
-	Trc_cuda_jitOptionsDestroy0_exit(thread);
+    Trc_cuda_jitOptionsDestroy0_exit(thread);
 }
 
 } // namespace
@@ -69,165 +67,163 @@ destroyOptions(JNIEnv * env, J9CudaJitOptions * options)
  * @param[in] pairs     an array of option/value pairs
  * @return a pointer to a new JIT options object
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaJitOptions_create
-  (JNIEnv * env, jclass, jintArray pairs)
+jlong JNICALL Java_com_ibm_cuda_CudaJitOptions_create(JNIEnv* env, jclass, jintArray pairs)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_jitOptionsCreate_entry(thread, pairs);
+    Trc_cuda_jitOptionsCreate_entry(thread, pairs);
 
-	jsize const   pairLength = env->GetArrayLength(pairs) & ~1;
-	jint        * pairData   = NULL;
+    jsize const pairLength = env->GetArrayLength(pairs) & ~1;
+    jint* pairData = NULL;
 
-	if (0 != pairLength) {
-		pairData = env->GetIntArrayElements(pairs, NULL);
+    if (0 != pairLength) {
+        pairData = env->GetIntArrayElements(pairs, NULL);
 
-		if (NULL == pairData) {
-			Trc_cuda_jitOptionsCreate_getFail(thread);
-			throwCudaException(env, J9CUDA_ERROR_OPERATING_SYSTEM);
-			Trc_cuda_jitOptionsCreate_exit(thread, NULL);
-			return 0;
-		}
-	}
+        if (NULL == pairData) {
+            Trc_cuda_jitOptionsCreate_getFail(thread);
+            throwCudaException(env, J9CUDA_ERROR_OPERATING_SYSTEM);
+            Trc_cuda_jitOptionsCreate_exit(thread, NULL);
+            return 0;
+        }
+    }
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t            error   = 0;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)J9CUDA_ALLOCATE_MEMORY(sizeof(J9CudaJitOptions));
+    int32_t error = 0;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)J9CUDA_ALLOCATE_MEMORY(sizeof(J9CudaJitOptions));
 
-	if (NULL == options) {
-		Trc_cuda_jitOptionsCreate_allocFail(thread);
-		error = J9CUDA_ERROR_MEMORY_ALLOCATION;
-	} else {
-		memset(options, 0, sizeof(J9CudaJitOptions));
+    if (NULL == options) {
+        Trc_cuda_jitOptionsCreate_allocFail(thread);
+        error = J9CUDA_ERROR_MEMORY_ALLOCATION;
+    } else {
+        memset(options, 0, sizeof(J9CudaJitOptions));
 
-		for (jint index = 0; (0 == error) && (index < pairLength); index += 2) {
-			jint key   = pairData[index];
-			jint value = pairData[index + 1];
+        for (jint index = 0; (0 == error) && (index < pairLength); index += 2) {
+            jint key = pairData[index];
+            jint value = pairData[index + 1];
 
-			switch (key) {
-			case com_ibm_cuda_CudaJitOptions_OPT_CACHE_MODE:
-				options->cacheMode = (J9CudaJitCacheMode)value;
-				break;
+            switch (key) {
+            case com_ibm_cuda_CudaJitOptions_OPT_CACHE_MODE:
+                options->cacheMode = (J9CudaJitCacheMode)value;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_ERROR_LOG_BUFFER_SIZE_BYTES:
-				if (NULL != options->errorLogBuffer) {
-					J9CUDA_FREE_MEMORY(options->errorLogBuffer);
-				}
+            case com_ibm_cuda_CudaJitOptions_OPT_ERROR_LOG_BUFFER_SIZE_BYTES:
+                if (NULL != options->errorLogBuffer) {
+                    J9CUDA_FREE_MEMORY(options->errorLogBuffer);
+                }
 
-				options->errorLogBuffer = (char *)J9CUDA_ALLOCATE_MEMORY((size_t)value);
-				options->errorLogBufferSize = (uintptr_t)value;
+                options->errorLogBuffer = (char*)J9CUDA_ALLOCATE_MEMORY((size_t)value);
+                options->errorLogBufferSize = (uintptr_t)value;
 
-				if (NULL == options->errorLogBuffer) {
-					Trc_cuda_jitOptionsCreate_allocFail(thread);
-					options->errorLogBufferSize = 0;
-					error = J9CUDA_ERROR_MEMORY_ALLOCATION;
-				}
-				break;
+                if (NULL == options->errorLogBuffer) {
+                    Trc_cuda_jitOptionsCreate_allocFail(thread);
+                    options->errorLogBufferSize = 0;
+                    error = J9CUDA_ERROR_MEMORY_ALLOCATION;
+                }
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_FALLBACK_STRATEGY:
-				options->fallbackStrategy = (J9CudaJitFallbackStrategy)value;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_FALLBACK_STRATEGY:
+                options->fallbackStrategy = (J9CudaJitFallbackStrategy)value;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_GENERATE_DEBUG_INFO:
-				options->generateDebugInfo = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_GENERATE_DEBUG_INFO:
+                options->generateDebugInfo = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_GENERATE_LINE_INFO:
-				options->generateLineInfo = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_GENERATE_LINE_INFO:
+                options->generateLineInfo = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_INFO_LOG_BUFFER_SIZE_BYTES:
-				if (NULL != options->infoLogBuffer) {
-					J9CUDA_FREE_MEMORY(options->infoLogBuffer);
-				}
+            case com_ibm_cuda_CudaJitOptions_OPT_INFO_LOG_BUFFER_SIZE_BYTES:
+                if (NULL != options->infoLogBuffer) {
+                    J9CUDA_FREE_MEMORY(options->infoLogBuffer);
+                }
 
-				options->infoLogBuffer = (char *)J9CUDA_ALLOCATE_MEMORY((size_t)value);
-				options->infoLogBufferSize = (uintptr_t)value;
+                options->infoLogBuffer = (char*)J9CUDA_ALLOCATE_MEMORY((size_t)value);
+                options->infoLogBufferSize = (uintptr_t)value;
 
-				if (NULL == options->infoLogBuffer) {
-					Trc_cuda_jitOptionsCreate_allocFail(thread);
-					options->infoLogBufferSize = 0;
-					error = J9CUDA_ERROR_MEMORY_ALLOCATION;
-				}
-				break;
+                if (NULL == options->infoLogBuffer) {
+                    Trc_cuda_jitOptionsCreate_allocFail(thread);
+                    options->infoLogBufferSize = 0;
+                    error = J9CUDA_ERROR_MEMORY_ALLOCATION;
+                }
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_LOG_VERBOSE:
-				options->verboseLogging = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_LOG_VERBOSE:
+                options->verboseLogging = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_MAX_REGISTERS:
-				options->maxRegisters = (uint32_t)value;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_MAX_REGISTERS:
+                options->maxRegisters = (uint32_t)value;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_OPTIMIZATION_LEVEL:
-				switch (value) {
-				case 0:
-					options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_0;
-					break;
-				case 1:
-					options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_1;
-					break;
-				case 2:
-					options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_2;
-					break;
-				case 3:
-					options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_3;
-					break;
-				case 4:
-					options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_4;
-					break;
-				default:
-					error = J9CUDA_ERROR_INVALID_VALUE;
-					break;
-				}
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_OPTIMIZATION_LEVEL:
+                switch (value) {
+                case 0:
+                    options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_0;
+                    break;
+                case 1:
+                    options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_1;
+                    break;
+                case 2:
+                    options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_2;
+                    break;
+                case 3:
+                    options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_3;
+                    break;
+                case 4:
+                    options->optimizationLevel = J9CUDA_JIT_OPTIMIZATION_LEVEL_4;
+                    break;
+                default:
+                    error = J9CUDA_ERROR_INVALID_VALUE;
+                    break;
+                }
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_TARGET:
-				options->target = (uint32_t)value;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_TARGET:
+                options->target = (uint32_t)value;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_TARGET_FROM_CUCONTEXT:
-				options->targetFromContext = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_TARGET_FROM_CUCONTEXT:
+                options->targetFromContext = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_THREADS_PER_BLOCK:
-				if (0 != value) {
-					options->threadsPerBlock = (uint32_t)value;
-				} else {
-					error = J9CUDA_ERROR_INVALID_VALUE;
-				}
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_THREADS_PER_BLOCK:
+                if (0 != value) {
+                    options->threadsPerBlock = (uint32_t)value;
+                } else {
+                    error = J9CUDA_ERROR_INVALID_VALUE;
+                }
+                break;
 
-			case com_ibm_cuda_CudaJitOptions_OPT_WALL_TIME:
-				options->recordWallTime = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
-				break;
+            case com_ibm_cuda_CudaJitOptions_OPT_WALL_TIME:
+                options->recordWallTime = value ? J9CUDA_JIT_FLAG_ENABLED : J9CUDA_JIT_FLAG_DISABLED;
+                break;
 
-			default:
-				Trc_cuda_jitOptionsCreate_badOption(thread, key);
-				error = J9CUDA_ERROR_INVALID_VALUE;
-				break;
-			}
-		}
-	}
+            default:
+                Trc_cuda_jitOptionsCreate_badOption(thread, key);
+                error = J9CUDA_ERROR_INVALID_VALUE;
+                break;
+            }
+        }
+    }
 
-	if (NULL != pairData) {
-		env->ReleaseIntArrayElements(pairs, pairData, JNI_ABORT);
-	}
+    if (NULL != pairData) {
+        env->ReleaseIntArrayElements(pairs, pairData, JNI_ABORT);
+    }
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	if (env->ExceptionCheck() && (NULL != options)) {
-		destroyOptions(env, options);
-		options = NULL;
-	}
+    if (env->ExceptionCheck() && (NULL != options)) {
+        destroyOptions(env, options);
+        options = NULL;
+    }
 
-	Trc_cuda_jitOptionsCreate_exit(thread, options);
+    Trc_cuda_jitOptionsCreate_exit(thread, options);
 
-	return (jlong)options;
+    return (jlong)options;
 }
 
 /**
@@ -241,18 +237,16 @@ Java_com_ibm_cuda_CudaJitOptions_create
  * @param[in] (unused)  the class pointer
  * @param[in] handle    the options pointer
  */
-void JNICALL
-Java_com_ibm_cuda_CudaJitOptions_destroy
-  (JNIEnv * env, jclass, jlong handle)
+void JNICALL Java_com_ibm_cuda_CudaJitOptions_destroy(JNIEnv* env, jclass, jlong handle)
 {
-	J9VMThread       * thread  = (J9VMThread *)env;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)handle;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)handle;
 
-	Trc_cuda_jitOptionsDestroy_entry(thread, options);
+    Trc_cuda_jitOptionsDestroy_entry(thread, options);
 
-	destroyOptions(env, options);
+    destroyOptions(env, options);
 
-	Trc_cuda_jitOptionsDestroy_exit(thread);
+    Trc_cuda_jitOptionsDestroy_exit(thread);
 }
 
 /**
@@ -267,21 +261,19 @@ Java_com_ibm_cuda_CudaJitOptions_destroy
  * @param[in] handle    the options pointer
  * @return a string containing the error log
  */
-jstring JNICALL
-Java_com_ibm_cuda_CudaJitOptions_getErrorLogBuffer
-  (JNIEnv * env, jclass, jlong handle)
+jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getErrorLogBuffer(JNIEnv* env, jclass, jlong handle)
 {
-	J9VMThread       * thread  = (J9VMThread *)env;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)handle;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)handle;
 
-	Trc_cuda_jitOptionsGetErrorLogBuffer_entry(thread, options);
+    Trc_cuda_jitOptionsGetErrorLogBuffer_entry(thread, options);
 
-	const char * buffer = ((J9CudaJitOptions *)handle)->errorLogBuffer;
-	jstring      result = env->NewStringUTF((NULL == buffer) ? "" : buffer);
+    const char* buffer = ((J9CudaJitOptions*)handle)->errorLogBuffer;
+    jstring result = env->NewStringUTF((NULL == buffer) ? "" : buffer);
 
-	Trc_cuda_jitOptionsGetErrorLogBuffer_exit(thread, result);
+    Trc_cuda_jitOptionsGetErrorLogBuffer_exit(thread, result);
 
-	return result;
+    return result;
 }
 
 /**
@@ -296,21 +288,19 @@ Java_com_ibm_cuda_CudaJitOptions_getErrorLogBuffer
  * @param[in] handle    the options pointer
  * @return a string containing the information log
  */
-jstring JNICALL
-Java_com_ibm_cuda_CudaJitOptions_getInfoLogBuffer
-  (JNIEnv * env, jclass, jlong handle)
+jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getInfoLogBuffer(JNIEnv* env, jclass, jlong handle)
 {
-	J9VMThread         * thread   = (J9VMThread *)env;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)handle;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)handle;
 
-	Trc_cuda_jitOptionsGetInfoLogBuffer_entry(thread, options);
+    Trc_cuda_jitOptionsGetInfoLogBuffer_entry(thread, options);
 
-	const char * buffer = options->infoLogBuffer;
-	jstring      result = env->NewStringUTF((NULL == buffer) ? "" : buffer);
+    const char* buffer = options->infoLogBuffer;
+    jstring result = env->NewStringUTF((NULL == buffer) ? "" : buffer);
 
-	Trc_cuda_jitOptionsGetInfoLogBuffer_exit(thread, result);
+    Trc_cuda_jitOptionsGetInfoLogBuffer_exit(thread, result);
 
-	return result;
+    return result;
 }
 
 /**
@@ -325,20 +315,18 @@ Java_com_ibm_cuda_CudaJitOptions_getInfoLogBuffer
  * @param[in] handle    the options pointer
  * @return the number of threads per block
  */
-jint JNICALL
-Java_com_ibm_cuda_CudaJitOptions_getThreadsPerBlock
-  (JNIEnv * env, jclass, jlong handle)
+jint JNICALL Java_com_ibm_cuda_CudaJitOptions_getThreadsPerBlock(JNIEnv* env, jclass, jlong handle)
 {
-	J9VMThread         * thread   = (J9VMThread *)env;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)handle;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)handle;
 
-	Trc_cuda_jitOptionsGetThreadsPerBlock_entry(thread, options);
+    Trc_cuda_jitOptionsGetThreadsPerBlock_entry(thread, options);
 
-	jint result = (jint)options->threadsPerBlock;
+    jint result = (jint)options->threadsPerBlock;
 
-	Trc_cuda_jitOptionsGetThreadsPerBlock_exit(thread, result);
+    Trc_cuda_jitOptionsGetThreadsPerBlock_exit(thread, result);
 
-	return result;
+    return result;
 }
 
 /**
@@ -353,18 +341,16 @@ Java_com_ibm_cuda_CudaJitOptions_getThreadsPerBlock
  * @param[in] handle    the options pointer
  * @return the elapsed compile/link time
  */
-jfloat JNICALL
-Java_com_ibm_cuda_CudaJitOptions_getWallTime
-  (JNIEnv * env, jclass, jlong handle)
+jfloat JNICALL Java_com_ibm_cuda_CudaJitOptions_getWallTime(JNIEnv* env, jclass, jlong handle)
 {
-	J9VMThread         * thread   = (J9VMThread *)env;
-	J9CudaJitOptions * options = (J9CudaJitOptions *)handle;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9CudaJitOptions* options = (J9CudaJitOptions*)handle;
 
-	Trc_cuda_jitOptionsGetWallTime_entry(thread, options);
+    Trc_cuda_jitOptionsGetWallTime_entry(thread, options);
 
-	jfloat result = (jfloat)options->wallTime;
+    jfloat result = (jfloat)options->wallTime;
 
-	Trc_cuda_jitOptionsGetWallTime_exit(thread, result);
+    Trc_cuda_jitOptionsGetWallTime_exit(thread, result);
 
-	return result;
+    return result;
 }

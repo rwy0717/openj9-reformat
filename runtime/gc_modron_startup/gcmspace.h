@@ -39,8 +39,13 @@ class MM_EnvironmentBase;
 extern "C" {
 #endif
 
-MM_MemorySpace *internalAllocateMemorySpaceWithMaximum(J9JavaVM * javaVM, UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags);
-MM_MemorySpace *internalAllocateMemorySpaceWithMaximumWithEnv(MM_EnvironmentBase *env, J9JavaVM *javaVM, UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags);
+MM_MemorySpace* internalAllocateMemorySpaceWithMaximum(J9JavaVM* javaVM, UDATA minimumSpaceSize,
+    UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize, UDATA minimumTenureSpaceSize,
+    UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax, UDATA baseAddress, UDATA tenureFlags);
+MM_MemorySpace* internalAllocateMemorySpaceWithMaximumWithEnv(MM_EnvironmentBase* env, J9JavaVM* javaVM,
+    UDATA minimumSpaceSize, UDATA minimumNewSpaceSize, UDATA initialNewSpaceSize, UDATA maximumNewSpaceSize,
+    UDATA minimumTenureSpaceSize, UDATA initialTenureSpaceSize, UDATA maximumTenureSpaceSize, UDATA memoryMax,
+    UDATA baseAddress, UDATA tenureFlags);
 
 #ifdef __cplusplus
 } /* extern "C" { */

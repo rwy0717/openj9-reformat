@@ -35,15 +35,14 @@ class MM_CycleState;
  */
 class MM_CycleStateVLHGC : public MM_CycleState {
 public:
-	MM_VLHGCIncrementStats _vlhgcIncrementStats; /**< Stats for the various phases / operations within an increment */
-	MM_VLHGCCycleStats _vlhgcCycleStats; /**< Stats for the various phases / operations within a cycle */
+    MM_VLHGCIncrementStats _vlhgcIncrementStats; /**< Stats for the various phases / operations within an increment */
+    MM_VLHGCCycleStats _vlhgcCycleStats; /**< Stats for the various phases / operations within a cycle */
 
-	MM_CycleStateVLHGC()
-		: MM_CycleState()
-		, _vlhgcIncrementStats()
-		, _vlhgcCycleStats()
-	{
-	}
+    MM_CycleStateVLHGC()
+        : MM_CycleState()
+        , _vlhgcIncrementStats()
+        , _vlhgcCycleStats()
+    {}
 };
 
 #endif /* CYCLESTATEVLHGC_HPP_ */

@@ -30,17 +30,18 @@
  * Create an new instance of a MM_VerboseEventSystemGCStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventSystemGCStart::newInstance(MM_SystemGCStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventSystemGCStart::newInstance(
+    MM_SystemGCStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventSystemGCStart *eventObject;
-	
-	eventObject = (MM_VerboseEventSystemGCStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventSystemGCStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventSystemGCStart(event, hookInterface);
-		eventObject->initialize();
-	}
-	return eventObject;
+    MM_VerboseEventSystemGCStart* eventObject;
+
+    eventObject = (MM_VerboseEventSystemGCStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventSystemGCStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventSystemGCStart(event, hookInterface);
+        eventObject->initialize();
+    }
+    return eventObject;
 }
 
 /**
@@ -48,48 +49,43 @@ MM_VerboseEventSystemGCStart::newInstance(MM_SystemGCStartEvent *event, J9HookIn
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventSystemGCStart::consumeEvents(void)
+void MM_VerboseEventSystemGCStart::consumeEvents(void)
 {
-	/* Increment collection count */
-	_manager->incrementSystemGCCount();
-	
-	/* Consume global data */
-	_lastSysTime = _manager->getLastSystemGCTime();
-	_sysCollectionCount = _manager->getSystemGCCount();
+    /* Increment collection count */
+    _manager->incrementSystemGCCount();
+
+    /* Consume global data */
+    _lastSysTime = _manager->getLastSystemGCTime();
+    _sysCollectionCount = _manager->getSystemGCCount();
 }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventSystemGCStart::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventSystemGCStart::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	char timestamp[32];
-	UDATA indentLevel = _manager->getIndentLevel();
-	U_64 timeInMicroSeconds;
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	U_64 prevTime;
+    char timestamp[32];
+    UDATA indentLevel = _manager->getIndentLevel();
+    U_64 timeInMicroSeconds;
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    U_64 prevTime;
 
-	if (1 == _sysCollectionCount) {
-		prevTime = _manager->getInitializedTime();
-	} else {
-		prevTime = _lastSysTime;
-	}
-	timeInMicroSeconds = omrtime_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+    if (1 == _sysCollectionCount) {
+        prevTime = _manager->getInitializedTime();
+    } else {
+        prevTime = _lastSysTime;
+    }
+    timeInMicroSeconds = omrtime_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
 
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<sys id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">",
-		_sysCollectionCount,
-		timestamp,
-		timeInMicroSeconds / 1000,
-		timeInMicroSeconds % 1000
-	);
-	
-	_manager->incrementIndent();
-	indentLevel = _manager->getIndentLevel();
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<sys id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">", _sysCollectionCount, timestamp,
+        timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
 
-	/* output the common GC start info */
-	gcStartFormattedOutput(agent);
+    _manager->incrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    /* output the common GC start info */
+    gcStartFormattedOutput(agent);
 }

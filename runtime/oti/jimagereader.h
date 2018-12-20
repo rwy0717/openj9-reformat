@@ -23,24 +23,28 @@
 #ifndef jimage_reader_h
 #define jimage_reader_h
 
-#define ROUND_UP_TO(granularity, number) 			((((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
+#define ROUND_UP_TO(granularity, number) \
+    ((((number) % (granularity)) ? ((number) + (granularity) - ((number) % (granularity))) : (number)))
 
-#define J9JIMAGE_READ_U8(value, cursor)				((value = *(U_8 *)cursor), cursor += sizeof(U_8), value)
+#define J9JIMAGE_READ_U8(value, cursor) ((value = *(U_8*)cursor), cursor += sizeof(U_8), value)
 
-#define J9JIMAGE_READ_U16_BIGENDIAN(value, cursor)	((value = ((U_16)(cursor)[0] << 8) | ((U_16)(cursor)[1])), cursor += 2, value)
-#define J9JIMAGE_READ_U24_BIGENDIAN(value, cursor)	((value = ((U_32)(cursor)[0] << 16) | ((U_32)(cursor)[1] << 8) | (U_32)(cursor)[2]), cursor += 3, value)
-#define J9JIMAGE_READ_U32_BIGENDIAN(value, cursor)	((value = ((U_32)(cursor)[0] << 24) | ((U_32)(cursor)[1] << 16) | ((U_32)(cursor)[2] << 8) | (U_32)(cursor)[3]), cursor += 4, value)
+#define J9JIMAGE_READ_U16_BIGENDIAN(value, cursor) \
+    ((value = ((U_16)(cursor)[0] << 8) | ((U_16)(cursor)[1])), cursor += 2, value)
+#define J9JIMAGE_READ_U24_BIGENDIAN(value, cursor) \
+    ((value = ((U_32)(cursor)[0] << 16) | ((U_32)(cursor)[1] << 8) | (U_32)(cursor)[2]), cursor += 3, value)
+#define J9JIMAGE_READ_U32_BIGENDIAN(value, cursor)                                                                   \
+    ((value = ((U_32)(cursor)[0] << 24) | ((U_32)(cursor)[1] << 16) | ((U_32)(cursor)[2] << 8) | (U_32)(cursor)[3]), \
+        cursor += 4, value)
 
-#define J9JIMAGE_READ_BYTES_BIGENDIAN(value, cursor, numBytes) \
-	do { \
-		I_32 i = 0; \
-		value = 0; \
-		for (i = 0; i < numBytes; i++) { \
-			value = value | (cursor[i] << (numBytes - (8 * (i + 1)))); \
-		} \
-		cursor += numBytes; \
-	} while (0);
-
+#define J9JIMAGE_READ_BYTES_BIGENDIAN(value, cursor, numBytes)         \
+    do {                                                               \
+        I_32 i = 0;                                                    \
+        value = 0;                                                     \
+        for (i = 0; i < numBytes; i++) {                               \
+            value = value | (cursor[i] << (numBytes - (8 * (i + 1)))); \
+        }                                                              \
+        cursor += numBytes;                                            \
+    } while (0);
 
 /**
  * Error codes used by functions in jimagereader.c

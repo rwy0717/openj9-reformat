@@ -22,10 +22,9 @@
 
 #include "j9protos.h"
 
-void
-jitConvertStoredDoubleRegisterToSingle(U_64 *doublePtr, U_32 *singlePtr)
+void jitConvertStoredDoubleRegisterToSingle(U_64* doublePtr, U_32* singlePtr)
 {
-	jdouble d = *(jdouble*)doublePtr;
-	jfloat s = (jfloat)d;
-	*singlePtr = *(U_32*)&s;
+    jdouble d = *(jdouble*)doublePtr;
+    jfloat s = (jfloat)d;
+    *singlePtr = *(U_32*)&s;
 }

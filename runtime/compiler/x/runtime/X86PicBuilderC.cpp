@@ -27,8 +27,7 @@
 #include "runtime/CodeCacheManager.hpp"
 #include "runtime/J9Runtime.hpp"
 
-#define IS_32BIT_RIP(x,rip)  ((intptrj_t)(x) == (intptrj_t)(rip) + (int32_t)((intptrj_t)(x) - (intptrj_t)(rip)))
-
+#define IS_32BIT_RIP(x, rip) ((intptrj_t)(x) == (intptrj_t)(rip) + (int32_t)((intptrj_t)(x) - (intptrj_t)(rip)))
 
 // Given a RAM method, determine the appropriate interpreted dispatch glue helper
 // (or trampoline) to call and return the disp32 displacement for a direct call
@@ -60,86 +59,71 @@
 // (4)  dd    cpAddr
 // (4)  dd    cpIndex
 //
-extern "C" int32_t interpretedDispatchGlueDisp32(
-   J9Method *ramMethod,
-   uint8_t  *callSiteInSnippet)
-   {
-   TR_RuntimeHelper glueMethodIndex;
+extern "C" int32_t interpretedDispatchGlueDisp32(J9Method* ramMethod, uint8_t* callSiteInSnippet)
+{
+    TR_RuntimeHelper glueMethodIndex;
 
-   J9ROMMethod *romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(ramMethod);
+    J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(ramMethod);
 
-   if (romMethod->modifiers & J9AccNative)
-      {
-      glueMethodIndex = TR_icallVMprJavaSendNativeStatic;
-      }
-   else
-      {
-      // Get unsynchronized glue method index from snippet.
-      //
-      glueMethodIndex = (TR_RuntimeHelper)(*((uint16_t *)callSiteInSnippet));
+    if (romMethod->modifiers & J9AccNative) {
+        glueMethodIndex = TR_icallVMprJavaSendNativeStatic;
+    } else {
+        // Get unsynchronized glue method index from snippet.
+        //
+        glueMethodIndex = (TR_RuntimeHelper)(*((uint16_t*)callSiteInSnippet));
 
-      if (romMethod->modifiers & J9AccSynchronized)
-         {
-         // The glue method runtime helper indices have been arranged successively in pairs
-         // to ease the conversion from unsynchronized to synchronized.
-         //
-         glueMethodIndex = (TR_RuntimeHelper)((int32_t)glueMethodIndex+1);
-         }
-      }
+        if (romMethod->modifiers & J9AccSynchronized) {
+            // The glue method runtime helper indices have been arranged successively in pairs
+            // to ease the conversion from unsynchronized to synchronized.
+            //
+            glueMethodIndex = (TR_RuntimeHelper)((int32_t)glueMethodIndex + 1);
+        }
+    }
 
-   // Determine if the glue code can be reached directly from this code cache
-   // or whether a trampoline is necessary.
-   //
-   uint8_t *glueMethodAddress = (uint8_t *)runtimeHelperValue(glueMethodIndex);
+    // Determine if the glue code can be reached directly from this code cache
+    // or whether a trampoline is necessary.
+    //
+    uint8_t* glueMethodAddress = (uint8_t*)runtimeHelperValue(glueMethodIndex);
 
-   if (!IS_32BIT_RIP(glueMethodAddress, callSiteInSnippet))
-      {
-      glueMethodAddress = (uint8_t *)TR::CodeCacheManager::instance()->findHelperTrampoline(callSiteInSnippet, glueMethodIndex);
-      }
+    if (!IS_32BIT_RIP(glueMethodAddress, callSiteInSnippet)) {
+        glueMethodAddress
+            = (uint8_t*)TR::CodeCacheManager::instance()->findHelperTrampoline(callSiteInSnippet, glueMethodIndex);
+    }
 
-   int32_t disp32 = (int32_t)(glueMethodAddress - callSiteInSnippet);
-   return disp32;
-   }
-
+    int32_t disp32 = (int32_t)(glueMethodAddress - callSiteInSnippet);
+    return disp32;
+}
 
 // Given a recently resolved RAM method, if there is already a resolved trampoline for
 // this method in this code cache then consolidate the resolve/unresolved trampolines.
 // Return the disp32 to the dispatch glue from the snippet.
 //
 extern "C" int32_t adjustTrampolineInterpretedDispatchGlueDisp32(
-   J9Method *ramMethod,
-   void     *cpAddr,
-   int32_t   cpIndex,
-   uint8_t  *callSiteInSnippet)
-   {
-   TR::CodeCacheManager *manager = TR::CodeCacheManager::instance();
-   TR::CodeCache *codeCache = manager->findCodeCacheFromPC(callSiteInSnippet);
-   if (codeCache)
-      {
-      codeCache->adjustTrampolineReservation(reinterpret_cast<TR_OpaqueMethodBlock *>(ramMethod), cpAddr, cpIndex);
-      }
+    J9Method* ramMethod, void* cpAddr, int32_t cpIndex, uint8_t* callSiteInSnippet)
+{
+    TR::CodeCacheManager* manager = TR::CodeCacheManager::instance();
+    TR::CodeCache* codeCache = manager->findCodeCacheFromPC(callSiteInSnippet);
+    if (codeCache) {
+        codeCache->adjustTrampolineReservation(reinterpret_cast<TR_OpaqueMethodBlock*>(ramMethod), cpAddr, cpIndex);
+    }
 
-   return interpretedDispatchGlueDisp32(ramMethod, callSiteInSnippet);
-   }
+    return interpretedDispatchGlueDisp32(ramMethod, callSiteInSnippet);
+}
 
+extern "C" void adjustTrampolineInterpretedDispatchGlueDisp32_unwrapper(void** argsPtr, void** resPtr)
+{
+    int32_t disp32 = adjustTrampolineInterpretedDispatchGlueDisp32((J9Method*)argsPtr[0], // ramMethod
+        argsPtr[1], // cpAddr
+        (int32_t)(uintptr_t)argsPtr[2], // cpIndex
+        (uint8_t*)argsPtr[3]); // call site
 
-extern "C" void adjustTrampolineInterpretedDispatchGlueDisp32_unwrapper(void **argsPtr, void **resPtr)
-   {
-   int32_t disp32 = adjustTrampolineInterpretedDispatchGlueDisp32(
-        (J9Method *)argsPtr[0],  // ramMethod
-                    argsPtr[1],  // cpAddr
-(int32_t)(uintptr_t)argsPtr[2],  // cpIndex
-         (uint8_t *)argsPtr[3]); // call site
+    *resPtr = (void*)disp32;
+}
 
-   *resPtr = (void *)disp32;
-   }
+extern "C" void interpretedDispatchGlueDisp32_unwrapper(void** argsPtr, void** resPtr)
+{
+    int32_t disp32 = interpretedDispatchGlueDisp32((J9Method*)argsPtr[0], // ramMethod
+        (uint8_t*)argsPtr[1]); // call site
 
-
-extern "C" void interpretedDispatchGlueDisp32_unwrapper(void **argsPtr, void **resPtr)
-   {
-   int32_t disp32 = interpretedDispatchGlueDisp32(
-      (J9Method *)argsPtr[0],  // ramMethod
-       (uint8_t *)argsPtr[1]); // call site
-
-   *resPtr = (void *)disp32;
-   }
+    *resPtr = (void*)disp32;
+}

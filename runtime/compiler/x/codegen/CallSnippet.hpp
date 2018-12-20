@@ -26,145 +26,132 @@
 #include "codegen/Snippet.hpp"
 #include "codegen/UnresolvedDataSnippet.hpp"
 
-namespace TR { class CodeGenerator; }
-namespace TR { class Instruction; }
-namespace TR { class LabelSymbol; }
-namespace TR { class MethodSymbol; }
-namespace TR { class SymbolReference; }
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Instruction;
+}
+namespace TR {
+class LabelSymbol;
+}
+namespace TR {
+class MethodSymbol;
+}
+namespace TR {
+class SymbolReference;
+}
 
 namespace TR {
 
-class X86PicDataSnippet : public TR::Snippet
-   {
-   TR::SymbolReference *_methodSymRef;
-   TR::SymbolReference *_dispatchSymRef;
-   TR::Instruction     *_slotPatchInstruction;
-   TR::Instruction     *_startOfPicInstruction;
-   TR::LabelSymbol      *_doneLabel;
-   uint8_t            *_thunkAddress;
-   int32_t             _numberOfSlots;
-   bool                _isInterface;
-   bool                _hasJ2IThunkInPicData;
+class X86PicDataSnippet : public TR::Snippet {
+    TR::SymbolReference* _methodSymRef;
+    TR::SymbolReference* _dispatchSymRef;
+    TR::Instruction* _slotPatchInstruction;
+    TR::Instruction* _startOfPicInstruction;
+    TR::LabelSymbol* _doneLabel;
+    uint8_t* _thunkAddress;
+    int32_t _numberOfSlots;
+    bool _isInterface;
+    bool _hasJ2IThunkInPicData;
 
-   public:
+public:
+    X86PicDataSnippet(int32_t numberOfSlots, TR::Instruction* startOfPicInstruction, TR::LabelSymbol* snippetLabel,
+        TR::LabelSymbol* doneLabel, TR::SymbolReference* methodSymRef, TR::Instruction* slotPatchInstruction,
+        uint8_t* thunkAddress, bool isInterface, TR::CodeGenerator* cg)
+        : TR::Snippet(cg, NULL, snippetLabel, true)
+        , _numberOfSlots(numberOfSlots)
+        , _startOfPicInstruction(startOfPicInstruction)
+        , _methodSymRef(methodSymRef)
+        , _doneLabel(doneLabel)
+        , _slotPatchInstruction(slotPatchInstruction)
+        , _isInterface(isInterface)
+        , _dispatchSymRef(NULL)
+        , _thunkAddress(thunkAddress)
+        , _hasJ2IThunkInPicData(shouldEmitJ2IThunkPointer())
+    {}
 
-   X86PicDataSnippet(
-      int32_t              numberOfSlots,
-      TR::Instruction      *startOfPicInstruction,
-      TR::LabelSymbol       *snippetLabel,
-      TR::LabelSymbol       *doneLabel,
-      TR::SymbolReference  *methodSymRef,
-      TR::Instruction      *slotPatchInstruction,
-      uint8_t             *thunkAddress,
-      bool                 isInterface,
-      TR::CodeGenerator *cg) :
-         TR::Snippet(cg, NULL, snippetLabel, true),
-         _numberOfSlots(numberOfSlots),
-         _startOfPicInstruction(startOfPicInstruction),
-         _methodSymRef(methodSymRef),
-         _doneLabel(doneLabel),
-         _slotPatchInstruction(slotPatchInstruction),
-         _isInterface(isInterface),
-         _dispatchSymRef(NULL),
-         _thunkAddress(thunkAddress),
-         _hasJ2IThunkInPicData(shouldEmitJ2IThunkPointer())
-      {}
+    bool isInterface() { return _isInterface; }
+    int32_t getNumberOfSlots() { return _numberOfSlots; }
+    bool hasJ2IThunkInPicData() { return _hasJ2IThunkInPicData; }
 
-   bool isInterface()         {return _isInterface;}
-   int32_t getNumberOfSlots() {return _numberOfSlots;}
-   bool hasJ2IThunkInPicData() {return _hasJ2IThunkInPicData;}
+    TR::SymbolReference* getDispatchSymRef() { return _dispatchSymRef; }
+    TR::SymbolReference* getMethodSymRef() { return _methodSymRef; }
 
-   TR::SymbolReference *getDispatchSymRef() {return _dispatchSymRef;}
-   TR::SymbolReference *getMethodSymRef() {return _methodSymRef;}
+    TR::LabelSymbol* getDoneLabel() { return _doneLabel; }
 
-   TR::LabelSymbol *getDoneLabel() {return _doneLabel;}
+    bool forceUnresolvedDispatch() { return ((TR_J9VMBase*)(cg()->fe()))->forceUnresolvedDispatch(); }
 
-   bool forceUnresolvedDispatch()
-      {
-      return ((TR_J9VMBase*)(cg()->fe()))->forceUnresolvedDispatch();
-      }
+    bool unresolvedDispatch() { return _methodSymRef->isUnresolved() || forceUnresolvedDispatch(); }
 
-   bool unresolvedDispatch()
-      {
-      return _methodSymRef->isUnresolved() || forceUnresolvedDispatch();
-      }
+    uint8_t* encodeConstantPoolInfo(uint8_t* cursor);
+    uint8_t* encodeJ2IThunkPointer(uint8_t* cursor);
 
-   uint8_t *encodeConstantPoolInfo(uint8_t *cursor);
-   uint8_t *encodeJ2IThunkPointer(uint8_t *cursor);
+    virtual Kind getKind() { return (_isInterface ? IsIPicData : IsVPicData); }
 
-   virtual Kind getKind() { return (_isInterface ? IsIPicData : IsVPicData); }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
+private:
+    bool shouldEmitJ2IThunkPointer();
+};
 
-   private:
-   bool shouldEmitJ2IThunkPointer();
-   };
+class X86UnresolvedVirtualCallSnippet : public TR::UnresolvedDataSnippet {
+    TR::SymbolReference* _methodSymRef;
+    TR::Instruction* _callInstruction;
 
+public:
+    X86UnresolvedVirtualCallSnippet(
+        TR::Node* node, TR::SymbolReference* methodSymRef, TR::Instruction* callInstruction, TR::CodeGenerator* cg)
+        : TR::UnresolvedDataSnippet(cg, node, node->getSymbolReference(), false, true)
+        , _methodSymRef(methodSymRef)
+        , _callInstruction(callInstruction)
+    {
+        setDataReferenceInstruction(callInstruction);
+    }
 
-class X86UnresolvedVirtualCallSnippet : public TR::UnresolvedDataSnippet
-   {
-   TR::SymbolReference *_methodSymRef;
-   TR::Instruction  *_callInstruction;
+    TR::SymbolReference* getMethodSymRef() { return _methodSymRef; }
 
-   public:
+    virtual Kind getKind() { return (IsUnresolvedVirtualCall); }
 
-   X86UnresolvedVirtualCallSnippet(
-      TR::Node             *node,
-      TR::SymbolReference  *methodSymRef,
-      TR::Instruction   *callInstruction,
-      TR::CodeGenerator *cg) :
-         TR::UnresolvedDataSnippet(cg, node, node->getSymbolReference(), false, true),
-         _methodSymRef(methodSymRef),
-         _callInstruction(callInstruction)
-      { setDataReferenceInstruction(callInstruction); }
+    virtual uint8_t* emitSnippetBody();
 
-   TR::SymbolReference *getMethodSymRef() {return _methodSymRef;}
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual Kind getKind() { return (IsUnresolvedVirtualCall); }
+class X86CallSnippet : public TR::Snippet {
+public:
+    X86CallSnippet(TR::CodeGenerator* cg, TR::Node* n, TR::LabelSymbol* lab, bool isGCSafePoint)
+        : TR::Snippet(cg, n, lab, isGCSafePoint)
+    {
+        _realMethodSymbolReference = NULL;
+    }
 
-   virtual uint8_t *emitSnippetBody();
+    X86CallSnippet(
+        TR::CodeGenerator* cg, TR::Node* n, TR::LabelSymbol* lab, TR::SymbolReference* realSymRef, bool isGCSafePoint)
+        : TR::Snippet(cg, n, lab, isGCSafePoint)
+    {
+        _realMethodSymbolReference = realSymRef;
+    }
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual Kind getKind() { return IsCall; }
 
-   };
+    virtual uint8_t* emitSnippetBody();
 
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
 
-class X86CallSnippet : public TR::Snippet
-   {
-   public:
+    static TR_RuntimeHelper getInterpretedDispatchHelper(TR::SymbolReference*, TR::DataType, bool, TR::CodeGenerator*);
+    static TR_RuntimeHelper getDirectToInterpreterHelper(TR::MethodSymbol*, TR::DataType, bool);
 
-   X86CallSnippet(TR::CodeGenerator *cg, TR::Node * n, TR::LabelSymbol * lab, bool isGCSafePoint)
-      : TR::Snippet(cg, n, lab, isGCSafePoint)
-      {
-      _realMethodSymbolReference = NULL;
-      }
+    TR::SymbolReference* getRealMethodSymbolReference() { return _realMethodSymbolReference; }
 
-   X86CallSnippet(TR::CodeGenerator *cg, TR::Node * n, TR::LabelSymbol * lab, TR::SymbolReference* realSymRef, bool isGCSafePoint)
-      : TR::Snippet(cg, n, lab, isGCSafePoint)
-      {
-      _realMethodSymbolReference = realSymRef;
-      }
+private:
+    uint8_t* alignCursorForCodePatching(uint8_t* cursor, bool alignWithNOPs = false);
 
-   virtual Kind getKind() { return IsCall; }
+    TR::SymbolReference* _realMethodSymbolReference;
+};
 
-   virtual uint8_t *emitSnippetBody();
-
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-
-   static TR_RuntimeHelper getInterpretedDispatchHelper(TR::SymbolReference *, TR::DataType, bool, TR::CodeGenerator *);
-   static TR_RuntimeHelper getDirectToInterpreterHelper(TR::MethodSymbol *, TR::DataType, bool);
-
-   TR::SymbolReference *getRealMethodSymbolReference() { return _realMethodSymbolReference; }
-
-   private:
-
-   uint8_t * alignCursorForCodePatching(uint8_t *cursor, bool alignWithNOPs=false);
-
-   TR::SymbolReference * _realMethodSymbolReference;
-   };
-
-}
+} // namespace TR
 
 #endif

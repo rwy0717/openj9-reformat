@@ -23,27 +23,25 @@
 #ifndef ALLOCATIONSINKING_INCL
 #define ALLOCATIONSINKING_INCL
 
-#include <stddef.h>                           // for NULL
-#include <stdint.h>                           // for int32_t, uint32_t, etc
-#include "compile/Compilation.hpp"            // for Compilation
-#include "env/TRMemory.hpp"                   // for TR_Memory, etc
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stddef.h> // for NULL
+#include <stdint.h> // for int32_t, uint32_t, etc
+#include "compile/Compilation.hpp" // for Compilation
+#include "env/TRMemory.hpp" // for TR_Memory, etc
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-class TR_AllocationSinking : public TR::Optimization
-   {
-   public:
+class TR_AllocationSinking : public TR::Optimization {
+public:
+    TR_AllocationSinking(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {}
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_AllocationSinking(manager);
+    }
 
-   TR_AllocationSinking(TR::OptimizationManager *manager)
-       : TR::Optimization(manager)
-       {}
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_AllocationSinking(manager);
-      }
-
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
-   };
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
+};
 
 #endif

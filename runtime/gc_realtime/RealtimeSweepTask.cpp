@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "ut_j9mm.h"
 
 #include "EnvironmentRealtime.hpp"
@@ -30,37 +29,32 @@
 #include "RealtimeSweepTask.hpp"
 #include "SweepSchemeRealtime.hpp"
 
-void
-MM_RealtimeSweepTask::run(MM_EnvironmentBase *envBase)
+void MM_RealtimeSweepTask::run(MM_EnvironmentBase* envBase)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
-	_sweepScheme->sweep(env);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
+    _sweepScheme->sweep(env);
 }
 
-void
-MM_RealtimeSweepTask::setup(MM_EnvironmentBase *envBase)
+void MM_RealtimeSweepTask::setup(MM_EnvironmentBase* envBase)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
 
-	env->_sweepStats.clear();
+    env->_sweepStats.clear();
 
-	/* record that this thread is participating in this cycle */
-	env->_sweepStats._gcCount = MM_GCExtensions::getExtensions(env)->globalGCStats.gcCount;
+    /* record that this thread is participating in this cycle */
+    env->_sweepStats._gcCount = MM_GCExtensions::getExtensions(env)->globalGCStats.gcCount;
 }
 
-void
-MM_RealtimeSweepTask::cleanup(MM_EnvironmentBase *envBase)
+void MM_RealtimeSweepTask::cleanup(MM_EnvironmentBase* envBase)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	MM_GlobalGCStats *finalGCStats = &MM_GCExtensions::getExtensions(env)->globalGCStats;
-	finalGCStats->sweepStats.merge(&env->_sweepStats);
+    MM_GlobalGCStats* finalGCStats = &MM_GCExtensions::getExtensions(env)->globalGCStats;
+    finalGCStats->sweepStats.merge(&env->_sweepStats);
 
-	Trc_MM_RealtimeSweepTask_parallelStats(
-		env->getLanguageVMThread(),
-		(U_32)env->getSlaveID(), 
-		(U_32)j9time_hires_delta(0, env->_sweepStats.idleTime, J9PORT_TIME_DELTA_IN_MILLISECONDS), 
-		env->_sweepStats.sweepChunksProcessed, 
-		(U_32)j9time_hires_delta(0, env->_sweepStats.mergeTime, J9PORT_TIME_DELTA_IN_MILLISECONDS));
+    Trc_MM_RealtimeSweepTask_parallelStats(env->getLanguageVMThread(), (U_32)env->getSlaveID(),
+        (U_32)j9time_hires_delta(0, env->_sweepStats.idleTime, J9PORT_TIME_DELTA_IN_MILLISECONDS),
+        env->_sweepStats.sweepChunksProcessed,
+        (U_32)j9time_hires_delta(0, env->_sweepStats.mergeTime, J9PORT_TIME_DELTA_IN_MILLISECONDS));
 }

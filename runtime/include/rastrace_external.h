@@ -27,7 +27,7 @@
 #include "ute_core.h"
 #include "j9port.h"
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -41,50 +41,51 @@ extern "C" {
  * A callback may be NULL. We will NULL-check each function pointer before invoking it.
  * =============================================================================
  */
-typedef omr_error_t (*SetLanguageTraceOptionFunc)(const OMR_VM *omr_vm, const char *optName, const char* optValue, BOOLEAN atRuntime);
+typedef omr_error_t (*SetLanguageTraceOptionFunc)(
+    const OMR_VM* omr_vm, const char* optName, const char* optValue, BOOLEAN atRuntime);
 typedef void (*ReportCommandLineErrorFunc)(J9PortLibrary* portLibrary, const char* detailStr, va_list args);
 
 typedef struct OMRTraceLanguageInterface {
-	/**
-	 * Attach the current thread to the language VM.
-	 *
-	 * The trace engine invokes this callback to attach internal threads to the VM.
-	 * A sample implementation is omr_trc_defaultAttachCurrentThreadToLanguageVM().
-	 * Attached threads will be detached using the DetachCurrentThreadFromLanguageVM() callback.
-	 *
-	 * @pre The current thread is completely unattached to the VM.
-	 *
-	 * @param[in] omrVM The OMR VM.
-	 * @param[in] name The name of the current thread.
-	 * @param[out] omrVMThread Location where a pointer to a new OMR VM thread should be stored. Must not be NULL.
-	 *
-	 * @return an OMR error code
-	 */
-	omr_error_t	(*AttachCurrentThreadToLanguageVM)(OMR_VM *omrVM, const char *name, OMR_VMThread **omrVMThread);
+    /**
+     * Attach the current thread to the language VM.
+     *
+     * The trace engine invokes this callback to attach internal threads to the VM.
+     * A sample implementation is omr_trc_defaultAttachCurrentThreadToLanguageVM().
+     * Attached threads will be detached using the DetachCurrentThreadFromLanguageVM() callback.
+     *
+     * @pre The current thread is completely unattached to the VM.
+     *
+     * @param[in] omrVM The OMR VM.
+     * @param[in] name The name of the current thread.
+     * @param[out] omrVMThread Location where a pointer to a new OMR VM thread should be stored. Must not be NULL.
+     *
+     * @return an OMR error code
+     */
+    omr_error_t (*AttachCurrentThreadToLanguageVM)(OMR_VM* omrVM, const char* name, OMR_VMThread** omrVMThread);
 
-	/**
-	 * Detach the current thread from the language VM.
-	 *
-	 * The trace engine invokes this callback to detach internal threads to the VM.
-	 * A sample implementation is omr_trc_defaultDetachThreadFromLanguageVM().
-	 * The current thread should have been attached using the AttachCurrentThreadToLanguageVM() callback.
-	 *
-	 * @pre The current thread is attached to the VM.
-	 *
-	 * @param[in,out] omrVMThread The OMR VM thread.
-	 * @return an OMR error code
-	 */
-	omr_error_t (*DetachCurrentThreadFromLanguageVM)(OMR_VMThread *omrVMThread);
+    /**
+     * Detach the current thread from the language VM.
+     *
+     * The trace engine invokes this callback to detach internal threads to the VM.
+     * A sample implementation is omr_trc_defaultDetachThreadFromLanguageVM().
+     * The current thread should have been attached using the AttachCurrentThreadToLanguageVM() callback.
+     *
+     * @pre The current thread is attached to the VM.
+     *
+     * @param[in,out] omrVMThread The OMR VM thread.
+     * @return an OMR error code
+     */
+    omr_error_t (*DetachCurrentThreadFromLanguageVM)(OMR_VMThread* omrVMThread);
 
-	/**
-	 * Pass unhandled trace options for implementor to handle.
-	 */
-	SetLanguageTraceOptionFunc SetLanguageTraceOption;
+    /**
+     * Pass unhandled trace options for implementor to handle.
+     */
+    SetLanguageTraceOptionFunc SetLanguageTraceOption;
 
-	/**
-	 * Report errors with trace options to the implementor's error stream.
-	 */
-	ReportCommandLineErrorFunc ReportCommandLineError;
+    /**
+     * Report errors with trace options to the implementor's error stream.
+     */
+    ReportCommandLineErrorFunc ReportCommandLineError;
 } OMRTraceLanguageInterface;
 
 /*
@@ -114,7 +115,7 @@ typedef struct OMRTraceLanguageInterface {
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t fillInUTInterfaces(UtInterface **utIntf, UtServerInterface *utServerIntf, UtModuleInterface *utModuleIntf);
+omr_error_t fillInUTInterfaces(UtInterface** utIntf, UtServerInterface* utServerIntf, UtModuleInterface* utModuleIntf);
 
 /**
  * @brief Initialize the trace engine.
@@ -146,7 +147,8 @@ omr_error_t fillInUTInterfaces(UtInterface **utIntf, UtServerInterface *utServer
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t initializeTrace(UtThreadData **thr, void **gbl,const char **opts, const OMR_VM *vm, const char **ignore, const OMRTraceLanguageInterface *languageIntf);
+omr_error_t initializeTrace(UtThreadData** thr, void** gbl, const char** opts, const OMR_VM* vm, const char** ignore,
+    const OMRTraceLanguageInterface* languageIntf);
 
 /**
  * @brief Inform the trace engine the application has reached a point that trace can start it's own threads.
@@ -159,7 +161,7 @@ omr_error_t initializeTrace(UtThreadData **thr, void **gbl,const char **opts, co
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t startTraceWorkerThread(UtThreadData **thr);
+omr_error_t startTraceWorkerThread(UtThreadData** thr);
 
 /**
  * @brief Terminate the trace engine.
@@ -177,7 +179,7 @@ omr_error_t startTraceWorkerThread(UtThreadData **thr);
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t utTerminateTrace(UtThreadData **thr, char** daemonThreadNames);
+omr_error_t utTerminateTrace(UtThreadData** thr, char** daemonThreadNames);
 
 /**
  * @brief Free the trace engines internal data structures.
@@ -190,7 +192,7 @@ omr_error_t utTerminateTrace(UtThreadData **thr, char** daemonThreadNames);
  * @param[in] thr UtThreadData for the current thread.
  *
  */
-void freeTrace(UtThreadData **thr);
+void freeTrace(UtThreadData** thr);
 
 /**
  * @brief Notify trace that a new thread has started.
@@ -219,7 +221,8 @@ void freeTrace(UtThreadData **thr);
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t threadStart(UtThreadData **thr, const void *threadId, const char *threadName, const void *thrSynonym1, const void *thrSynonym2);
+omr_error_t threadStart(
+    UtThreadData** thr, const void* threadId, const char* threadName, const void* thrSynonym1, const void* thrSynonym2);
 
 /**
  * @brief Notify trace that a thread has stopped.
@@ -231,7 +234,7 @@ omr_error_t threadStart(UtThreadData **thr, const void *threadId, const char *th
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t threadStop(UtThreadData **thr);
+omr_error_t threadStop(UtThreadData** thr);
 
 /**
  * @brief Set trace options
@@ -262,7 +265,7 @@ omr_error_t threadStop(UtThreadData **thr);
  *
  * @return The integer debug level the trace engine is using.
  */
-omr_error_t setOptions(UtThreadData **thr, const char **opts, BOOLEAN atRuntime);
+omr_error_t setOptions(UtThreadData** thr, const char** opts, BOOLEAN atRuntime);
 
 /**
  * @brief Set the information to be included in the trace file header.
@@ -282,7 +285,7 @@ omr_error_t setOptions(UtThreadData **thr, const char **opts, BOOLEAN atRuntime)
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t setTraceHeaderInfo(const char * serviceInfo, const char * startupInfo);
+omr_error_t setTraceHeaderInfo(const char* serviceInfo, const char* startupInfo);
 
 /**
  * @brief Obtain the debug level for the trace engine.
@@ -327,7 +330,7 @@ int32_t getDebugLevel(void);
  * @param[in] spec    The trace point format specification for this trace point
  * @param[in] varArgs The va_list of parameters for this trace point.
  */
-void doTracePoint(UtThreadData **thr, UtModuleInfo *modInfo, uint32_t traceId, const char *spec, va_list varArgs);
+void doTracePoint(UtThreadData** thr, UtModuleInfo* modInfo, uint32_t traceId, const char* spec, va_list varArgs);
 
 /**
  * @brief Walk the current trace configuration options.
@@ -342,7 +345,7 @@ void doTracePoint(UtThreadData **thr, UtModuleInfo *modInfo, uint32_t traceId, c
  *
  * @return a pointer to an option string or NULL when there are no more options.
  */
-const char* walkTraceConfig(void **cursor);
+const char* walkTraceConfig(void** cursor);
 
 /*
  * =============================================================================
@@ -350,37 +353,37 @@ const char* walkTraceConfig(void **cursor);
  * =============================================================================
  */
 
-#define UT_DEBUG_KEYWORD              "DEBUG"
-#define UT_FORMAT_KEYWORD             "FORMAT"
-#define UT_SUFFIX_KEYWORD             "SUFFIX"
-#define UT_LIBPATH_KEYWORD            "LIBPATH"
-#define UT_PROPERTIES_KEYWORD         "PROPERTIES"
-#define UT_BUFFERS_KEYWORD            "BUFFERS"
-#define UT_INIT_KEYWORD               "INITIALIZATION"
-#define UT_RESET_KEYWORD              "RESETTABLE"
-#define UT_MINIMAL_KEYWORD            "MINIMAL"
-#define UT_MAXIMAL_KEYWORD            "MAXIMAL"
-#define UT_COUNT_KEYWORD              "COUNT"
-#define UT_PRINT_KEYWORD              "PRINT"
-#define UT_IPRINT_KEYWORD             "IPRINT"
-#define UT_PLATFORM_KEYWORD           "PLATFORM"
-#define UT_EXTERNAL_KEYWORD           "EXTERNAL"
-#define UT_EXCEPTION_KEYWORD          "EXCEPTION"
-#define UT_EXCEPT_OUT_KEYWORD         "EXCEPTION.OUTPUT"
-#define UT_STATE_OUT_KEYWORD          "STATE.OUTPUT"
-#define UT_NONE_KEYWORD               "NONE"
-#define UT_OUTPUT_KEYWORD             "OUTPUT"
-#define UT_LEVEL_KEYWORD              "LEVEL"
-#define UT_TRIGGER_KEYWORD            "TRIGGER"
-#define UT_SUSPEND_KEYWORD            "SUSPEND"
-#define UT_RESUME_KEYWORD             "RESUME"
-#define UT_RESUME_COUNT_KEYWORD       "RESUMECOUNT"
-#define UT_SUSPEND_COUNT_KEYWORD      "SUSPENDCOUNT"
-#define UT_ALL                        "ALL"
-#define UT_BACKTRACE                  "BACKTRACE"
-#define UT_FATAL_ASSERT_KEYWORD       "FATALASSERT"
-#define UT_NO_FATAL_ASSERT_KEYWORD    "NOFATALASSERT"
-#define UT_SLEEPTIME_KEYWORD          "SLEEPTIME"
+#define UT_DEBUG_KEYWORD "DEBUG"
+#define UT_FORMAT_KEYWORD "FORMAT"
+#define UT_SUFFIX_KEYWORD "SUFFIX"
+#define UT_LIBPATH_KEYWORD "LIBPATH"
+#define UT_PROPERTIES_KEYWORD "PROPERTIES"
+#define UT_BUFFERS_KEYWORD "BUFFERS"
+#define UT_INIT_KEYWORD "INITIALIZATION"
+#define UT_RESET_KEYWORD "RESETTABLE"
+#define UT_MINIMAL_KEYWORD "MINIMAL"
+#define UT_MAXIMAL_KEYWORD "MAXIMAL"
+#define UT_COUNT_KEYWORD "COUNT"
+#define UT_PRINT_KEYWORD "PRINT"
+#define UT_IPRINT_KEYWORD "IPRINT"
+#define UT_PLATFORM_KEYWORD "PLATFORM"
+#define UT_EXTERNAL_KEYWORD "EXTERNAL"
+#define UT_EXCEPTION_KEYWORD "EXCEPTION"
+#define UT_EXCEPT_OUT_KEYWORD "EXCEPTION.OUTPUT"
+#define UT_STATE_OUT_KEYWORD "STATE.OUTPUT"
+#define UT_NONE_KEYWORD "NONE"
+#define UT_OUTPUT_KEYWORD "OUTPUT"
+#define UT_LEVEL_KEYWORD "LEVEL"
+#define UT_TRIGGER_KEYWORD "TRIGGER"
+#define UT_SUSPEND_KEYWORD "SUSPEND"
+#define UT_RESUME_KEYWORD "RESUME"
+#define UT_RESUME_COUNT_KEYWORD "RESUMECOUNT"
+#define UT_SUSPEND_COUNT_KEYWORD "SUSPENDCOUNT"
+#define UT_ALL "ALL"
+#define UT_BACKTRACE "BACKTRACE"
+#define UT_FATAL_ASSERT_KEYWORD "FATALASSERT"
+#define UT_NO_FATAL_ASSERT_KEYWORD "NOFATALASSERT"
+#define UT_SLEEPTIME_KEYWORD "SLEEPTIME"
 
 /*
  * =============================================================================
@@ -391,22 +394,23 @@ const char* walkTraceConfig(void **cursor);
 /**
  * When a trigger was fired - before or after a tracepoint
  */
-typedef enum TriggerPhase {BEFORE_TRACEPOINT, AFTER_TRACEPOINT} TriggerPhase;
+typedef enum TriggerPhase { BEFORE_TRACEPOINT, AFTER_TRACEPOINT } TriggerPhase;
 
-typedef void (*TriggerActionFunc)(OMR_VMThread *thr); /* Function to call when performing a trigger action */
+typedef void (*TriggerActionFunc)(OMR_VMThread* thr); /* Function to call when performing a trigger action */
 
 typedef struct RasTriggerAction {
-	const char *name; /* String specified on the cmd-line to select this action */
-	TriggerPhase phase; /* When this trigger action should be fired */
-	TriggerActionFunc fn; /* Function to call when performing the action */
+    const char* name; /* String specified on the cmd-line to select this action */
+    TriggerPhase phase; /* When this trigger action should be fired */
+    TriggerActionFunc fn; /* Function to call when performing the action */
 } RasTriggerAction;
 
-typedef omr_error_t (*ParseTriggerTypeFunc)(OMR_VMThread *thr, char *opt, BOOLEAN atRuntime); /* Function to parse the options of a trigger type */
+typedef omr_error_t (*ParseTriggerTypeFunc)(
+    OMR_VMThread* thr, char* opt, BOOLEAN atRuntime); /* Function to parse the options of a trigger type */
 
 typedef struct RasTriggerType {
-	const char *name; /* String specified on the cmd-line to select this type */
-	ParseTriggerTypeFunc parse; /* Function to parse the options of this trigger type */
-	BOOLEAN runtimeModifiable; /* Whether this trigger type can be modified at runtime */
+    const char* name; /* String specified on the cmd-line to select this type */
+    ParseTriggerTypeFunc parse; /* Function to parse the options of this trigger type */
+    BOOLEAN runtimeModifiable; /* Whether this trigger type can be modified at runtime */
 } RasTriggerType;
 
 /**
@@ -423,7 +427,7 @@ typedef struct RasTriggerType {
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t addTriggerType(OMR_VMThread *thr, const struct RasTriggerType *newType);
+omr_error_t addTriggerType(OMR_VMThread* thr, const struct RasTriggerType* newType);
 
 /**
  * @brief Add a type of trace trigger action.
@@ -439,7 +443,7 @@ omr_error_t addTriggerType(OMR_VMThread *thr, const struct RasTriggerType *newTy
  *
  * @return OMR_ERROR_NONE if successful, an error code describing the failure otherwise.
  */
-omr_error_t addTriggerAction(OMR_VMThread *thr, const struct RasTriggerAction *newAction);
+omr_error_t addTriggerAction(OMR_VMThread* thr, const struct RasTriggerAction* newAction);
 
 /**
  * Convert the name of a trigger action into its entry in the rasTriggerActions array.
@@ -449,9 +453,9 @@ omr_error_t addTriggerAction(OMR_VMThread *thr, const struct RasTriggerAction *n
  *
  * @return Trigger action or NULL
  */
-const struct RasTriggerAction *parseTriggerAction(OMR_VMThread *thr, const char *name, BOOLEAN atRuntime);
+const struct RasTriggerAction* parseTriggerAction(OMR_VMThread* thr, const char* name, BOOLEAN atRuntime);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

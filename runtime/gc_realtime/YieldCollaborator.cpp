@@ -23,52 +23,51 @@
 
 #include "Task.hpp"
 
-void
-MM_YieldCollaborator::resumeSlavesFromYield(MM_EnvironmentBase *env)
+void MM_YieldCollaborator::resumeSlavesFromYield(MM_EnvironmentBase* env)
 {
-	omrthread_monitor_enter(*_mutex);
-	_yieldCount = 0;
-	_yieldIndex += 1;
-	_resumeEvent = fromYield;
-	omrthread_monitor_notify_all(*_mutex);
-	omrthread_monitor_exit(*_mutex);
+    omrthread_monitor_enter(*_mutex);
+    _yieldCount = 0;
+    _yieldIndex += 1;
+    _resumeEvent = fromYield;
+    omrthread_monitor_notify_all(*_mutex);
+    omrthread_monitor_exit(*_mutex);
 }
-void
-MM_YieldCollaborator::yield(MM_EnvironmentBase *env)
+void MM_YieldCollaborator::yield(MM_EnvironmentBase* env)
 {
-	omrthread_monitor_enter(*_mutex);
+    omrthread_monitor_enter(*_mutex);
 
-	_yieldCount += 1;
-	UDATA index = _yieldIndex;
-	
-	/* because of sync sections nesting we have to do >= (instead of ==) */
-	if (_yieldCount + *_count >= env->_currentTask->getThreadCount() || env->_currentTask->isSynchronized() /* only master active */) {
-		/* CMVC 142132 We change the resume event, even if we are master thread (ie we do not explicitely notify ourselves).
-		 * This is to "clear" any pending event (like newPacket) that may wake up slave after this point
-		 * (when master thread thinks that every other GC thread is blocked) */
-		_resumeEvent = notifyMaster;
-		if (env->isMasterThread()) {
-			/* all slaves yielded/blocked - return right away */
-			omrthread_monitor_exit(*_mutex);
-			return;
-		} else {
-			/* notify master last thread synced/yielded */
-			omrthread_monitor_notify_all(*_mutex);
-		}
-	}
-	
-	/* yielding */
-	if (env->isMasterThread()) {
-		do {
-			/* master waiting for slaves to notify all of them synced/yielded */
-			omrthread_monitor_wait(*_mutex);
-		} while (_resumeEvent != notifyMaster);
-	} else {
-		do {
-			/* slaves waiting for master to notify about the start of new quantum */
-			omrthread_monitor_wait(*_mutex);
-		} while (index == _yieldIndex);	
-	}
-	
-	omrthread_monitor_exit(*_mutex);
+    _yieldCount += 1;
+    UDATA index = _yieldIndex;
+
+    /* because of sync sections nesting we have to do >= (instead of ==) */
+    if (_yieldCount + *_count >= env->_currentTask->getThreadCount()
+        || env->_currentTask->isSynchronized() /* only master active */) {
+        /* CMVC 142132 We change the resume event, even if we are master thread (ie we do not explicitely notify
+         * ourselves). This is to "clear" any pending event (like newPacket) that may wake up slave after this point
+         * (when master thread thinks that every other GC thread is blocked) */
+        _resumeEvent = notifyMaster;
+        if (env->isMasterThread()) {
+            /* all slaves yielded/blocked - return right away */
+            omrthread_monitor_exit(*_mutex);
+            return;
+        } else {
+            /* notify master last thread synced/yielded */
+            omrthread_monitor_notify_all(*_mutex);
+        }
+    }
+
+    /* yielding */
+    if (env->isMasterThread()) {
+        do {
+            /* master waiting for slaves to notify all of them synced/yielded */
+            omrthread_monitor_wait(*_mutex);
+        } while (_resumeEvent != notifyMaster);
+    } else {
+        do {
+            /* slaves waiting for master to notify about the start of new quantum */
+            omrthread_monitor_wait(*_mutex);
+        } while (index == _yieldIndex);
+    }
+
+    omrthread_monitor_exit(*_mutex);
 }

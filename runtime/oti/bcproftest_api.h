@@ -24,13 +24,13 @@
 #define bcproftest_api_h
 
 /**
-* @file bcproftest_api.h
-* @brief Public API for the BCPROFTEST module.
-*
-* This file contains public function prototypes and
-* type definitions for the BCPROFTEST module.
-*
-*/
+ * @file bcproftest_api.h
+ * @brief Public API for the BCPROFTEST module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the BCPROFTEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,14 +43,13 @@ extern "C" {
 /* ---------------- bcproftest.c ---------------- */
 
 /**
-* @brief
-* @param *jvm
-* @param options
-* @param *reserved
-* @return jint
-*/
-jint JNICALL 
-JVM_OnLoad( JavaVM *jvm, char* options, void *reserved );
+ * @brief
+ * @param *jvm
+ * @param options
+ * @param *reserved
+ * @return jint
+ */
+jint JNICALL JVM_OnLoad(JavaVM* jvm, char* options, void* reserved);
 
 #ifdef __cplusplus
 }

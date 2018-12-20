@@ -31,35 +31,40 @@
 
 class MM_GCExtensions;
 
-class MM_EnvironmentStaccato : public MM_EnvironmentRealtime
-{
-/* Data section */
+class MM_EnvironmentStaccato : public MM_EnvironmentRealtime {
+    /* Data section */
 public:
 protected:
 private:
-
-/* Functionality Section */
+    /* Functionality Section */
 public:
-	static MM_EnvironmentStaccato *newInstance(MM_GCExtensionsBase *extensions, OMR_VMThread *omrVMThread);
-	virtual void kill();
+    static MM_EnvironmentStaccato* newInstance(MM_GCExtensionsBase* extensions, OMR_VMThread* omrVMThread);
+    virtual void kill();
 
-	MMINLINE static MM_EnvironmentStaccato *getEnvironment(J9VMThread *vmThread) { return (MM_EnvironmentStaccato *)vmThread->gcExtensions; }
-	MMINLINE static MM_EnvironmentStaccato *getEnvironment(MM_EnvironmentRealtime *ptr) { return (MM_EnvironmentStaccato *)ptr; }
-	MMINLINE static MM_EnvironmentStaccato *getEnvironment(MM_EnvironmentBase *ptr) { return (MM_EnvironmentStaccato *)ptr; }	
+    MMINLINE static MM_EnvironmentStaccato* getEnvironment(J9VMThread* vmThread)
+    {
+        return (MM_EnvironmentStaccato*)vmThread->gcExtensions;
+    }
+    MMINLINE static MM_EnvironmentStaccato* getEnvironment(MM_EnvironmentRealtime* ptr)
+    {
+        return (MM_EnvironmentStaccato*)ptr;
+    }
+    MMINLINE static MM_EnvironmentStaccato* getEnvironment(MM_EnvironmentBase* ptr)
+    {
+        return (MM_EnvironmentStaccato*)ptr;
+    }
 
-	MM_EnvironmentStaccato(OMR_VMThread *omrVMThread) :
-		MM_EnvironmentRealtime(omrVMThread)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
+    MM_EnvironmentStaccato(OMR_VMThread* omrVMThread)
+        : MM_EnvironmentRealtime(omrVMThread)
+    {
+        _typeId = __FUNCTION__;
+    }
+
 protected:
-	virtual bool initialize(MM_GCExtensionsBase *extensions);
-	virtual void tearDown(MM_GCExtensionsBase *extensions);
-	
+    virtual bool initialize(MM_GCExtensionsBase* extensions);
+    virtual void tearDown(MM_GCExtensionsBase* extensions);
+
 private:
-	
 };
 
 #endif /* ENVIRONMENTSTACCATO_HPP_ */
-

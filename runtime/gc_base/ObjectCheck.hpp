@@ -24,7 +24,6 @@
 #if !defined(OBJECTCHECK_HPP_)
 #define OBJECTCHECK_HPP_
 
-
 #include "j9.h"
 #include "j9cfg.h"
 #include "modron.h"
@@ -32,9 +31,8 @@
 
 extern "C" {
 
-UDATA j9gc_ext_check_is_valid_heap_object(J9JavaVM *javaVM, J9Object *ptr, UDATA flags);
+UDATA j9gc_ext_check_is_valid_heap_object(J9JavaVM* javaVM, J9Object* ptr, UDATA flags);
 
 } /* extern "C" */
 
 #endif /* OBJECTCHECK_HPP_ */
-

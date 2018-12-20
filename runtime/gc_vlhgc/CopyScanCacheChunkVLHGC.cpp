@@ -30,53 +30,49 @@
 #include "EnvironmentVLHGC.hpp"
 #include "GCExtensions.hpp"
 
-
-MM_CopyScanCacheChunkVLHGC *
-MM_CopyScanCacheChunkVLHGC::newInstance(MM_EnvironmentVLHGC*env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk)
+MM_CopyScanCacheChunkVLHGC* MM_CopyScanCacheChunkVLHGC::newInstance(MM_EnvironmentVLHGC* env, UDATA cacheEntryCount,
+    MM_CopyScanCacheVLHGC** nextCacheAddr, MM_CopyScanCacheChunkVLHGC* nextChunk)
 {
-	MM_CopyScanCacheChunkVLHGC *chunk;
-	
-	chunk = (MM_CopyScanCacheChunkVLHGC *)env->getForge()->allocate(sizeof(MM_CopyScanCacheChunkVLHGC) + cacheEntryCount * sizeof(MM_CopyScanCacheVLHGC), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (chunk) {
-		new(chunk) MM_CopyScanCacheChunkVLHGC();
-		if(!chunk->initialize(env, cacheEntryCount, nextCacheAddr, nextChunk)) {
-			chunk->kill(env);
-			return NULL;
-		}
-	}
-	return chunk;	
+    MM_CopyScanCacheChunkVLHGC* chunk;
+
+    chunk = (MM_CopyScanCacheChunkVLHGC*)env->getForge()->allocate(
+        sizeof(MM_CopyScanCacheChunkVLHGC) + cacheEntryCount * sizeof(MM_CopyScanCacheVLHGC),
+        MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (chunk) {
+        new (chunk) MM_CopyScanCacheChunkVLHGC();
+        if (!chunk->initialize(env, cacheEntryCount, nextCacheAddr, nextChunk)) {
+            chunk->kill(env);
+            return NULL;
+        }
+    }
+    return chunk;
 }
 
-void
-MM_CopyScanCacheChunkVLHGC::kill(MM_EnvironmentVLHGC *env)
+void MM_CopyScanCacheChunkVLHGC::kill(MM_EnvironmentVLHGC* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-
-bool
-MM_CopyScanCacheChunkVLHGC::initialize(MM_EnvironmentVLHGC *env, UDATA cacheEntryCount, MM_CopyScanCacheVLHGC **nextCacheAddr, MM_CopyScanCacheChunkVLHGC *nextChunk)
+bool MM_CopyScanCacheChunkVLHGC::initialize(MM_EnvironmentVLHGC* env, UDATA cacheEntryCount,
+    MM_CopyScanCacheVLHGC** nextCacheAddr, MM_CopyScanCacheChunkVLHGC* nextChunk)
 {
-	_baseCache = (MM_CopyScanCacheVLHGC *)(this + 1);
-	_nextChunk = nextChunk;
-	
-	MM_CopyScanCacheVLHGC *currentCache = _baseCache + cacheEntryCount;
+    _baseCache = (MM_CopyScanCacheVLHGC*)(this + 1);
+    _nextChunk = nextChunk;
 
-	while(--currentCache >= _baseCache) {
-		new(currentCache) MM_CopyScanCacheVLHGC();
-		currentCache->next = *nextCacheAddr;
-		*nextCacheAddr = currentCache;
-	}
-	
-	return true;
+    MM_CopyScanCacheVLHGC* currentCache = _baseCache + cacheEntryCount;
+
+    while (--currentCache >= _baseCache) {
+        new (currentCache) MM_CopyScanCacheVLHGC();
+        currentCache->next = *nextCacheAddr;
+        *nextCacheAddr = currentCache;
+    }
+
+    return true;
 }
 
-void
-MM_CopyScanCacheChunkVLHGC::tearDown(MM_EnvironmentVLHGC *env)
+void MM_CopyScanCacheChunkVLHGC::tearDown(MM_EnvironmentVLHGC* env)
 {
-	_baseCache = NULL;
-	_nextChunk = NULL;
+    _baseCache = NULL;
+    _nextChunk = NULL;
 }
-
-

@@ -28,7 +28,7 @@ extern "C" {
 #include "main.h"
 }
 
-#define SHM_REGIONSIZE 1024*1024
+#define SHM_REGIONSIZE 1024 * 1024
 
 #include "OSCacheTest.hpp"
 
@@ -39,26 +39,27 @@ extern "C" {
 #define OSCACHETESTMMAP_CMDLINE_MUTEXHANG OSCACHETESTMMAP_CMDLINE_PREFIX "mutexhang"
 #define OSCACHETESTMMAP_CMDLINE_DESTROY OSCACHETESTMMAP_CMDLINE_PREFIX "destroy"
 
-#define CACHE_SIZE 1024*1024
+#define CACHE_SIZE 1024 * 1024
 
 class SH_OSCachemmap;
 
 class SH_OSCacheTestMmap {
 public:
-	/* Main function to run all the tests */
-	static IDATA runTests(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char *cmdline);
-	static J9VMThread *currentThread;
-	
+    /* Main function to run all the tests */
+    static IDATA runTests(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char* cmdline);
+    static J9VMThread* currentThread;
+
 private:
-	/* Each test is a private function in the class */
-	static IDATA testBasic(J9PortLibrary *portLibrary, J9JavaVM *vm);
-	static IDATA testConstructor(J9PortLibrary *portLibrary, J9JavaVM *vm);
-	static IDATA testFailedConstructor(J9PortLibrary *portLibrary, J9JavaVM *vm);
-	static IDATA testMultipleCreate(J9PortLibrary* portLibrary, J9JavaVM *vm, struct j9cmdlineOptions* arg, UDATA child);
-	static IDATA testGetAllCacheStatistics(J9JavaVM* vm);
-	static IDATA testMutex(J9PortLibrary* portLibrary, J9JavaVM *vm, struct j9cmdlineOptions* arg, UDATA child);
-	static IDATA testMutexHang(J9PortLibrary* portLibrary, J9JavaVM *vm, struct j9cmdlineOptions* arg, UDATA child);
-	static IDATA testDestroy(J9PortLibrary* portLibrary, J9JavaVM *vm, struct j9cmdlineOptions* arg, UDATA child);
+    /* Each test is a private function in the class */
+    static IDATA testBasic(J9PortLibrary* portLibrary, J9JavaVM* vm);
+    static IDATA testConstructor(J9PortLibrary* portLibrary, J9JavaVM* vm);
+    static IDATA testFailedConstructor(J9PortLibrary* portLibrary, J9JavaVM* vm);
+    static IDATA testMultipleCreate(
+        J9PortLibrary* portLibrary, J9JavaVM* vm, struct j9cmdlineOptions* arg, UDATA child);
+    static IDATA testGetAllCacheStatistics(J9JavaVM* vm);
+    static IDATA testMutex(J9PortLibrary* portLibrary, J9JavaVM* vm, struct j9cmdlineOptions* arg, UDATA child);
+    static IDATA testMutexHang(J9PortLibrary* portLibrary, J9JavaVM* vm, struct j9cmdlineOptions* arg, UDATA child);
+    static IDATA testDestroy(J9PortLibrary* portLibrary, J9JavaVM* vm, struct j9cmdlineOptions* arg, UDATA child);
 };
 
 #endif /* OSCACHETESTMMAP_HPP_INCLUDED */

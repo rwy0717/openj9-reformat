@@ -26,14 +26,11 @@
 extern "C" {
 #endif
 
-J9AVLTree * jit_allocate_artifacts(J9PortLibrary * portLibrary);
-J9JITHashTable *avl_jit_artifact_insert_existing_table(J9AVLTree * tree, J9JITHashTable * hashTable);
-
+J9AVLTree* jit_allocate_artifacts(J9PortLibrary* portLibrary);
+J9JITHashTable* avl_jit_artifact_insert_existing_table(J9AVLTree* tree, J9JITHashTable* hashTable);
 
 #ifdef __cplusplus
 }
 #endif
 
-
-#endif     /* cache_h */
-
+#endif /* cache_h */

@@ -30,22 +30,20 @@
 #define J9_MAX_DUMP_PATH EsMaxPath
 
 #ifdef WIN32
-#define J9_TMP_DUMP_NAME  "C:\\Temp"
+#define J9_TMP_DUMP_NAME "C:\\Temp"
 #else
-#define J9_TMP_DUMP_NAME  "/tmp"
+#define J9_TMP_DUMP_NAME "/tmp"
 #endif
-
 
 UDATA lockConfigForUse(void);
 UDATA lockConfigForUpdate(void);
 UDATA unlockConfig(void);
 
-
 /* Note: these must match the definitions in dmpmap.c */
-#define DUMP_ENABLED(x)	( rasDumpAgentEnabled & (1<<(x)) )
-#define ENABLE_DUMP(x)		( rasDumpAgentEnabled |= (1<<(x)) )
-#define IGNORE_DUMP(x)		( rasDumpAgentEnabled &= ~(1<<(x)) )
-#define NO_DUMPS				( rasDumpAgentEnabled = 0 )
+#define DUMP_ENABLED(x) (rasDumpAgentEnabled & (1 << (x)))
+#define ENABLE_DUMP(x) (rasDumpAgentEnabled |= (1 << (x)))
+#define IGNORE_DUMP(x) (rasDumpAgentEnabled &= ~(1 << (x)))
+#define NO_DUMPS (rasDumpAgentEnabled = 0)
 
 /* GLOBAL: dump agent bitvectors */
 extern UDATA rasDumpAgentEnabled;
@@ -56,6 +54,4 @@ extern const UDATA j9RasDumpKnownSpecs;
  */
 extern char* dumpDirectoryPrefix;
 
-#endif     /* dmpsup_h */
-
-
+#endif /* dmpsup_h */

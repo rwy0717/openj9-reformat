@@ -32,23 +32,22 @@
 
 #if defined(J9VM_GC_REALTIME)
 
-class MM_VerboseEventMetronomeCycleStart : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeCycleStart : public MM_VerboseEvent {
 private:
-	UDATA _heapFree; /**< Heap free bytes at the start of a GC cycle */ 
-public:	
-	static MM_VerboseEvent *newInstance(MM_GCCycleStartEvent *event, J9HookInterface** hookInterface);
+    UDATA _heapFree; /**< Heap free bytes at the start of a GC cycle */
+public:
+    static MM_VerboseEvent* newInstance(MM_GCCycleStartEvent* event, J9HookInterface** hookInterface);
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return true; }
-	MMINLINE virtual bool endsEventChain(void) { return true; }
-	
-	MM_VerboseEventMetronomeCycleStart(MM_GCCycleStartEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->omrVMThread, event->timestamp, event->eventid, hookInterface),
-		_heapFree(event->commonData->tenureFreeBytes)
-	{}
+    MMINLINE virtual bool definesOutputRoutine(void) { return true; }
+    MMINLINE virtual bool endsEventChain(void) { return true; }
+
+    MM_VerboseEventMetronomeCycleStart(MM_GCCycleStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->omrVMThread, event->timestamp, event->eventid, hookInterface)
+        , _heapFree(event->commonData->tenureFreeBytes)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

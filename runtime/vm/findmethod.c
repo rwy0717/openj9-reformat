@@ -25,70 +25,65 @@
 #include "rommeth.h"
 #include "vm_internal.h"
 
-
-J9ROMClass * 
-findROMClassInSegment(J9VMThread *vmThread, J9MemorySegment *memorySegment, UDATA methodPC)
+J9ROMClass* findROMClassInSegment(J9VMThread* vmThread, J9MemorySegment* memorySegment, UDATA methodPC)
 {
-	UDATA currentClass = (UDATA) memorySegment->heapBase;
-	UDATA usedEnd = (UDATA) memorySegment->heapAlloc;
+    UDATA currentClass = (UDATA)memorySegment->heapBase;
+    UDATA usedEnd = (UDATA)memorySegment->heapAlloc;
 
-	/* linear walk of the segment until we find the class that contains methodPC */
+    /* linear walk of the segment until we find the class that contains methodPC */
 
-	while (currentClass < usedEnd) {
-		UDATA currentSize = ((J9ROMClass *) currentClass)->romSize;
-		UDATA nextClass = currentClass + currentSize;
+    while (currentClass < usedEnd) {
+        UDATA currentSize = ((J9ROMClass*)currentClass)->romSize;
+        UDATA nextClass = currentClass + currentSize;
 
-		if ((methodPC >= currentClass) && (methodPC < nextClass)) {
-			return (J9ROMClass *) currentClass;
-		}
+        if ((methodPC >= currentClass) && (methodPC < nextClass)) {
+            return (J9ROMClass*)currentClass;
+        }
 
-		currentClass = nextClass;
-	}
+        currentClass = nextClass;
+    }
 
-	return NULL;
+    return NULL;
 }
 
-J9ROMMethod * 
-findROMMethodInROMClass(J9VMThread *vmThread, J9ROMClass *romClass, UDATA methodPC, UDATA *offset)
+J9ROMMethod* findROMMethodInROMClass(J9VMThread* vmThread, J9ROMClass* romClass, UDATA methodPC, UDATA* offset)
 {
-	J9ROMMethod *currentMethod = J9ROMCLASS_ROMMETHODS(romClass);
-	U_32 i;
+    J9ROMMethod* currentMethod = J9ROMCLASS_ROMMETHODS(romClass);
+    U_32 i;
 
-	/* walk the romClass and find the method */
+    /* walk the romClass and find the method */
 
-	for (i = 0; i < romClass->romMethodCount; i++) {
-		if ((methodPC >= (UDATA)currentMethod) && (methodPC < (UDATA)J9_BYTECODE_END_FROM_ROM_METHOD(currentMethod))) {
-			 /* found the method */
-			if (offset != NULL) {
-				*offset = i;
-			}
-			return currentMethod;
-		}
-		currentMethod = nextROMMethod(currentMethod);
-	}
+    for (i = 0; i < romClass->romMethodCount; i++) {
+        if ((methodPC >= (UDATA)currentMethod) && (methodPC < (UDATA)J9_BYTECODE_END_FROM_ROM_METHOD(currentMethod))) {
+            /* found the method */
+            if (offset != NULL) {
+                *offset = i;
+            }
+            return currentMethod;
+        }
+        currentMethod = nextROMMethod(currentMethod);
+    }
 
-	return NULL;
+    return NULL;
 }
 
-J9ROMClass * 
-findROMClassFromPC(J9VMThread *vmThread, UDATA methodPC, J9ClassLoader **resultClassLoader)
+J9ROMClass* findROMClassFromPC(J9VMThread* vmThread, UDATA methodPC, J9ClassLoader** resultClassLoader)
 {
-	J9JavaVM *javaVM = vmThread->javaVM;
-	J9MemorySegment *segmentForClass;
-	J9ROMClass *romClass = NULL;
+    J9JavaVM* javaVM = vmThread->javaVM;
+    J9MemorySegment* segmentForClass;
+    J9ROMClass* romClass = NULL;
 
-	omrthread_monitor_enter(javaVM->classTableMutex);
-	omrthread_monitor_enter(javaVM->classMemorySegments->segmentMutex);
+    omrthread_monitor_enter(javaVM->classTableMutex);
+    omrthread_monitor_enter(javaVM->classMemorySegments->segmentMutex);
 
-	segmentForClass = findMemorySegment(javaVM, javaVM->classMemorySegments, methodPC);
-	if (segmentForClass != NULL && (segmentForClass->type & MEMORY_TYPE_ROM_CLASS) != 0) {
-		romClass = findROMClassInSegment(vmThread, segmentForClass, methodPC);
-		*resultClassLoader = segmentForClass->classLoader;
-	}
+    segmentForClass = findMemorySegment(javaVM, javaVM->classMemorySegments, methodPC);
+    if (segmentForClass != NULL && (segmentForClass->type & MEMORY_TYPE_ROM_CLASS) != 0) {
+        romClass = findROMClassInSegment(vmThread, segmentForClass, methodPC);
+        *resultClassLoader = segmentForClass->classLoader;
+    }
 
-	omrthread_monitor_exit(javaVM->classMemorySegments->segmentMutex);
-	omrthread_monitor_exit(javaVM->classTableMutex);
+    omrthread_monitor_exit(javaVM->classMemorySegments->segmentMutex);
+    omrthread_monitor_exit(javaVM->classTableMutex);
 
-	return romClass;
+    return romClass;
 }
-

@@ -22,8 +22,4 @@
 
 #include "j9comp.h"
 
-extern "C" U_8 sizeofBool(void)
-{
-	return sizeof(bool);
-}
-
+extern "C" U_8 sizeofBool(void) { return sizeof(bool); }

@@ -20,21 +20,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "wdbgglue.h"
 
-DECLARE_API(j9help) {
-	dbgext_j9help(args);
-}
+DECLARE_API(j9help) { dbgext_j9help(args); }
 
-DECLARE_API(findvm) {
-	dbgext_findvm(args);
-}
+DECLARE_API(findvm) { dbgext_findvm(args); }
 
-DECLARE_API(trprint) {
-	dbgext_trprint(args);
-}
+DECLARE_API(trprint) { dbgext_trprint(args); }
 
-DECLARE_API(setvm) {
-	dbgext_setvm(args);
-}
+DECLARE_API(setvm) { dbgext_setvm(args); }

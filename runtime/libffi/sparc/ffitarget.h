@@ -41,19 +41,19 @@
 #endif
 
 #ifndef LIBFFI_ASM
-typedef unsigned long          ffi_arg;
-typedef signed long            ffi_sarg;
+typedef unsigned long ffi_arg;
+typedef signed long ffi_sarg;
 
 typedef enum ffi_abi {
-  FFI_FIRST_ABI = 0,
-  FFI_V8,
-  FFI_V8PLUS,
-  FFI_V9,
-  FFI_LAST_ABI,
+    FFI_FIRST_ABI = 0,
+    FFI_V8,
+    FFI_V8PLUS,
+    FFI_V9,
+    FFI_LAST_ABI,
 #ifdef SPARC64
-  FFI_DEFAULT_ABI = FFI_V9
+    FFI_DEFAULT_ABI = FFI_V9
 #else
-  FFI_DEFAULT_ABI = FFI_V8
+    FFI_DEFAULT_ABI = FFI_V8
 #endif
 } ffi_abi;
 #endif
@@ -70,4 +70,3 @@ typedef enum ffi_abi {
 #endif
 
 #endif
-

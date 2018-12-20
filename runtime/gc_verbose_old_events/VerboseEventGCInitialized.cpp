@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventGCInitialized.hpp"
 #include "GCExtensions.hpp"
 #include "VerboseEventStream.hpp"
@@ -33,16 +33,16 @@
  * Create an new instance of a MM_VerboseEventGCInitialized event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventGCInitialized::newInstance(MM_InitializedEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventGCInitialized::newInstance(MM_InitializedEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventGCInitialized *eventObject;
-			
-	eventObject = (MM_VerboseEventGCInitialized *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventGCInitialized));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventGCInitialized(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventGCInitialized* eventObject;
+
+    eventObject = (MM_VerboseEventGCInitialized*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventGCInitialized));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventGCInitialized(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -50,76 +50,101 @@ MM_VerboseEventGCInitialized::newInstance(MM_InitializedEvent *event, J9HookInte
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventGCInitialized::consumeEvents(void)
-{
-}
+void MM_VerboseEventGCInitialized::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventGCInitialized::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventGCInitialized::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	UDATA indentLevel = _manager->getIndentLevel();
-	char timestamp[32];
-	jint i;
-	JavaVMInitArgs* vmArgs = static_cast<J9VMThread*>(_omrThread->_language_vmthread)->javaVM->vmArgsArray->actualVMArgs;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    UDATA indentLevel = _manager->getIndentLevel();
+    char timestamp[32];
+    jint i;
+    JavaVMInitArgs* vmArgs
+        = static_cast<J9VMThread*>(_omrThread->_language_vmthread)->javaVM->vmArgsArray->actualVMArgs;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
 
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<initialized timestamp=\"%s\" >", timestamp);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", _event.gcPolicy);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", _event.maxHeapSize);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", _event.initialHeapSize);
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<initialized timestamp=\"%s\" >", timestamp);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"gcPolicy\" value=\"%s\" />", _event.gcPolicy);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", _event.maxHeapSize);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", _event.initialHeapSize);
 #if defined(J9VM_GC_COMPRESSED_POINTERS)
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"compressedRefs\" value=\"true\" />");
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"compressedRefsDisplacement\" value=\"0x%zx\" />", 0);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"compressedRefsShift\" value=\"0x%zx\" />", _event.compressedPointersShift);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"compressedRefs\" value=\"true\" />");
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"compressedRefsDisplacement\" value=\"0x%zx\" />", 0);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"compressedRefsShift\" value=\"0x%zx\" />", _event.compressedPointersShift);
 #else /* defined(J9VM_GC_COMPRESSED_POINTERS) */
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"compressedRefs\" value=\"false\" />");
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"compressedRefs\" value=\"false\" />");
 #endif /* defined(J9VM_GC_COMPRESSED_POINTERS) */
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"pageSize\" value=\"0x%zx\" />", _event.heapPageSize);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"pageType\" value=\"%s\" />", _event.heapPageType);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", _event.heapRequestedPageSize);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", _event.heapRequestedPageType);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", _event.gcThreads);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"pageSize\" value=\"0x%zx\" />", _event.heapPageSize);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"pageType\" value=\"%s\" />", _event.heapPageType);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", _event.heapRequestedPageSize);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"requestedPageType\" value=\"%s\" />", _event.heapRequestedPageType);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"gcthreads\" value=\"%zu\" />", _event.gcThreads);
 
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<system>");
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"physicalMemory\" value=\"%llu\" />", _event.physicalMemory);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"numCPUs\" value=\"%zu\" />", _event.numCPUs);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"architecture\" value=\"%s\" />", _event.architecture);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"os\" value=\"%s\" />", _event.os);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"osVersion\" value=\"%s\" />", _event.osVersion);
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</system>");
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<system>");
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+        "<attribute name=\"physicalMemory\" value=\"%llu\" />", _event.physicalMemory);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+        "<attribute name=\"numCPUs\" value=\"%zu\" />", _event.numCPUs);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+        "<attribute name=\"architecture\" value=\"%s\" />", _event.architecture);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+        "<attribute name=\"os\" value=\"%s\" />", _event.os);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+        "<attribute name=\"osVersion\" value=\"%s\" />", _event.osVersion);
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</system>");
 
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<vmargs>");
-	for (i = 0; i < vmArgs->nOptions; ++i) {
-		char escapedXMLString[128];
-		UDATA optLen = strlen(vmArgs->options[i].optionString);
-		UDATA escapeConsumed = escapeXMLString(OMRPORTLIB, escapedXMLString, sizeof(escapedXMLString), vmArgs->options[i].optionString, optLen);
-		const char* dots = (escapeConsumed < optLen) ? "..." : "";
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<vmarg name=\"%s%s\" value=\"0x%p\" />", escapedXMLString, dots, vmArgs->options[i].extraInfo);
-	}
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</vmargs>");
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<vmargs>");
+    for (i = 0; i < vmArgs->nOptions; ++i) {
+        char escapedXMLString[128];
+        UDATA optLen = strlen(vmArgs->options[i].optionString);
+        UDATA escapeConsumed = escapeXMLString(
+            OMRPORTLIB, escapedXMLString, sizeof(escapedXMLString), vmArgs->options[i].optionString, optLen);
+        const char* dots = (escapeConsumed < optLen) ? "..." : "";
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<vmarg name=\"%s%s\" value=\"0x%p\" />", escapedXMLString, dots, vmArgs->options[i].extraInfo);
+    }
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</vmargs>");
 
-	if (extensions->isMetronomeGC()) {
+    if (extensions->isMetronomeGC()) {
 #if defined(J9VM_GC_REALTIME)
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<metronome>");
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"beatsPerMeasure\" value=\"%zu\" />", _event.beat);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"timeInterval\" value=\"%zu\" />", _event.timeWindow);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"targetUtilization\" value=\"%zu\" />", _event.targetUtilization);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"trigger\" value=\"0x%zx\" />", _event.gcTrigger);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2, "<attribute name=\"headRoom\" value=\"0x%zx\" />", _event.headRoom);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</metronome>");
+        agent->formatAndOutput(
+            static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<metronome>");
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<attribute name=\"beatsPerMeasure\" value=\"%zu\" />", _event.beat);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<attribute name=\"timeInterval\" value=\"%zu\" />", _event.timeWindow);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<attribute name=\"targetUtilization\" value=\"%zu\" />", _event.targetUtilization);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<attribute name=\"trigger\" value=\"0x%zx\" />", _event.gcTrigger);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 2,
+            "<attribute name=\"headRoom\" value=\"0x%zx\" />", _event.headRoom);
+        agent->formatAndOutput(
+            static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "</metronome>");
 #endif /* J9VM_GC_REALTIME */
-	}
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1, "<attribute name=\"numaNodes\" value=\"%zu\" />", _event.numaNodes);
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</initialized>");
-	_manager->setInitializedTime(getTimeStamp());
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    }
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel + 1,
+        "<attribute name=\"numaNodes\" value=\"%zu\" />", _event.numaNodes);
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</initialized>");
+    _manager->setInitializedTime(getTimeStamp());
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }

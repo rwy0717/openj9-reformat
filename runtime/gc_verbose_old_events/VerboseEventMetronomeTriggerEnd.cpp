@@ -34,16 +34,17 @@
  * Create an new instance of a MM_VerboseEvent_Metronome_Trigger_End event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeTriggerEnd::newInstance(MM_MetronomeTriggerEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeTriggerEnd::newInstance(
+    MM_MetronomeTriggerEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeTriggerEnd *eventObject;
-	
-	eventObject = (MM_VerboseEventMetronomeTriggerEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeTriggerEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeTriggerEnd(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeTriggerEnd* eventObject;
+
+    eventObject = (MM_VerboseEventMetronomeTriggerEnd*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventMetronomeTriggerEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeTriggerEnd(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -51,36 +52,31 @@ MM_VerboseEventMetronomeTriggerEnd::newInstance(MM_MetronomeTriggerEndEvent *eve
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeTriggerEnd::consumeEvents(void)
-{
-}
+void MM_VerboseEventMetronomeTriggerEnd::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeTriggerEnd::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventMetronomeTriggerEnd::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
-	MM_VerboseManagerOld *manager = (MM_VerboseManagerOld*) extensions->verboseGCManager;
-	char timestamp[32];
-	/* Intervals for trigger end event is distance (in time) between the matching (same id) trigger start and this trigger end.
-	 * Normally, there are a number of heartbeat or syncGC events in between */
-	U_64 timeSinceLastTriggerStart = omrtime_hires_delta(manager->getLastMetronomeTriggerStartTime(), _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
-	
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(), "<gc type=\"trigger end\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\" />",
-		manager->getMetronomeTriggerCount(),
-		timestamp,
-		timeSinceLastTriggerStart / 1000,
-		timeSinceLastTriggerStart % 1000
-	);
-	manager->setLastMetronomeTriggerEndTime(getTimeStamp());
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
+    MM_VerboseManagerOld* manager = (MM_VerboseManagerOld*)extensions->verboseGCManager;
+    char timestamp[32];
+    /* Intervals for trigger end event is distance (in time) between the matching (same id) trigger start and this
+     * trigger end. Normally, there are a number of heartbeat or syncGC events in between */
+    U_64 timeSinceLastTriggerStart
+        = omrtime_hires_delta(manager->getLastMetronomeTriggerStartTime(), _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(),
+        "<gc type=\"trigger end\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\" />",
+        manager->getMetronomeTriggerCount(), timestamp, timeSinceLastTriggerStart / 1000,
+        timeSinceLastTriggerStart % 1000);
+    manager->setLastMetronomeTriggerEndTime(getTimeStamp());
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }
 
 #endif /* J9VM_GC_REALTIME */

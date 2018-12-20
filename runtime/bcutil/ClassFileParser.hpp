@@ -36,29 +36,28 @@
 
 #include "BuildResult.hpp"
 
-typedef  IDATA (*VerifyClassFunction) (J9PortLibrary *aPortLib, J9CfrClassFile* classfile, U_8* segment, U_8* segmentLength, U_8* freePointer, U_32 vmVerisonShifted, U_32 flags, I_32 *hasRET);
+typedef IDATA (*VerifyClassFunction)(J9PortLibrary* aPortLib, J9CfrClassFile* classfile, U_8* segment,
+    U_8* segmentLength, U_8* freePointer, U_32 vmVerisonShifted, U_32 flags, I_32* hasRET);
 
 class ROMClassCreationContext;
 
-class ClassFileParser
-{
+class ClassFileParser {
 public:
-	ClassFileParser(J9PortLibrary *portLibrary, VerifyClassFunction verifyClassFunction) :
-		_portLibrary(portLibrary),
-		_verifyClassFunction(verifyClassFunction),
-		_j9CfrClassFile(NULL)
-	{
-	}
+    ClassFileParser(J9PortLibrary* portLibrary, VerifyClassFunction verifyClassFunction)
+        : _portLibrary(portLibrary)
+        , _verifyClassFunction(verifyClassFunction)
+        , _j9CfrClassFile(NULL)
+    {}
 
-	BuildResult parseClassFile(ROMClassCreationContext *context, UDATA *initialBufferSize, U_8 **classFileBuffer);
+    BuildResult parseClassFile(ROMClassCreationContext* context, UDATA* initialBufferSize, U_8** classFileBuffer);
 
-	void restoreOriginalMethodBytecodes();
+    void restoreOriginalMethodBytecodes();
 
-	J9CfrClassFile *getParsedClassFile() { return _j9CfrClassFile; }
+    J9CfrClassFile* getParsedClassFile() { return _j9CfrClassFile; }
 
 private:
-	J9PortLibrary * _portLibrary;
-	VerifyClassFunction _verifyClassFunction;
-	J9CfrClassFile *_j9CfrClassFile;
+    J9PortLibrary* _portLibrary;
+    VerifyClassFunction _verifyClassFunction;
+    J9CfrClassFile* _j9CfrClassFile;
 };
 #endif /* CLASSFILEPARSER_HPP_ */

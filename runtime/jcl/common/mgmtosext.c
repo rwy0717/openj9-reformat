@@ -31,19 +31,19 @@
  * @return Time in 100 ns units, or -1 in the case of an error or if this metric
  *         is not supported for this operating system.
  */
-jlong JNICALL
-Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessCpuTimeImpl(JNIEnv *env, jobject instance)
+jlong JNICALL Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessCpuTimeImpl(
+    JNIEnv* env, jobject instance)
 {
-	intptr_t rc = 0;
-	omrthread_process_time_t processTime = {0};
+    intptr_t rc = 0;
+    omrthread_process_time_t processTime = { 0 };
 
-	rc = omrthread_get_process_times(&processTime);
-	if (0 == rc) {
-		jlong times = (jlong)(processTime._userTime + processTime._systemTime) / (jlong) 100;
-		return times;
-	} else {
-		return -1;
-	}
+    rc = omrthread_get_process_times(&processTime);
+    if (0 == rc) {
+        jlong times = (jlong)(processTime._userTime + processTime._systemTime) / (jlong)100;
+        return times;
+    } else {
+        return -1;
+    }
 }
 
 /**
@@ -53,13 +53,13 @@ Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProce
  *         in the case of an error or if this metric is not
  *         supported for this operating system.
  */
-jlong JNICALL
-Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getFreePhysicalMemorySizeImpl(JNIEnv *env, jobject instance)
+jlong JNICALL Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getFreePhysicalMemorySizeImpl(
+    JNIEnv* env, jobject instance)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	uint64_t size = 0;
-	int32_t rc = j9vmem_get_available_physical_memory(&size);
-	return (0 == rc)? (jlong) size: (jlong) -1;
+    PORT_ACCESS_FROM_ENV(env);
+    uint64_t size = 0;
+    int32_t rc = j9vmem_get_available_physical_memory(&size);
+    return (0 == rc) ? (jlong)size : (jlong)-1;
 }
 
 /**
@@ -70,13 +70,13 @@ Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getFreeP
  *         or -1 in the case of an error or if this metric is not
  *         supported for this operating system.
  */
-jlong JNICALL
-Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessVirtualMemorySizeImpl(JNIEnv *env, jobject instance)
+jlong JNICALL Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessVirtualMemorySizeImpl(
+    JNIEnv* env, jobject instance)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	uint64_t size = 0;
-	int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_VIRTUAL, &size);
-	return (0 == rc)? (jlong) size: (jlong) -1;
+    PORT_ACCESS_FROM_ENV(env);
+    uint64_t size = 0;
+    int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_VIRTUAL, &size);
+    return (0 == rc) ? (jlong)size : (jlong)-1;
 }
 
 /**
@@ -88,13 +88,13 @@ Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProce
  *         or -1 in the case of an error or if this metric is not
  *         supported for this operating system.
  */
-jlong JNICALL
-Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessPrivateMemorySizeImpl(JNIEnv *env, jobject instance)
+jlong JNICALL Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessPrivateMemorySizeImpl(
+    JNIEnv* env, jobject instance)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	uint64_t size = 0;
-	int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_PRIVATE, &size);
-	return (0 == rc)? (jlong) size: (jlong) -1;
+    PORT_ACCESS_FROM_ENV(env);
+    uint64_t size = 0;
+    int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_PRIVATE, &size);
+    return (0 == rc) ? (jlong)size : (jlong)-1;
 }
 
 /**
@@ -106,11 +106,11 @@ Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProce
  *         or -1 in the case of an error or if this metric is not
  *         supported for this operating system.
  */
-jlong JNICALL
-Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessPhysicalMemorySizeImpl(JNIEnv *env, jobject instance)
+jlong JNICALL Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessPhysicalMemorySizeImpl(
+    JNIEnv* env, jobject instance)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	uint64_t size = 0;
-	int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_PHYSICAL, &size);
-	return (0 == rc)? (jlong) size: (jlong) -1;
+    PORT_ACCESS_FROM_ENV(env);
+    uint64_t size = 0;
+    int32_t rc = j9vmem_get_process_memory_size(J9PORT_VMEM_PROCESS_PHYSICAL, &size);
+    return (0 == rc) ? (jlong)size : (jlong)-1;
 }

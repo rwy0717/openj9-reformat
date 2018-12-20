@@ -31,413 +31,353 @@
 #include "fltdmath.h"
 #include "util_internal.h"
 
-#if (defined(J9VM_INTERP_FLOAT_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_INTERP_FLOAT_SUPPORT)) /* File Level Build Flags */
 
 #if (defined(LINUXPPC) || defined(ARMGNU)) && defined(HARDHAT)
 #include "fltdmath.h"
 #endif
 
-static int fltconv_indexLeadingOne32 (U_32 u32val);
+static int fltconv_indexLeadingOne32(U_32 u32val);
 
-
-jfloat 
-helperCConvertDoubleToFloat(jdouble src)
+jfloat helperCConvertDoubleToFloat(jdouble src)
 {
-	jfloat result;
+    jfloat result;
 
 #ifdef J9_NO_DENORMAL_FLOAT_SUPPORT
-	if (IS_DENORMAL_DBL(src))  {
-		convertDoubleToFloat(src, &result);
-		return result;
-	}
+    if (IS_DENORMAL_DBL(src)) {
+        convertDoubleToFloat(src, &result);
+        return result;
+    }
 #endif
 
 #if (defined(LINUXPPC) || defined(ARMGNU)) && defined(HARDHAT)
-	convertDoubleToFloat(src, &result);
-#else 
-	result = (jfloat)src;
+    convertDoubleToFloat(src, &result);
+#else
+    result = (jfloat)src;
 #endif
-	return result;
+    return result;
 }
 
+void helperConvertDoubleToFloat(jdouble* srcPtr, jfloat* dstPtr) { *dstPtr = helperCConvertDoubleToFloat(*srcPtr); }
 
-void 
-helperConvertDoubleToFloat(jdouble *srcPtr, jfloat *dstPtr)
+I_32 helperCConvertDoubleToInteger(jdouble src)
 {
-	*dstPtr = helperCConvertDoubleToFloat(*srcPtr);
-}
+    I_32 result;
 
-
-I_32 
-helperCConvertDoubleToInteger(jdouble src)
-{
-	I_32 result;
-
-	if (IS_NAN_DBL(src)) {
-		return 0;
-	}
+    if (IS_NAN_DBL(src)) {
+        return 0;
+    }
 
 #ifdef J9_NO_DENORMAL_FLOAT_SUPPORT
-	if (IS_DENORMAL_DBL(src)) {
-		return 0;		/* this is the correct answer anyway */
-	}
+    if (IS_DENORMAL_DBL(src)) {
+        return 0; /* this is the correct answer anyway */
+    }
 #endif
 
-	/* If op > 2^31, the result is 2^31 - 1.
-	 * If op < -2^31, the result is -2^31.
-	 * Otherwise, result is simple conversion from jdouble to integer.
-	 */
-	if (src >= 2147483648.0) {
-		result = 0x7FFFFFFF;
-	} else if (src <= -2147483648.0) {
-		result = (I_32)(((U_32)-1) << 31);
-	} else {
-		result = (I_32)src;
-	}
-	
-	return result;
+    /* If op > 2^31, the result is 2^31 - 1.
+     * If op < -2^31, the result is -2^31.
+     * Otherwise, result is simple conversion from jdouble to integer.
+     */
+    if (src >= 2147483648.0) {
+        result = 0x7FFFFFFF;
+    } else if (src <= -2147483648.0) {
+        result = (I_32)(((U_32)-1) << 31);
+    } else {
+        result = (I_32)src;
+    }
+
+    return result;
 }
 
+void helperConvertDoubleToInteger(jdouble* srcPtr, I_32* dstPtr) { *dstPtr = helperCConvertDoubleToInteger(*srcPtr); }
 
-void 
-helperConvertDoubleToInteger(jdouble *srcPtr, I_32 *dstPtr)
+I_64 helperCConvertDoubleToLong(jdouble src)
 {
-	*dstPtr = helperCConvertDoubleToInteger(*srcPtr);
-}
+    I_64 result;
 
-
-I_64 
-helperCConvertDoubleToLong(jdouble src)
-{
-	I_64 result;
-
-	if (IS_NAN_DBL(src)) {
-		return 0;
-	}
+    if (IS_NAN_DBL(src)) {
+        return 0;
+    }
 #ifdef J9_NO_DENORMAL_FLOAT_SUPPORT
-	if (IS_DENORMAL_DBL(src)) {
-		return 0;
-	}
+    if (IS_DENORMAL_DBL(src)) {
+        return 0;
+    }
 #endif
 
-	/* If op > 2^63, the result is 2^63 - 1.
-	 * If op < -2^63, the result is -2^63.
-	 * Otherwise, result is simple conversion from jdouble to long.
-	 */
-	if (src >= 9223372036854775808.0) {
-		result = J9CONST64(0x7FFFFFFFFFFFFFFF);
-	} else if (src <= -9223372036854775808.0) {
-		result = J9CONST64(0x8000000000000000);
-	} else {
-		result = (I_64)src;
-	}
+    /* If op > 2^63, the result is 2^63 - 1.
+     * If op < -2^63, the result is -2^63.
+     * Otherwise, result is simple conversion from jdouble to long.
+     */
+    if (src >= 9223372036854775808.0) {
+        result = J9CONST64(0x7FFFFFFFFFFFFFFF);
+    } else if (src <= -9223372036854775808.0) {
+        result = J9CONST64(0x8000000000000000);
+    } else {
+        result = (I_64)src;
+    }
 
-	return result;
+    return result;
 }
 
+void helperConvertDoubleToLong(jdouble* srcPtr, I_64* dstPtr) { *dstPtr = helperCConvertDoubleToLong(*srcPtr); }
 
-void 
-helperConvertDoubleToLong(jdouble *srcPtr, I_64 *dstPtr)
-{
-	*dstPtr = helperCConvertDoubleToLong(*srcPtr);
-}
-
-
-jdouble 
-helperCConvertFloatToDouble(jfloat src)
+jdouble helperCConvertFloatToDouble(jfloat src)
 {
 
 #if defined(J9_NO_DENORMAL_FLOAT_SUPPORT)
-	if (IS_DENORMAL_SNGL(src))  {
-		jdouble result;
-		/* SINGLE_STORE_POS_ZERO(dst);	 return incorrect, but non crashing answer (zero) */
-		convertFloatToDouble(src, &result);
-		return result;
-	}
+    if (IS_DENORMAL_SNGL(src)) {
+        jdouble result;
+        /* SINGLE_STORE_POS_ZERO(dst);	 return incorrect, but non crashing answer (zero) */
+        convertFloatToDouble(src, &result);
+        return result;
+    }
 #endif
 
-	return (jdouble)src;
+    return (jdouble)src;
 }
 
-
-void 
-helperConvertFloatToDouble(jfloat *srcPtr, jdouble *dstPtr)
+void helperConvertFloatToDouble(jfloat* srcPtr, jdouble* dstPtr)
 {
-	jfloat tmpSrc;
-	jdouble tmpDst;
-	
-	PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
-	tmpDst = helperCConvertFloatToDouble(tmpSrc);
-	PTR_DOUBLE_STORE(dstPtr, &tmpDst);
+    jfloat tmpSrc;
+    jdouble tmpDst;
+
+    PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
+    tmpDst = helperCConvertFloatToDouble(tmpSrc);
+    PTR_DOUBLE_STORE(dstPtr, &tmpDst);
 }
 
-
-I_32 
-helperCConvertFloatToInteger(jfloat src)
+I_32 helperCConvertFloatToInteger(jfloat src)
 {
-	I_32 result;
+    I_32 result;
 
-	if (IS_NAN_SNGL(src)) {
-		return 0;
-	}
+    if (IS_NAN_SNGL(src)) {
+        return 0;
+    }
 #ifdef J9_NO_DENORMAL_FLOAT_SUPPORT
-	if (IS_DENORMAL_SNGL(src)) {
-		return 0;				/* this is the correct answer anyway */
-	}
+    if (IS_DENORMAL_SNGL(src)) {
+        return 0; /* this is the correct answer anyway */
+    }
 #endif
 
-	/* If op > 2^31, the result is 2^31 - 1
-	 * If op < -2^31, the result is -2^31 
-	 * Otherwise, result is simple conversion of float to integer.
-	 */
-	if (src >= 2147483648.0) {
-		result = 0x7FFFFFFF;
-	}else if (src <= -2147483648.0) {
-		result = (I_32)(((U_32)-1) << 31);
-	} else {
-		result = (I_32)src;
-	}
-	
-	return result;
+    /* If op > 2^31, the result is 2^31 - 1
+     * If op < -2^31, the result is -2^31
+     * Otherwise, result is simple conversion of float to integer.
+     */
+    if (src >= 2147483648.0) {
+        result = 0x7FFFFFFF;
+    } else if (src <= -2147483648.0) {
+        result = (I_32)(((U_32)-1) << 31);
+    } else {
+        result = (I_32)src;
+    }
+
+    return result;
 }
 
-
-void 
-helperConvertFloatToInteger(jfloat *srcPtr, I_32 *dstPtr)
+void helperConvertFloatToInteger(jfloat* srcPtr, I_32* dstPtr)
 {
-	jfloat tmpSrc;
-	I_32 tmpDst;
+    jfloat tmpSrc;
+    I_32 tmpDst;
 
-	PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
-	tmpDst = helperCConvertFloatToInteger(tmpSrc);
-	PTR_SINGLE_STORE(dstPtr, &tmpDst);
+    PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
+    tmpDst = helperCConvertFloatToInteger(tmpSrc);
+    PTR_SINGLE_STORE(dstPtr, &tmpDst);
 }
 
-
-I_64 
-helperCConvertFloatToLong(jfloat src)
+I_64 helperCConvertFloatToLong(jfloat src)
 {
-	I_64 result;
+    I_64 result;
 
-	if (IS_NAN_SNGL(src)) {
-		return 0;
-	}
+    if (IS_NAN_SNGL(src)) {
+        return 0;
+    }
 #ifdef J9_NO_DENORMAL_FLOAT_SUPPORT
-	if (IS_DENORMAL_SNGL(src)) {
-		return 0;
-	}
+    if (IS_DENORMAL_SNGL(src)) {
+        return 0;
+    }
 #endif
 
-	/* If op > 2^63, the result is 2^63 - 1.
-	 * If op < -2^63, the result is -2^63.
-	 * Otherwise, the result is a simple conversion from float to long.
-	 */
-	if (src >= 9223372036854775808.0) {
-		result = J9CONST64(0x7FFFFFFFFFFFFFFF);
-	} else if (src <= -9223372036854775808.0) {
-		result = J9CONST64(0x8000000000000000);
-	} else {
-		result = (I_64)src;
-	}
+    /* If op > 2^63, the result is 2^63 - 1.
+     * If op < -2^63, the result is -2^63.
+     * Otherwise, the result is a simple conversion from float to long.
+     */
+    if (src >= 9223372036854775808.0) {
+        result = J9CONST64(0x7FFFFFFFFFFFFFFF);
+    } else if (src <= -9223372036854775808.0) {
+        result = J9CONST64(0x8000000000000000);
+    } else {
+        result = (I_64)src;
+    }
 
-	return result;
+    return result;
 }
 
-
-void 
-helperConvertFloatToLong(jfloat *srcPtr, I_64 *dstPtr)
+void helperConvertFloatToLong(jfloat* srcPtr, I_64* dstPtr)
 {
-	jfloat tmpSrc;
-	I_64 tmpDst;
+    jfloat tmpSrc;
+    I_64 tmpDst;
 
-	PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
-	tmpDst = helperCConvertFloatToLong(tmpSrc);
-	PTR_LONG_STORE(dstPtr, &tmpDst);
+    PTR_SINGLE_VALUE(srcPtr, &tmpSrc);
+    tmpDst = helperCConvertFloatToLong(tmpSrc);
+    PTR_LONG_STORE(dstPtr, &tmpDst);
 }
 
+jdouble helperCConvertIntegerToDouble(I_32 src) { return (jdouble)src; }
 
-jdouble 
-helperCConvertIntegerToDouble(I_32 src)
+void helperConvertIntegerToDouble(I_32* srcPtr, jdouble* dstPtr)
 {
-	return (jdouble)src;
+    jdouble tmpDst;
+
+    tmpDst = helperCConvertIntegerToDouble(*srcPtr);
+    PTR_DOUBLE_STORE(dstPtr, &tmpDst);
 }
 
-
-void 
-helperConvertIntegerToDouble(I_32 *srcPtr, jdouble *dstPtr)
+jfloat helperCConvertIntegerToFloat(I_32 src)
 {
-	jdouble tmpDst;
-	
-	tmpDst = helperCConvertIntegerToDouble(*srcPtr);
-	PTR_DOUBLE_STORE(dstPtr, &tmpDst);
-}
-
-
-jfloat 
-helperCConvertIntegerToFloat(I_32 src)
-{
-	jfloat tmpDst;
+    jfloat tmpDst;
 
 #if defined(USE_NATIVE_CAST) || defined(ARM)
-	/* Enabling native cast for ARM avoids a compiler bug in
-	 * gcc-linaro-4.9.4-2017.01
-	 */
-	tmpDst = (jfloat)src;
+    /* Enabling native cast for ARM avoids a compiler bug in
+     * gcc-linaro-4.9.4-2017.01
+     */
+    tmpDst = (jfloat)src;
 #else
-	{
-		int idl1, sign;
-		U_32 spfInt, overflow;
-	
-		if (src == 0) {
-			return 0.0f;
-		}
-	
-		if (src < 0) {
-			spfInt = (U_32)(0 - src);
-			sign = 1;
-		} else {
-			spfInt = (U_32)src;
-			sign = 0;
-		}
-		
-		/* Find out where the most significant bit is in the integer value.
-		 * We are only interested in keeping 24 of those bits. 
-		 */
-		idl1 = fltconv_indexLeadingOne32(spfInt);
-		if (idl1 >= 24) {
-			
-			/* If it's more than 24 bits, we shift right and keep track of
-			 * the overflow for some possible rounding. 
-			 */
-			overflow = spfInt << (32 - (idl1 - 23));
-			spfInt >>= (idl1 - 23);
-			spfInt &= 0x007FFFFF;
-			spfInt |= ((idl1+SPEXPONENT_BIAS) << 23);
-			if ((overflow & 0x80000000) != 0) {
-				if ((overflow & 0x7FF00000) != 0) {
-					spfInt++;
-				} else {
-					if((spfInt & 1) != 0) spfInt++;
-				}
-			}
-		} else if (idl1 < 23) {
-			
-			/* If it's less than 24 bits, we shift left, and no
-			 * overflow and rounding to worry about. 
-			 */
-			spfInt <<= (23 - idl1);
-			spfInt &= 0x007FFFFF;
-			spfInt |= ((idl1+SPEXPONENT_BIAS) << 23);
-		} else {
-			
-			/* It must be exactly 24 bits, so no shift is required. 
-			 */
-			spfInt &= 0x007FFFFF;
-			spfInt |= ((idl1+SPEXPONENT_BIAS) << 23);
-		}
-		if (sign) {
-			spfInt |= 0x80000000;
-		}
-		
-		/* Cast tmpDst to an integer to avoid float conversion.
-		 */
-		*((U_32 *)&tmpDst) = spfInt;
-	}
+    {
+        int idl1, sign;
+        U_32 spfInt, overflow;
+
+        if (src == 0) {
+            return 0.0f;
+        }
+
+        if (src < 0) {
+            spfInt = (U_32)(0 - src);
+            sign = 1;
+        } else {
+            spfInt = (U_32)src;
+            sign = 0;
+        }
+
+        /* Find out where the most significant bit is in the integer value.
+         * We are only interested in keeping 24 of those bits.
+         */
+        idl1 = fltconv_indexLeadingOne32(spfInt);
+        if (idl1 >= 24) {
+
+            /* If it's more than 24 bits, we shift right and keep track of
+             * the overflow for some possible rounding.
+             */
+            overflow = spfInt << (32 - (idl1 - 23));
+            spfInt >>= (idl1 - 23);
+            spfInt &= 0x007FFFFF;
+            spfInt |= ((idl1 + SPEXPONENT_BIAS) << 23);
+            if ((overflow & 0x80000000) != 0) {
+                if ((overflow & 0x7FF00000) != 0) {
+                    spfInt++;
+                } else {
+                    if ((spfInt & 1) != 0)
+                        spfInt++;
+                }
+            }
+        } else if (idl1 < 23) {
+
+            /* If it's less than 24 bits, we shift left, and no
+             * overflow and rounding to worry about.
+             */
+            spfInt <<= (23 - idl1);
+            spfInt &= 0x007FFFFF;
+            spfInt |= ((idl1 + SPEXPONENT_BIAS) << 23);
+        } else {
+
+            /* It must be exactly 24 bits, so no shift is required.
+             */
+            spfInt &= 0x007FFFFF;
+            spfInt |= ((idl1 + SPEXPONENT_BIAS) << 23);
+        }
+        if (sign) {
+            spfInt |= 0x80000000;
+        }
+
+        /* Cast tmpDst to an integer to avoid float conversion.
+         */
+        *((U_32*)&tmpDst) = spfInt;
+    }
 #endif
-	
-	return tmpDst;
+
+    return tmpDst;
 }
 
-
-void 
-helperConvertIntegerToFloat(I_32 *srcPtr, jfloat *dstPtr)
+void helperConvertIntegerToFloat(I_32* srcPtr, jfloat* dstPtr)
 {
-	I_32 tmpSrc = *srcPtr;
-	jfloat tmpDst;
+    I_32 tmpSrc = *srcPtr;
+    jfloat tmpDst;
 
-	tmpDst = helperCConvertIntegerToFloat(tmpSrc);
-	PTR_SINGLE_STORE(dstPtr, &tmpDst);
+    tmpDst = helperCConvertIntegerToFloat(tmpSrc);
+    PTR_SINGLE_STORE(dstPtr, &tmpDst);
 }
 
+jdouble helperCConvertLongToDouble(I_64 src) { return (jdouble)src; }
 
-jdouble 
-helperCConvertLongToDouble(I_64 src)
+void helperConvertLongToDouble(I_64* srcPtr, jdouble* dstPtr)
 {
+    I_64 tmpSrc;
+    jdouble tmpDst;
 
-	return (jdouble)src;
+    PTR_LONG_VALUE(srcPtr, &tmpSrc);
+    tmpDst = helperCConvertLongToDouble(tmpSrc);
+    PTR_DOUBLE_STORE(dstPtr, &tmpDst);
 }
 
-
-void 
-helperConvertLongToDouble(I_64 *srcPtr, jdouble *dstPtr)
+jfloat helperCConvertLongToFloat(I_64 src)
 {
-	I_64 tmpSrc;
-	jdouble tmpDst;
+    jfloat tmpDst;
 
-	PTR_LONG_VALUE(srcPtr, &tmpSrc);
-	tmpDst = helperCConvertLongToDouble(tmpSrc);
-	PTR_DOUBLE_STORE(dstPtr, &tmpDst);
+    tmpDst = (jfloat)src;
 
+    return tmpDst;
 }
 
-
-jfloat 
-helperCConvertLongToFloat(I_64 src)
+void helperConvertLongToFloat(I_64* srcPtr, jfloat* dstPtr)
 {
-	jfloat tmpDst;
+    I_64 tmpSrc;
+    jfloat tmpDst;
 
-	tmpDst = (jfloat)src;
-
-	return tmpDst;
+    PTR_LONG_VALUE(srcPtr, &tmpSrc);
+    tmpDst = helperCConvertLongToFloat(tmpSrc);
+    PTR_SINGLE_STORE(dstPtr, &tmpDst);
 }
 
-
-void 
-helperConvertLongToFloat(I_64 *srcPtr, jfloat * dstPtr)
+static int fltconv_indexLeadingOne32(U_32 u32val)
 {
-	I_64 tmpSrc;
-	jfloat tmpDst;
+    int leading;
+    U_32 mask;
 
-	PTR_LONG_VALUE(srcPtr, &tmpSrc);
-	tmpDst = helperCConvertLongToFloat(tmpSrc);
-	PTR_SINGLE_STORE(dstPtr, &tmpDst);
-
+    if (u32val == 0) {
+        return -1;
+    }
+    if (u32val & 0xFF000000) {
+        leading = 31;
+        mask = 0x80000000;
+    } else if (u32val & 0x00FF0000) {
+        leading = 23;
+        mask = 0x00800000;
+    } else if (u32val & 0x0000FF00) {
+        leading = 15;
+        mask = 0x00008000;
+    } else {
+        leading = 7;
+        mask = 0x00000080;
+    }
+    /* WARNING This loop will busy hang when compiled with
+     * gcc-linaro-4.9.4-2017.01 for armhf if the match should happen on
+     * the first iteration. The loop exit condition is moved to the end of
+     * the loop and doesn't execute before the first shift of mask.
+     */
+    while ((mask & u32val) == 0) {
+        mask >>= 1;
+        leading--;
+    }
+    return leading;
 }
-
-
-static int 
-fltconv_indexLeadingOne32(U_32 u32val)
-{
-	int leading;
-	U_32 mask;
-	
-	if (u32val == 0) {
-		return -1;
-	}
-	if (u32val & 0xFF000000) {
-		leading = 31;
-		mask = 0x80000000;
-	} else if (u32val & 0x00FF0000) {
-		leading = 23;
-		mask = 0x00800000;
-	} else if (u32val & 0x0000FF00) {
-		leading = 15;
-		mask = 0x00008000;
-	} else {
-		leading = 7;
-		mask = 0x00000080;
-	}
-	/* WARNING This loop will busy hang when compiled with
-	 * gcc-linaro-4.9.4-2017.01 for armhf if the match should happen on
-	 * the first iteration. The loop exit condition is moved to the end of
-	 * the loop and doesn't execute before the first shift of mask.
-	 */
-	while((mask & u32val) == 0) {
-		mask >>= 1;
-		leading--;
-	}
-	return leading;
-}
-
 
 #endif /* J9VM_INTERP_FLOAT_SUPPORT */ /* End File Level Build Flags */

@@ -27,8 +27,8 @@
 #include "edcwccwi.h"
 #endif
 
-#define ZOS_V1R10_RELEASE	20.00
-#define ZOS_V1R10_VERSION	3
+#define ZOS_V1R10_RELEASE 20.00
+#define ZOS_V1R10_VERSION 3
 
 /**
  * Register the J9VMThread->systemStackPointer field with the operating system.
@@ -38,13 +38,13 @@
  * general purpose register while also allowing the OS to still have the
  * necessary access to the C stack.
  */
-void registerSystemStackPointerThreadOffset(J9VMThread *currentThread)
+void registerSystemStackPointerThreadOffset(J9VMThread* currentThread)
 {
 #ifdef J9VM_JIT_FREE_SYSTEM_STACK_POINTER
-	currentThread->systemStackPointer = 0;
+    currentThread->systemStackPointer = 0;
 
-	if (zos_version_at_least(ZOS_V1R10_RELEASE, ZOS_V1R10_VERSION)) {
-		*__LE_SAVSTACK_ASYNC_ADDR = &(currentThread->systemStackPointer);
-	}
+    if (zos_version_at_least(ZOS_V1R10_RELEASE, ZOS_V1R10_VERSION)) {
+        *__LE_SAVSTACK_ASYNC_ADDR = &(currentThread->systemStackPointer);
+    }
 #endif
 }

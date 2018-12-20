@@ -36,44 +36,43 @@
 class MM_EnvironmentBase;
 
 class MM_RegionValidator : public MM_Validator {
-/* data members */
+    /* data members */
 private:
-	MM_HeapRegionDescriptorVLHGC *_region; /**< The region being validated */
+    MM_HeapRegionDescriptorVLHGC* _region; /**< The region being validated */
 protected:
 public:
-	
-/* function members */
+    /* function members */
 private:
-	/**
-	 * Report detailed information about the current region.
-	 * @param env[in] the current thread
-	 * @param message[in] a message to include with the report
-	 */
-	void reportRegion(MM_EnvironmentBase* env, const char* message);
+    /**
+     * Report detailed information about the current region.
+     * @param env[in] the current thread
+     * @param message[in] a message to include with the report
+     */
+    void reportRegion(MM_EnvironmentBase* env, const char* message);
 
 protected:
 public:
-	virtual void threadCrash(MM_EnvironmentBase* env);
+    virtual void threadCrash(MM_EnvironmentBase* env);
 
-	/**
-	 * Construct a new RegionValidator
-	 * @param region[in] the region to be validated
-	 */
-	MM_RegionValidator(MM_HeapRegionDescriptorVLHGC *region)
-		: MM_Validator()
-		, _region(region)
-	{
-		_typeId = __FUNCTION__;
-	}
+    /**
+     * Construct a new RegionValidator
+     * @param region[in] the region to be validated
+     */
+    MM_RegionValidator(MM_HeapRegionDescriptorVLHGC* region)
+        : MM_Validator()
+        , _region(region)
+    {
+        _typeId = __FUNCTION__;
+    }
 
-	/**
-	 * Performs light-weight verification on the region given to check for common symptoms of problems left behind
-	 * by the VM.  For example:  ensures that the first object in a region is a valid object and that arraylet leaf
-	 * meta-data is consistent.  Fails an assertion if something is wrong.
-	 * @param env[in] The current GC thread
-	 * @return true if the region is valid, false on error
-	 */
-	bool validate(MM_EnvironmentBase *env);
+    /**
+     * Performs light-weight verification on the region given to check for common symptoms of problems left behind
+     * by the VM.  For example:  ensures that the first object in a region is a valid object and that arraylet leaf
+     * meta-data is consistent.  Fails an assertion if something is wrong.
+     * @param env[in] The current GC thread
+     * @return true if the region is valid, false on error
+     */
+    bool validate(MM_EnvironmentBase* env);
 };
 
 #endif /* REGIONVALIDATOR_HPP_ */

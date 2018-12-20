@@ -33,24 +33,22 @@
 /**
  * Stores the data relating to the raising of excessivegc
  */
-class MM_VerboseEventExcessiveGCRaised : public MM_VerboseEvent
-{
+class MM_VerboseEventExcessiveGCRaised : public MM_VerboseEvent {
 private:
-	UDATA _excessiveGCLevel;
-	
+    UDATA _excessiveGCLevel;
+
 public:
-	static MM_VerboseEvent *newInstance(MM_ExcessiveGCRaisedEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_ExcessiveGCRaisedEvent* event, J9HookInterface** hookInterface);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventExcessiveGCRaised(MM_ExcessiveGCRaisedEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_excessiveGCLevel(event->excessiveLevel)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventExcessiveGCRaised(MM_ExcessiveGCRaisedEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _excessiveGCLevel(event->excessiveLevel) {};
 };
 
 #endif /* EVENT_EXCESSIVEGCRAISED_HPP_ */

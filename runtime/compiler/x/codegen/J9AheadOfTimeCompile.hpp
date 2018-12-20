@@ -25,8 +25,14 @@
 
 #ifndef J9_AHEADOFTIMECOMPILE_CONNECTOR
 #define J9_AHEADOFTIMECOMPILE_CONNECTOR
-namespace J9 { namespace X86 { class AheadOfTimeCompile; } }
-namespace J9 { typedef J9::X86::AheadOfTimeCompile AheadOfTimeCompileConnector; }
+namespace J9 {
+namespace X86 {
+class AheadOfTimeCompile;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::X86::AheadOfTimeCompile AheadOfTimeCompileConnector;
+}
 #endif // J9_AHEADOFTIMECOMPILE_CONNECTOR
 
 #include "compiler/codegen/J9AheadOfTimeCompile.hpp"
@@ -35,29 +41,25 @@ namespace J9 { typedef J9::X86::AheadOfTimeCompile AheadOfTimeCompileConnector; 
 #include "codegen/Relocation.hpp"
 #include "codegen/CodeGenerator.hpp"
 
-namespace J9
-{
+namespace J9 {
 
-namespace X86
-{
+namespace X86 {
 
-class OMR_EXTENSIBLE AheadOfTimeCompile  : public J9::AheadOfTimeCompile
-   {
-   public:
-   AheadOfTimeCompile(TR::CodeGenerator *cg)
-      : J9::AheadOfTimeCompile(_relocationTargetTypeToHeaderSizeMap, cg->comp()),
-        _cg(cg)
-      {
-      }
+class OMR_EXTENSIBLE AheadOfTimeCompile : public J9::AheadOfTimeCompile {
+public:
+    AheadOfTimeCompile(TR::CodeGenerator* cg)
+        : J9::AheadOfTimeCompile(_relocationTargetTypeToHeaderSizeMap, cg->comp())
+        , _cg(cg)
+    {}
 
-   virtual void     processRelocations();
-   virtual uint8_t *initializeAOTRelocationHeader(TR::IteratedExternalRelocation *relocation);
+    virtual void processRelocations();
+    virtual uint8_t* initializeAOTRelocationHeader(TR::IteratedExternalRelocation* relocation);
 
-   private:
-   static uint32_t _relocationTargetTypeToHeaderSizeMap[TR_NumExternalRelocationKinds];
+private:
+    static uint32_t _relocationTargetTypeToHeaderSizeMap[TR_NumExternalRelocationKinds];
 
-   TR::CodeGenerator *_cg;
-   };
+    TR::CodeGenerator* _cg;
+};
 
 } // namespace X86
 

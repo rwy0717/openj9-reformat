@@ -47,16 +47,16 @@
  * 	2 Problem-state prohibited
  * 	3 Invalid run-time-instrumentation controls
  */
-static int 
-j9ri_rion(void)
+static int j9ri_rion(void)
 {
-	int cc = 1;
-	asm volatile(
-		"	.insn	ri,0xaa010000,0,0\n"
-				"		ipm		%0\n"
-				"		srl		%0,28"
-		: "=d" (cc) : : "cc");
-	return cc;
+    int cc = 1;
+    asm volatile("	.insn	ri,0xaa010000,0,0\n"
+                 "		ipm		%0\n"
+                 "		srl		%0,28"
+                 : "=d"(cc)
+                 :
+                 : "cc");
+    return cc;
 }
 
 /**
@@ -67,39 +67,37 @@ j9ri_rion(void)
  * 	2 Problem-state prohibited
  * 	3 Invalid run-time-instrumentation controls
  */
-static int 
-j9ri_rioff(void)
+static int j9ri_rioff(void)
 {
-	int cc = 1;
-	asm volatile(
-		"	.insn	ri,0xaa030000,0,0\n"
-				"		ipm		%0\n"
-				"		srl		%0,28"
-		: "=d" (cc) : : "cc");
-	return cc;
+    int cc = 1;
+    asm volatile("	.insn	ri,0xaa030000,0,0\n"
+                 "		ipm		%0\n"
+                 "		srl		%0,28"
+                 : "=d"(cc)
+                 :
+                 : "cc");
+    return cc;
 }
 
 /**
  * This is the signalHandler for the real-time RI signal.
- * The real-time signal is sent to the thread if the run-time instrumentation buffer is full,(ENOBUFS == siginfo->si_int ),
- * or if the runtime-instrumentation-halted interrupt occurrs.
- * This is a dummy signalHandler because the JIT polls for buffer full by itself.
+ * The real-time signal is sent to the thread if the run-time instrumentation buffer is full,(ENOBUFS == siginfo->si_int
+ * ), or if the runtime-instrumentation-halted interrupt occurrs. This is a dummy signalHandler because the JIT polls
+ * for buffer full by itself.
  */
-static void
-j9ri_signalHandler(int signal, siginfo_t *siginfo, void *context_arg)
+static void j9ri_signalHandler(int signal, siginfo_t* siginfo, void* context_arg)
 {
-	Trc_PRT_ri_signalHandler_Entry();
+    Trc_PRT_ri_signalHandler_Entry();
 
-	Trc_PRT_ri_signalHandler_Exit();
+    Trc_PRT_ri_signalHandler_Exit();
 }
 
-void
-j9ri_params_init(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams, void *riControlBlock)
+void j9ri_params_init(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams, void* riControlBlock)
 {
-	Trc_PRT_ri_params_init_Entry();
-	riParams->flags = 0;
-	riParams->controlBlock = riControlBlock;
-	Trc_PRT_ri_params_init_Exit();
+    Trc_PRT_ri_params_init_Entry();
+    riParams->flags = 0;
+    riParams->controlBlock = riControlBlock;
+    Trc_PRT_ri_params_init_Exit();
 }
 
 /**
@@ -107,161 +105,154 @@ j9ri_params_init(struct J9PortLibrary *portLibrary, struct J9RIParameters *riPar
  * This is called once from the JIT during TR_J9VM::initializeS390zLinuxProcessorFeatures.
  * If the registration fails, RI will not be used.
  */
-int32_t
-j9ri_enableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_enableRISupport(struct J9PortLibrary* portLibrary)
 {
 #if !defined(J9ZTPF)
-	struct sigaction sig;
-	Trc_PRT_ri_enableSupport_Entry();
-	memset(&sig, 0, sizeof(sig));
-	sig.sa_sigaction = j9ri_signalHandler;
-	sig.sa_flags = SA_SIGINFO;
+    struct sigaction sig;
+    Trc_PRT_ri_enableSupport_Entry();
+    memset(&sig, 0, sizeof(sig));
+    sig.sa_sigaction = j9ri_signalHandler;
+    sig.sa_flags = SA_SIGINFO;
 
-	if (-1 == OMRSIG_SIGACTION(SIG_RI_INTERRUPT, &sig, NULL)) {
-		Trc_PRT_ri_enableSupport_Exception(errno);
-		return -1;
-	}
+    if (-1 == OMRSIG_SIGACTION(SIG_RI_INTERRUPT, &sig, NULL)) {
+        Trc_PRT_ri_enableSupport_Exception(errno);
+        return -1;
+    }
 
-		/*
-	 * errno values from syscall routine is as follows:
-	 * EOPNOTSUPP -  RI facility is not available
-	 * EINVAL - signum is wrong or command is not valid signum
-	 */
-	if (-1 == syscall(__NR_s390_runtime_instr, 1, SIG_RI_INTERRUPT)) {
-		Trc_PRT_ri_enableSupport_Exception(errno);
-		OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL);
-		return -2;
-	}
+    /*
+     * errno values from syscall routine is as follows:
+     * EOPNOTSUPP -  RI facility is not available
+     * EINVAL - signum is wrong or command is not valid signum
+     */
+    if (-1 == syscall(__NR_s390_runtime_instr, 1, SIG_RI_INTERRUPT)) {
+        Trc_PRT_ri_enableSupport_Exception(errno);
+        OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL);
+        return -2;
+    }
 
-	if (-1 == syscall(__NR_s390_runtime_instr, 2, SIG_RI_INTERRUPT)) {
-		Trc_PRT_ri_enableSupport_Exception(errno);
-		OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL);
-		return -3;
-	}
+    if (-1 == syscall(__NR_s390_runtime_instr, 2, SIG_RI_INTERRUPT)) {
+        Trc_PRT_ri_enableSupport_Exception(errno);
+        OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL);
+        return -3;
+    }
 
-	Trc_PRT_ri_enableSupport_Exit();
-	return 0;
+    Trc_PRT_ri_enableSupport_Exit();
+    return 0;
 #else /* !defined(J9ZTPF) */
-	Trc_PRT_ri_enableSupport_Entry();
-	Trc_PRT_ri_enableSupport_Exit();
-	return -1;
+    Trc_PRT_ri_enableSupport_Entry();
+    Trc_PRT_ri_enableSupport_Exit();
+    return -1;
 #endif /* !defined(J9ZTPF) */
 }
 
 /**
  * Unregister the signalhandler.
  */
-int32_t
-j9ri_disableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_disableRISupport(struct J9PortLibrary* portLibrary)
 {
-	Trc_PRT_ri_disableSupport_Entry();
+    Trc_PRT_ri_disableSupport_Entry();
 
-	if (-1 == OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL)) {
-		Trc_PRT_ri_disableSupport_Exception(errno);
-		return -1;
-	}
+    if (-1 == OMRSIG_SIGACTION(SIG_RI_INTERRUPT, NULL, NULL)) {
+        Trc_PRT_ri_disableSupport_Exception(errno);
+        return -1;
+    }
 
-	Trc_PRT_ri_disableSupport_Exit();
-	return 0;
+    Trc_PRT_ri_disableSupport_Exit();
+    return 0;
 }
 
-void
-j9ri_initialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_initialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	int32_t ret_code = -1;
-	Trc_PRT_ri_initialize_Entry();
+    int32_t ret_code = -1;
+    Trc_PRT_ri_initialize_Entry();
 
 #if !defined(J9ZTPF)
-	/*
-	 * syscall is s390_runtime_instr
-	 * errno values from syscall routine is as follows:
-	 * EOPNOTSUPP -  RI facility is not available
-	 * EINVAL - signum is wrong or command is not valid signum
-	 * ENOMEM - Failed to allocate mem for RI control block
-	 */
+    /*
+     * syscall is s390_runtime_instr
+     * errno values from syscall routine is as follows:
+     * EOPNOTSUPP -  RI facility is not available
+     * EINVAL - signum is wrong or command is not valid signum
+     * ENOMEM - Failed to allocate mem for RI control block
+     */
 
-	ret_code = syscall(__NR_s390_runtime_instr, 1, SIG_RI_INTERRUPT);
-	if (0 == ret_code) {
-		riParams->flags |= J9PORT_RI_INITIALIZED;
-	} else {
-		Trc_PRT_ri_initialize_Exception(errno);
-	}
+    ret_code = syscall(__NR_s390_runtime_instr, 1, SIG_RI_INTERRUPT);
+    if (0 == ret_code) {
+        riParams->flags |= J9PORT_RI_INITIALIZED;
+    } else {
+        Trc_PRT_ri_initialize_Exception(errno);
+    }
 #endif /* !defined(J9ZTPF) */
-	Trc_PRT_ri_initialize_Exit();
+    Trc_PRT_ri_initialize_Exit();
 }
 
-void
-j9ri_deinitialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_deinitialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	int32_t ret_code = -1;
-	Trc_PRT_ri_deinitialize_Entry();
+    int32_t ret_code = -1;
+    Trc_PRT_ri_deinitialize_Entry();
 
 #if !defined(J9ZTPF)
-	/*
-	 * errno values from syscall routine is as follows:
-	 * EOPNOTSUPP -  RI facility is not available
-	 * EINVAL - signum is wrong or command is not valid signum
-	 */
-	ret_code = syscall(__NR_s390_runtime_instr,2,SIG_RI_INTERRUPT);
-	if (0 == ret_code) {
-		riParams->flags &= ~(J9PORT_RI_INITIALIZED);  /* Clear J9PORT_RI_INITIALIZE bit */
-	} else {
-		Trc_PRT_ri_deinitialize_Exception(errno);
-	}
+    /*
+     * errno values from syscall routine is as follows:
+     * EOPNOTSUPP -  RI facility is not available
+     * EINVAL - signum is wrong or command is not valid signum
+     */
+    ret_code = syscall(__NR_s390_runtime_instr, 2, SIG_RI_INTERRUPT);
+    if (0 == ret_code) {
+        riParams->flags &= ~(J9PORT_RI_INITIALIZED); /* Clear J9PORT_RI_INITIALIZE bit */
+    } else {
+        Trc_PRT_ri_deinitialize_Exception(errno);
+    }
 #endif /* !defined(J9ZTPF) */
-	Trc_PRT_ri_deinitialize_Exit();
+    Trc_PRT_ri_deinitialize_Exit();
 }
 
-
-void
-j9ri_enable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_enable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
 
-	Trc_PRT_ri_enable_Entry();
-	if (J9_ARE_ALL_BITS_SET(riParams->flags, J9PORT_RI_INITIALIZED)) {
-		/*
-		 * ret_code values from RION routine is as follows:
-		 * 0x0  - authorization routine successful.
-		 * 0x1  - RION failure - Not initalized or bad RI control block
-		 */
-		int32_t ret_code = j9ri_rion();
-		if (0 == ret_code) {
-			riParams->flags |= J9PORT_RI_ENABLED;  /* Set J9PORT_RI_ENABLED bit */
-		} else {
-			Trc_PRT_ri_enable_Exception(ret_code);
-		}
-	} else {
-		/*
-		 * Use -1 for return code when RI is not initialized.
-		 */
-		Trc_PRT_ri_enable_Exception(-1);
-	}
+    Trc_PRT_ri_enable_Entry();
+    if (J9_ARE_ALL_BITS_SET(riParams->flags, J9PORT_RI_INITIALIZED)) {
+        /*
+         * ret_code values from RION routine is as follows:
+         * 0x0  - authorization routine successful.
+         * 0x1  - RION failure - Not initalized or bad RI control block
+         */
+        int32_t ret_code = j9ri_rion();
+        if (0 == ret_code) {
+            riParams->flags |= J9PORT_RI_ENABLED; /* Set J9PORT_RI_ENABLED bit */
+        } else {
+            Trc_PRT_ri_enable_Exception(ret_code);
+        }
+    } else {
+        /*
+         * Use -1 for return code when RI is not initialized.
+         */
+        Trc_PRT_ri_enable_Exception(-1);
+    }
 
-	Trc_PRT_ri_enable_Exit();
+    Trc_PRT_ri_enable_Exit();
 }
 
-void
-j9ri_disable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_disable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_disable_Entry();
-	if (J9_ARE_ALL_BITS_SET(riParams->flags, J9PORT_RI_INITIALIZED)) {
-		/*
-		 * ret_code values from RIOFF routine is as follows:
-		 * 0x0  - authorization routine successful.
-		 * 0x1  - RIOFF failure - Not initalized or bad RI control block
-		 */
-		int32_t ret_code = j9ri_rioff();
-		if (0 == ret_code) {
-			riParams->flags &= ~(J9PORT_RI_ENABLED);  /* Clear J9PORT_RI_ENABLED bit */
-		} else {
-			Trc_PRT_ri_disable_Exception(ret_code);
-		}
-	} else {
-		/*
-		 * Use -1 for return code when RI is not initialized.
-		 */
-		Trc_PRT_ri_disable_Exception(-1);
-	}
+    Trc_PRT_ri_disable_Entry();
+    if (J9_ARE_ALL_BITS_SET(riParams->flags, J9PORT_RI_INITIALIZED)) {
+        /*
+         * ret_code values from RIOFF routine is as follows:
+         * 0x0  - authorization routine successful.
+         * 0x1  - RIOFF failure - Not initalized or bad RI control block
+         */
+        int32_t ret_code = j9ri_rioff();
+        if (0 == ret_code) {
+            riParams->flags &= ~(J9PORT_RI_ENABLED); /* Clear J9PORT_RI_ENABLED bit */
+        } else {
+            Trc_PRT_ri_disable_Exception(ret_code);
+        }
+    } else {
+        /*
+         * Use -1 for return code when RI is not initialized.
+         */
+        Trc_PRT_ri_disable_Exception(-1);
+    }
 
-	Trc_PRT_ri_disable_Exit();
+    Trc_PRT_ri_disable_Exit();
 }

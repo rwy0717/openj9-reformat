@@ -25,8 +25,12 @@
 
 #ifndef J9_AHEADOFTIMECOMPILE_CONNECTOR
 #define J9_AHEADOFTIMECOMPILE_CONNECTOR
-namespace J9 { class AheadOfTimeCompile; }
-namespace J9 { typedef J9::AheadOfTimeCompile AheadOfTimeCompileConnector; }
+namespace J9 {
+class AheadOfTimeCompile;
+}
+namespace J9 {
+typedef J9::AheadOfTimeCompile AheadOfTimeCompileConnector;
+}
 #endif // J9_AHEADOFTIMECOMPILE_CONNECTOR
 
 #include "codegen/OMRAheadOfTimeCompile.hpp"
@@ -35,38 +39,38 @@ namespace J9 { typedef J9::AheadOfTimeCompile AheadOfTimeCompileConnector; }
 #include <stdint.h>
 #include "env/jittypes.h"
 
-namespace TR { class Compilation; }
-
-namespace J9
-{
-
-class OMR_EXTENSIBLE AheadOfTimeCompile : public OMR::AheadOfTimeCompileConnector
-   {
-   public:
-   static const size_t SIZEPOINTER = sizeof(uintptrj_t);
-
-   AheadOfTimeCompile(uint32_t *headerSizeMap, TR::Compilation * c) :
-      OMR::AheadOfTimeCompileConnector(headerSizeMap, c)
-      {
-      }
-
-   uint8_t* emitClassChainOffset(uint8_t* cursor, TR_OpaqueClassBlock* classToRemember);
-   uintptr_t findCorrectInlinedSiteIndex(void *constantPool, uintptr_t currentInlinedSiteIndex);
-
-   void dumpRelocationData();
-   uint8_t* dumpRelocationHeaderData(uint8_t *cursor, bool isVerbose);
-
-   uint8_t *initializeCommonAOTRelocationHeader(TR::IteratedExternalRelocation *relocation, TR_RelocationRecord *reloRecord);
-
-   static void interceptAOTRelocation(TR::ExternalRelocation *relocation);
-
-   /**
-    * Return true if an ExternalRelocation of kind TR_ClassAddress is expected
-    * to contain a pointer to TR_RelocationRecordInformation.
-    */
-   static bool classAddressUsesReloRecordInfo() { return false; }
-   };
-
+namespace TR {
+class Compilation;
 }
+
+namespace J9 {
+
+class OMR_EXTENSIBLE AheadOfTimeCompile : public OMR::AheadOfTimeCompileConnector {
+public:
+    static const size_t SIZEPOINTER = sizeof(uintptrj_t);
+
+    AheadOfTimeCompile(uint32_t* headerSizeMap, TR::Compilation* c)
+        : OMR::AheadOfTimeCompileConnector(headerSizeMap, c)
+    {}
+
+    uint8_t* emitClassChainOffset(uint8_t* cursor, TR_OpaqueClassBlock* classToRemember);
+    uintptr_t findCorrectInlinedSiteIndex(void* constantPool, uintptr_t currentInlinedSiteIndex);
+
+    void dumpRelocationData();
+    uint8_t* dumpRelocationHeaderData(uint8_t* cursor, bool isVerbose);
+
+    uint8_t* initializeCommonAOTRelocationHeader(
+        TR::IteratedExternalRelocation* relocation, TR_RelocationRecord* reloRecord);
+
+    static void interceptAOTRelocation(TR::ExternalRelocation* relocation);
+
+    /**
+     * Return true if an ExternalRelocation of kind TR_ClassAddress is expected
+     * to contain a pointer to TR_RelocationRecordInformation.
+     */
+    static bool classAddressUsesReloRecordInfo() { return false; }
+};
+
+} // namespace J9
 
 #endif // TR_J9AHEADOFTIMECOMPILE_HPP

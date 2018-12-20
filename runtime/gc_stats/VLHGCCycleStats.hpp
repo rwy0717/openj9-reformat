@@ -48,63 +48,60 @@
  * Storage for statistics relevant to the collection cycles
  * @ingroup GC_Stats
  */
-class MM_VLHGCCycleStats : public MM_Base
-{
+class MM_VLHGCCycleStats : public MM_Base {
 public:
-	class MM_MarkVLHGCStats _markStats;  /**< Stats for mark phase of cycle */
-	class MM_MarkVLHGCStats _concurrentMarkStats;  /**< Stats for concurrent mark phase of cycle */
-	class MM_MarkVLHGCStats _incrementalMarkStats;  /**< Stats for incremental (stop-the-world) mark phase of cycle */
-	class MM_WorkPacketStats _workPacketStats;  /**< Stats for work packet activity of cycle */
-	class MM_InterRegionRememberedSetStats _irrsStats; /**< Stats for Inter Region Remembered Set processing */
+    class MM_MarkVLHGCStats _markStats; /**< Stats for mark phase of cycle */
+    class MM_MarkVLHGCStats _concurrentMarkStats; /**< Stats for concurrent mark phase of cycle */
+    class MM_MarkVLHGCStats _incrementalMarkStats; /**< Stats for incremental (stop-the-world) mark phase of cycle */
+    class MM_WorkPacketStats _workPacketStats; /**< Stats for work packet activity of cycle */
+    class MM_InterRegionRememberedSetStats _irrsStats; /**< Stats for Inter Region Remembered Set processing */
 
 public:
-	MM_VLHGCCycleStats() :
-		_markStats()
-		,_concurrentMarkStats()
-		,_incrementalMarkStats()
-		,_workPacketStats()
-		,_irrsStats()
-		{};
+    MM_VLHGCCycleStats()
+        : _markStats()
+        , _concurrentMarkStats()
+        , _incrementalMarkStats()
+        , _workPacketStats()
+        , _irrsStats() {};
 
-	/**
-	 * Reset the statistics of the receiver for a new round.
-	 */
-	MMINLINE void clear()
-	{
-		_markStats.clear();
-		_concurrentMarkStats.clear();
-		_incrementalMarkStats.clear();
-		_workPacketStats.clear();
-		_irrsStats.clear();
-	}
+    /**
+     * Reset the statistics of the receiver for a new round.
+     */
+    MMINLINE void clear()
+    {
+        _markStats.clear();
+        _concurrentMarkStats.clear();
+        _incrementalMarkStats.clear();
+        _workPacketStats.clear();
+        _irrsStats.clear();
+    }
 
-	/**
-	 * Add / combine the statistics from the parameter to the receiver.
-	 */
-	MMINLINE void merge(MM_VLHGCIncrementStats *stats)
-	{
-		_markStats.merge(&stats->_markStats);
-		_workPacketStats.merge(&stats->_workPacketStats);
-		_irrsStats.merge(&stats->_irrsStats);
+    /**
+     * Add / combine the statistics from the parameter to the receiver.
+     */
+    MMINLINE void merge(MM_VLHGCIncrementStats* stats)
+    {
+        _markStats.merge(&stats->_markStats);
+        _workPacketStats.merge(&stats->_workPacketStats);
+        _irrsStats.merge(&stats->_irrsStats);
 
-		switch (stats->_globalMarkIncrementType) {
-		case MM_VLHGCIncrementStats::mark_concurrent:
-			_concurrentMarkStats.merge(&stats->_markStats);
-			break;
+        switch (stats->_globalMarkIncrementType) {
+        case MM_VLHGCIncrementStats::mark_concurrent:
+            _concurrentMarkStats.merge(&stats->_markStats);
+            break;
 
-		case MM_VLHGCIncrementStats::mark_incremental:
-			_incrementalMarkStats.merge(&stats->_markStats);
-			break;
-			
-		case MM_VLHGCIncrementStats::mark_idle:
-		case MM_VLHGCIncrementStats::mark_global_collection:
-			break;
+        case MM_VLHGCIncrementStats::mark_incremental:
+            _incrementalMarkStats.merge(&stats->_markStats);
+            break;
 
-		default:
-			Assert_MM_unreachable();
-		}
-	}
+        case MM_VLHGCIncrementStats::mark_idle:
+        case MM_VLHGCIncrementStats::mark_global_collection:
+            break;
 
+        default:
+            Assert_MM_unreachable();
+        }
+    }
 };
 
 #endif /* J9VM_GC_VLHGC */

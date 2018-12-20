@@ -27,45 +27,37 @@
 #include "EnvironmentStaccato.hpp"
 #include "GCExtensions.hpp"
 
-
-MM_EnvironmentStaccato *
-MM_EnvironmentStaccato::newInstance(MM_GCExtensionsBase *extensions, OMR_VMThread *omrVMThread)
+MM_EnvironmentStaccato* MM_EnvironmentStaccato::newInstance(MM_GCExtensionsBase* extensions, OMR_VMThread* omrVMThread)
 {
-	void *envPtr;
-	MM_EnvironmentStaccato *env = NULL;
-	
-	envPtr = (void *)pool_newElement(extensions->environments);
-	if(envPtr) {
-		env = new(envPtr) MM_EnvironmentStaccato(omrVMThread);
-		if (!env->initialize(extensions)) {
-			env->kill();
-			env = NULL;	
-		}
-	}	
+    void* envPtr;
+    MM_EnvironmentStaccato* env = NULL;
 
-	return env;
+    envPtr = (void*)pool_newElement(extensions->environments);
+    if (envPtr) {
+        env = new (envPtr) MM_EnvironmentStaccato(omrVMThread);
+        if (!env->initialize(extensions)) {
+            env->kill();
+            env = NULL;
+        }
+    }
+
+    return env;
 }
 
-void
-MM_EnvironmentStaccato::kill()
+void MM_EnvironmentStaccato::kill() { MM_EnvironmentBase::kill(); }
+
+bool MM_EnvironmentStaccato::initialize(MM_GCExtensionsBase* extensions)
 {
-	MM_EnvironmentBase::kill();
+    /* initialize super class */
+    if (!MM_EnvironmentRealtime::initialize(extensions)) {
+        return false;
+    }
+
+    return true;
 }
 
-bool
-MM_EnvironmentStaccato::initialize(MM_GCExtensionsBase *extensions )
+void MM_EnvironmentStaccato::tearDown(MM_GCExtensionsBase* extensions)
 {
-	/* initialize super class */
-	if(!MM_EnvironmentRealtime::initialize(extensions)) {
-		return false;
-	}
-	
-	return true;
-}	
-
-void
-MM_EnvironmentStaccato::tearDown(MM_GCExtensionsBase *extensions)
-{	
-	/* tearDown base class */
-	MM_EnvironmentRealtime::tearDown(extensions);
+    /* tearDown base class */
+    MM_EnvironmentRealtime::tearDown(extensions);
 }

@@ -23,7 +23,6 @@
 #ifndef j9vm_internal_h
 #define j9vm_internal_h
 
-
 #ifdef WIN32
 #include <tchar.h>
 #include <io.h>
@@ -44,7 +43,8 @@
 #include <dlfcn.h>
 #endif
 
-/* We need to do this to get the system includes to give xlC what it only wants to give GCC but not give xlC the things which it doesn't understand */
+/* We need to do this to get the system includes to give xlC what it only wants to give GCC but not give xlC the things
+ * which it doesn't understand */
 #if defined(LINUXPPC)
 #include <features.h>
 #undef __USE_GNU
@@ -70,7 +70,6 @@
 #define J9FSTAT fstat64
 #endif /* defined(J9ZTPF) || defined(OSX) */
 #endif /* defined(J9UNIX) */
-
 
 /* required for poll support on some Unix platforms (called in JVM_Available) */
 #if defined(LINUX) || defined(OSX) || defined(AIXPPC) || defined(J9ZOS390)
@@ -101,9 +100,9 @@
 #include <sys/ioctl.h>
 #include "atoe.h"
 #include <unistd.h>
-#define dlsym	dllqueryfn
-#define dlopen(a,b) 	dllload(a)
-#define dlclose	dllfree
+#define dlsym dllqueryfn
+#define dlopen(a, b) dllload(a)
+#define dlclose dllfree
 #define J9FSTAT fstat
 #endif
 
@@ -114,8 +113,7 @@
  */
 void initializeVMI(void);
 
-jclass
-jvmDefineClassHelper(JNIEnv *env, jobject classLoaderObject,
-	jstring className, jbyte * classBytes, jint offset, jint length, jobject protectionDomain, UDATA options);
+jclass jvmDefineClassHelper(JNIEnv* env, jobject classLoaderObject, jstring className, jbyte* classBytes, jint offset,
+    jint length, jobject protectionDomain, UDATA options);
 
 #endif /* j9vm_internal_h */

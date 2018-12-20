@@ -33,27 +33,27 @@
  * @brief Function indicates to the runtime that the library testlibA has been
  * linked into the executable.
  */
-jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad (testlibA): JNI_OnLoad [dynamically]\n");
-	fflush(stdout);
-	return JNI_VERSION_1_8;
+    fprintf(stdout, "[MSG] Reached OnLoad (testlibA): JNI_OnLoad [dynamically]\n");
+    fflush(stdout);
+    return JNI_VERSION_1_8;
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testlibA.
  */
-void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
+void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload (testlibA): JNI_OnUnload [dynamically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload (testlibA): JNI_OnUnload [dynamically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }
 
 /**
- * @brief Provide an implementation for the class Hello's native instance method 
+ * @brief Provide an implementation for the class Hello's native instance method
  * fooImpl.
  * Package:	  com.ibm.j9.tests.jeptests
  * Class:     StaticLinking
@@ -61,9 +61,8 @@ void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
  * @param[in] env The JNI env.
  * @param[in] instance The this pointer.
  */
-void JNICALL
-Java_com_ibm_j9_tests_jeptests_StaticLinking_fooImpl(JNIEnv *env, jobject this)
+void JNICALL Java_com_ibm_j9_tests_jeptests_StaticLinking_fooImpl(JNIEnv* env, jobject this)
 {
-	fprintf(stdout, "[MSG] Reached native fooImpl() [dynamically]\n");
-	fflush(stdout);
+    fprintf(stdout, "[MSG] Reached native fooImpl() [dynamically]\n");
+    fflush(stdout);
 }

@@ -40,48 +40,42 @@ extern "C" {
  * Method:    create
  * Signature: ([I)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaJitOptions_create
-  (JNIEnv *, jclass, jintArray);
+jlong JNICALL Java_com_ibm_cuda_CudaJitOptions_create(JNIEnv*, jclass, jintArray);
 
 /*
  * Class:     com_ibm_cuda_CudaJitOptions
  * Method:    destroy
  * Signature: (J)V
  */
-void JNICALL Java_com_ibm_cuda_CudaJitOptions_destroy
-  (JNIEnv *, jclass, jlong);
+void JNICALL Java_com_ibm_cuda_CudaJitOptions_destroy(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaJitOptions
  * Method:    getErrorLogBuffer
  * Signature: (J)Ljava/lang/String;
  */
-jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getErrorLogBuffer
-  (JNIEnv *, jclass, jlong);
+jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getErrorLogBuffer(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaJitOptions
  * Method:    getInfoLogBuffer
  * Signature: (J)Ljava/lang/String;
  */
-jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getInfoLogBuffer
-  (JNIEnv *, jclass, jlong);
+jstring JNICALL Java_com_ibm_cuda_CudaJitOptions_getInfoLogBuffer(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaJitOptions
  * Method:    getThreadsPerBlock
  * Signature: (J)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaJitOptions_getThreadsPerBlock
-  (JNIEnv *, jclass, jlong);
+jint JNICALL Java_com_ibm_cuda_CudaJitOptions_getThreadsPerBlock(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaJitOptions
  * Method:    getWallTime
  * Signature: (J)F
  */
-jfloat JNICALL Java_com_ibm_cuda_CudaJitOptions_getWallTime
-  (JNIEnv *, jclass, jlong);
+jfloat JNICALL Java_com_ibm_cuda_CudaJitOptions_getWallTime(JNIEnv*, jclass, jlong);
 
 #ifdef __cplusplus
 }

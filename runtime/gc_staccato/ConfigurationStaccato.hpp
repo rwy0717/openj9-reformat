@@ -38,29 +38,25 @@ class MM_EnvironmentBase;
 class MM_GlobalCollector;
 class MM_Heap;
 
-class MM_ConfigurationStaccato : public MM_ConfigurationRealtime
-{
-/* Data members / Types */
+class MM_ConfigurationStaccato : public MM_ConfigurationRealtime {
+    /* Data members / Types */
 public:
 protected:
 private:
-
-/* Methods */
+    /* Methods */
 public:
-	static MM_Configuration *newInstance(MM_EnvironmentBase *env);
-	
-	virtual MM_GlobalCollector *createGlobalCollector(MM_EnvironmentBase *env);
-	
-	MM_ConfigurationStaccato(MM_EnvironmentBase *env)
-		: MM_ConfigurationRealtime(env)
-	{
-		_typeId = __FUNCTION__;
-	};
-	
+    static MM_Configuration* newInstance(MM_EnvironmentBase* env);
+
+    virtual MM_GlobalCollector* createGlobalCollector(MM_EnvironmentBase* env);
+
+    MM_ConfigurationStaccato(MM_EnvironmentBase* env)
+        : MM_ConfigurationRealtime(env)
+    {
+        _typeId = __FUNCTION__;
+    };
+
 protected:
-	
 private:
 };
-
 
 #endif /* CONFIGURATIONSTACCATO_HPP_ */

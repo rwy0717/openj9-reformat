@@ -33,8 +33,7 @@
 #include "j9sysinfo_helpers.h"
 
 /* Forward declarations. */
-static void
-zos_systemz_shutdown(struct J9PortLibrary *portLibrary);
+static void zos_systemz_shutdown(struct J9PortLibrary* portLibrary);
 
 /**
  * This is called at java startup time if we are running on z/VM or PR/SM
@@ -43,16 +42,15 @@ zos_systemz_shutdown(struct J9PortLibrary *portLibrary);
  *
  * @return      0 on success, negative value on failure
  */
-static intptr_t
-zos_systemz_startup(struct J9PortLibrary *portLibrary)
+static intptr_t zos_systemz_startup(struct J9PortLibrary* portLibrary)
 {
-	PHD_hypFunc.hypervisor_impl_shutdown = zos_systemz_shutdown;
-	PHD_hypFunc.get_guest_processor_usage = retrieveZGuestProcessorStats;
-	PHD_hypFunc.get_guest_memory_usage = retrieveZGuestMemoryStats;
-	PHD_vendorStatus = HYPERVISOR_VENDOR_INIT_SUCCESS;
-	PHD_vendorPrivateData = NULL;
+    PHD_hypFunc.hypervisor_impl_shutdown = zos_systemz_shutdown;
+    PHD_hypFunc.get_guest_processor_usage = retrieveZGuestProcessorStats;
+    PHD_hypFunc.get_guest_memory_usage = retrieveZGuestMemoryStats;
+    PHD_vendorStatus = HYPERVISOR_VENDOR_INIT_SUCCESS;
+    PHD_vendorPrivateData = NULL;
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -61,16 +59,15 @@ zos_systemz_startup(struct J9PortLibrary *portLibrary)
  *
  * @param [in]  portLibrary The port Library
  */
-static void
-zos_systemz_shutdown(struct J9PortLibrary *portLibrary)
+static void zos_systemz_shutdown(struct J9PortLibrary* portLibrary)
 {
-	PHD_hypFunc.get_guest_processor_usage = NULL;
-	PHD_hypFunc.get_guest_memory_usage = NULL;
-	PHD_hypFunc.hypervisor_impl_shutdown = NULL;
+    PHD_hypFunc.get_guest_processor_usage = NULL;
+    PHD_hypFunc.get_guest_memory_usage = NULL;
+    PHD_hypFunc.hypervisor_impl_shutdown = NULL;
 
-	if (NULL != PPG_j9csrsi_session) {
-		j9csrsi_shutdown(PPG_j9csrsi_session);
-	}
+    if (NULL != PPG_j9csrsi_session) {
+        j9csrsi_shutdown(PPG_j9csrsi_session);
+    }
 }
 
 /**
@@ -81,9 +78,8 @@ zos_systemz_shutdown(struct J9PortLibrary *portLibrary)
  *
  * @return 0 on success and negative on failure
  */
-intptr_t
-systemz_startup(struct J9PortLibrary *portLibrary)
+intptr_t systemz_startup(struct J9PortLibrary* portLibrary)
 {
-	/* Have the setup function set the function pointer appropriately. */
-	return zos_systemz_startup(portLibrary);
+    /* Have the setup function set the function pointer appropriately. */
+    return zos_systemz_startup(portLibrary);
 }

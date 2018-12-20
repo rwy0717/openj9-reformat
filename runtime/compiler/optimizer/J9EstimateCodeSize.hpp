@@ -38,61 +38,61 @@
 
 class TR_ResolvedMethod;
 
-class TR_J9EstimateCodeSize : public TR_EstimateCodeSize
-   {
-   public:
+class TR_J9EstimateCodeSize : public TR_EstimateCodeSize {
+public:
+    TR_J9EstimateCodeSize()
+        : TR_EstimateCodeSize()
+        , _optimisticSize(0)
+        , _lastCallBlockFrequency(-1)
+    {}
 
-      TR_J9EstimateCodeSize() : TR_EstimateCodeSize(), _optimisticSize(0), _lastCallBlockFrequency(-1) { }
+    int32_t getOptimisticSize() { return _optimisticSize; }
 
-      int32_t getOptimisticSize()       { return _optimisticSize; }
-      
-   /** \brief
-    *     The inliner weight adjustment factor used for java/lang/String* compression related methods.
-    */
-   static const float STRING_COMPRESSION_ADJUSTMENT_FACTOR;
+    /** \brief
+     *     The inliner weight adjustment factor used for java/lang/String* compression related methods.
+     */
+    static const float STRING_COMPRESSION_ADJUSTMENT_FACTOR;
 
-   /** \brief
-    *     Adjusts the estimated \p value by a \p factor for string compression related methods.
-    *
-    *  \param method
-    *     The method we are trying to make an estimate adjustment for.
-    *
-    *  \param value
-    *     The estimated value we are trying to adjust.
-    *
-    *  \param factor
-    *     The factor multiplier to adjust the value by.
-    *
-    *  \return
-    *     true if the \p value was adjusted by the \p factor for the specific \p method; false otherwise.
-    *
-    *  \note
-    *     If an adjustment is performed the formula used to calculate the new value is:
-    *
-    *     \code
-    *     value *= factor;
-    *     \endcode
-    */
-   static bool adjustEstimateForStringCompression(TR_ResolvedMethod* method, int32_t& value, float factor);
+    /** \brief
+     *     Adjusts the estimated \p value by a \p factor for string compression related methods.
+     *
+     *  \param method
+     *     The method we are trying to make an estimate adjustment for.
+     *
+     *  \param value
+     *     The estimated value we are trying to adjust.
+     *
+     *  \param factor
+     *     The factor multiplier to adjust the value by.
+     *
+     *  \return
+     *     true if the \p value was adjusted by the \p factor for the specific \p method; false otherwise.
+     *
+     *  \note
+     *     If an adjustment is performed the formula used to calculate the new value is:
+     *
+     *     \code
+     *     value *= factor;
+     *     \endcode
+     */
+    static bool adjustEstimateForStringCompression(TR_ResolvedMethod* method, int32_t& value, float factor);
 
-   protected:
-      bool estimateCodeSize(TR_CallTarget *, TR_CallStack * , bool recurseDown = true);
-      bool realEstimateCodeSize(TR_CallTarget *calltarget, TR_CallStack *prevCallStack, bool recurseDown);
+protected:
+    bool estimateCodeSize(TR_CallTarget*, TR_CallStack*, bool recurseDown = true);
+    bool realEstimateCodeSize(TR_CallTarget* calltarget, TR_CallStack* prevCallStack, bool recurseDown);
 
-      bool reduceDAAWrapperCodeSize(TR_CallTarget* target);
+    bool reduceDAAWrapperCodeSize(TR_CallTarget* target);
 
-      // Partial Inlining Logic
-      bool isInExceptionRange(TR_ResolvedMethod * feMethod, int32_t bcIndex);
-      bool trimBlocksForPartialInlining (TR_CallTarget *calltarget, TR_Queue<TR::Block> *);
-      bool isPartialInliningCandidate(TR_CallTarget *calltarget, TR_Queue<TR::Block> *);
-      bool graphSearch( TR::CFG *, TR::Block *, TR::Block::partialFlags, TR::Block::partialFlags);
-      int32_t labelGraph( TR::CFG *, TR_Queue<TR::Block> *, TR_Queue<TR::Block> *);
-      void processGraph(TR_CallTarget * );
+    // Partial Inlining Logic
+    bool isInExceptionRange(TR_ResolvedMethod* feMethod, int32_t bcIndex);
+    bool trimBlocksForPartialInlining(TR_CallTarget* calltarget, TR_Queue<TR::Block>*);
+    bool isPartialInliningCandidate(TR_CallTarget* calltarget, TR_Queue<TR::Block>*);
+    bool graphSearch(TR::CFG*, TR::Block*, TR::Block::partialFlags, TR::Block::partialFlags);
+    int32_t labelGraph(TR::CFG*, TR_Queue<TR::Block>*, TR_Queue<TR::Block>*);
+    void processGraph(TR_CallTarget*);
 
-
-      int32_t _lastCallBlockFrequency;
-      int32_t _optimisticSize;          // size if we assume we are doing a partial inline
-   };
-
+    int32_t _lastCallBlockFrequency;
+    int32_t _optimisticSize; // size if we assume we are doing a partial inline
+};
 
 #endif

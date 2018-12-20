@@ -28,8 +28,12 @@
  */
 #ifndef J9_CLASSENV_CONNECTOR
 #define J9_CLASSENV_CONNECTOR
-namespace J9 { class ClassEnv; }
-namespace J9 { typedef J9::ClassEnv ClassEnvConnector; }
+namespace J9 {
+class ClassEnv;
+}
+namespace J9 {
+typedef J9::ClassEnv ClassEnvConnector;
+}
 #endif
 
 #include "env/OMRClassEnv.hpp"
@@ -37,75 +41,77 @@ namespace J9 { typedef J9::ClassEnv ClassEnvConnector; }
 #include "env/jittypes.h"
 #include "j9.h"
 
-namespace TR { class SymbolReference; }
-
-namespace J9
-{
-
-class OMR_EXTENSIBLE ClassEnv : public OMR::ClassEnvConnector
-   {
-public:
-
-   bool classesOnHeap() { return true; }
-
-   bool classObjectsMayBeCollected() { return false; }
-
-   bool romClassObjectsMayBeCollected() { return false; }
-
-   TR_OpaqueClassBlock *getClassFromJavaLangClass(uintptrj_t objectPointer);
-
-   J9Class *convertClassOffsetToClassPtr(TR_OpaqueClassBlock *clazzOffset);
-
-   uintptrj_t classFlagsValue(TR_OpaqueClassBlock * classPointer);
-   uintptrj_t classDepthOf(TR_OpaqueClassBlock *clazzPointer);
-   uintptrj_t classInstanceSize(TR_OpaqueClassBlock * clazzPointer);
-
-   J9ROMClass *romClassOf(TR_OpaqueClassBlock * clazz);
-
-   bool isStringClass(TR_OpaqueClassBlock *clazz);
-
-   bool isStringClass(uintptrj_t objectPointer);
-
-   bool classHasIllegalStaticFinalFieldModification(TR_OpaqueClassBlock * clazzPointer);
-   bool isAbstractClass(TR::Compilation *comp, TR_OpaqueClassBlock *clazzPointer);
-   bool isInterfaceClass(TR::Compilation *comp, TR_OpaqueClassBlock *clazzPointer);
-   bool isPrimitiveClass(TR::Compilation *comp, TR_OpaqueClassBlock *clazz);
-   bool isAnonymousClass(TR::Compilation *comp, TR_OpaqueClassBlock *clazz);
-   bool isPrimitiveArray(TR::Compilation *comp, TR_OpaqueClassBlock *);
-   bool isReferenceArray(TR::Compilation *comp, TR_OpaqueClassBlock *);
-   bool isClassArray(TR::Compilation *comp, TR_OpaqueClassBlock *);
-   bool isClassFinal(TR::Compilation *comp, TR_OpaqueClassBlock *);
-   bool hasFinalizer(TR::Compilation *comp, TR_OpaqueClassBlock *classPointer);
-   bool isClassInitialized(TR::Compilation *comp, TR_OpaqueClassBlock *);
-   bool hasFinalFieldsInClass(TR::Compilation *comp, TR_OpaqueClassBlock *classPointer);
-   bool sameClassLoaders(TR::Compilation *comp, TR_OpaqueClassBlock *, TR_OpaqueClassBlock *);
-   bool isString(TR::Compilation *comp, TR_OpaqueClassBlock *clazz);
-   bool isString(TR::Compilation *comp, uintptrj_t objectPointer);
-   bool jitStaticsAreSame(TR::Compilation *comp, TR_ResolvedMethod * method1, int32_t cpIndex1, TR_ResolvedMethod * method2, int32_t cpIndex2);
-   bool jitFieldsAreSame(TR::Compilation *comp, TR_ResolvedMethod * method1, int32_t cpIndex1, TR_ResolvedMethod * method2, int32_t cpIndex2, int32_t isStatic);
-
-   uintptrj_t getArrayElementWidthInBytes(TR::Compilation *comp, TR_OpaqueClassBlock* arrayClass);
-
-   uintptrj_t persistentClassPointerFromClassPointer(TR::Compilation *comp, TR_OpaqueClassBlock *clazz);
-   TR_OpaqueClassBlock *objectClass(TR::Compilation *comp, uintptrj_t objectPointer);
-   TR_OpaqueClassBlock *classFromJavaLangClass(TR::Compilation *comp, uintptrj_t objectPointer);
-
-   uint16_t getStringCharacter(TR::Compilation *comp, uintptrj_t objectPointer, int32_t index);
-   bool getStringFieldByName(TR::Compilation *, TR::SymbolReference *stringRef, TR::SymbolReference *fieldRef, void* &pResult);
-
-   using OMR::ClassEnv::classNameChars;
-   char *classNameChars(TR::Compilation *, TR::SymbolReference *symRef, int32_t & length);
-   char *classNameChars(TR::Compilation *, TR_OpaqueClassBlock * clazz, int32_t & length);
-
-   char *classSignature_DEPRECATED(TR::Compilation *comp, TR_OpaqueClassBlock * clazz, int32_t & length, TR_Memory *);
-   char *classSignature(TR::Compilation *comp, TR_OpaqueClassBlock * clazz, TR_Memory *);
-
-   int32_t vTableSlot(TR::Compilation *comp, TR_OpaqueMethodBlock *, TR_OpaqueClassBlock *);
-   int32_t flagValueForPrimitiveTypeCheck(TR::Compilation *comp);
-   int32_t flagValueForArrayCheck(TR::Compilation *comp);
-   int32_t flagValueForFinalizerCheck(TR::Compilation *comp);
-   };
-
+namespace TR {
+class SymbolReference;
 }
+
+namespace J9 {
+
+class OMR_EXTENSIBLE ClassEnv : public OMR::ClassEnvConnector {
+public:
+    bool classesOnHeap() { return true; }
+
+    bool classObjectsMayBeCollected() { return false; }
+
+    bool romClassObjectsMayBeCollected() { return false; }
+
+    TR_OpaqueClassBlock* getClassFromJavaLangClass(uintptrj_t objectPointer);
+
+    J9Class* convertClassOffsetToClassPtr(TR_OpaqueClassBlock* clazzOffset);
+
+    uintptrj_t classFlagsValue(TR_OpaqueClassBlock* classPointer);
+    uintptrj_t classDepthOf(TR_OpaqueClassBlock* clazzPointer);
+    uintptrj_t classInstanceSize(TR_OpaqueClassBlock* clazzPointer);
+
+    J9ROMClass* romClassOf(TR_OpaqueClassBlock* clazz);
+
+    bool isStringClass(TR_OpaqueClassBlock* clazz);
+
+    bool isStringClass(uintptrj_t objectPointer);
+
+    bool classHasIllegalStaticFinalFieldModification(TR_OpaqueClassBlock* clazzPointer);
+    bool isAbstractClass(TR::Compilation* comp, TR_OpaqueClassBlock* clazzPointer);
+    bool isInterfaceClass(TR::Compilation* comp, TR_OpaqueClassBlock* clazzPointer);
+    bool isPrimitiveClass(TR::Compilation* comp, TR_OpaqueClassBlock* clazz);
+    bool isAnonymousClass(TR::Compilation* comp, TR_OpaqueClassBlock* clazz);
+    bool isPrimitiveArray(TR::Compilation* comp, TR_OpaqueClassBlock*);
+    bool isReferenceArray(TR::Compilation* comp, TR_OpaqueClassBlock*);
+    bool isClassArray(TR::Compilation* comp, TR_OpaqueClassBlock*);
+    bool isClassFinal(TR::Compilation* comp, TR_OpaqueClassBlock*);
+    bool hasFinalizer(TR::Compilation* comp, TR_OpaqueClassBlock* classPointer);
+    bool isClassInitialized(TR::Compilation* comp, TR_OpaqueClassBlock*);
+    bool hasFinalFieldsInClass(TR::Compilation* comp, TR_OpaqueClassBlock* classPointer);
+    bool sameClassLoaders(TR::Compilation* comp, TR_OpaqueClassBlock*, TR_OpaqueClassBlock*);
+    bool isString(TR::Compilation* comp, TR_OpaqueClassBlock* clazz);
+    bool isString(TR::Compilation* comp, uintptrj_t objectPointer);
+    bool jitStaticsAreSame(TR::Compilation* comp, TR_ResolvedMethod* method1, int32_t cpIndex1,
+        TR_ResolvedMethod* method2, int32_t cpIndex2);
+    bool jitFieldsAreSame(TR::Compilation* comp, TR_ResolvedMethod* method1, int32_t cpIndex1,
+        TR_ResolvedMethod* method2, int32_t cpIndex2, int32_t isStatic);
+
+    uintptrj_t getArrayElementWidthInBytes(TR::Compilation* comp, TR_OpaqueClassBlock* arrayClass);
+
+    uintptrj_t persistentClassPointerFromClassPointer(TR::Compilation* comp, TR_OpaqueClassBlock* clazz);
+    TR_OpaqueClassBlock* objectClass(TR::Compilation* comp, uintptrj_t objectPointer);
+    TR_OpaqueClassBlock* classFromJavaLangClass(TR::Compilation* comp, uintptrj_t objectPointer);
+
+    uint16_t getStringCharacter(TR::Compilation* comp, uintptrj_t objectPointer, int32_t index);
+    bool getStringFieldByName(
+        TR::Compilation*, TR::SymbolReference* stringRef, TR::SymbolReference* fieldRef, void*& pResult);
+
+    using OMR::ClassEnv::classNameChars;
+    char* classNameChars(TR::Compilation*, TR::SymbolReference* symRef, int32_t& length);
+    char* classNameChars(TR::Compilation*, TR_OpaqueClassBlock* clazz, int32_t& length);
+
+    char* classSignature_DEPRECATED(TR::Compilation* comp, TR_OpaqueClassBlock* clazz, int32_t& length, TR_Memory*);
+    char* classSignature(TR::Compilation* comp, TR_OpaqueClassBlock* clazz, TR_Memory*);
+
+    int32_t vTableSlot(TR::Compilation* comp, TR_OpaqueMethodBlock*, TR_OpaqueClassBlock*);
+    int32_t flagValueForPrimitiveTypeCheck(TR::Compilation* comp);
+    int32_t flagValueForArrayCheck(TR::Compilation* comp);
+    int32_t flagValueForFinalizerCheck(TR::Compilation* comp);
+};
+
+} // namespace J9
 
 #endif

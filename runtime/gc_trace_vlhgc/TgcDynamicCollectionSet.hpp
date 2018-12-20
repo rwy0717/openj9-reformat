@@ -31,7 +31,7 @@
 
 #include "j9.h"
 
-bool tgcDynamicCollectionSetInitialize(J9JavaVM *javaVM);
-void tgcDynamicCollectionSetTearDown(J9JavaVM *javaVM);
+bool tgcDynamicCollectionSetInitialize(J9JavaVM* javaVM);
+void tgcDynamicCollectionSetTearDown(J9JavaVM* javaVM);
 
 #endif /* TGCDYNAMICCOLLECTIONSET_HPP_ */

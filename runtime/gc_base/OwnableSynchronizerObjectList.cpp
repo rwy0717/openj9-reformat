@@ -33,32 +33,33 @@
 #include "ObjectAccessBarrier.hpp"
 
 MM_OwnableSynchronizerObjectList::MM_OwnableSynchronizerObjectList()
-	: MM_BaseNonVirtual()
-	, _head(NULL)
-	, _priorHead(NULL)
-	, _nextList(NULL)
-	, _previousList(NULL)
+    : MM_BaseNonVirtual()
+    , _head(NULL)
+    , _priorHead(NULL)
+    , _nextList(NULL)
+    , _previousList(NULL)
 #if defined(J9VM_GC_VLHGC)
-	, _objectCount(0)
+    , _objectCount(0)
 #endif /* defined(J9VM_GC_VLHGC) */
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-void 
-MM_OwnableSynchronizerObjectList::addAll(MM_EnvironmentBase* env, j9object_t head, j9object_t tail)
+void MM_OwnableSynchronizerObjectList::addAll(MM_EnvironmentBase* env, j9object_t head, j9object_t tail)
 {
-	Assert_MM_true(NULL != head);
-	Assert_MM_true(NULL != tail);
+    Assert_MM_true(NULL != head);
+    Assert_MM_true(NULL != tail);
 
-	j9object_t previousHead = _head;
-	while (previousHead != (j9object_t)MM_AtomicOperations::lockCompareExchange((volatile UDATA*)&_head, (UDATA)previousHead, (UDATA)head)) {
-		previousHead = _head;
-	}
+    j9object_t previousHead = _head;
+    while (previousHead
+        != (j9object_t)MM_AtomicOperations::lockCompareExchange(
+               (volatile UDATA*)&_head, (UDATA)previousHead, (UDATA)head)) {
+        previousHead = _head;
+    }
 
-	/* detect trivial cases which can inject cycles into the linked list */
-	Assert_MM_true( (head != previousHead) && (tail != previousHead) );
-	
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	extensions->accessBarrier->setOwnableSynchronizerLink(tail, previousHead);
+    /* detect trivial cases which can inject cycles into the linked list */
+    Assert_MM_true((head != previousHead) && (tail != previousHead));
+
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    extensions->accessBarrier->setOwnableSynchronizerLink(tail, previousHead);
 }

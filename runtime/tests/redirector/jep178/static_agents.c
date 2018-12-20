@@ -30,65 +30,58 @@
  * @brief Function indicates to the runtime that the library testjvmtiA has been
  * linked into the executable and may be linked as a statically linking agent.
  */
-JNIEXPORT jint JNICALL
-Agent_OnLoad_testjvmtiA(JavaVM *vm, char *options, void *reserved)
+JNIEXPORT jint JNICALL Agent_OnLoad_testjvmtiA(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad: Agent_OnLoad_testjvmtiA [statically]\n");
-	fflush(stdout);
-	return 0; /* Indicate success. */
+    fprintf(stdout, "[MSG] Reached OnLoad: Agent_OnLoad_testjvmtiA [statically]\n");
+    fflush(stdout);
+    return 0; /* Indicate success. */
 }
 
-JNIEXPORT jint JNICALL
-Agent_OnAttach_testjvmtiA(JavaVM *vm, char *options, void *reserved)
+JNIEXPORT jint JNICALL Agent_OnAttach_testjvmtiA(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnAttach: Agent_OnAttach_testjvmtiA [statically]\n");
-	fflush(stdout);
-	return 0; /* Indicate success. */
+    fprintf(stdout, "[MSG] Reached OnAttach: Agent_OnAttach_testjvmtiA [statically]\n");
+    fflush(stdout);
+    return 0; /* Indicate success. */
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testjvmtiA.
  */
-JNIEXPORT void JNICALL
-Agent_OnUnload_testjvmtiA(JavaVM *vm)
+JNIEXPORT void JNICALL Agent_OnUnload_testjvmtiA(JavaVM* vm)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload: Agent_OnUnload_testjvmtiA [statically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload: Agent_OnUnload_testjvmtiA [statically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }
-
 
 /**
  * @brief Function indicates to the runtime that the library testjvmtiB has been
  * linked into the executable and may be linked as a statically linking agent.
  */
-JNIEXPORT jint JNICALL
-Agent_OnLoad_testjvmtiB(JavaVM *vm, char *options, void *reserved)
+JNIEXPORT jint JNICALL Agent_OnLoad_testjvmtiB(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad: Agent_OnLoad_testjvmtiB [statically]\n");
-	fflush(stdout);
-	return 0; /* Indicate success. */
+    fprintf(stdout, "[MSG] Reached OnLoad: Agent_OnLoad_testjvmtiB [statically]\n");
+    fflush(stdout);
+    return 0; /* Indicate success. */
 }
 
-JNIEXPORT jint JNICALL
-Agent_OnAttach_testjvmtiB(JavaVM *vm, char *options, void *reserved)
+JNIEXPORT jint JNICALL Agent_OnAttach_testjvmtiB(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnAttach: Agent_OnAttach_testjvmtiB [statically]\n");
-	fflush(stdout);
-	return 0; /* Indicate success. */
+    fprintf(stdout, "[MSG] Reached OnAttach: Agent_OnAttach_testjvmtiB [statically]\n");
+    fflush(stdout);
+    return 0; /* Indicate success. */
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testjvmtiB.
  */
-JNIEXPORT void JNICALL
-Agent_OnUnload_testjvmtiB(JavaVM *vm)
+JNIEXPORT void JNICALL Agent_OnUnload_testjvmtiB(JavaVM* vm)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload: Agent_OnUnload_testjvmtiB [statically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload: Agent_OnUnload_testjvmtiB [statically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }

@@ -23,68 +23,64 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-static void JNICALL threadStartCB(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread);
+static void JNICALL threadStartCB(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread);
 
 static jthread receivedThread;
 static jboolean threadStartEventFired;
 
-jint JNICALL
-ets001(agentEnv * agent_env, char * args)
+jint JNICALL ets001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiEventCallbacks callbacks;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiEventCallbacks callbacks;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	threadStartEventFired = JNI_FALSE;
+    threadStartEventFired = JNI_FALSE;
 
-	/* Set the CompiledMethodLoad event callback */
-	memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
-	callbacks.ThreadStart = threadStartCB;
-	err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to set callback for CompiledMethodLoad events");
-		return JNI_ERR;
-	}
+    /* Set the CompiledMethodLoad event callback */
+    memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
+    callbacks.ThreadStart = threadStartCB;
+    err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to set callback for CompiledMethodLoad events");
+        return JNI_ERR;
+    }
 
-	/* Enable the JVMTI_EVENT_THREAD_START callback */
-	err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_THREAD_START, NULL);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to enable ThreadStart event");
-		return JNI_ERR;
-	} 
+    /* Enable the JVMTI_EVENT_THREAD_START callback */
+    err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_THREAD_START, NULL);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to enable ThreadStart event");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-static void JNICALL
-threadStartCB(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread)
+static void JNICALL threadStartCB(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread)
 {
-	jvmtiThreadInfo info;
-	jvmtiError err;
-	
-	err = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &info);
-	if (err != JVMTI_ERROR_NONE) {
-		/* callback can fire during start phase, where GetThreadInfo is not allowed */
-		if (err != JVMTI_ERROR_WRONG_PHASE) {
-			error(env, err, "Failed to GetThreadInfo");
-		}
-		return;
-	} 
-	
-	if (strcmp(info.name, "ets001 thread")) {
-		threadStartEventFired = JNI_TRUE;
-	}
-	
-	return;	
+    jvmtiThreadInfo info;
+    jvmtiError err;
+
+    err = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &info);
+    if (err != JVMTI_ERROR_NONE) {
+        /* callback can fire during start phase, where GetThreadInfo is not allowed */
+        if (err != JVMTI_ERROR_WRONG_PHASE) {
+            error(env, err, "Failed to GetThreadInfo");
+        }
+        return;
+    }
+
+    if (strcmp(info.name, "ets001 thread")) {
+        threadStartEventFired = JNI_TRUE;
+    }
+
+    return;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_eventThreadStart_ets001_check(JNIEnv *jni_env, jclass cls, jthread t)
+jboolean JNICALL Java_com_ibm_jvmti_tests_eventThreadStart_ets001_check(JNIEnv* jni_env, jclass cls, jthread t)
 {
-	return threadStartEventFired;
+    return threadStartEventFired;
 }

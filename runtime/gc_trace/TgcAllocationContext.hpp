@@ -29,6 +29,6 @@
 #if !defined(TGCALLOCATIONCONTEXT_HPP_)
 #define TGCALLOCATIONCONTEXT_HPP_
 
-bool tgcAllocationContextInitialize(J9JavaVM *javaVM);
+bool tgcAllocationContextInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCALLOCATIONCONTEXT_HPP_ */

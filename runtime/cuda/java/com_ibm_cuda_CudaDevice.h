@@ -188,136 +188,119 @@ extern "C" {
  * Method:    addCallback
  * Signature: (IJLjava/lang/Runnable;)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_addCallback
-  (JNIEnv *, jclass, jint, jlong, jobject);
+void JNICALL Java_com_ibm_cuda_CudaDevice_addCallback(JNIEnv*, jclass, jint, jlong, jobject);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    canAccessPeer
  * Signature: (II)Z
  */
-jboolean JNICALL Java_com_ibm_cuda_CudaDevice_canAccessPeer
-  (JNIEnv *, jclass, jint, jint);
+jboolean JNICALL Java_com_ibm_cuda_CudaDevice_canAccessPeer(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    disablePeerAccess
  * Signature: (II)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_disablePeerAccess
-  (JNIEnv *, jclass, jint, jint);
+void JNICALL Java_com_ibm_cuda_CudaDevice_disablePeerAccess(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    enablePeerAccess
  * Signature: (II)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_enablePeerAccess
-  (JNIEnv *, jclass, jint, jint);
+void JNICALL Java_com_ibm_cuda_CudaDevice_enablePeerAccess(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getAttribute
  * Signature: (II)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaDevice_getAttribute
-  (JNIEnv *, jclass, jint, jint);
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getAttribute(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getCacheConfig
  * Signature: (I)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaDevice_getCacheConfig
-  (JNIEnv *, jclass, jint);
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getCacheConfig(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getFreeMemory
  * Signature: (I)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaDevice_getFreeMemory
-  (JNIEnv *, jclass, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getFreeMemory(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getGreatestStreamPriority
  * Signature: (I)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaDevice_getGreatestStreamPriority
-  (JNIEnv *, jclass, jint);
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getGreatestStreamPriority(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getLeastStreamPriority
  * Signature: (I)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaDevice_getLeastStreamPriority
-  (JNIEnv *, jclass, jint);
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getLeastStreamPriority(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getLimit
  * Signature: (II)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaDevice_getLimit
-  (JNIEnv *, jclass, jint, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getLimit(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getName
  * Signature: (I)Ljava/lang/String;
  */
-jstring JNICALL Java_com_ibm_cuda_CudaDevice_getName
-  (JNIEnv *, jclass, jint);
+jstring JNICALL Java_com_ibm_cuda_CudaDevice_getName(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getSharedMemConfig
  * Signature: (I)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaDevice_getSharedMemConfig
-  (JNIEnv *, jclass, jint);
+jint JNICALL Java_com_ibm_cuda_CudaDevice_getSharedMemConfig(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    getTotalMemory
  * Signature: (I)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaDevice_getTotalMemory
-  (JNIEnv *, jclass, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaDevice_getTotalMemory(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    setCacheConfig
  * Signature: (II)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_setCacheConfig
-  (JNIEnv *, jclass, jint, jint);
+void JNICALL Java_com_ibm_cuda_CudaDevice_setCacheConfig(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    setLimit
  * Signature: (IIJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_setLimit
-  (JNIEnv *, jclass, jint, jint, jlong);
+void JNICALL Java_com_ibm_cuda_CudaDevice_setLimit(JNIEnv*, jclass, jint, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    setSharedMemConfig
  * Signature: (II)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_setSharedMemConfig
-  (JNIEnv *, jclass, jint, jint);
+void JNICALL Java_com_ibm_cuda_CudaDevice_setSharedMemConfig(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaDevice
  * Method:    synchronize
  * Signature: (I)V
  */
-void JNICALL Java_com_ibm_cuda_CudaDevice_synchronize
-  (JNIEnv *, jclass, jint);
+void JNICALL Java_com_ibm_cuda_CudaDevice_synchronize(JNIEnv*, jclass, jint);
 
 #ifdef __cplusplus
 }

@@ -31,18 +31,18 @@
  * If one is found, return its index, otherwise return 0.
  */
 UDATA
-cutest_parseCmdLine( J9PortLibrary *portLibrary, UDATA lastLegalArg , char **argv )
+cutest_parseCmdLine(J9PortLibrary* portLibrary, UDATA lastLegalArg, char** argv)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	UDATA i;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    UDATA i;
 
-	for (i = lastLegalArg; i >= 1; i--)  {
-		/* new style -Xcheck:memory options */
-		if (0 == strcmp("-verbose", argv[i])) {
-			verbose = 1;
-			j9tty_err_printf(PORTLIB, "cutest: verbose output enabled.\n");
-			return i;
-		}
-	}
-	return 0;
+    for (i = lastLegalArg; i >= 1; i--) {
+        /* new style -Xcheck:memory options */
+        if (0 == strcmp("-verbose", argv[i])) {
+            verbose = 1;
+            j9tty_err_printf(PORTLIB, "cutest: verbose output enabled.\n");
+            return i;
+        }
+    }
+    return 0;
 }

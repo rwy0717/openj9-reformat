@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "j9.h"
 #include "j9protos.h"
 #include "j9port.h"
@@ -41,60 +40,54 @@
  * @param mode type of packets (used for getting the right overflow handler)
  * @return pointer to the new object
  */
-MM_WorkPacketsRealtime *
-MM_WorkPacketsRealtime::newInstance(MM_EnvironmentBase *env)
+MM_WorkPacketsRealtime* MM_WorkPacketsRealtime::newInstance(MM_EnvironmentBase* env)
 {
-	MM_WorkPacketsRealtime *workPackets;
-	
-	workPackets = (MM_WorkPacketsRealtime *)env->getForge()->allocate(sizeof(MM_WorkPacketsRealtime), MM_AllocationCategory::WORK_PACKETS, J9_GET_CALLSITE());
-	if (workPackets) {
-		new(workPackets) MM_WorkPacketsRealtime(env);
-		if (!workPackets->initialize(env)) {
-			workPackets->kill(env);
-			workPackets = NULL;	
-		}
-	}
-	
-	return workPackets;
+    MM_WorkPacketsRealtime* workPackets;
+
+    workPackets = (MM_WorkPacketsRealtime*)env->getForge()->allocate(
+        sizeof(MM_WorkPacketsRealtime), MM_AllocationCategory::WORK_PACKETS, J9_GET_CALLSITE());
+    if (workPackets) {
+        new (workPackets) MM_WorkPacketsRealtime(env);
+        if (!workPackets->initialize(env)) {
+            workPackets->kill(env);
+            workPackets = NULL;
+        }
+    }
+
+    return workPackets;
 }
 
 /**
  * Initialize a MM_WorkPacketsRealtime object
  * @return true on success, false otherwise
  */
-bool
-MM_WorkPacketsRealtime::initialize(MM_EnvironmentBase *env)
+bool MM_WorkPacketsRealtime::initialize(MM_EnvironmentBase* env)
 {
-	if (!MM_WorkPacketsSATB::initialize(env)) {
-		return false;
-	}
+    if (!MM_WorkPacketsSATB::initialize(env)) {
+        return false;
+    }
 
-	if (0 == MM_GCExtensions::getExtensions(_extensions)->overflowCacheCount) {
-		/* If the user has not specified a value for overflowCacheCount
-		 * set it to be 5% of the packet slot count.
-		 */
-		MM_GCExtensions::getExtensions(_extensions)->overflowCacheCount = (UDATA)(_slotsInPacket * 0.05);
-	}
-		
-	return true;
+    if (0 == MM_GCExtensions::getExtensions(_extensions)->overflowCacheCount) {
+        /* If the user has not specified a value for overflowCacheCount
+         * set it to be 5% of the packet slot count.
+         */
+        MM_GCExtensions::getExtensions(_extensions)->overflowCacheCount = (UDATA)(_slotsInPacket * 0.05);
+    }
+
+    return true;
 }
 
 /**
  * Destroy the resources a MM_WorkPacketsRealtime is responsible for
  */
-void
-MM_WorkPacketsRealtime::tearDown(MM_EnvironmentBase *env)
-{
-	MM_WorkPacketsSATB::tearDown(env);
-}
+void MM_WorkPacketsRealtime::tearDown(MM_EnvironmentBase* env) { MM_WorkPacketsSATB::tearDown(env); }
 
 /**
  * Create the overflow handler
  */
-MM_WorkPacketOverflow *
-MM_WorkPacketsRealtime::createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPackets *wp)
+MM_WorkPacketOverflow* MM_WorkPacketsRealtime::createOverflowHandler(MM_EnvironmentBase* env, MM_WorkPackets* wp)
 {
-	return MM_IncrementalOverflow::newInstance(env, wp);
+    return MM_IncrementalOverflow::newInstance(env, wp);
 }
 
 /**
@@ -102,94 +95,96 @@ MM_WorkPacketsRealtime::createOverflowHandler(MM_EnvironmentBase *env, MM_WorkPa
  *
  * @return Pointer to an input packet
  */
-MM_Packet *
-MM_WorkPacketsRealtime::getInputPacket(MM_EnvironmentBase *env)
+MM_Packet* MM_WorkPacketsRealtime::getInputPacket(MM_EnvironmentBase* env)
 {
-	MM_Packet *packet = NULL;
-	bool doneFlag = false;
-	volatile UDATA doneIndex = _inputListDoneIndex;
+    MM_Packet* packet = NULL;
+    bool doneFlag = false;
+    volatile UDATA doneIndex = _inputListDoneIndex;
 
-	while(!doneFlag) {
-		while(inputPacketAvailable(env)) {
+    while (!doneFlag) {
+        while (inputPacketAvailable(env)) {
 
-			/* Check if the regular cache list has work to be done */
-			if(NULL != (packet = getInputPacketNoWait(env))) {
-				/* Got a packet.
-				 * Check if there are threads waiting that should be notified
-				 * because of pending entries
-				 */
-				if(inputPacketAvailable(env) && _inputListWaitCount) {
-					omrthread_monitor_enter(_inputListMonitor);
-					if(_inputListWaitCount) {
-						_yieldCollaborator.setResumeEvent(MM_YieldCollaborator::newPacket);
-						omrthread_monitor_notify(_inputListMonitor);
-					}
-					omrthread_monitor_exit(_inputListMonitor);
-				}
+            /* Check if the regular cache list has work to be done */
+            if (NULL != (packet = getInputPacketNoWait(env))) {
+                /* Got a packet.
+                 * Check if there are threads waiting that should be notified
+                 * because of pending entries
+                 */
+                if (inputPacketAvailable(env) && _inputListWaitCount) {
+                    omrthread_monitor_enter(_inputListMonitor);
+                    if (_inputListWaitCount) {
+                        _yieldCollaborator.setResumeEvent(MM_YieldCollaborator::newPacket);
+                        omrthread_monitor_notify(_inputListMonitor);
+                    }
+                    omrthread_monitor_exit(_inputListMonitor);
+                }
 
-				return packet;
-			}
-		}
+                return packet;
+            }
+        }
 
-		omrthread_monitor_enter(_inputListMonitor);
+        omrthread_monitor_enter(_inputListMonitor);
 
-		if(doneIndex == _inputListDoneIndex) {
-			_inputListWaitCount += 1;
+        if (doneIndex == _inputListDoneIndex) {
+            _inputListWaitCount += 1;
 
-			if(((NULL == env->_currentTask)
-			     || (_inputListWaitCount == env->_currentTask->getThreadCount())
-			     || env->_currentTask->isSynchronized())
-			   && !inputPacketAvailable(env)) {
-				_inputListDoneIndex += 1;
-				_inputListWaitCount = 0;
-				_yieldCollaborator.setResumeEvent(MM_YieldCollaborator::synchedThreads);
-				omrthread_monitor_notify_all(_inputListMonitor);
-			} else {
-				while(!inputPacketAvailable(env) && (_inputListDoneIndex == doneIndex)) {
+            if (((NULL == env->_currentTask) || (_inputListWaitCount == env->_currentTask->getThreadCount())
+                    || env->_currentTask->isSynchronized())
+                && !inputPacketAvailable(env)) {
+                _inputListDoneIndex += 1;
+                _inputListWaitCount = 0;
+                _yieldCollaborator.setResumeEvent(MM_YieldCollaborator::synchedThreads);
+                omrthread_monitor_notify_all(_inputListMonitor);
+            } else {
+                while (!inputPacketAvailable(env) && (_inputListDoneIndex == doneIndex)) {
 
-					/* if all GC threads are blocked or yielded (at least one yielded), it's time for master to know about it */
-					if (_yieldCollaborator.getYieldCount() + _inputListWaitCount >= env->_currentTask->getThreadCount() && _yieldCollaborator.getYieldCount() > 0) {
-						if (env->isMasterThread()) {
-							((MM_Scheduler *)(_extensions->dispatcher))->condYieldFromGC(env);
-						} else {
-							/* notify master last thread synced/yielded */
-							_yieldCollaborator.setResumeEvent(MM_YieldCollaborator::notifyMaster);
-							omrthread_monitor_notify_all(_inputListMonitor);
-						}
-					}
+                    /* if all GC threads are blocked or yielded (at least one yielded), it's time for master to know
+                     * about it */
+                    if (_yieldCollaborator.getYieldCount() + _inputListWaitCount >= env->_currentTask->getThreadCount()
+                        && _yieldCollaborator.getYieldCount() > 0) {
+                        if (env->isMasterThread()) {
+                            ((MM_Scheduler*)(_extensions->dispatcher))->condYieldFromGC(env);
+                        } else {
+                            /* notify master last thread synced/yielded */
+                            _yieldCollaborator.setResumeEvent(MM_YieldCollaborator::notifyMaster);
+                            omrthread_monitor_notify_all(_inputListMonitor);
+                        }
+                    }
 
-					/* A slave is only interested in synchedThreads and newPacket event. For any other event it remains to be blocked */
-					/* We check doneIndex, so we can exit this iteration ASAP before synchedThreads is overwritten by another event in the next iteration
-					 * (We may be overly cautious here, since we are not that sure that overlap between iterations may even happen)
-					 */
-					do {
-						omrthread_monitor_wait(_inputListMonitor);
-					} while ((_inputListDoneIndex == doneIndex) && !env->isMasterThread() && ((_yieldCollaborator.getResumeEvent() == MM_YieldCollaborator::notifyMaster) || (_yieldCollaborator.getResumeEvent() == MM_YieldCollaborator::fromYield)));
-				}
-			}
-		}
+                    /* A slave is only interested in synchedThreads and newPacket event. For any other event it remains
+                     * to be blocked */
+                    /* We check doneIndex, so we can exit this iteration ASAP before synchedThreads is overwritten by
+                     * another event in the next iteration (We may be overly cautious here, since we are not that sure
+                     * that overlap between iterations may even happen)
+                     */
+                    do {
+                        omrthread_monitor_wait(_inputListMonitor);
+                    } while ((_inputListDoneIndex == doneIndex) && !env->isMasterThread()
+                        && ((_yieldCollaborator.getResumeEvent() == MM_YieldCollaborator::notifyMaster)
+                               || (_yieldCollaborator.getResumeEvent() == MM_YieldCollaborator::fromYield)));
+                }
+            }
+        }
 
-		/* Set the local done flag. If we are done ,exit
-		 *  if we are not yet done only decrement the wait count */
-		doneFlag = (_inputListDoneIndex != doneIndex);
-		if(!doneFlag) {
-			_inputListWaitCount -= 1;
-		}
-		omrthread_monitor_exit(_inputListMonitor);
-	}
+        /* Set the local done flag. If we are done ,exit
+         *  if we are not yet done only decrement the wait count */
+        doneFlag = (_inputListDoneIndex != doneIndex);
+        if (!doneFlag) {
+            _inputListWaitCount -= 1;
+        }
+        omrthread_monitor_exit(_inputListMonitor);
+    }
 
-	assume0(NULL == packet);
-	return packet;
+    assume0(NULL == packet);
+    return packet;
 }
 
-void
-MM_WorkPacketsRealtime::notifyWaitingThreads(MM_EnvironmentBase *env)
+void MM_WorkPacketsRealtime::notifyWaitingThreads(MM_EnvironmentBase* env)
 {
-	/* Added an entry to a null list - notify any other threads that a new entry has appeared on the list */
-	omrthread_monitor_enter(_inputListMonitor);
-	/* Before doing the actual notify on mutex, set the new packet event */
-	_yieldCollaborator.setResumeEvent(MM_YieldCollaborator::newPacket);
-	omrthread_monitor_notify(_inputListMonitor);
-	omrthread_monitor_exit(_inputListMonitor);
+    /* Added an entry to a null list - notify any other threads that a new entry has appeared on the list */
+    omrthread_monitor_enter(_inputListMonitor);
+    /* Before doing the actual notify on mutex, set the new packet event */
+    _yieldCollaborator.setResumeEvent(MM_YieldCollaborator::newPacket);
+    omrthread_monitor_notify(_inputListMonitor);
+    omrthread_monitor_exit(_inputListMonitor);
 }
-

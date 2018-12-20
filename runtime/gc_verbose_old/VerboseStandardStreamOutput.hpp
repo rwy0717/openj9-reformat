@@ -20,10 +20,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(STD_STREAM_OUTPUT_HPP_)
 #define STD_STREAM_OUTPUT_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 
@@ -34,38 +34,33 @@ class MM_EnvironmentBase;
 /**
  * Ouptut agent which directs verbosegc output to a standard stream.
  */
-class MM_VerboseStandardStreamOutput : public MM_VerboseOutputAgent
-{
+class MM_VerboseStandardStreamOutput : public MM_VerboseOutputAgent {
 private:
-	typedef enum {
-		STDERR = 1,
-		STDOUT
-	} StreamID;
+    typedef enum { STDERR = 1, STDOUT } StreamID;
 
-	MM_VerboseStandardStreamOutput::StreamID _currentStream;
+    MM_VerboseStandardStreamOutput::StreamID _currentStream;
 
-	bool initialize(MM_EnvironmentBase *env, const char *filename);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    bool initialize(MM_EnvironmentBase* env, const char* filename);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	MM_VerboseStandardStreamOutput::StreamID getStreamID(MM_EnvironmentBase *env, const char *string);
-	MMINLINE void setStream(MM_VerboseStandardStreamOutput::StreamID stream) { _currentStream = stream; }
+    MM_VerboseStandardStreamOutput::StreamID getStreamID(MM_EnvironmentBase* env, const char* string);
+    MMINLINE void setStream(MM_VerboseStandardStreamOutput::StreamID stream) { _currentStream = stream; }
 
 public:
-	
-	virtual bool reconfigure(MM_EnvironmentBase *env, const char *filename, UDATA fileCount, UDATA iterations);
-	
-	/* Output Routine */
-	virtual void formatAndOutput(J9VMThread *vmThread, UDATA indent, const char *format, ...);
-	
-	virtual void endOfCycle(J9VMThread *vmThread);
-	
-	void closeStream(MM_EnvironmentBase *env);
-	
-	static MM_VerboseStandardStreamOutput *newInstance(MM_EnvironmentBase *env, const char *filename);
+    virtual bool reconfigure(MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations);
 
-	MM_VerboseStandardStreamOutput(MM_EnvironmentBase *env) :
-		MM_VerboseOutputAgent(env, STANDARD_STREAM)
-	{}
+    /* Output Routine */
+    virtual void formatAndOutput(J9VMThread* vmThread, UDATA indent, const char* format, ...);
+
+    virtual void endOfCycle(J9VMThread* vmThread);
+
+    void closeStream(MM_EnvironmentBase* env);
+
+    static MM_VerboseStandardStreamOutput* newInstance(MM_EnvironmentBase* env, const char* filename);
+
+    MM_VerboseStandardStreamOutput(MM_EnvironmentBase* env)
+        : MM_VerboseOutputAgent(env, STANDARD_STREAM)
+    {}
 };
 
 #endif /* STD_STREAM_OUTPUT_HPP_ */

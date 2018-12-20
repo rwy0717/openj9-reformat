@@ -28,11 +28,12 @@
 #include "codegen/OMRCodeGenPhaseFunctionTable.hpp"
 
 // The entries in this file must be kept in sync with codegen/J9CodeGenPhaseEnum.hpp
-   TR::CodeGenPhase::performAllocateLinkageRegistersPhase,                                   //AllocateLinkageRegisters
-   TR::CodeGenPhase::performPopulateOSRBufferPhase,                                          //PopulateOSRBufferPhase
-   TR::CodeGenPhase::performMoveUpArrayLengthStoresPhase,                                    //MoveUpArrayLengthStoresPhase
-   TR::CodeGenPhase::performInsertEpilogueYieldPointsPhase,                                  //InsertEpilogueYieldPointsPhase
-   TR::CodeGenPhase::performCompressedReferenceRematerializationPhase,
-   TR::CodeGenPhase::performSplitWarmAndColdBlocksPhase,
-   TR::CodeGenPhase::performIdentifyUnneededByteConvsPhase,                                  //IdentifyUnneededByteConvsPhase
-   TR::CodeGenPhase::performLateSequentialConstantStoreSimplificationPhase,                  //LateSequentialConstantStoreSimplificationPhase
+TR::CodeGenPhase::performAllocateLinkageRegistersPhase, // AllocateLinkageRegisters
+    TR::CodeGenPhase::performPopulateOSRBufferPhase, // PopulateOSRBufferPhase
+    TR::CodeGenPhase::performMoveUpArrayLengthStoresPhase, // MoveUpArrayLengthStoresPhase
+    TR::CodeGenPhase::performInsertEpilogueYieldPointsPhase, // InsertEpilogueYieldPointsPhase
+    TR::CodeGenPhase::performCompressedReferenceRematerializationPhase,
+    TR::CodeGenPhase::performSplitWarmAndColdBlocksPhase,
+    TR::CodeGenPhase::performIdentifyUnneededByteConvsPhase, // IdentifyUnneededByteConvsPhase
+    TR::CodeGenPhase::
+        performLateSequentialConstantStoreSimplificationPhase, // LateSequentialConstantStoreSimplificationPhase

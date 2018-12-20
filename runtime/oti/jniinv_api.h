@@ -24,13 +24,13 @@
 #define jniinv_api_h
 
 /**
-* @file jniinv_api.h
-* @brief Public API for the JNIINV module.
-*
-* This file contains public function prototypes and
-* type definitions for the JNIINV module.
-*
-*/
+ * @file jniinv_api.h
+ * @brief Public API for the JNIINV module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the JNIINV module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -52,4 +52,3 @@ extern "C" {
 #endif
 
 #endif /* jniinv_api_h */
-

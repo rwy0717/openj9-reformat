@@ -27,64 +27,60 @@
 
 #include "infra/Assert.hpp"
 
-namespace TR { class CodeGenerator; }
-namespace TR { class Instruction; }
-namespace TR { class Register; }
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Instruction;
+}
+namespace TR {
+class Register;
+}
 
 namespace TR {
 
-class ARMPrivateLinkage : public TR::Linkage
-   {
-   static TR::ARMLinkageProperties properties;
+class ARMPrivateLinkage : public TR::Linkage {
+    static TR::ARMLinkageProperties properties;
 
-   public:
+public:
+    ARMPrivateLinkage(TR::CodeGenerator* codeGen)
+        : TR::Linkage(codeGen)
+    {}
 
-   ARMPrivateLinkage(TR::CodeGenerator *codeGen) : TR::Linkage(codeGen) {}
+    virtual uint32_t getRightToLeft();
+    virtual void mapStack(TR::ResolvedMethodSymbol* method);
+    virtual void mapSingleAutomatic(TR::AutomaticSymbol* p, uint32_t& stackIndex);
+    virtual void initARMRealRegisterLinkage();
+    virtual void setParameterLinkageRegisterIndex(TR::ResolvedMethodSymbol* method);
 
-   virtual uint32_t getRightToLeft();
-   virtual void mapStack(TR::ResolvedMethodSymbol *method);
-   virtual void mapSingleAutomatic(TR::AutomaticSymbol *p, uint32_t &stackIndex);
-   virtual void initARMRealRegisterLinkage();
-   virtual void setParameterLinkageRegisterIndex(TR::ResolvedMethodSymbol *method);
+    virtual TR::MemoryReference* getOutgoingArgumentMemRef(int32_t totalParmAreaSize, int32_t argOffset,
+        TR::Register* argReg, TR_ARMOpCodes opCode, TR::ARMMemoryArgument& memArg);
 
-   virtual TR::MemoryReference *getOutgoingArgumentMemRef(int32_t               totalParmAreaSize,
-                                                            int32_t               argOffset,
-                                                            TR::Register          *argReg,
-                                                            TR_ARMOpCodes         opCode,
-                                                            TR::ARMMemoryArgument &memArg);
+    virtual TR::ARMLinkageProperties& getProperties();
 
-   virtual TR::ARMLinkageProperties& getProperties();
+    virtual void createPrologue(TR::Instruction* cursor);
+    virtual void createEpilogue(TR::Instruction* cursor);
 
-   virtual void createPrologue(TR::Instruction *cursor);
-   virtual void createEpilogue(TR::Instruction *cursor);
+    virtual int32_t buildArgs(
+        TR::Node* callNode, TR::RegisterDependencyConditions* dependencies, TR::Register*& vftReg, bool isVirtual);
 
-   virtual int32_t buildArgs(TR::Node                            *callNode,
-                             TR::RegisterDependencyConditions *dependencies,
-                             TR::Register* &vftReg,
-                             bool                                isVirtual);
+    virtual void buildVirtualDispatch(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies,
+        TR::RegisterDependencyConditions* postDeps, TR::Register* vftReg, uint32_t sizeOfArguments);
 
-   virtual void buildVirtualDispatch(TR::Node *callNode,
-                        TR::RegisterDependencyConditions *dependencies,
-                        TR::RegisterDependencyConditions *postDeps,
-                        TR::Register                     *vftReg,
-                        uint32_t                         sizeOfArguments);
+    virtual TR::Register* buildDirectDispatch(TR::Node* callNode);
+    virtual TR::Register* buildIndirectDispatch(TR::Node* callNode);
+};
 
-   virtual TR::Register *buildDirectDispatch(TR::Node *callNode);
-   virtual TR::Register *buildIndirectDispatch(TR::Node *callNode);
-   };
+class ARMHelperLinkage : public TR::ARMPrivateLinkage {
+public:
+    ARMHelperLinkage(TR::CodeGenerator* codeGen)
+        : TR::ARMPrivateLinkage(codeGen)
+    {}
 
-class ARMHelperLinkage : public TR::ARMPrivateLinkage
-   {
-   public:
+    virtual int32_t buildArgs(
+        TR::Node* callNode, TR::RegisterDependencyConditions* dependencies, TR::Register*& vftReg, bool isVirtual);
+};
 
-   ARMHelperLinkage(TR::CodeGenerator *codeGen) : TR::ARMPrivateLinkage(codeGen) {}
-
-   virtual int32_t buildArgs(TR::Node                            *callNode,
-                             TR::RegisterDependencyConditions *dependencies,
-                             TR::Register* &vftReg,
-                             bool                                isVirtual);
-   };
-
-}
+} // namespace TR
 
 #endif

@@ -36,59 +36,53 @@
 #include "j2sever.h"
 #include "ModronAssertions.h"
 
-
 #include "ConstantDynamicSlotIterator.hpp"
 
 /**
  * Iterate over object references (but not class references) in the constant pool of a class.
- * 
+ *
  * @see GC_ConstantPoolClassSlotIterator
  * @ingroup GC_Structs
  */
-class GC_ConstantPoolObjectSlotIterator
-{
-	j9object_t *_cpEntry;
-	U_32 _cpEntryCount;
-	U_32 _cpEntryTotal;
-	U_32 *_cpDescriptionSlots;
-	U_32 _cpDescription;
-	UDATA _cpDescriptionIndex;
-	bool _condyOnly;
-	bool _condyEnabled;
-	GC_ConstantDynamicSlotIterator _constantDynamicSlotIterator;
+class GC_ConstantPoolObjectSlotIterator {
+    j9object_t* _cpEntry;
+    U_32 _cpEntryCount;
+    U_32 _cpEntryTotal;
+    U_32* _cpDescriptionSlots;
+    U_32 _cpDescription;
+    UDATA _cpDescriptionIndex;
+    bool _condyOnly;
+    bool _condyEnabled;
+    GC_ConstantDynamicSlotIterator _constantDynamicSlotIterator;
 
 public:
+    GC_ConstantPoolObjectSlotIterator(J9JavaVM* vm, J9Class* clazz, bool condyOnly = false)
+        : _cpEntry((j9object_t*)J9_CP_FROM_CLASS(clazz))
+        , _cpEntryCount(clazz->romClass->ramConstantPoolCount)
+        , _constantDynamicSlotIterator()
+    {
+        _condyOnly = condyOnly;
+        _cpEntryTotal = _cpEntryCount;
+        if (_cpEntryCount) {
+            _cpDescriptionSlots = SRP_PTR_GET(&clazz->romClass->cpShapeDescription, U_32*);
+            _cpDescriptionIndex = 0;
+        }
+        /* Check if the system is condy-enabled */
+        if (J2SE_VERSION(vm) < J2SE_V11) {
+            _condyEnabled = false;
+        } else {
+            _condyEnabled = true;
+        }
+    };
 
-	GC_ConstantPoolObjectSlotIterator(J9JavaVM *vm, J9Class *clazz, bool condyOnly = false) :
-		_cpEntry((j9object_t *)J9_CP_FROM_CLASS(clazz)),
-		_cpEntryCount(clazz->romClass->ramConstantPoolCount),
-		_constantDynamicSlotIterator()
-	{
-		_condyOnly = condyOnly;
-		_cpEntryTotal = _cpEntryCount;
-		if(_cpEntryCount) {
-			_cpDescriptionSlots = SRP_PTR_GET(&clazz->romClass->cpShapeDescription, U_32 *);
-			_cpDescriptionIndex = 0;
-		}
-		/* Check if the system is condy-enabled */
-		if (J2SE_VERSION(vm) < J2SE_V11) {
-			_condyEnabled = false;
-		} else {
-			_condyEnabled = true;
-		}
-	};
+    /**
+     * Gets the current constant pool index.
+     * @return zero based constant pool index of the entry returned by the last call of nextSlot.
+     * @return -1 if nextSlot has yet to be called.
+     */
+    MMINLINE IDATA getIndex() { return _cpEntryTotal - _cpEntryCount - 1; }
 
-	/**
-	 * Gets the current constant pool index.
-	 * @return zero based constant pool index of the entry returned by the last call of nextSlot.
-	 * @return -1 if nextSlot has yet to be called.
-	 */
-	MMINLINE IDATA getIndex() {
-		return _cpEntryTotal - _cpEntryCount - 1;
-	}
-
-	j9object_t *nextSlot();
-
+    j9object_t* nextSlot();
 };
 
 #endif /* CONSTANTPOOLOBJECTSLOTITERATOR_HPP_ */

@@ -23,6 +23,6 @@
 #if !defined(TGCALLOCATION_HPP_)
 #define TGCALLOCATION_HPP_
 
-bool tgcAllocationInitialize(J9JavaVM *javaVM);
+bool tgcAllocationInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCALLOCATION_HPP_ */

@@ -42,77 +42,75 @@
  * Iterate over all static slots in a class which contain an object reference.
  * @ingroup GC_Structs
  */
-class GC_ClassStaticsIterator
-{
-	U_32 _objectStaticCount;
-	j9object_t *_staticPtr;
-	
+class GC_ClassStaticsIterator {
+    U_32 _objectStaticCount;
+    j9object_t* _staticPtr;
+
 public:
-	GC_ClassStaticsIterator(MM_EnvironmentBase *env, J9Class *clazz)
-		: _objectStaticCount(clazz->romClass->objectStaticCount)
-		, _staticPtr((j9object_t *)clazz->ramStatics)
-	{
-		/* check if the class's statics have been abandoned due to hot
-		 * code replace. If so, this class has no statics of its own
-		 */
-		/*
-		 * Note: we have no special recognition for J9ArrayClass here
-		 * J9ArrayClass does not have a ramStatics field but something else at this place
-		 * so direct check (NULL != clazz->ramStatics) would not be correct,
-		 * however romClazz->objectStaticCount must be 0 for this case
-		 * as well as J9ArrayClass can not be hot swapped.
-		 *
-		 * Classes which have been hotswapped by fast HCR still have the ramStatics field
-		 * set.  Statics must be walked only once, so only walk them for the most current
-		 * version of the class.
-		 */
-		if ((NULL == _staticPtr) || (J9ClassReusedStatics == (J9CLASS_EXTENDED_FLAGS(clazz) & J9ClassReusedStatics))) {
-			_objectStaticCount = 0;
-		}
-	};
+    GC_ClassStaticsIterator(MM_EnvironmentBase* env, J9Class* clazz)
+        : _objectStaticCount(clazz->romClass->objectStaticCount)
+        , _staticPtr((j9object_t*)clazz->ramStatics)
+    {
+        /* check if the class's statics have been abandoned due to hot
+         * code replace. If so, this class has no statics of its own
+         */
+        /*
+         * Note: we have no special recognition for J9ArrayClass here
+         * J9ArrayClass does not have a ramStatics field but something else at this place
+         * so direct check (NULL != clazz->ramStatics) would not be correct,
+         * however romClazz->objectStaticCount must be 0 for this case
+         * as well as J9ArrayClass can not be hot swapped.
+         *
+         * Classes which have been hotswapped by fast HCR still have the ramStatics field
+         * set.  Statics must be walked only once, so only walk them for the most current
+         * version of the class.
+         */
+        if ((NULL == _staticPtr) || (J9ClassReusedStatics == (J9CLASS_EXTENDED_FLAGS(clazz) & J9ClassReusedStatics))) {
+            _objectStaticCount = 0;
+        }
+    };
 
-	GC_ClassStaticsIterator(MM_GCExtensionsBase *extensions, J9Class *clazz)
-		: _objectStaticCount(clazz->romClass->objectStaticCount)
-		, _staticPtr((j9object_t *)clazz->ramStatics)
-	{
-		/* check if the class's statics have been abandoned due to hot 
-		 * code replace. If so, this class has no statics of its own 
-		 */
-		/*
-		 * Note: we have no special recognition for J9ArrayClass here
-		 * J9ArrayClass does not have a ramStatics field but something else at this place
-		 * so direct check (NULL != clazz->ramStatics) would not be correct,
-		 * however romClazz->objectStaticCount must be 0 for this case
-		 * as well as J9ArrayClass can not be hot swapped.
-		 *
-		 * Classes which have been hotswapped by fast HCR still have the ramStatics field
-		 * set.  Statics must be walked only once, so only walk them for the most current
-		 * version of the class.
-		 */
-		if ((NULL == _staticPtr) || (J9ClassReusedStatics == (J9CLASS_EXTENDED_FLAGS(clazz) & J9ClassReusedStatics))) {
-			_objectStaticCount = 0;
-		}
-	};
+    GC_ClassStaticsIterator(MM_GCExtensionsBase* extensions, J9Class* clazz)
+        : _objectStaticCount(clazz->romClass->objectStaticCount)
+        , _staticPtr((j9object_t*)clazz->ramStatics)
+    {
+        /* check if the class's statics have been abandoned due to hot
+         * code replace. If so, this class has no statics of its own
+         */
+        /*
+         * Note: we have no special recognition for J9ArrayClass here
+         * J9ArrayClass does not have a ramStatics field but something else at this place
+         * so direct check (NULL != clazz->ramStatics) would not be correct,
+         * however romClazz->objectStaticCount must be 0 for this case
+         * as well as J9ArrayClass can not be hot swapped.
+         *
+         * Classes which have been hotswapped by fast HCR still have the ramStatics field
+         * set.  Statics must be walked only once, so only walk them for the most current
+         * version of the class.
+         */
+        if ((NULL == _staticPtr) || (J9ClassReusedStatics == (J9CLASS_EXTENDED_FLAGS(clazz) & J9ClassReusedStatics))) {
+            _objectStaticCount = 0;
+        }
+    };
 
-	/**
-	 * Fetch the next static field in the class.
-	 * Note that the pointer is volatile. In concurrent applications the mutator may 
-	 * change the value in the slot while iteration is in progress.
-	 * @return the next static slot in the class containing an object reference
-	 * @return NULL if there are no more such slots
-	 */
-	volatile j9object_t *
-	nextSlot()
-	{
-		j9object_t *slotPtr;
-		
-		if (0 == _objectStaticCount) {
-			return NULL;
-		}
-		_objectStaticCount -= 1;
-		slotPtr = _staticPtr++;
+    /**
+     * Fetch the next static field in the class.
+     * Note that the pointer is volatile. In concurrent applications the mutator may
+     * change the value in the slot while iteration is in progress.
+     * @return the next static slot in the class containing an object reference
+     * @return NULL if there are no more such slots
+     */
+    volatile j9object_t* nextSlot()
+    {
+        j9object_t* slotPtr;
 
-		return slotPtr;
-	}
+        if (0 == _objectStaticCount) {
+            return NULL;
+        }
+        _objectStaticCount -= 1;
+        slotPtr = _staticPtr++;
+
+        return slotPtr;
+    }
 };
 #endif /* CLASSSTATICSITERATOR_HPP_ */

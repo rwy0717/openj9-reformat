@@ -38,10 +38,8 @@ class MM_EnvironmentBase;
  * @todo Provide class documentation
  * @ingroup GC_Base
  */
-class GC_VMThreadInterface
-{
+class GC_VMThreadInterface {
 public:
 };
 
 #endif /* VMTHREADINTERFACE_HPP_ */
-

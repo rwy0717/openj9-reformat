@@ -41,96 +41,96 @@
  *
  * @ingroup Shared_Common
  */
-class SH_ByteDataManagerImpl : public SH_ByteDataManager
-{
+class SH_ByteDataManagerImpl : public SH_ByteDataManager {
 public:
-	typedef char* BlockPtr;
+    typedef char* BlockPtr;
 
-	SH_ByteDataManagerImpl();
+    SH_ByteDataManagerImpl();
 
-	~SH_ByteDataManagerImpl();
+    ~SH_ByteDataManagerImpl();
 
-	static SH_ByteDataManagerImpl* newInstance(J9JavaVM* vm, SH_SharedCache* cache, SH_ByteDataManagerImpl* memForConstructor);
+    static SH_ByteDataManagerImpl* newInstance(
+        J9JavaVM* vm, SH_SharedCache* cache, SH_ByteDataManagerImpl* memForConstructor);
 
-	static UDATA getRequiredConstrBytes(void);
+    static UDATA getRequiredConstrBytes(void);
 
-	virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
+    virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
 
-	virtual ByteDataWrapper* findSingleEntry(J9VMThread* currentThread, const char* key, UDATA keylen, UDATA dataType, U_16 jvmID, UDATA* dataLen);
+    virtual ByteDataWrapper* findSingleEntry(
+        J9VMThread* currentThread, const char* key, UDATA keylen, UDATA dataType, U_16 jvmID, UDATA* dataLen);
 
-	virtual void markAllStaleForKey(J9VMThread* currentThread, const char* key, UDATA keylen);
+    virtual void markAllStaleForKey(J9VMThread* currentThread, const char* key, UDATA keylen);
 
-	virtual IDATA find(J9VMThread* currentThread, const char* key, UDATA keylen, UDATA limitDataType, UDATA includePrivateData, J9SharedDataDescriptor* firstItem, const J9Pool* descriptorPool);
-	
-	virtual UDATA acquirePrivateEntry(J9VMThread* currentThread, const J9SharedDataDescriptor* data);
+    virtual IDATA find(J9VMThread* currentThread, const char* key, UDATA keylen, UDATA limitDataType,
+        UDATA includePrivateData, J9SharedDataDescriptor* firstItem, const J9Pool* descriptorPool);
 
-	virtual UDATA releasePrivateEntry(J9VMThread* currentThread, const J9SharedDataDescriptor* data);
-	
-	virtual void runExitCode(void);
+    virtual UDATA acquirePrivateEntry(J9VMThread* currentThread, const J9SharedDataDescriptor* data);
 
-	virtual UDATA getNumOfType(UDATA type);
+    virtual UDATA releasePrivateEntry(J9VMThread* currentThread, const J9SharedDataDescriptor* data);
 
-	virtual UDATA getDataBytesForType(UDATA type);
+    virtual void runExitCode(void);
 
-	virtual UDATA getUnindexedDataBytes();
-	
+    virtual UDATA getNumOfType(UDATA type);
+
+    virtual UDATA getDataBytesForType(UDATA type);
+
+    virtual UDATA getUnindexedDataBytes();
+
 protected:
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    IDATA localPostStartup(J9VMThread* currentThread) { return 0; };
 
-	IDATA localPostStartup(J9VMThread* currentThread) { return 0; };
+    void localPostCleanup(J9VMThread* currentThread) {};
 
-	void localPostCleanup(J9VMThread* currentThread) {};
+    virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
 
-	virtual J9HashTable* localHashTableCreate(J9VMThread* currentThread, U_32 initialEntries);
+    virtual IDATA localInitializePools(J9VMThread* currentThread);
 
-	virtual IDATA localInitializePools(J9VMThread* currentThread);
+    virtual void localTearDownPools(J9VMThread* currentThread);
 
-	virtual void localTearDownPools(J9VMThread* currentThread);
-	
-	virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
-	
-	HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor) {
-		BdLinkedListImpl* newBLL = (BdLinkedListImpl*)memForConstructor;
-		return (HashLinkedListImpl*) new(newBLL) BdLinkedListImpl();
-	}
-	
+    virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
+
+    HashLinkedListImpl* localHLLNewInstance(HashLinkedListImpl* memForConstructor)
+    {
+        BdLinkedListImpl* newBLL = (BdLinkedListImpl*)memForConstructor;
+        return (HashLinkedListImpl*)new (newBLL) BdLinkedListImpl();
+    }
+
 #if defined(J9SHR_CACHELET_SUPPORT)
-	virtual bool canCreateHints() { return true; }
-	virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
-	virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
+    virtual bool canCreateHints() { return true; }
+    virtual IDATA createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints);
+    virtual IDATA primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength);
 #endif
 
 private:
-	J9Pool* _linkedListImplPool;
-	UDATA _unindexedBytes;
-	UDATA _indexedBytesByType[J9SHR_DATA_TYPE_MAX+1];
-	UDATA _numIndexedBytesByType[J9SHR_DATA_TYPE_MAX+1];
+    J9Pool* _linkedListImplPool;
+    UDATA _unindexedBytes;
+    UDATA _indexedBytesByType[J9SHR_DATA_TYPE_MAX + 1];
+    UDATA _numIndexedBytesByType[J9SHR_DATA_TYPE_MAX + 1];
 
-	void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
-	
-	void setDescriptorFields(const ByteDataWrapper* wrapper, J9SharedDataDescriptor* descriptor);
+    void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
 
-	static UDATA htReleasePrivateEntry(void *entry, void *opaque);
-	
-	/**
-	 * Circular linked list for storing local Byte data information.
-	 *
-	 * Local hashtable (_bdTable) has an entry for each known key.
-	 * Key is the string key being used
-	 * Value is a BdLinkedListImpl list of data entries stored under that name
-	 * A BdLinkedListImpl is a reference to a data entry in the cache.
-	 * Thus, given a data key, it is quick and easy to walk all known
-	 * data entries in the cache stored under that name.
-	 *
-	 * @ingroup Shared_Common
-	 */
-	class BdLinkedListImpl : public SH_Manager::HashLinkedListImpl
-	{
-	protected:
-		void localInit(const J9UTF8* key, const ShcItem* item) {};
-	};
+    void setDescriptorFields(const ByteDataWrapper* wrapper, J9SharedDataDescriptor* descriptor);
+
+    static UDATA htReleasePrivateEntry(void* entry, void* opaque);
+
+    /**
+     * Circular linked list for storing local Byte data information.
+     *
+     * Local hashtable (_bdTable) has an entry for each known key.
+     * Key is the string key being used
+     * Value is a BdLinkedListImpl list of data entries stored under that name
+     * A BdLinkedListImpl is a reference to a data entry in the cache.
+     * Thus, given a data key, it is quick and easy to walk all known
+     * data entries in the cache stored under that name.
+     *
+     * @ingroup Shared_Common
+     */
+    class BdLinkedListImpl : public SH_Manager::HashLinkedListImpl {
+    protected:
+        void localInit(const J9UTF8* key, const ShcItem* item) {};
+    };
 };
 
 #endif /* BYTEDATAMANAGERIMPL_H_INCLUDED */
-

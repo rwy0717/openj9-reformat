@@ -30,10 +30,8 @@
 
 #include "j9port.h"
 
-extern void
-getX86CPUID(uint32_t leaf, uint32_t *cpuInfo);
+extern void getX86CPUID(uint32_t leaf, uint32_t* cpuInfo);
 
-extern intptr_t
-getX86Description(struct J9PortLibrary *portLibrary, J9ProcessorDesc *desc);
+extern intptr_t getX86Description(struct J9PortLibrary* portLibrary, J9ProcessorDesc* desc);
 
 #endif /* SYSINFOHELPERS_H_ */

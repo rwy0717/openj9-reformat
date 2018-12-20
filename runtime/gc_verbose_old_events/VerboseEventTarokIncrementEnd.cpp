@@ -30,56 +30,45 @@
  * Create an new instance of a MM_Verbose_AF_End event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventTarokIncrementEnd::newInstance(MM_TarokIncrementEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventTarokIncrementEnd::newInstance(
+    MM_TarokIncrementEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventTarokIncrementEnd *eventObject = (MM_VerboseEventTarokIncrementEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventTarokIncrementEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventTarokIncrementEnd(event, hookInterface);
-		eventObject->initialize();
-	}
-	return eventObject;
+    MM_VerboseEventTarokIncrementEnd* eventObject = (MM_VerboseEventTarokIncrementEnd*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventTarokIncrementEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventTarokIncrementEnd(event, hookInterface);
+        eventObject->initialize();
+    }
+    return eventObject;
 }
 
-bool
-MM_VerboseEventTarokIncrementEnd::definesOutputRoutine()
+bool MM_VerboseEventTarokIncrementEnd::definesOutputRoutine() { return true; }
+
+bool MM_VerboseEventTarokIncrementEnd::endsEventChain() { return true; }
+
+void MM_VerboseEventTarokIncrementEnd::consumeEvents()
 {
-	return true;
+    _lastIncrementStartTime = _manager->getLastTarokIncrementStartTime();
+    _manager->setLastTarokIncrementEndTime(_time);
 }
 
-bool
-MM_VerboseEventTarokIncrementEnd::endsEventChain()
+void MM_VerboseEventTarokIncrementEnd::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	return true;
-}
+    /* output the common GC start info */
+    gcEndFormattedOutput(agent);
+    U_64 timeInMicroSeconds = 0;
 
-void
-MM_VerboseEventTarokIncrementEnd::consumeEvents()
-{
-	_lastIncrementStartTime = _manager->getLastTarokIncrementStartTime();
-	_manager->setLastTarokIncrementEndTime(_time);
-}
+    UDATA indentLevel = _manager->getIndentLevel();
+    if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _lastIncrementStartTime, _time + _exclusiveAccessTime)) {
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"clock error detected in time totalms\" />");
+    }
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<time totalms=\"%llu.%03.3llu\" />", timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
 
-void
-MM_VerboseEventTarokIncrementEnd::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-	/* output the common GC start info */
-	gcEndFormattedOutput(agent);
-	U_64 timeInMicroSeconds = 0;
+    _manager->decrementIndent();
+    indentLevel = _manager->getIndentLevel();
 
-	UDATA indentLevel = _manager->getIndentLevel();
-	if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _lastIncrementStartTime, _time + _exclusiveAccessTime)) {
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"clock error detected in time totalms\" />");
-	}
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<time totalms=\"%llu.%03.3llu\" />",
-		timeInMicroSeconds / 1000, 
-		timeInMicroSeconds % 1000
-	);
-
-	_manager->decrementIndent();
-	indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</increment>");
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
-	
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</increment>");
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }

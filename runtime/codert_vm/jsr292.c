@@ -23,7 +23,4 @@
 #include "j9.h"
 #include "ut_j9codertvm.h"
 
-void
-i2jFSDAssert(){
-	Assert_j9i2jMHTransition_unreachable();
-}
+void i2jFSDAssert() { Assert_j9i2jMHTransition_unreachable(); }

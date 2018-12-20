@@ -24,13 +24,13 @@
 #define cfdumper_internal_h
 
 /**
-* @file cfdumper_internal.h
-* @brief Internal prototypes used within the CFDUMPER module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the CFDUMPER module.
-*
-*/
+ * @file cfdumper_internal.h
+ * @brief Internal prototypes used within the CFDUMPER module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the CFDUMPER module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -45,4 +45,3 @@ extern "C" {
 #endif
 
 #endif /* cfdumper_internal_h */
-

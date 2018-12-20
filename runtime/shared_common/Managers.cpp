@@ -29,104 +29,95 @@
 #include "ut_j9shr.h"
 #include "j9shrnls.h"
 
-SH_Managers*
-SH_Managers::newInstance(J9JavaVM* vm, SH_Managers* memForConstructor)
+SH_Managers* SH_Managers::newInstance(J9JavaVM* vm, SH_Managers* memForConstructor)
 {
-	SH_Managers* retval = memForConstructor;
-	new(retval) SH_Managers();
-	retval->initialize();
-	return retval;
+    SH_Managers* retval = memForConstructor;
+    new (retval) SH_Managers();
+    retval->initialize();
+    return retval;
 }
 
 UDATA
 SH_Managers::getRequiredConstrBytes()
 {
-	UDATA retval = 0;
-	retval += sizeof(SH_Managers);
-	return retval;
+    UDATA retval = 0;
+    retval += sizeof(SH_Managers);
+    return retval;
 }
 
-SH_Manager*
-SH_Managers::getManager(UDATA index)
+SH_Manager* SH_Managers::getManager(UDATA index)
 {
-	SH_Manager* retval = NULL;
-	retval = _initializedManagers[index];
-	return retval;
+    SH_Manager* retval = NULL;
+    retval = _initializedManagers[index];
+    return retval;
 }
 
-SH_Manager*
-SH_Managers::addManager(SH_Manager* manager)
+SH_Manager* SH_Managers::addManager(SH_Manager* manager)
 {
-	SH_Manager* retval = NULL;
-	UDATA index = _initializedManagersCntr;
+    SH_Manager* retval = NULL;
+    UDATA index = _initializedManagersCntr;
 
-	_initializedManagersCntr+=1;
+    _initializedManagersCntr += 1;
 
-	Trc_SHR_Assert_True(_initializedManagersCntr <= NUM_MANAGERS);
+    Trc_SHR_Assert_True(_initializedManagersCntr <= NUM_MANAGERS);
 
-	_initializedManagers[index] = manager;
-	retval = _initializedManagers[index];
-	return retval;
+    _initializedManagers[index] = manager;
+    retval = _initializedManagers[index];
+    return retval;
 }
 
-SH_Manager*
-SH_Managers::startDo(J9VMThread* vmthread, UDATA limitState, ManagerWalkState* walkState)
+SH_Manager* SH_Managers::startDo(J9VMThread* vmthread, UDATA limitState, ManagerWalkState* walkState)
 {
-	SH_Manager* retval = NULL;
-	walkState->index = 0;
-	walkState->limitState = limitState;
-	retval = nextDo(walkState);
-	return retval;
+    SH_Manager* retval = NULL;
+    walkState->index = 0;
+    walkState->limitState = limitState;
+    retval = nextDo(walkState);
+    return retval;
 }
 
-SH_Manager*
-SH_Managers::nextDo(ManagerWalkState* walkState)
+SH_Manager* SH_Managers::nextDo(ManagerWalkState* walkState)
 {
-	SH_Manager* returnVal;
+    SH_Manager* returnVal;
 
-	if (walkState->index == NUM_MANAGERS) {
-		return NULL;
-	}
+    if (walkState->index == NUM_MANAGERS) {
+        return NULL;
+    }
 
-	do {
-		returnVal = _initializedManagers[walkState->index++];
-		
-		if (returnVal != NULL) {
-			if ((walkState->limitState == 0) || (returnVal->getState() == walkState->limitState)) {
-				return returnVal;
-			}
-		}
-	} while (walkState->index < NUM_MANAGERS);
+    do {
+        returnVal = _initializedManagers[walkState->index++];
 
-	return NULL;
+        if (returnVal != NULL) {
+            if ((walkState->limitState == 0) || (returnVal->getState() == walkState->limitState)) {
+                return returnVal;
+            }
+        }
+    } while (walkState->index < NUM_MANAGERS);
+
+    return NULL;
 }
 
-
-SH_Manager*
-SH_Managers::getManagerForDataType(UDATA dataType)
+SH_Manager* SH_Managers::getManagerForDataType(UDATA dataType)
 {
-	SH_Manager* retval = NULL;
-	UDATA i;
-	/* TODO: Optimize */
-	for (i=0; i<NUM_MANAGERS; i++) {
-		if (_initializedManagers[i]->isDataTypeRepresended(dataType) == true) {
-			retval = _initializedManagers[i];
-			goto done;
-		}
-	}
-	done:
-	return retval;
+    SH_Manager* retval = NULL;
+    UDATA i;
+    /* TODO: Optimize */
+    for (i = 0; i < NUM_MANAGERS; i++) {
+        if (_initializedManagers[i]->isDataTypeRepresended(dataType) == true) {
+            retval = _initializedManagers[i];
+            goto done;
+        }
+    }
+done:
+    return retval;
 }
 
-void
-SH_Managers::initialize()
+void SH_Managers::initialize()
 {
-	IDATA i;
+    IDATA i;
 
-	_initializedManagersCntr = 0;
-	for (i = 0; i<NUM_MANAGERS; i++) {
-		_initializedManagers[i] = 0;
-	}
-	return;
+    _initializedManagersCntr = 0;
+    for (i = 0; i < NUM_MANAGERS; i++) {
+        _initializedManagers[i] = 0;
+    }
+    return;
 }
-

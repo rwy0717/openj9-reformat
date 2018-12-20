@@ -29,10 +29,10 @@
 #if !defined(TGC_HPP_)
 #define TGC_HPP_
 
-bool tgcParseArgs(J9JavaVM *javaVM, char *optArg);
-bool tgcInitializeRequestedOptions(J9JavaVM *javaVM);
-bool tgcInstantiateExtensions(J9JavaVM *javaVM);
-void tgcTearDownExtensions(J9JavaVM *javaVM);
-void tgcPrintClass(J9JavaVM *javaVM, J9Class* clazz);
+bool tgcParseArgs(J9JavaVM* javaVM, char* optArg);
+bool tgcInitializeRequestedOptions(J9JavaVM* javaVM);
+bool tgcInstantiateExtensions(J9JavaVM* javaVM);
+void tgcTearDownExtensions(J9JavaVM* javaVM);
+void tgcPrintClass(J9JavaVM* javaVM, J9Class* clazz);
 
 #endif /* TGC_HPP_ */

@@ -25,49 +25,45 @@
 #include "ModronTypes.hpp"
 #include "ScanFormatter.hpp"
 
-GC_Check *
-GC_CheckClassHeap::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckClassHeap::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckClassHeap *check = (GC_CheckClassHeap *) forge->allocate(sizeof(GC_CheckClassHeap), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckClassHeap(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckClassHeap* check = (GC_CheckClassHeap*)forge->allocate(
+        sizeof(GC_CheckClassHeap), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckClassHeap(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckClassHeap::kill()
+void GC_CheckClassHeap::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckClassHeap::check()
+void GC_CheckClassHeap::check()
 {
-	GC_SegmentIterator segmentIterator(_javaVM->classMemorySegments, MEMORY_TYPE_RAM_CLASS);
-	J9MemorySegment *segment;
-	J9Class *clazz;
+    GC_SegmentIterator segmentIterator(_javaVM->classMemorySegments, MEMORY_TYPE_RAM_CLASS);
+    J9MemorySegment* segment;
+    J9Class* clazz;
 
-	while((segment = segmentIterator.nextSegment()) != NULL) {
-		_engine->clearPreviousObjects();
+    while ((segment = segmentIterator.nextSegment()) != NULL) {
+        _engine->clearPreviousObjects();
 
-		GC_ClassHeapIterator classHeapIterator(_javaVM, segment);
-		while((clazz = classHeapIterator.nextClass()) != NULL) {
-			if (_engine->checkClassHeap(_javaVM, clazz, segment) != J9MODRON_SLOT_ITERATOR_OK ){
-				return;
-			}
-			_engine->pushPreviousClass(clazz);
-		}
-	}
+        GC_ClassHeapIterator classHeapIterator(_javaVM, segment);
+        while ((clazz = classHeapIterator.nextClass()) != NULL) {
+            if (_engine->checkClassHeap(_javaVM, clazz, segment) != J9MODRON_SLOT_ITERATOR_OK) {
+                return;
+            }
+            _engine->pushPreviousClass(clazz);
+        }
+    }
 }
 
-void
-GC_CheckClassHeap::print()
+void GC_CheckClassHeap::print()
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
-	j9tty_printf(PORTLIB, "Printing of class heap not currently supported\n");
+    PORT_ACCESS_FROM_PORT(_portLibrary);
+    j9tty_printf(PORTLIB, "Printing of class heap not currently supported\n");
 }
-

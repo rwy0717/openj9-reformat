@@ -29,33 +29,31 @@ class MM_EnvironmentBase;
 class MM_RegionPoolSegregated;
 class MM_AllocationContextSegregated;
 
-class MM_GlobalAllocationManagerRealtime : public MM_GlobalAllocationManagerSegregated
-{
-	/*
-	 * Data members
-	 */
+class MM_GlobalAllocationManagerRealtime : public MM_GlobalAllocationManagerSegregated {
+    /*
+     * Data members
+     */
 private:
 protected:
 public:
-
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
-
 protected:
-	bool initialize(MM_EnvironmentBase *env, MM_RegionPoolSegregated *regionPool);
-	MM_GlobalAllocationManagerRealtime(MM_EnvironmentBase *env)
-		: MM_GlobalAllocationManagerSegregated(env)
-	{
-		_typeId = __FUNCTION__;
-	};
+    bool initialize(MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool);
+    MM_GlobalAllocationManagerRealtime(MM_EnvironmentBase* env)
+        : MM_GlobalAllocationManagerSegregated(env)
+    {
+        _typeId = __FUNCTION__;
+    };
 
-	virtual MM_AllocationContextSegregated * createAllocationContext(MM_EnvironmentBase * env, MM_RegionPoolSegregated *regionPool);
+    virtual MM_AllocationContextSegregated* createAllocationContext(
+        MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool);
 
 public:
-	static MM_GlobalAllocationManagerRealtime *newInstance(MM_EnvironmentBase *env, MM_RegionPoolSegregated *regionPool);
-
+    static MM_GlobalAllocationManagerRealtime* newInstance(
+        MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool);
 };
 
 #endif /* GLOBALALLOCATIONMANAGERREALTIME_HPP_ */

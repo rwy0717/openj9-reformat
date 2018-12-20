@@ -25,7 +25,7 @@
 #include "j9port.h"
 #include "hyport.h"
 
-extern J9_CFUNC I_32 
-hyport_allocate_library_maptoj9 (struct J9PortLibrary *j9PortLib, struct HyPortLibraryVersion *expectedVersion, struct HyPortLibrary **portLibrary);
+extern J9_CFUNC I_32 hyport_allocate_library_maptoj9(
+    struct J9PortLibrary* j9PortLib, struct HyPortLibraryVersion* expectedVersion, struct HyPortLibrary** portLibrary);
 
 #endif /* hyport_shim_h */

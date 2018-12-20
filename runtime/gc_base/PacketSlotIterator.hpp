@@ -35,39 +35,40 @@
  * @todo Provide class documentation
  * @ingroup GC_Base
  */
-class MM_PacketSlotIterator: public MM_BaseNonVirtual
-{
+class MM_PacketSlotIterator : public MM_BaseNonVirtual {
 private:
-	MM_Packet *_packet;                          /**< Packet being iterated */
-	J9Object **_nextSlot;                        /**< Next slot in the packet to be returned */
+    MM_Packet* _packet; /**< Packet being iterated */
+    J9Object** _nextSlot; /**< Next slot in the packet to be returned */
 
 public:
-	/**
-	 * @return The next slot in the packet or NULL if the end of the packet has been reached (no slots pointing at NULL or array split tags will be returned)
-	 */
-	J9Object **nextSlot();
+    /**
+     * @return The next slot in the packet or NULL if the end of the packet has been reached (no slots pointing at NULL
+     * or array split tags will be returned)
+     */
+    J9Object** nextSlot();
 
-	/**
-	 * Resets the split tag for correspondingObject to refer to a zero index which will force mark to completely rescan this array when
-	 * it next sees it.
-	 * Can only be called immediately after a slot containing correspondingObject is returned and allows updating of the corresponding
-	 * array split tag.
-	 * Note that this has no effect if the split tag would have been outside of the packet (since that implies that there isn't one)
-	 * or if there was no split tag for this object.  An assertion failure will be generated if correspondingObject does not match.
-	 * @param correspondingObject[in] The object which will be sanity checked against the previous returned object to ensure a match
-	 * @param newValue the data to store in the tag slot. It is the caller's responsibility to ensure that this is appropriately tagged.
-	 */
-	void resetSplitTagIndexForObject(J9Object *correspondingObject, UDATA newValue);
-	
-	/**
-	 * Create a PacketSlotIterator object.
-	 */
-	MM_PacketSlotIterator(MM_Packet *packet)
-		: MM_BaseNonVirtual()
-		, _packet(packet)
-		, _nextSlot((J9Object **)packet->_basePtr)
-	{
-		_typeId = __FUNCTION__;
-	}
+    /**
+     * Resets the split tag for correspondingObject to refer to a zero index which will force mark to completely rescan
+     * this array when it next sees it. Can only be called immediately after a slot containing correspondingObject is
+     * returned and allows updating of the corresponding array split tag. Note that this has no effect if the split tag
+     * would have been outside of the packet (since that implies that there isn't one) or if there was no split tag for
+     * this object.  An assertion failure will be generated if correspondingObject does not match.
+     * @param correspondingObject[in] The object which will be sanity checked against the previous returned object to
+     * ensure a match
+     * @param newValue the data to store in the tag slot. It is the caller's responsibility to ensure that this is
+     * appropriately tagged.
+     */
+    void resetSplitTagIndexForObject(J9Object* correspondingObject, UDATA newValue);
+
+    /**
+     * Create a PacketSlotIterator object.
+     */
+    MM_PacketSlotIterator(MM_Packet* packet)
+        : MM_BaseNonVirtual()
+        , _packet(packet)
+        , _nextSlot((J9Object**)packet->_basePtr)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 #endif /* PacketSlotIterator_HPP_*/

@@ -25,70 +25,69 @@
 #include "ut_j9vm.h"
 #include "vm_internal.h"
 
-
-void* jniArrayAllocateMemoryFromThread(J9VMThread* vmThread, UDATA sizeInBytes) {
+void* jniArrayAllocateMemoryFromThread(J9VMThread* vmThread, UDATA sizeInBytes)
+{
 #ifdef J9VM_GC_JNI_ARRAY_CACHE
-	void* cache = vmThread->jniArrayCache;
-	UDATA actualSize = sizeInBytes + sizeof(U_64);
-	if (cache != NULL && *(UDATA*)cache >= actualSize ) {
-		Trc_VM_jniArrayCache_hit(vmThread, actualSize);
-		vmThread->jniArrayCache = NULL;
-	} else {
-		PORT_ACCESS_FROM_VMC(vmThread);
-		if (cache == NULL) {
-			Trc_VM_jniArrayCache_missUsed(vmThread, actualSize);
-		} else {
-			Trc_VM_jniArrayCache_missBigger(vmThread, actualSize);
-		}
-		cache = j9mem_allocate_memory(actualSize, J9MEM_CATEGORY_JNI);
-		if (cache == NULL) return NULL;
-		*(UDATA*)cache = actualSize;
-	}
-	return (U_64*)cache + 1;	/* make sure that the memory returned is 8-aligned (or at least as 8-aligned as the allocate function returned) */
+    void* cache = vmThread->jniArrayCache;
+    UDATA actualSize = sizeInBytes + sizeof(U_64);
+    if (cache != NULL && *(UDATA*)cache >= actualSize) {
+        Trc_VM_jniArrayCache_hit(vmThread, actualSize);
+        vmThread->jniArrayCache = NULL;
+    } else {
+        PORT_ACCESS_FROM_VMC(vmThread);
+        if (cache == NULL) {
+            Trc_VM_jniArrayCache_missUsed(vmThread, actualSize);
+        } else {
+            Trc_VM_jniArrayCache_missBigger(vmThread, actualSize);
+        }
+        cache = j9mem_allocate_memory(actualSize, J9MEM_CATEGORY_JNI);
+        if (cache == NULL)
+            return NULL;
+        *(UDATA*)cache = actualSize;
+    }
+    return (U_64*)cache + 1; /* make sure that the memory returned is 8-aligned (or at least as 8-aligned as the
+                                allocate function returned) */
 #else
-	PORT_ACCESS_FROM_VMC(vmThread);
-	return j9mem_allocate_memory(sizeInBytes, J9MEM_CATEGORY_JNI);
+    PORT_ACCESS_FROM_VMC(vmThread);
+    return j9mem_allocate_memory(sizeInBytes, J9MEM_CATEGORY_JNI);
 #endif
 }
 
-
-void jniArrayFreeMemoryFromThread(J9VMThread* vmThread, void* location) {
-	PORT_ACCESS_FROM_VMC(vmThread);
+void jniArrayFreeMemoryFromThread(J9VMThread* vmThread, void* location)
+{
+    PORT_ACCESS_FROM_VMC(vmThread);
 
 #ifdef J9VM_GC_JNI_ARRAY_CACHE
-	UDATA* actualLocation = (UDATA*)((U_64*)location - 1);
-	void* memToFree = actualLocation;
-	J9JavaVM* vm = vmThread->javaVM;
-	IDATA maxSize = vm->jniArrayCacheMaxSize;
+    UDATA* actualLocation = (UDATA*)((U_64*)location - 1);
+    void* memToFree = actualLocation;
+    J9JavaVM* vm = vmThread->javaVM;
+    IDATA maxSize = vm->jniArrayCacheMaxSize;
 
-	if (maxSize == -1 || *actualLocation < (UDATA)maxSize ) {
-		UDATA* cache = vmThread->jniArrayCache;
-		if (cache == NULL) {
-			vmThread->jniArrayCache = actualLocation;
-			return;
-		} else if ( *cache < *actualLocation ) {
-			vmThread->jniArrayCache = actualLocation;
-			memToFree = cache;
-		}
-	}
+    if (maxSize == -1 || *actualLocation < (UDATA)maxSize) {
+        UDATA* cache = vmThread->jniArrayCache;
+        if (cache == NULL) {
+            vmThread->jniArrayCache = actualLocation;
+            return;
+        } else if (*cache < *actualLocation) {
+            vmThread->jniArrayCache = actualLocation;
+            memToFree = cache;
+        }
+    }
 
-	j9mem_free_memory(memToFree);
+    j9mem_free_memory(memToFree);
 
 #else
-	j9mem_free_memory(location);
+    j9mem_free_memory(location);
 #endif
 }
 
-
-#if (defined(J9VM_GC_JNI_ARRAY_CACHE)) 
-void cleanupVMThreadJniArrayCache(J9VMThread *vmThread) {
-	if (vmThread->jniArrayCache) {
-		PORT_ACCESS_FROM_VMC(vmThread);
-		j9mem_free_memory(vmThread->jniArrayCache);
-		vmThread->jniArrayCache = NULL;
-	}
+#if (defined(J9VM_GC_JNI_ARRAY_CACHE))
+void cleanupVMThreadJniArrayCache(J9VMThread* vmThread)
+{
+    if (vmThread->jniArrayCache) {
+        PORT_ACCESS_FROM_VMC(vmThread);
+        j9mem_free_memory(vmThread->jniArrayCache);
+        vmThread->jniArrayCache = NULL;
+    }
 }
 #endif /* J9VM_GC_JNI_ARRAY_CACHE */
-
-
-

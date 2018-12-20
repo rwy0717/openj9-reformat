@@ -33,14 +33,14 @@
  * @todo Provide struct documentation
  */
 typedef struct TgcParallelExtensions {
-	uint64_t markStartTime;
-	uint64_t markEndTime;
-	uint64_t sweepStartTime;
-	uint64_t sweepEndTime;
-	uint64_t RSScanStartTime;
-	uint64_t RSScanEndTime;
+    uint64_t markStartTime;
+    uint64_t markEndTime;
+    uint64_t sweepStartTime;
+    uint64_t sweepEndTime;
+    uint64_t RSScanStartTime;
+    uint64_t RSScanEndTime;
 } TgcParallelExtensions;
-	
-bool tgcParallelInitialize(J9JavaVM *javaVM);
+
+bool tgcParallelInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCPARALLEL_HPP_ */

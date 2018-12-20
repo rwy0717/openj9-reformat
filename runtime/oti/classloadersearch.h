@@ -20,12 +20,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 /**
-* @file classloadersearch.h
-* @brief Public API for the adding paths to the boot classpath property or jars to the system classloader
-*
-*/
+ * @file classloadersearch.h
+ * @brief Public API for the adding paths to the boot classpath property or jars to the system classloader
+ *
+ */
 
 #ifndef _classloadersearch_h
 #define _classloadersearch_h
@@ -40,16 +39,16 @@ extern "C" {
 
 /* Bits dictating where the specified classpath should be added to */
 
-#define CLS_TYPE_ADD_TO_SYSTEM_PROPERTY		1		/* Add the specified classpath to the bootstrap classloader */
-#define CLS_TYPE_ADD_TO_SYSTEM_CLASSLOADER	2		/* Add the specified classpath to the system classloader */
+#define CLS_TYPE_ADD_TO_SYSTEM_PROPERTY 1 /* Add the specified classpath to the bootstrap classloader */
+#define CLS_TYPE_ADD_TO_SYSTEM_CLASSLOADER 2 /* Add the specified classpath to the system classloader */
 
-#define CLS_ERROR_NONE						JVMTI_ERROR_NONE
-#define CLS_ERROR_NULL_POINTER				JVMTI_ERROR_NULL_POINTER
-#define CLS_ERROR_OUT_OF_MEMORY				JVMTI_ERROR_OUT_OF_MEMORY
-#define CLS_ERROR_INTERNAL 					JVMTI_ERROR_INTERNAL
-#define CLS_ERROR_CLASS_LOADER_UNSUPPORTED	JVMTI_ERROR_CLASS_LOADER_UNSUPPORTED
-#define CLS_ERROR_ILLEGAL_ARGUMENT			JVMTI_ERROR_ILLEGAL_ARGUMENT
-#define CLS_ERROR_NOT_FOUND					JVMTI_ERROR_NOT_FOUND
+#define CLS_ERROR_NONE JVMTI_ERROR_NONE
+#define CLS_ERROR_NULL_POINTER JVMTI_ERROR_NULL_POINTER
+#define CLS_ERROR_OUT_OF_MEMORY JVMTI_ERROR_OUT_OF_MEMORY
+#define CLS_ERROR_INTERNAL JVMTI_ERROR_INTERNAL
+#define CLS_ERROR_CLASS_LOADER_UNSUPPORTED JVMTI_ERROR_CLASS_LOADER_UNSUPPORTED
+#define CLS_ERROR_ILLEGAL_ARGUMENT JVMTI_ERROR_ILLEGAL_ARGUMENT
+#define CLS_ERROR_NOT_FOUND JVMTI_ERROR_NOT_FOUND
 
 #ifdef __cplusplus
 }

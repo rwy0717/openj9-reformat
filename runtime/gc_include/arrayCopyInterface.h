@@ -24,8 +24,6 @@
 #if !defined(ARRAY_COPY_INTERFACE_H_)
 #define ARRAY_COPY_INTERFACE_H_
 
-
-
 #include "j9.h"
 #include "j9cfg.h"
 #include "j9modron.h"
@@ -34,12 +32,11 @@
 extern "C" {
 #endif
 
-
 /**
  * Signature for a generic reference array copy using array indices
  * @{
  */
-typedef I_32 (*J9ReferenceArrayCopyIndexSig)(J9VMThread *, J9IndexableObject *, J9IndexableObject *, I_32, I_32, I_32);
+typedef I_32 (*J9ReferenceArrayCopyIndexSig)(J9VMThread*, J9IndexableObject*, J9IndexableObject*, I_32, I_32, I_32);
 /** @} */
 
 /**
@@ -49,13 +46,13 @@ typedef I_32 (*J9ReferenceArrayCopyIndexSig)(J9VMThread *, J9IndexableObject *, 
  * @see J9WriteBarrierType
  */
 typedef struct J9ReferenceArrayCopyTable {
-	J9ReferenceArrayCopyIndexSig referenceArrayCopyIndex;
-	J9ReferenceArrayCopyIndexSig backwardReferenceArrayCopyIndex[j9gc_modron_wrtbar_count];
-	J9ReferenceArrayCopyIndexSig forwardReferenceArrayCopyWithCheckIndex[j9gc_modron_wrtbar_count];
-	J9ReferenceArrayCopyIndexSig forwardReferenceArrayCopyWithoutCheckIndex[j9gc_modron_wrtbar_count];
+    J9ReferenceArrayCopyIndexSig referenceArrayCopyIndex;
+    J9ReferenceArrayCopyIndexSig backwardReferenceArrayCopyIndex[j9gc_modron_wrtbar_count];
+    J9ReferenceArrayCopyIndexSig forwardReferenceArrayCopyWithCheckIndex[j9gc_modron_wrtbar_count];
+    J9ReferenceArrayCopyIndexSig forwardReferenceArrayCopyWithoutCheckIndex[j9gc_modron_wrtbar_count];
 } J9ReferenceArrayCopyTable;
 
-extern void initializeReferenceArrayCopyTable(J9ReferenceArrayCopyTable *table);
+extern void initializeReferenceArrayCopyTable(J9ReferenceArrayCopyTable* table);
 
 #ifdef __cplusplus
 } /* extern "C" { */

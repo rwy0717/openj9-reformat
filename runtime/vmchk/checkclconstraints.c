@@ -37,47 +37,48 @@
  *		- all members of each linked list are in the hash table
  */
 
-
-void
-checkClassLoadingConstraints(J9JavaVM *vm)
+void checkClassLoadingConstraints(J9JavaVM* vm)
 {
-	UDATA nodeCount = 0;
+    UDATA nodeCount = 0;
 
-	vmchkPrintf(vm, "  %s Checking classloading constraints>\n", VMCHECK_PREFIX);
-	if (vm->classLoadingConstraints != NULL) {
-		J9HashTableState walkState;
-		J9ClassLoadingConstraint* constraint = hashTableStartDo(vm->classLoadingConstraints, &walkState);
-		
-		while (NULL != constraint) {
-			J9ClassLoadingConstraint *searchResult;
-			J9Class* clazz = constraint->clazz;
+    vmchkPrintf(vm, "  %s Checking classloading constraints>\n", VMCHECK_PREFIX);
+    if (vm->classLoadingConstraints != NULL) {
+        J9HashTableState walkState;
+        J9ClassLoadingConstraint* constraint = hashTableStartDo(vm->classLoadingConstraints, &walkState);
 
-			if (NULL == constraint->classLoader) {
-				vmchkPrintf(vm, "%s - Error constraint=0x%p has no classloader>\n", VMCHECK_FAILED, constraint);
-			}
-			if (J9_GC_CLASS_LOADER_DEAD == (constraint->classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD) ) {
-				vmchkPrintf(vm, "%s - Error classLoader=0x%p is dead>\n", VMCHECK_FAILED, constraint->classLoader);
-			}
-			if ((NULL != clazz) && (J9_JAVA_CLASS_DYING == (J9CLASS_FLAGS(clazz) & J9_JAVA_CLASS_DYING))) {
-				vmchkPrintf(vm, "%s - Error class=0x%p is dead>\n", VMCHECK_FAILED, clazz);
-			}
-			if ((NULL == constraint->linkNext) || (NULL == constraint->linkPrevious) ||
-					(constraint->linkNext->linkPrevious  != constraint) || (constraint->linkPrevious->linkNext  != constraint)) {
-				vmchkPrintf(vm, "%s - Error linked list at constraint=0x%p is corrupt>\n", VMCHECK_FAILED, constraint);
-			}
-			if (constraint->linkNext->clazz  != constraint->clazz) {
-				vmchkPrintf(vm, "%s - Error constraint=0x%p has a different class than its neighbour>\n", VMCHECK_FAILED, constraint);
-			}
+        while (NULL != constraint) {
+            J9ClassLoadingConstraint* searchResult;
+            J9Class* clazz = constraint->clazz;
 
-			searchResult = hashTableFind(vm->classLoadingConstraints, constraint->linkNext);
-			if (searchResult != constraint->linkNext) {
-				vmchkPrintf(vm, "%s - Error constraint=0x%p not found in hash table>\n", VMCHECK_FAILED, constraint->linkNext);
-			}
+            if (NULL == constraint->classLoader) {
+                vmchkPrintf(vm, "%s - Error constraint=0x%p has no classloader>\n", VMCHECK_FAILED, constraint);
+            }
+            if (J9_GC_CLASS_LOADER_DEAD == (constraint->classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
+                vmchkPrintf(vm, "%s - Error classLoader=0x%p is dead>\n", VMCHECK_FAILED, constraint->classLoader);
+            }
+            if ((NULL != clazz) && (J9_JAVA_CLASS_DYING == (J9CLASS_FLAGS(clazz) & J9_JAVA_CLASS_DYING))) {
+                vmchkPrintf(vm, "%s - Error class=0x%p is dead>\n", VMCHECK_FAILED, clazz);
+            }
+            if ((NULL == constraint->linkNext) || (NULL == constraint->linkPrevious)
+                || (constraint->linkNext->linkPrevious != constraint)
+                || (constraint->linkPrevious->linkNext != constraint)) {
+                vmchkPrintf(vm, "%s - Error linked list at constraint=0x%p is corrupt>\n", VMCHECK_FAILED, constraint);
+            }
+            if (constraint->linkNext->clazz != constraint->clazz) {
+                vmchkPrintf(vm, "%s - Error constraint=0x%p has a different class than its neighbour>\n",
+                    VMCHECK_FAILED, constraint);
+            }
 
-			++nodeCount;
-			constraint = hashTableNextDo(&walkState);
-		}
-	}
+            searchResult = hashTableFind(vm->classLoadingConstraints, constraint->linkNext);
+            if (searchResult != constraint->linkNext) {
+                vmchkPrintf(
+                    vm, "%s - Error constraint=0x%p not found in hash table>\n", VMCHECK_FAILED, constraint->linkNext);
+            }
 
-	vmchkPrintf(vm, "  %s Checking classloading constraints, %d nodes done>\n", VMCHECK_PREFIX, nodeCount);
+            ++nodeCount;
+            constraint = hashTableNextDo(&walkState);
+        }
+    }
+
+    vmchkPrintf(vm, "  %s Checking classloading constraints, %d nodes done>\n", VMCHECK_PREFIX, nodeCount);
 }

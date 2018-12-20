@@ -23,11 +23,11 @@
 #ifndef IPA_h
 #define IPA_h
 
-#include <stdint.h>          // for int32_t, uint32_t
-#include "env/TRMemory.hpp"  // for TR_Memory, etc
-#include "il/Node.hpp"       // for vcount_t
-#include "infra/Link.hpp"    // for TR_LinkHead, TR_Link
-#include "infra/List.hpp"    // for ListElement (ptr only), TR_ScratchList, etc
+#include <stdint.h> // for int32_t, uint32_t
+#include "env/TRMemory.hpp" // for TR_Memory, etc
+#include "il/Node.hpp" // for vcount_t
+#include "infra/Link.hpp" // for TR_LinkHead, TR_Link
+#include "infra/List.hpp" // for ListElement (ptr only), TR_ScratchList, etc
 
 class TR_ClassExtendCheck;
 class TR_ClassLoadCheck;
@@ -35,96 +35,105 @@ class TR_FrontEnd;
 class TR_OpaqueClassBlock;
 class TR_OpaqueMethodBlock;
 class TR_ResolvedMethod;
-namespace OMR { class RuntimeAssumption; }
-namespace TR { class ResolvedMethodSymbol; }
-namespace TR { class SymbolReference; }
-namespace TR { class SymbolReferenceTable; }
-namespace TR { class Compilation; }
+namespace OMR {
+class RuntimeAssumption;
+}
+namespace TR {
+class ResolvedMethodSymbol;
+}
+namespace TR {
+class SymbolReference;
+}
+namespace TR {
+class SymbolReferenceTable;
+}
+namespace TR {
+class Compilation;
+}
 
 namespace TR {
 
-class GlobalSymbol : public TR_Link<TR::GlobalSymbol>
-   {
+class GlobalSymbol : public TR_Link<TR::GlobalSymbol> {
 public:
-   GlobalSymbol(TR::SymbolReference *symRef) : _symRef(symRef) { }
-   TR::SymbolReference *_symRef;
-   };
+    GlobalSymbol(TR::SymbolReference* symRef)
+        : _symRef(symRef)
+    {}
+    TR::SymbolReference* _symRef;
+};
 
-struct PriorPeekInfo
-   {
-   TR_ResolvedMethod *_method;
-   TR_LinkHead<TR_ClassLoadCheck> _classesThatShouldNotBeLoaded;
-   TR_LinkHead<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtended; 
-   TR_LinkHead<TR::GlobalSymbol> _globalsWritten;
-   };
+struct PriorPeekInfo {
+    TR_ResolvedMethod* _method;
+    TR_LinkHead<TR_ClassLoadCheck> _classesThatShouldNotBeLoaded;
+    TR_LinkHead<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtended;
+    TR_LinkHead<TR::GlobalSymbol> _globalsWritten;
+};
 
-class InterProceduralAnalyzer 
-   {
+class InterProceduralAnalyzer {
 public:
-   TR_ALLOC(TR_Memory::InterProceduralAnalyzer)
+    TR_ALLOC(TR_Memory::InterProceduralAnalyzer)
 
-   InterProceduralAnalyzer(TR::Compilation *, bool trace);
+    InterProceduralAnalyzer(TR::Compilation*, bool trace);
 
-   int32_t perform();
+    int32_t perform();
 
-   TR_FrontEnd * fe() { return _fe; }
-   TR::Compilation * comp() { return _compilation; }
+    TR_FrontEnd* fe() { return _fe; }
+    TR::Compilation* comp() { return _compilation; }
 
-   TR_Memory *               trMemory()                    { return _trMemory; }
-   TR_StackMemory            trStackMemory()               { return _trMemory; }
-   TR_HeapMemory             trHeapMemory()                { return _trMemory; }
+    TR_Memory* trMemory() { return _trMemory; }
+    TR_StackMemory trStackMemory() { return _trMemory; }
+    TR_HeapMemory trHeapMemory() { return _trMemory; }
 
-   List<OMR::RuntimeAssumption> *analyzeCall(TR::Node *);
-   List<OMR::RuntimeAssumption> *analyzeCallGraph(TR::Node *, bool *);
-   List<OMR::RuntimeAssumption> *analyzeMethod(TR::Node *, TR_ResolvedMethod *, bool *);
-     
-   bool isOnPeekingStack(TR_ResolvedMethod *method);
-   bool capableOfPeekingVirtualCalls();
-   bool trace() { return _trace; }
-     
-   bool addClassThatShouldNotBeLoaded(char *name, int32_t len);
-   bool addClassThatShouldNotBeNewlyExtended(TR_OpaqueClassBlock *clazz);
-   bool addSingleClassThatShouldNotBeNewlyExtended(TR_OpaqueClassBlock *clazz);
-   bool addMethodThatShouldNotBeNewlyOverridden(TR_OpaqueMethodBlock *method);
-   bool addWrittenGlobal(TR::SymbolReference *symRef);
-   uint32_t hash(void * h, uint32_t size);
+    List<OMR::RuntimeAssumption>* analyzeCall(TR::Node*);
+    List<OMR::RuntimeAssumption>* analyzeCallGraph(TR::Node*, bool*);
+    List<OMR::RuntimeAssumption>* analyzeMethod(TR::Node*, TR_ResolvedMethod*, bool*);
 
-   virtual bool alreadyPeekedMethod(TR_ResolvedMethod *method, bool *success, TR::PriorPeekInfo **);
-   virtual bool analyzeNode(TR::Node *node, vcount_t visitCount, bool *success) = 0;
+    bool isOnPeekingStack(TR_ResolvedMethod* method);
+    bool capableOfPeekingVirtualCalls();
+    bool trace() { return _trace; }
+
+    bool addClassThatShouldNotBeLoaded(char* name, int32_t len);
+    bool addClassThatShouldNotBeNewlyExtended(TR_OpaqueClassBlock* clazz);
+    bool addSingleClassThatShouldNotBeNewlyExtended(TR_OpaqueClassBlock* clazz);
+    bool addMethodThatShouldNotBeNewlyOverridden(TR_OpaqueMethodBlock* method);
+    bool addWrittenGlobal(TR::SymbolReference* symRef);
+    uint32_t hash(void* h, uint32_t size);
+
+    virtual bool alreadyPeekedMethod(TR_ResolvedMethod* method, bool* success, TR::PriorPeekInfo**);
+    virtual bool analyzeNode(TR::Node* node, vcount_t visitCount, bool* success) = 0;
 
 protected:
-   //
-   // data
-   //
-   int32_t _sniffDepth, _maxSniffDepth;
-   int32_t _totalPeekedBytecodeSize;
-   int32_t _maxPeekedBytecodeSize;
-   bool _maxSniffDepthExceeded;
-   bool _trace;
-   TR_OpaqueClassBlock *_classPointer;
-   TR::Compilation *_compilation;
-   TR_Memory * _trMemory;
-   TR::SymbolReferenceTable *_symRefTab;
-   TR::SymbolReferenceTable *_currentPeekingSymRefTab;
-   TR_FrontEnd *_fe;
-   TR::ResolvedMethodSymbol *_currentMethodSymbol;
-   List<TR::PriorPeekInfo> _successfullyPeekedMethods;
-   List<TR_ResolvedMethod> _unsuccessfullyPeekedMethods;
-   TR_ScratchList<TR_ClassLoadCheck> _classesThatShouldNotBeLoadedInCurrentPeek;
-   TR_ScratchList<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtendedInCurrentPeek;
-   TR_ScratchList<TR_ClassExtendCheck> * _classesThatShouldNotBeNewlyExtendedInCurrentPeekHT;
-   TR_ScratchList<TR::GlobalSymbol> _globalsWrittenInCurrentPeek;
-   ListElement<TR_ClassLoadCheck> *_prevClc;
-   ListElement<TR_ClassExtendCheck> *_prevCec;
-   ListElement<TR::GlobalSymbol> *_prevSymRef;
+    //
+    // data
+    //
+    int32_t _sniffDepth, _maxSniffDepth;
+    int32_t _totalPeekedBytecodeSize;
+    int32_t _maxPeekedBytecodeSize;
+    bool _maxSniffDepthExceeded;
+    bool _trace;
+    TR_OpaqueClassBlock* _classPointer;
+    TR::Compilation* _compilation;
+    TR_Memory* _trMemory;
+    TR::SymbolReferenceTable* _symRefTab;
+    TR::SymbolReferenceTable* _currentPeekingSymRefTab;
+    TR_FrontEnd* _fe;
+    TR::ResolvedMethodSymbol* _currentMethodSymbol;
+    List<TR::PriorPeekInfo> _successfullyPeekedMethods;
+    List<TR_ResolvedMethod> _unsuccessfullyPeekedMethods;
+    TR_ScratchList<TR_ClassLoadCheck> _classesThatShouldNotBeLoadedInCurrentPeek;
+    TR_ScratchList<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtendedInCurrentPeek;
+    TR_ScratchList<TR_ClassExtendCheck>* _classesThatShouldNotBeNewlyExtendedInCurrentPeekHT;
+    TR_ScratchList<TR::GlobalSymbol> _globalsWrittenInCurrentPeek;
+    ListElement<TR_ClassLoadCheck>* _prevClc;
+    ListElement<TR_ClassExtendCheck>* _prevCec;
+    ListElement<TR::GlobalSymbol>* _prevSymRef;
 
 public:
-   TR_LinkHead<TR_ClassLoadCheck> _classesThatShouldNotBeLoaded;
-   TR_LinkHead<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtended; 
-   TR_LinkHead<TR_ClassExtendCheck> *_classesThatShouldNotBeNewlyExtendedHT;
-   TR_LinkHead<TR::GlobalSymbol> _globalsWritten; 
-   };
+    TR_LinkHead<TR_ClassLoadCheck> _classesThatShouldNotBeLoaded;
+    TR_LinkHead<TR_ClassExtendCheck> _classesThatShouldNotBeNewlyExtended;
+    TR_LinkHead<TR_ClassExtendCheck>* _classesThatShouldNotBeNewlyExtendedHT;
+    TR_LinkHead<TR::GlobalSymbol> _globalsWritten;
+};
 
-}
+} // namespace TR
 
 #endif

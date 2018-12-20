@@ -37,44 +37,38 @@
  * Iterate over a list of VM threads.
  * @ingroup GC_Structs
  */
-class GC_VMThreadListIterator
-{
-	J9VMThread *_initialVMThread;
-	J9VMThread *_vmThread;
+class GC_VMThreadListIterator {
+    J9VMThread* _initialVMThread;
+    J9VMThread* _vmThread;
 
 public:
-	/**
-	 * Create an iterator which will start with the main thread in the given javaVM
-	 */
-	GC_VMThreadListIterator(J9JavaVM *javaVM) :
-		_initialVMThread(javaVM->mainThread),
-		_vmThread(javaVM->mainThread)
-	{}
+    /**
+     * Create an iterator which will start with the main thread in the given javaVM
+     */
+    GC_VMThreadListIterator(J9JavaVM* javaVM)
+        : _initialVMThread(javaVM->mainThread)
+        , _vmThread(javaVM->mainThread)
+    {}
 
-	/**
-	 * Create an iterator which will start with the given thread
-	 */
-	GC_VMThreadListIterator(J9VMThread *vmThread) :
-		_initialVMThread(vmThread),
-		_vmThread(vmThread)
-	{}
+    /**
+     * Create an iterator which will start with the given thread
+     */
+    GC_VMThreadListIterator(J9VMThread* vmThread)
+        : _initialVMThread(vmThread)
+        , _vmThread(vmThread)
+    {}
 
-	/**
-	 * Restart the iterator back to the initial thread.
-	 */
-	MMINLINE void reset() {
-		_vmThread = _initialVMThread;
-	}
+    /**
+     * Restart the iterator back to the initial thread.
+     */
+    MMINLINE void reset() { _vmThread = _initialVMThread; }
 
-	/**
-	 * Restart the iterator back to a specific initial thread.
-	 */
-	MMINLINE void reset(J9VMThread *resetThread) {
-		_vmThread = _initialVMThread = resetThread;
-	}
+    /**
+     * Restart the iterator back to a specific initial thread.
+     */
+    MMINLINE void reset(J9VMThread* resetThread) { _vmThread = _initialVMThread = resetThread; }
 
-	J9VMThread *nextVMThread();
+    J9VMThread* nextVMThread();
 };
 
 #endif /* VMTHREADLISTITERATOR_HPP_ */
-

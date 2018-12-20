@@ -25,49 +25,54 @@
 
 #include "x/codegen/GuardedDevirtualSnippet.hpp"
 
-#include <stdint.h>                               // for int32_t, uint8_t, etc
-#include "il/SymbolReference.hpp"                 // for SymbolReference
+#include <stdint.h> // for int32_t, uint8_t, etc
+#include "il/SymbolReference.hpp" // for SymbolReference
 
-namespace TR { class Block; }
-namespace TR { class CodeGenerator; }
-namespace TR { class LabelSymbol; }
-namespace TR { class MethodSymbol; }
-namespace TR { class Node; }
-namespace TR { class Register; }
+namespace TR {
+class Block;
+}
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class LabelSymbol;
+}
+namespace TR {
+class MethodSymbol;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class Register;
+}
 
 namespace TR {
 
-class AMD64GuardedDevirtualSnippet : public TR::X86GuardedDevirtualSnippet
-   {
-   int32_t _argSize;
+class AMD64GuardedDevirtualSnippet : public TR::X86GuardedDevirtualSnippet {
+    int32_t _argSize;
 
-   uint8_t *loadArgumentsIfNecessary(TR::Node *callNode, uint8_t *cursor, bool calculateSizeOnly, int32_t *sizeOfArgumentFlushArea);
+    uint8_t* loadArgumentsIfNecessary(
+        TR::Node* callNode, uint8_t* cursor, bool calculateSizeOnly, int32_t* sizeOfArgumentFlushArea);
 
-   private:
-   TR::SymbolReference * _realMethodSymbolReference;
+private:
+    TR::SymbolReference* _realMethodSymbolReference;
 
-   public:
+public:
+    AMD64GuardedDevirtualSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::SymbolReference* realMethodSymRef,
+        TR::LabelSymbol* restartlab, TR::LabelSymbol* snippetlab, int32_t vftoffset, TR::Block* currentBlock,
+        TR::Register* classRegister, int32_t argSize)
+        : TR::X86GuardedDevirtualSnippet(cg, node, restartlab, snippetlab, vftoffset, currentBlock, classRegister)
+        , _argSize(argSize)
+        , _realMethodSymbolReference(realMethodSymRef)
+    {}
 
-   AMD64GuardedDevirtualSnippet(TR::CodeGenerator   *cg,
-                                TR::Node            *node,
-                                TR::SymbolReference *realMethodSymRef,
-                                TR::LabelSymbol      *restartlab,
-                                TR::LabelSymbol      *snippetlab,
-                                int32_t             vftoffset,
-                                TR::Block           *currentBlock,
-                                TR::Register        *classRegister,
-                                int32_t             argSize):
-      TR::X86GuardedDevirtualSnippet(cg, node, restartlab, snippetlab, vftoffset, currentBlock, classRegister),
-      _argSize(argSize), _realMethodSymbolReference(realMethodSymRef) {}
+    bool isLoadArgumentsNecessary(TR::MethodSymbol* methodSymbol);
+    virtual uint8_t* emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual TR::SymbolReference* getRealMethodSymbolReference() { return _realMethodSymbolReference; }
+};
 
-   bool isLoadArgumentsNecessary(TR::MethodSymbol *methodSymbol);
-   virtual uint8_t *emitSnippetBody();
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual TR::SymbolReference* getRealMethodSymbolReference() { return _realMethodSymbolReference; }
-
-   };
-
-}
+} // namespace TR
 
 #endif
-

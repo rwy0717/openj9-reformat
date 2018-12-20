@@ -44,80 +44,72 @@ class MM_GCExtensionsBase;
  * Note that this also includes array classes of defined classes as well
  * as system classes (Byte.TYPE, [C, ...) for the system class loader.
  * Replaced (HCR) classes are not included.
- * 
+ *
  * @ingroup GC_Structs
  */
-class GC_ClassLoaderClassesIterator
-{
+class GC_ClassLoaderClassesIterator {
 private:
-	J9JavaVM* _javaVM; /**< the JavaVM */
-	J9ClassLoader *_classLoader; /**< the loader being iterated */
-	J9Class *_nextClass; /**< the next class to be returned */
-	J9HashTableState _walkState; /**< an opaque state structure used by VM helpers */
-	GC_ClassLoaderSegmentIterator _vmSegmentIterator; /**< used for finding anonymous classes for the anonymous loader */
-	GC_VMClassSlotIterator _vmClassSlotIterator; /**< used for finding system classes for the system loader */
-	enum ScanModes {
-		TABLE_CLASSES,
-		SYSTEM_CLASSES,
-		ANONYMOUS_CLASSES
-	};
-	ScanModes _mode; /**< indicate type of classes to be iterated */
-	
+    J9JavaVM* _javaVM; /**< the JavaVM */
+    J9ClassLoader* _classLoader; /**< the loader being iterated */
+    J9Class* _nextClass; /**< the next class to be returned */
+    J9HashTableState _walkState; /**< an opaque state structure used by VM helpers */
+    GC_ClassLoaderSegmentIterator
+        _vmSegmentIterator; /**< used for finding anonymous classes for the anonymous loader */
+    GC_VMClassSlotIterator _vmClassSlotIterator; /**< used for finding system classes for the system loader */
+    enum ScanModes { TABLE_CLASSES, SYSTEM_CLASSES, ANONYMOUS_CLASSES };
+    ScanModes _mode; /**< indicate type of classes to be iterated */
+
 protected:
 public:
-	
 private:
-	/**
-	 * Find the next class in the JavaVM. This should only be called in SYSTEM_CLASSES mode.
-	 * @return the next system class, or NULL if finished
-	 */
-	J9Class *nextSystemClass();
-	
-	/**
-	 * Find the first class in the loader's table or first Anonymous class from segment.
-	 * If none, and if this is the system class loader, switch to SYSTEM_CLASSES mode and
-	 * return the first system class.
-	 * @return the first table class, first system class, or NULL if no classes
-	 */
-	J9Class *firstClass();
-	
-	/**
-	 * Find the next anonymous class from segment
-	 * @return the next anonymous class or NULL if no classes
-	 */
-	J9Class *nextAnonymousClass();
+    /**
+     * Find the next class in the JavaVM. This should only be called in SYSTEM_CLASSES mode.
+     * @return the next system class, or NULL if finished
+     */
+    J9Class* nextSystemClass();
 
-	/**
-	 * Find the next class in the loader's table. If none, and if this is the system class 
-	 * loader, switch to SYSTEM_CLASSES mode and return the first system class
-	 * @return the next table class, first system class, or NULL if no classes
-	 */
-	J9Class *nextTableClass();
-	
-	/**
-	 * If this is the system class loader, switch from TABLE_CLASSES to SYSTEM_CLASSES mode.
-	 * @return true if this is the system class loader, false otherwise 
-	 */
-	bool switchToSystemMode();
-	
+    /**
+     * Find the first class in the loader's table or first Anonymous class from segment.
+     * If none, and if this is the system class loader, switch to SYSTEM_CLASSES mode and
+     * return the first system class.
+     * @return the first table class, first system class, or NULL if no classes
+     */
+    J9Class* firstClass();
+
+    /**
+     * Find the next anonymous class from segment
+     * @return the next anonymous class or NULL if no classes
+     */
+    J9Class* nextAnonymousClass();
+
+    /**
+     * Find the next class in the loader's table. If none, and if this is the system class
+     * loader, switch to SYSTEM_CLASSES mode and return the first system class
+     * @return the next table class, first system class, or NULL if no classes
+     */
+    J9Class* nextTableClass();
+
+    /**
+     * If this is the system class loader, switch from TABLE_CLASSES to SYSTEM_CLASSES mode.
+     * @return true if this is the system class loader, false otherwise
+     */
+    bool switchToSystemMode();
+
 protected:
-	
 public:
-	/**
-	 * Construct a new iterator for iterating over defined and referenced classes in the
-	 * specified ClassLoader
-	 * @param extensions[in] the GC extensions
-	 * @param classLoader[in] the loader to iterate
-	 */
-	GC_ClassLoaderClassesIterator(MM_GCExtensionsBase *extensions, J9ClassLoader *classLoader);
+    /**
+     * Construct a new iterator for iterating over defined and referenced classes in the
+     * specified ClassLoader
+     * @param extensions[in] the GC extensions
+     * @param classLoader[in] the loader to iterate
+     */
+    GC_ClassLoaderClassesIterator(MM_GCExtensionsBase* extensions, J9ClassLoader* classLoader);
 
-	/**
-	 * Fetch the next defined or referenced class.
-	 * @return the next class, or NULL if finished
-	 */
-	J9Class *nextClass();
+    /**
+     * Fetch the next defined or referenced class.
+     * @return the next class, or NULL if finished
+     */
+    J9Class* nextClass();
 };
 
 #endif /* HASHCLASSTABLEITERATOR_HPP_ */
-
-

@@ -30,54 +30,50 @@
  * @brief Function indicates to the runtime that the library testlibA has been
  * linked into the executable.
  */
-JNIEXPORT jint JNICALL 
-JNI_OnLoad_testlibA(JavaVM *vm, void *reserved)
+JNIEXPORT jint JNICALL JNI_OnLoad_testlibA(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad: JNI_OnLoad_testlibA [statically]\n");
-	fflush(stdout);
-	return JNI_VERSION_1_8;
+    fprintf(stdout, "[MSG] Reached OnLoad: JNI_OnLoad_testlibA [statically]\n");
+    fflush(stdout);
+    return JNI_VERSION_1_8;
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testlibA.
  */
-JNIEXPORT void JNICALL 
-JNI_OnUnload_testlibA(JavaVM *vm, void *reserved)
+JNIEXPORT void JNICALL JNI_OnUnload_testlibA(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload: JNI_OnUnload_testlibA [statically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload: JNI_OnUnload_testlibA [statically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }
 
 /**
  * @brief Function indicates to the runtime that the library testlibB has been
  * linked into the executable.
  */
-JNIEXPORT jint JNICALL 
-JNI_OnLoad_testlibB(JavaVM *vm, void *reserved)
+JNIEXPORT jint JNICALL JNI_OnLoad_testlibB(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad: JNI_OnLoad_testlibB [statically]\n");
-	fflush(stdout);
-	return JNI_VERSION_1_8;
+    fprintf(stdout, "[MSG] Reached OnLoad: JNI_OnLoad_testlibB [statically]\n");
+    fflush(stdout);
+    return JNI_VERSION_1_8;
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testlibB.
  */
-JNIEXPORT void JNICALL 
-JNI_OnUnload_testlibB(JavaVM *vm, void *reserved)
+JNIEXPORT void JNICALL JNI_OnUnload_testlibB(JavaVM* vm, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload: JNI_OnUnload_testlibB [statically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload: JNI_OnUnload_testlibB [statically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }
 
 /**
- * @brief Provide an implementation for the class StaticLinking's native instance 
+ * @brief Provide an implementation for the class StaticLinking's native instance
  * method fooImpl.
  * Package:	  com.ibm.j9.tests.jeptests
  * Class:     StaticLinking
@@ -85,15 +81,14 @@ JNI_OnUnload_testlibB(JavaVM *vm, void *reserved)
  * @param[in] env The JNI env.
  * @param[in] instance The this pointer.
  */
-JNIEXPORT void JNICALL 
-Java_com_ibm_j9_tests_jeptests_StaticLinking_fooImpl(JNIEnv *env, jobject this)
+JNIEXPORT void JNICALL Java_com_ibm_j9_tests_jeptests_StaticLinking_fooImpl(JNIEnv* env, jobject this)
 {
-	fprintf(stdout, "[MSG] Reached native fooImpl() [statically]\n");
-	fflush(stdout);
+    fprintf(stdout, "[MSG] Reached native fooImpl() [statically]\n");
+    fflush(stdout);
 }
 
 /**
- * @brief Provide an implementation for the class StaticLinking's native static 
+ * @brief Provide an implementation for the class StaticLinking's native static
  * method barImpl.
  * Package:	  com.ibm.j9.tests.jeptests
  * Class:     StaticLinking
@@ -101,9 +96,8 @@ Java_com_ibm_j9_tests_jeptests_StaticLinking_fooImpl(JNIEnv *env, jobject this)
  * @param[in] env The JNI env.
  * @param[in] Class The class pointer.
  */
-JNIEXPORT void JNICALL 
-Java_com_ibm_j9_tests_jeptests_StaticLinking_barImpl(JNIEnv *env, jclass Class)
+JNIEXPORT void JNICALL Java_com_ibm_j9_tests_jeptests_StaticLinking_barImpl(JNIEnv* env, jclass Class)
 {
-	fprintf(stdout, "[MSG] Reached native barImpl() [statically]\n");
-	fflush(stdout);
+    fprintf(stdout, "[MSG] Reached native barImpl() [statically]\n");
+    fflush(stdout);
 }

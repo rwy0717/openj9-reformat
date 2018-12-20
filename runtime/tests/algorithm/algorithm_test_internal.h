@@ -24,13 +24,13 @@
 #define algorithm_test_internal_h
 
 /**
-* @file algorithm_test_internal.h
-* @brief Internal prototypes used within the ALGORITHM_TEST module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the ALGORITHM_TEST module.
-*
-*/
+ * @file algorithm_test_internal.h
+ * @brief Internal prototypes used within the ALGORITHM_TEST module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the ALGORITHM_TEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,88 +44,79 @@ extern "C" {
 
 struct j9cmdlineOptions;
 /**
-* @brief
-* @param arg
-* @return UDATA
-*/
-UDATA 
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
+ * @brief
+ * @param arg
+ * @return UDATA
+ */
+UDATA
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 /* ---------------- argscantest.c ---------------- */
 
 /**
-* @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
-*/
-extern J9_CFUNC I_32 
-verifyArgScan (J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
-
+ * @brief
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
+ */
+extern J9_CFUNC I_32 verifyArgScan(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 /* ---------------- simplepooltest.c ---------------- */
 
 /**
-* @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
-*/
-I_32
-verifySimplePools(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
-
+ * @brief
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
+ */
+I_32 verifySimplePools(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 /* ---------------- wildcardtest.c ---------------- */
 
 /**
-* @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
-*/
-I_32 
-verifyWildcards (J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
+ * @brief
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
+ */
+I_32 verifyWildcards(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 /* ---------------- sendslottest.c ---------------- */
 
 /**
-* @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
-*/
-I_32 
-verifySendSlots(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
+ * @brief
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
+ */
+I_32 verifySendSlots(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 /* ---------------- srphashtabletest.c ---------------- */
 
 /**
-* @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
-*/
-I_32
-verifySRPHashtable(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
+ * @brief
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
+ */
+I_32 verifySRPHashtable(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 /**
  * @brief
-* @param *portLib
-* @param *passCount
-* @param *failCount
-* @return I_32
+ * @param *portLib
+ * @param *passCount
+ * @param *failCount
+ * @return I_32
  */
-I_32
-verifyPrimeNumberHelper(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount);
+I_32 verifyPrimeNumberHelper(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* algorithm_test_internal_h */
-

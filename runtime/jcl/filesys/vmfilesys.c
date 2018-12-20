@@ -27,44 +27,41 @@
 #include "iohelp.h"
 #include "util_api.h"
 
-
-jbyteArray JNICALL Java_com_ibm_oti_vm_VM_getPathFromClassPath(JNIEnv * env, jclass clazz, jint cpIndex)
+jbyteArray JNICALL Java_com_ibm_oti_vm_VM_getPathFromClassPath(JNIEnv* env, jclass clazz, jint cpIndex)
 {
 #if defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT)
-	J9JavaVM *javaVM;
-	J9ClassPathEntry cpEntry;
-	J9ClassLoader *classLoader;
-	jbyteArray jbytes;
-	jsize length;
+    J9JavaVM* javaVM;
+    J9ClassPathEntry cpEntry;
+    J9ClassLoader* classLoader;
+    jbyteArray jbytes;
+    jsize length;
 
-	/* Check the parameters */
-	javaVM = ((J9VMThread *) env)->javaVM;
-	classLoader = (J9ClassLoader*)javaVM->systemClassLoader;
+    /* Check the parameters */
+    javaVM = ((J9VMThread*)env)->javaVM;
+    classLoader = (J9ClassLoader*)javaVM->systemClassLoader;
 
-	/* Sniff the cpEntry */
-	if (getClassPathEntry((J9VMThread *)env, classLoader, cpIndex, &cpEntry)) {
-		return NULL;
-	}
-	if(cpEntry.type == CPE_TYPE_DIRECTORY || cpEntry.type == CPE_TYPE_JAR)
-	{
-		length = (jsize)cpEntry.pathLength;
-		if (cpEntry.type == CPE_TYPE_DIRECTORY &&
-			cpEntry.path[length-1] != '/' && cpEntry.path[length-1] != '\\')
-				length++;
-		jbytes = (*env)->NewByteArray(env, length);
-		if (jbytes != NULL) {
-			(*env)->SetByteArrayRegion(env, jbytes, 0, (jint)cpEntry.pathLength, (jbyte *) cpEntry.path);
-			if (length != (jsize)cpEntry.pathLength)
-				(*env)->SetByteArrayRegion(env, jbytes, length-1, 1, (jbyte *) DIR_SEPARATOR_STR);
-		}
-		return jbytes;
-	}
+    /* Sniff the cpEntry */
+    if (getClassPathEntry((J9VMThread*)env, classLoader, cpIndex, &cpEntry)) {
+        return NULL;
+    }
+    if (cpEntry.type == CPE_TYPE_DIRECTORY || cpEntry.type == CPE_TYPE_JAR) {
+        length = (jsize)cpEntry.pathLength;
+        if (cpEntry.type == CPE_TYPE_DIRECTORY && cpEntry.path[length - 1] != '/' && cpEntry.path[length - 1] != '\\')
+            length++;
+        jbytes = (*env)->NewByteArray(env, length);
+        if (jbytes != NULL) {
+            (*env)->SetByteArrayRegion(env, jbytes, 0, (jint)cpEntry.pathLength, (jbyte*)cpEntry.path);
+            if (length != (jsize)cpEntry.pathLength)
+                (*env)->SetByteArrayRegion(env, jbytes, length - 1, 1, (jbyte*)DIR_SEPARATOR_STR);
+        }
+        return jbytes;
+    }
 
-	/* Not a directory. Return NULL; */
-	return NULL;
+    /* Not a directory. Return NULL; */
+    return NULL;
 
 #else
-	/* No dynamic loader. */
-	return NULL;
+    /* No dynamic loader. */
+    return NULL;
 #endif
 }

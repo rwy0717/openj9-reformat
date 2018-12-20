@@ -34,43 +34,42 @@
  * @todo Provide class documentation
  * @ingroup GC_Staccato
  */
-class MM_StaccatoGC : public MM_RealtimeGC
-{
-/* Data members & types */
+class MM_StaccatoGC : public MM_RealtimeGC {
+    /* Data members & types */
 public:
 protected:
 private:
-	bool _moreTracingRequired; /**< Is used to decide if there needs to be another pass of the tracing loop. */
+    bool _moreTracingRequired; /**< Is used to decide if there needs to be another pass of the tracing loop. */
 
-/* Methods */
+    /* Methods */
 public:
-	/* Constructors & destructors */
-	static MM_StaccatoGC *newInstance(MM_EnvironmentBase *env);
-	virtual void kill(MM_EnvironmentBase *env);
-	bool initialize(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
+    /* Constructors & destructors */
+    static MM_StaccatoGC* newInstance(MM_EnvironmentBase* env);
+    virtual void kill(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
 
-	MM_StaccatoGC(MM_EnvironmentBase *env) :
-		MM_RealtimeGC(env)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
-	/* Inherited from MM_RealtimeGC */
-	virtual MM_RealtimeAccessBarrier* allocateAccessBarrier(MM_EnvironmentBase *env);
-	virtual void doTracing(MM_EnvironmentRealtime* env);
-	virtual void enableWriteBarrier(MM_EnvironmentBase* env);
-	virtual void disableWriteBarrier(MM_EnvironmentBase* env);
-	virtual void enableDoubleBarrier(MM_EnvironmentBase* env);
-	virtual void disableDoubleBarrierOnThread(MM_EnvironmentBase* env, J9VMThread* vmThread);
-	virtual void disableDoubleBarrier(MM_EnvironmentBase* env);
-	
-	/* New methods */
+    MM_StaccatoGC(MM_EnvironmentBase* env)
+        : MM_RealtimeGC(env)
+    {
+        _typeId = __FUNCTION__;
+    }
+
+    /* Inherited from MM_RealtimeGC */
+    virtual MM_RealtimeAccessBarrier* allocateAccessBarrier(MM_EnvironmentBase* env);
+    virtual void doTracing(MM_EnvironmentRealtime* env);
+    virtual void enableWriteBarrier(MM_EnvironmentBase* env);
+    virtual void disableWriteBarrier(MM_EnvironmentBase* env);
+    virtual void enableDoubleBarrier(MM_EnvironmentBase* env);
+    virtual void disableDoubleBarrierOnThread(MM_EnvironmentBase* env, J9VMThread* vmThread);
+    virtual void disableDoubleBarrier(MM_EnvironmentBase* env);
+
+    /* New methods */
 #if defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING)
-	bool doClassTracing(MM_EnvironmentRealtime* env);
+    bool doClassTracing(MM_EnvironmentRealtime* env);
 #endif /* J9VM_GC_DYNAMIC_CLASS_UNLOADING */
-	void flushRememberedSet(MM_EnvironmentRealtime *env);
-	
+    void flushRememberedSet(MM_EnvironmentRealtime* env);
+
 protected:
 private:
 };

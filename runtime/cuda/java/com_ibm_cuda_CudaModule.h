@@ -12,48 +12,42 @@ extern "C" {
  * Method:    getFunction
  * Signature: (IJLjava/lang/String;)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaModule_getFunction
-  (JNIEnv *, jclass, jint, jlong, jstring);
+jlong JNICALL Java_com_ibm_cuda_CudaModule_getFunction(JNIEnv*, jclass, jint, jlong, jstring);
 
 /*
  * Class:     com_ibm_cuda_CudaModule
  * Method:    getGlobal
  * Signature: (IJLjava/lang/String;)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaModule_getGlobal
-  (JNIEnv *, jclass, jint, jlong, jstring);
+jlong JNICALL Java_com_ibm_cuda_CudaModule_getGlobal(JNIEnv*, jclass, jint, jlong, jstring);
 
 /*
  * Class:     com_ibm_cuda_CudaModule
  * Method:    getSurface
  * Signature: (IJLjava/lang/String;)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaModule_getSurface
-  (JNIEnv *, jclass, jint, jlong, jstring);
+jlong JNICALL Java_com_ibm_cuda_CudaModule_getSurface(JNIEnv*, jclass, jint, jlong, jstring);
 
 /*
  * Class:     com_ibm_cuda_CudaModule
  * Method:    getTexture
  * Signature: (IJLjava/lang/String;)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaModule_getTexture
-  (JNIEnv *, jclass, jint, jlong, jstring);
+jlong JNICALL Java_com_ibm_cuda_CudaModule_getTexture(JNIEnv*, jclass, jint, jlong, jstring);
 
 /*
  * Class:     com_ibm_cuda_CudaModule
  * Method:    load
  * Signature: (I[BJ)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaModule_load
-  (JNIEnv *, jclass, jint, jbyteArray, jlong);
+jlong JNICALL Java_com_ibm_cuda_CudaModule_load(JNIEnv*, jclass, jint, jbyteArray, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaModule
  * Method:    unload
  * Signature: (IJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaModule_unload
-  (JNIEnv *, jclass, jint, jlong);
+void JNICALL Java_com_ibm_cuda_CudaModule_unload(JNIEnv*, jclass, jint, jlong);
 
 #ifdef __cplusplus
 }

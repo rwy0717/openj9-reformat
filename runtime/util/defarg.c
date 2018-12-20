@@ -29,27 +29,24 @@
  * Returns an empty string for args of the form -Darg,
  * Returns NULL if the argument is not recognized
  */
-char *
-getDefineArgument(char* arg, char* key)
+char* getDefineArgument(char* arg, char* key)
 {
-	Trc_Util_getDefineArgument_Entry(arg, key);
-	if (arg[0] == '-' && arg[1] == 'D') {
-		size_t keyLength = strlen(key);
+    Trc_Util_getDefineArgument_Entry(arg, key);
+    if (arg[0] == '-' && arg[1] == 'D') {
+        size_t keyLength = strlen(key);
 
-		if (strncmp(&arg[2], key, keyLength) == 0) {
-			switch (arg[2 + keyLength]) {
-			case '=': 
-				Trc_Util_getDefineArgument_Exit(&arg[3 + keyLength]);
-				return &arg[3 + keyLength];
-			case '\0': 
-				Trc_Util_getDefineArgument_Empty();
-				return "";
-			}
-		}
-	}
+        if (strncmp(&arg[2], key, keyLength) == 0) {
+            switch (arg[2 + keyLength]) {
+            case '=':
+                Trc_Util_getDefineArgument_Exit(&arg[3 + keyLength]);
+                return &arg[3 + keyLength];
+            case '\0':
+                Trc_Util_getDefineArgument_Empty();
+                return "";
+            }
+        }
+    }
 
-	Trc_Util_getDefineArgument_NotFound();
-	return NULL;
+    Trc_Util_getDefineArgument_NotFound();
+    return NULL;
 }
-
-

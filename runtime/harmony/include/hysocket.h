@@ -32,28 +32,28 @@
 #define HYSOCK_AFINET 2
 #define HYSOCK_ANY 3
 #define HYSOCK_DEFPROTOCOL 0
-#define HYSOCK_INADDR_ANY (U_32)0 
-#define HYSOCK_NOFLAGS (U_32)0       /* The default flag argument value, as in a recv */
-#define HYSOCK_INADDR_LEN 4          /* The length in bytes of a binary IPv4 internet address */
-#define HYSOCK_INADDR6_LEN 16        /* The length in bytes of a binary IPv6 internet address */
+#define HYSOCK_INADDR_ANY (U_32)0
+#define HYSOCK_NOFLAGS (U_32)0 /* The default flag argument value, as in a recv */
+#define HYSOCK_INADDR_LEN 4 /* The length in bytes of a binary IPv4 internet address */
+#define HYSOCK_INADDR6_LEN 16 /* The length in bytes of a binary IPv6 internet address */
 
 /* For getaddrinfo (IPv6) -- socket types */
-#define HYSOCKET_ANY 0        /* for getaddrinfo hints */
-#define HYSOCKET_STREAM 1     /* stream socket */
-#define HYSOCKET_DGRAM 2      /* datagram socket */
-#define HYSOCKET_RAW 3        /* raw-protocol interface */
-#define HYSOCKET_RDM 4        /* reliably-delivered message */
-#define HYSOCKET_SEQPACKET 5  /* sequenced packet stream */
+#define HYSOCKET_ANY 0 /* for getaddrinfo hints */
+#define HYSOCKET_STREAM 1 /* stream socket */
+#define HYSOCKET_DGRAM 2 /* datagram socket */
+#define HYSOCKET_RAW 3 /* raw-protocol interface */
+#define HYSOCKET_RDM 4 /* reliably-delivered message */
+#define HYSOCKET_SEQPACKET 5 /* sequenced packet stream */
 
 /** address family */
-#define HYADDR_FAMILY_UNSPEC 0     /* IPv6 */
-#define HYADDR_FAMILY_AFINET4 2    /* IPv6 */
-#define HYADDR_FAMILY_AFINET6 23   /* IPv6 */
+#define HYADDR_FAMILY_UNSPEC 0 /* IPv6 */
+#define HYADDR_FAMILY_AFINET4 2 /* IPv6 */
+#define HYADDR_FAMILY_AFINET6 23 /* IPv6 */
 
 /** protocol family */
-#define HYPROTOCOL_FAMILY_UNSPEC  HYADDR_FAMILY_UNSPEC     /* IPv6 */
-#define HYPROTOCOL_FAMILY_INET4   HYADDR_FAMILY_AFINET4    /* IPv6 */
-#define HYPROTOCOL_FAMILY_INET6   HYADDR_FAMILY_AFINET6    /* IPv6 */
+#define HYPROTOCOL_FAMILY_UNSPEC HYADDR_FAMILY_UNSPEC /* IPv6 */
+#define HYPROTOCOL_FAMILY_INET4 HYADDR_FAMILY_AFINET4 /* IPv6 */
+#define HYPROTOCOL_FAMILY_INET6 HYADDR_FAMILY_AFINET6 /* IPv6 */
 
 /* Portable defines for socket levels */
 #define HY_SOL_SOCKET 1
@@ -85,30 +85,30 @@
 #define HYSOCK_MSG_PEEK 1
 #define HYSOCK_MSG_OOB 2
 
-typedef struct j9socket_struct  hysocket_struct;
-typedef struct j9sockaddr_struct  hysockaddr_struct;
-typedef struct j9hostent_struct  hyhostent_struct;
-typedef struct j9fdset_struct  hyfdset_struct;
-typedef struct j9timeval_struct  hytimeval_struct;
-typedef struct j9linger_struct  hylinger_struct;
-typedef struct j9ipmreq_struct  hyipmreq_struct;
-typedef struct j9addrinfo_struct  hyaddrinfo_struct;    /* IPv6 */
-typedef struct j9ipv6_mreq_struct  hyipv6_mreq_struct;  /* IPv6 */
+typedef struct j9socket_struct hysocket_struct;
+typedef struct j9sockaddr_struct hysockaddr_struct;
+typedef struct j9hostent_struct hyhostent_struct;
+typedef struct j9fdset_struct hyfdset_struct;
+typedef struct j9timeval_struct hytimeval_struct;
+typedef struct j9linger_struct hylinger_struct;
+typedef struct j9ipmreq_struct hyipmreq_struct;
+typedef struct j9addrinfo_struct hyaddrinfo_struct; /* IPv6 */
+typedef struct j9ipv6_mreq_struct hyipv6_mreq_struct; /* IPv6 */
 
 /* Platform Constants */
-typedef hysocket_struct *hysocket_t;
-typedef hysockaddr_struct *hysockaddr_t;
-typedef hyhostent_struct *hyhostent_t;
-typedef hyfdset_struct *hyfdset_t;
-typedef hytimeval_struct *hytimeval_t;
-typedef hylinger_struct *hylinger_t;
-typedef hyipmreq_struct *hyipmreq_t;
-typedef hyaddrinfo_struct *hyaddrinfo_t;    /* IPv6 */
-typedef hyipv6_mreq_struct *hyipv6_mreq_t;  /* IPv6 */
+typedef hysocket_struct* hysocket_t;
+typedef hysockaddr_struct* hysockaddr_t;
+typedef hyhostent_struct* hyhostent_t;
+typedef hyfdset_struct* hyfdset_t;
+typedef hytimeval_struct* hytimeval_t;
+typedef hylinger_struct* hylinger_t;
+typedef hyipmreq_struct* hyipmreq_t;
+typedef hyaddrinfo_struct* hyaddrinfo_t; /* IPv6 */
+typedef hyipv6_mreq_struct* hyipv6_mreq_t; /* IPv6 */
 
 /* constants for calling multi-call functions */
-#define HY_PORT_SOCKET_STEP_START   10
+#define HY_PORT_SOCKET_STEP_START 10
 #define HY_PORT_SOCKET_STEP_CHECK 20
-#define HY_PORT_SOCKET_STEP_DONE  30
+#define HY_PORT_SOCKET_STEP_DONE 30
 
-#endif     /* hysocket_h */
+#endif /* hysocket_h */

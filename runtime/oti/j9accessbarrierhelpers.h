@@ -24,10 +24,11 @@
 #define J9ACCESSBARRIERHELPERS_H
 
 /**
- * These helpers could be written as macros (where the body of methods would be wrapped around oval parenthesis, which would mean that the last expression in the block
- * is return value of the block). However, it is not fully supported by ANSI, but only select C compilers, like GNU C: https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html).
- * Therefore, we are using inline methods to implement the macros (in j9accessbarrier.h). The helpers are in separate file to resolve inter-file dependency (for example J9JavaVM
- * is not known type in j9accessbarrier.h).
+ * These helpers could be written as macros (where the body of methods would be wrapped around oval parenthesis, which
+ * would mean that the last expression in the block is return value of the block). However, it is not fully supported by
+ * ANSI, but only select C compilers, like GNU C: https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html). Therefore,
+ * we are using inline methods to implement the macros (in j9accessbarrier.h). The helpers are in separate file to
+ * resolve inter-file dependency (for example J9JavaVM is not known type in j9accessbarrier.h).
  */
 
 #if defined(__GNUC__)
@@ -37,27 +38,25 @@
  * is applied.
  * Note that Microsoft compilers do not allow this attribute.
  */
-VMINLINE static j9object_t
-j9javaArrayOfObject_load(J9VMThread *vmThread, J9IndexableObject *array, I_32 index)   __attribute__ ((__unused__));
+VMINLINE static j9object_t j9javaArrayOfObject_load(J9VMThread* vmThread, J9IndexableObject* array, I_32 index)
+    __attribute__((__unused__));
 
-VMINLINE static j9object_t
-j9javaArrayOfObject_load_VM(J9JavaVM *vm, J9IndexableObject *array, I_32 index)  __attribute__ ((__unused__));
+VMINLINE static j9object_t j9javaArrayOfObject_load_VM(J9JavaVM* vm, J9IndexableObject* array, I_32 index)
+    __attribute__((__unused__));
 #endif /* __GNUC__ */
 
-VMINLINE static j9object_t
-j9javaArrayOfObject_load(J9VMThread *vmThread, J9IndexableObject *array, I_32 index)
+VMINLINE static j9object_t j9javaArrayOfObject_load(J9VMThread* vmThread, J9IndexableObject* array, I_32 index)
 {
-	fj9object_t *loadAddress = J9JAVAARRAY_EA(vmThread, array, index, fj9object_t);
-	J9OBJECT__PRE_OBJECT_LOAD_ADDRESS(vmThread, array, loadAddress);
-	return (j9object_t)J9_CONVERT_POINTER_FROM_TOKEN__(vmThread, *loadAddress);
+    fj9object_t* loadAddress = J9JAVAARRAY_EA(vmThread, array, index, fj9object_t);
+    J9OBJECT__PRE_OBJECT_LOAD_ADDRESS(vmThread, array, loadAddress);
+    return (j9object_t)J9_CONVERT_POINTER_FROM_TOKEN__(vmThread, *loadAddress);
 }
 
-VMINLINE static j9object_t
-j9javaArrayOfObject_load_VM(J9JavaVM *vm, J9IndexableObject *array, I_32 index)
+VMINLINE static j9object_t j9javaArrayOfObject_load_VM(J9JavaVM* vm, J9IndexableObject* array, I_32 index)
 {
-	fj9object_t *loadAddress = J9JAVAARRAY_EA_VM(vm, array, index, fj9object_t);
-	J9OBJECT__PRE_OBJECT_LOAD_ADDRESS_VM(vm, array, loadAddress);
-	return (j9object_t)J9_CONVERT_POINTER_FROM_TOKEN_VM__(vm, *loadAddress);
+    fj9object_t* loadAddress = J9JAVAARRAY_EA_VM(vm, array, index, fj9object_t);
+    J9OBJECT__PRE_OBJECT_LOAD_ADDRESS_VM(vm, array, loadAddress);
+    return (j9object_t)J9_CONVERT_POINTER_FROM_TOKEN_VM__(vm, *loadAddress);
 }
 
 #endif /* J9ACCESSBARRIERHELPERS_H */

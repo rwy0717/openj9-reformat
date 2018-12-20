@@ -21,8 +21,8 @@
  *******************************************************************************/
 
 /** Masks used for gsPrameters->flags */
-#define J9PORT_GS_ENABLED ((uint32_t) 0x1)
-#define J9PORT_GS_INITIALIZED ((uint32_t) 0x2)
+#define J9PORT_GS_ENABLED ((uint32_t)0x1)
+#define J9PORT_GS_INITIALIZED ((uint32_t)0x2)
 
 /** Macros to check if GS is initialized/enabled */
 #define IS_GS_INITIALIZED(gsParameters) (J9PORT_GS_INITIALIZED == ((gsParameters)->flags & J9PORT_GS_INITIALIZED))
@@ -35,22 +35,22 @@
  */
 typedef struct J9GSControlBlock {
 #if defined(S390) || defined(J9ZOS390)
-	/* Word 0/1 - Reserved */
-	uint64_t reserved;
-	/* Word 2/3 - Guarded-Storage Designation
-	 * |0------------------------GSO---------------------31|
-	 * |32---GSO cont.--J|//..//|53--GSL--55|//|58--GSC--63|
-	 *
-	 * GSO - Guarded-Storage Origin bits 0-J, J depends on GSC, bits J-53 are reserved and have to be 0
-	 * GSL - Guarded-Load Shift bits 53-55
-	 * GSC - Guarded-Storage Characteristic bits 58-63, bits 56-58 are reserved and have to be 0
-	 */
-	uint64_t designationRegister;
-	/* Word 4/5 - Guarded-Storage Section Mask */
-	uint64_t sectionMask;
-	/* Word 6/7 - Guarded-Storage-Event Parameter-List Address */
-	uint64_t paramListAddr;
+    /* Word 0/1 - Reserved */
+    uint64_t reserved;
+    /* Word 2/3 - Guarded-Storage Designation
+     * |0------------------------GSO---------------------31|
+     * |32---GSO cont.--J|//..//|53--GSL--55|//|58--GSC--63|
+     *
+     * GSO - Guarded-Storage Origin bits 0-J, J depends on GSC, bits J-53 are reserved and have to be 0
+     * GSL - Guarded-Load Shift bits 53-55
+     * GSC - Guarded-Storage Characteristic bits 58-63, bits 56-58 are reserved and have to be 0
+     */
+    uint64_t designationRegister;
+    /* Word 4/5 - Guarded-Storage Section Mask */
+    uint64_t sectionMask;
+    /* Word 6/7 - Guarded-Storage-Event Parameter-List Address */
+    uint64_t paramListAddr;
 #else
-	uint32_t placeHolder;
+    uint32_t placeHolder;
 #endif
 } J9GSControlBlock;

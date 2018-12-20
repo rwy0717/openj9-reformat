@@ -32,30 +32,29 @@
 
 struct J9PortLibrary;
 
-class BufferManager
-{
+class BufferManager {
 public:
+    BufferManager(J9PortLibrary* portLibrary, UDATA bufferSize, U_8** buffer);
+    ~BufferManager();
 
-	BufferManager(J9PortLibrary *portLibrary, UDATA bufferSize, U_8 **buffer);
-	~BufferManager();
+    bool isOK() { return NULL != *_buffer; }
 
-	bool isOK() { return NULL != *_buffer; }
-
-	void *alloc(UDATA size);
-	void reclaim(void *memory, UDATA actualSize);
-	void free(void *memory)	{
-		/*
-		 * Do nothing, we will free the entire buffer when the BufferManager itself is free'd.
-		 */
-	}
+    void* alloc(UDATA size);
+    void reclaim(void* memory, UDATA actualSize);
+    void free(void* memory)
+    {
+        /*
+         * Do nothing, we will free the entire buffer when the BufferManager itself is free'd.
+         */
+    }
 
 private:
-	J9PortLibrary *_portLibrary;
-	UDATA _bufferSize;
-	U_8 **_buffer;
-	UDATA _pos;
-	void *_lastAllocation;
-	bool _shouldFreeBuffer;
+    J9PortLibrary* _portLibrary;
+    UDATA _bufferSize;
+    U_8** _buffer;
+    UDATA _pos;
+    void* _lastAllocation;
+    bool _shouldFreeBuffer;
 };
 
 #endif /* BUFFERMANAGER_HPP_ */

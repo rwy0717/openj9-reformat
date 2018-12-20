@@ -30,87 +30,78 @@
 /* Pseudo-structure to hold build constants */
 J9DDRConstantTableBegin(TRBuildFlags)
 #if defined(TR_HOST_ARM)
-	#define host_ARM 1
+#define host_ARM 1
 #else
-	#define host_ARM 0
+#define host_ARM 0
 #endif
-J9DDRConstantTableEntryWithValue("host_ARM", host_ARM)
+    J9DDRConstantTableEntryWithValue("host_ARM", host_ARM)
 
 #if defined(TR_HOST_IA32)
-	#define host_IA32 1
+#define host_IA32 1
 #else
-	#define host_IA32 0
+#define host_IA32 0
 #endif
-J9DDRConstantTableEntryWithValue("host_IA32", host_IA32)
+        J9DDRConstantTableEntryWithValue("host_IA32", host_IA32)
 
 #if defined(TR_HOST_POWER)
-	#define host_POWER 1
+#define host_POWER 1
 #else
-	#define host_POWER 0
+#define host_POWER 0
 #endif
-J9DDRConstantTableEntryWithValue("host_POWER",host_POWER)
+            J9DDRConstantTableEntryWithValue("host_POWER", host_POWER)
 
 #if defined(TR_HOST_PPC)
-	#define host_PPC 1
+#define host_PPC 1
 #else
-	#define host_PPC 0
+#define host_PPC 0
 #endif
-J9DDRConstantTableEntryWithValue("host_PPC", host_PPC)
+                J9DDRConstantTableEntryWithValue("host_PPC", host_PPC)
 
 #if defined(TR_HOST_S390)
-	#define host_S390 1
+#define host_S390 1
 #else
-	#define host_S390 0
+#define host_S390 0
 #endif
-J9DDRConstantTableEntryWithValue("host_S390", host_S390)
+                    J9DDRConstantTableEntryWithValue("host_S390", host_S390)
 
 #if defined(TR_HOST_X86)
-	#define host_X86 1
+#define host_X86 1
 #else
-	#define host_X86 0
+#define host_X86 0
 #endif
-J9DDRConstantTableEntryWithValue("host_X86", host_X86)
+                        J9DDRConstantTableEntryWithValue("host_X86", host_X86)
 
 #if defined(TR_HOST_32BIT)
-	#define host_32BIT 1
+#define host_32BIT 1
 #else
-	#define host_32BIT 0
+#define host_32BIT 0
 #endif
-J9DDRConstantTableEntryWithValue("host_32BIT", host_32BIT)
+                            J9DDRConstantTableEntryWithValue("host_32BIT", host_32BIT)
 
 #if defined(TR_HOST_64BIT)
-	#define host_64BIT 1
+#define host_64BIT 1
 #else
-	#define host_64BIT 0
+#define host_64BIT 0
 #endif
-J9DDRConstantTableEntryWithValue("host_64BIT", host_64BIT)
+                                J9DDRConstantTableEntryWithValue("host_64BIT", host_64BIT)
 
-J9DDRConstantTableEnd
+                                    J9DDRConstantTableEnd
 
-J9DDRConstantTableBegin(CLimits)
-	J9DDRConstantTableEntryWithValue("CHAR_MAX",CHAR_MAX)
-	J9DDRConstantTableEntryWithValue("CHAR_MIN",CHAR_MIN)
-	J9DDRConstantTableEntryWithValue("INT_MAX",INT_MAX)
-	J9DDRConstantTableEntryWithValue("INT_MIN",INT_MIN)
-	J9DDRConstantTableEntryWithValue("LONG_MAX",LONG_MAX)
-	J9DDRConstantTableEntryWithValue("LONG_MIN",LONG_MIN)
-	J9DDRConstantTableEntryWithValue("SCHAR_MAX",SCHAR_MAX)
-	J9DDRConstantTableEntryWithValue("SCHAR_MIN",SCHAR_MIN)
-	J9DDRConstantTableEntryWithValue("SHRT_MAX",SHRT_MAX)
-	J9DDRConstantTableEntryWithValue("SHRT_MIN",SHRT_MIN)
-	J9DDRConstantTableEntryWithValue("UCHAR_MAX",UCHAR_MAX)
-	J9DDRConstantTableEntryWithValue("UINT_MAX",UINT_MAX)
-	J9DDRConstantTableEntryWithValue("ULONG_MAX",ULONG_MAX)
-	J9DDRConstantTableEntryWithValue("USHRT_MAX",USHRT_MAX)
-J9DDRConstantTableEnd
+    J9DDRConstantTableBegin(CLimits) J9DDRConstantTableEntryWithValue("CHAR_MAX", CHAR_MAX)
+        J9DDRConstantTableEntryWithValue("CHAR_MIN", CHAR_MIN) J9DDRConstantTableEntryWithValue("INT_MAX", INT_MAX)
+            J9DDRConstantTableEntryWithValue("INT_MIN", INT_MIN) J9DDRConstantTableEntryWithValue("LONG_MAX", LONG_MAX)
+                J9DDRConstantTableEntryWithValue("LONG_MIN", LONG_MIN) J9DDRConstantTableEntryWithValue(
+                    "SCHAR_MAX", SCHAR_MAX) J9DDRConstantTableEntryWithValue("SCHAR_MIN", SCHAR_MIN)
+                    J9DDRConstantTableEntryWithValue("SHRT_MAX", SHRT_MAX)
+                        J9DDRConstantTableEntryWithValue("SHRT_MIN", SHRT_MIN)
+                            J9DDRConstantTableEntryWithValue("UCHAR_MAX", UCHAR_MAX)
+                                J9DDRConstantTableEntryWithValue("UINT_MAX", UINT_MAX)
+                                    J9DDRConstantTableEntryWithValue("ULONG_MAX", ULONG_MAX)
+                                        J9DDRConstantTableEntryWithValue("USHRT_MAX", USHRT_MAX) J9DDRConstantTableEnd
 
-J9DDRStructTableBegin(JIT)
-	J9DDREmptyStruct(TRBuildFlags, NULL)
-	J9DDREmptyStruct(CLimits, NULL)
-J9DDRStructTableEnd
+    J9DDRStructTableBegin(JIT) J9DDREmptyStruct(TRBuildFlags, NULL) J9DDREmptyStruct(CLimits, NULL) J9DDRStructTableEnd
 
-const J9DDRStructDefinition *
-getJITStructTable()
+    const J9DDRStructDefinition* getJITStructTable()
 {
-	return J9DDR_JIT_structs;
+    return J9DDR_JIT_structs;
 }

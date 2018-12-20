@@ -26,57 +26,59 @@
 #include "MixedObjectAllocationModel.hpp"
 #include "ObjectModel.hpp"
 
-omrobjectptr_t
-GC_ObjectModelDelegate::initializeAllocation(MM_EnvironmentBase *env, void *allocatedBytes, MM_AllocateInitialization *allocateInitialization)
+omrobjectptr_t GC_ObjectModelDelegate::initializeAllocation(
+    MM_EnvironmentBase* env, void* allocatedBytes, MM_AllocateInitialization* allocateInitialization)
 {
-	omrobjectptr_t objectPtr = NULL;
+    omrobjectptr_t objectPtr = NULL;
 
-	switch (allocateInitialization->getAllocationCategory()) {
-	case MM_JavaObjectAllocationModel::allocation_category_mixed: {
-		MM_MixedObjectAllocationModel *mixedObjectAllocationModel = (MM_MixedObjectAllocationModel *)allocateInitialization;
-		objectPtr = mixedObjectAllocationModel->initializeMixedObject(env, allocatedBytes);
-		break;
-	}
-	case MM_JavaObjectAllocationModel::allocation_category_indexable: {
-		MM_IndexableObjectAllocationModel *indexableObjectAllocationModel = (MM_IndexableObjectAllocationModel *)allocateInitialization;
-		objectPtr = (omrobjectptr_t)indexableObjectAllocationModel->initializeIndexableObject(env, allocatedBytes);
-		break;
-	}
-	default:
-		Assert_MM_unreachable();
-		break;
-	}
+    switch (allocateInitialization->getAllocationCategory()) {
+    case MM_JavaObjectAllocationModel::allocation_category_mixed: {
+        MM_MixedObjectAllocationModel* mixedObjectAllocationModel
+            = (MM_MixedObjectAllocationModel*)allocateInitialization;
+        objectPtr = mixedObjectAllocationModel->initializeMixedObject(env, allocatedBytes);
+        break;
+    }
+    case MM_JavaObjectAllocationModel::allocation_category_indexable: {
+        MM_IndexableObjectAllocationModel* indexableObjectAllocationModel
+            = (MM_IndexableObjectAllocationModel*)allocateInitialization;
+        objectPtr = (omrobjectptr_t)indexableObjectAllocationModel->initializeIndexableObject(env, allocatedBytes);
+        break;
+    }
+    default:
+        Assert_MM_unreachable();
+        break;
+    }
 
-	return objectPtr;
+    return objectPtr;
 }
 
 #if defined(OMR_GC_MODRON_SCAVENGER)
-void
-GC_ObjectModelDelegate::calculateObjectDetailsForCopy(MM_EnvironmentBase *env, MM_ForwardedHeader *forwardedHeader, uintptr_t *objectCopySizeInBytes, uintptr_t *reservedObjectSizeInBytes, uintptr_t *hotFieldAlignmentDescriptor)
+void GC_ObjectModelDelegate::calculateObjectDetailsForCopy(MM_EnvironmentBase* env, MM_ForwardedHeader* forwardedHeader,
+    uintptr_t* objectCopySizeInBytes, uintptr_t* reservedObjectSizeInBytes, uintptr_t* hotFieldAlignmentDescriptor)
 {
-	GC_ObjectModel *objectModel = &(env->getExtensions()->objectModel);
-	J9Class* clazz = objectModel->getPreservedClass(forwardedHeader);
-	uintptr_t actualObjectCopySizeInBytes = 0;
-	uintptr_t hashcodeOffset = 0;
+    GC_ObjectModel* objectModel = &(env->getExtensions()->objectModel);
+    J9Class* clazz = objectModel->getPreservedClass(forwardedHeader);
+    uintptr_t actualObjectCopySizeInBytes = 0;
+    uintptr_t hashcodeOffset = 0;
 
-	if (objectModel->isIndexable(clazz)) {
-		uint32_t size = objectModel->getPreservedIndexableSize(forwardedHeader);
-		*objectCopySizeInBytes = getArrayObjectModel()->getSizeInBytesWithHeader(clazz, size);
-		hashcodeOffset = getArrayObjectModel()->getHashcodeOffset(clazz, size);
-	} else {
-		*objectCopySizeInBytes = clazz->totalInstanceSize + sizeof(J9Object);
-		hashcodeOffset = getMixedObjectModel()->getHashcodeOffset(clazz);
-	}
+    if (objectModel->isIndexable(clazz)) {
+        uint32_t size = objectModel->getPreservedIndexableSize(forwardedHeader);
+        *objectCopySizeInBytes = getArrayObjectModel()->getSizeInBytesWithHeader(clazz, size);
+        hashcodeOffset = getArrayObjectModel()->getHashcodeOffset(clazz, size);
+    } else {
+        *objectCopySizeInBytes = clazz->totalInstanceSize + sizeof(J9Object);
+        hashcodeOffset = getMixedObjectModel()->getHashcodeOffset(clazz);
+    }
 
-	if (hashcodeOffset == *objectCopySizeInBytes) {
-		if (objectModel->hasBeenMoved(objectModel->getPreservedFlags(forwardedHeader))) {
-			*objectCopySizeInBytes += sizeof(uintptr_t);
-		} else if (objectModel->hasBeenHashed(objectModel->getPreservedFlags(forwardedHeader))) {
-			actualObjectCopySizeInBytes += sizeof(uintptr_t);
-		}
-	}
-	actualObjectCopySizeInBytes += *objectCopySizeInBytes;
-	*reservedObjectSizeInBytes = objectModel->adjustSizeInBytes(actualObjectCopySizeInBytes);
-	*hotFieldAlignmentDescriptor = clazz->instanceHotFieldDescription;
+    if (hashcodeOffset == *objectCopySizeInBytes) {
+        if (objectModel->hasBeenMoved(objectModel->getPreservedFlags(forwardedHeader))) {
+            *objectCopySizeInBytes += sizeof(uintptr_t);
+        } else if (objectModel->hasBeenHashed(objectModel->getPreservedFlags(forwardedHeader))) {
+            actualObjectCopySizeInBytes += sizeof(uintptr_t);
+        }
+    }
+    actualObjectCopySizeInBytes += *objectCopySizeInBytes;
+    *reservedObjectSizeInBytes = objectModel->adjustSizeInBytes(actualObjectCopySizeInBytes);
+    *hotFieldAlignmentDescriptor = clazz->instanceHotFieldDescription;
 }
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */

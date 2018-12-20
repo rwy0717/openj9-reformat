@@ -24,65 +24,63 @@
 #include "j9protos.h"
 
 UDATA
-compareJavaStringToPartialUTF8(J9VMThread * vmThread, j9object_t string, U_8 * utfData, UDATA utfLength)
+compareJavaStringToPartialUTF8(J9VMThread* vmThread, j9object_t string, U_8* utfData, UDATA utfLength)
 {
-	UDATA unicodeLength = J9VMJAVALANGSTRING_LENGTH(vmThread, string);
-	j9object_t unicodeBytes = J9VMJAVALANGSTRING_VALUE(vmThread, string);
-	UDATA i;
+    UDATA unicodeLength = J9VMJAVALANGSTRING_LENGTH(vmThread, string);
+    j9object_t unicodeBytes = J9VMJAVALANGSTRING_VALUE(vmThread, string);
+    UDATA i;
 
-	if (IS_STRING_COMPRESSED(vmThread, string)) {
-		for (i = 0; i < unicodeLength; i++) {
-			U_16 utfChar;
-			U_32 count;
+    if (IS_STRING_COMPRESSED(vmThread, string)) {
+        for (i = 0; i < unicodeLength; i++) {
+            U_16 utfChar;
+            U_32 count;
 
-			/* If the String is longer than the UTF, then they don't match */
+            /* If the String is longer than the UTF, then they don't match */
 
-			if (utfLength == 0) {
-				return FALSE;
-			}
+            if (utfLength == 0) {
+                return FALSE;
+            }
 
-			count = decodeUTF8CharN(utfData, &utfChar, utfLength);
-			if (count == 0) {
-				return FALSE;
-			}
-			utfData += count;
-			utfLength -= count;
+            count = decodeUTF8CharN(utfData, &utfChar, utfLength);
+            if (count == 0) {
+                return FALSE;
+            }
+            utfData += count;
+            utfLength -= count;
 
-			if (utfChar == '/') {
-				utfChar = '.';
-			}
-			if (utfChar != J9JAVAARRAYOFBYTE_LOAD(vmThread, unicodeBytes, i)) {
-				return FALSE;
-			}
-		}
-	} else {
-		for (i = 0; i < unicodeLength; i++) {
-			U_16 utfChar;
-			U_32 count;
+            if (utfChar == '/') {
+                utfChar = '.';
+            }
+            if (utfChar != J9JAVAARRAYOFBYTE_LOAD(vmThread, unicodeBytes, i)) {
+                return FALSE;
+            }
+        }
+    } else {
+        for (i = 0; i < unicodeLength; i++) {
+            U_16 utfChar;
+            U_32 count;
 
-			/* If the String is longer than the UTF, then they don't match */
+            /* If the String is longer than the UTF, then they don't match */
 
-			if (utfLength == 0) {
-				return FALSE;
-			}
+            if (utfLength == 0) {
+                return FALSE;
+            }
 
-			count = decodeUTF8CharN(utfData, &utfChar, utfLength);
-			if (count == 0) {
-				return FALSE;
-			}
-			utfData += count;
-			utfLength -= count;
+            count = decodeUTF8CharN(utfData, &utfChar, utfLength);
+            if (count == 0) {
+                return FALSE;
+            }
+            utfData += count;
+            utfLength -= count;
 
-			if (utfChar == '/') {
-				utfChar = '.';
-			}
-			if (utfChar != J9JAVAARRAYOFCHAR_LOAD(vmThread, unicodeBytes, i)) {
-				return FALSE;
-			}
-		}
-	}
+            if (utfChar == '/') {
+                utfChar = '.';
+            }
+            if (utfChar != J9JAVAARRAYOFCHAR_LOAD(vmThread, unicodeBytes, i)) {
+                return FALSE;
+            }
+        }
+    }
 
-	return TRUE;
+    return TRUE;
 }
-
-

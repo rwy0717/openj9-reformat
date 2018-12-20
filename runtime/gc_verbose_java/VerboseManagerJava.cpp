@@ -53,127 +53,124 @@
  * Create a new MM_VerboseManagerJava instance.
  * @return Pointer to the new MM_VerboseManagerJava.
  */
-MM_VerboseManager *
-MM_VerboseManagerJava::newInstance(MM_EnvironmentBase *env, OMR_VM* vm)
+MM_VerboseManager* MM_VerboseManagerJava::newInstance(MM_EnvironmentBase* env, OMR_VM* vm)
 {
-	MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(vm);
-	
-	MM_VerboseManagerJava *verboseManager = (MM_VerboseManagerJava *)extensions->getForge()->allocate(sizeof(MM_VerboseManagerJava), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (verboseManager) {
-		new(verboseManager) MM_VerboseManagerJava(vm);
-		if(!verboseManager->initialize(env)) {
-			verboseManager->kill(env);
-			verboseManager = NULL;
-		}
-	}
-	return verboseManager;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(vm);
+
+    MM_VerboseManagerJava* verboseManager = (MM_VerboseManagerJava*)extensions->getForge()->allocate(
+        sizeof(MM_VerboseManagerJava), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (verboseManager) {
+        new (verboseManager) MM_VerboseManagerJava(vm);
+        if (!verboseManager->initialize(env)) {
+            verboseManager->kill(env);
+            verboseManager = NULL;
+        }
+    }
+    return verboseManager;
 }
 
 /**
  * Initializes the MM_VerboseManager instance.
  */
-bool
-MM_VerboseManagerJava::initialize(MM_EnvironmentBase *env)
+bool MM_VerboseManagerJava::initialize(MM_EnvironmentBase* env)
 {
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
-	_mmHooks = J9_HOOK_INTERFACE(extensions->hookInterface);
-	_mmPrivateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
-	_omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+    _mmHooks = J9_HOOK_INTERFACE(extensions->hookInterface);
+    _mmPrivateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
+    _omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
 
-	_writerChain = MM_VerboseWriterChain::newInstance(env);
-	if (NULL == _writerChain) {
-		return false;
-	}
+    _writerChain = MM_VerboseWriterChain::newInstance(env);
+    if (NULL == _writerChain) {
+        return false;
+    }
 
-	if(NULL == (_verboseHandlerOutput = createVerboseHandlerOutputObject(env))) {
-		return false;
-	}
+    if (NULL == (_verboseHandlerOutput = createVerboseHandlerOutputObject(env))) {
+        return false;
+    }
 
-	_lastOutputTime = j9time_hires_clock();
+    _lastOutputTime = j9time_hires_clock();
 
-	return true;
+    return true;
 }
 
-MM_VerboseHandlerOutput *
-MM_VerboseManagerJava::createVerboseHandlerOutputObject(MM_EnvironmentBase *env)
+MM_VerboseHandlerOutput* MM_VerboseManagerJava::createVerboseHandlerOutputObject(MM_EnvironmentBase* env)
 {
-	MM_VerboseHandlerOutput *handler = NULL;
-	MM_GCExtensionsBase *extensions = env->getExtensions();
-	
-	if (extensions->isMetronomeGC()) {
+    MM_VerboseHandlerOutput* handler = NULL;
+    MM_GCExtensionsBase* extensions = env->getExtensions();
+
+    if (extensions->isMetronomeGC()) {
 #if defined(J9VM_GC_REALTIME)
-		handler = MM_VerboseHandlerOutputRealtime::newInstance(env, this);
+        handler = MM_VerboseHandlerOutputRealtime::newInstance(env, this);
 #endif /* defined(J9VM_GC_REALTIME) */
-	} else if (extensions->isVLHGC()) {
+    } else if (extensions->isVLHGC()) {
 #if defined(J9VM_GC_VLHGC)
-		handler = MM_VerboseHandlerOutputVLHGC::newInstance(env, this);
+        handler = MM_VerboseHandlerOutputVLHGC::newInstance(env, this);
 #endif /* defined(J9VM_GC_VLHGC) */
-	} else if (extensions->isStandardGC()) {
+    } else if (extensions->isStandardGC()) {
 #if defined(J9VM_GC_MODRON_STANDARD)
-		handler = MM_VerboseHandlerOutputStandardJava::newInstance(env, this);
+        handler = MM_VerboseHandlerOutputStandardJava::newInstance(env, this);
 #endif /* defined(J9VM_GC_MODRON_STANDARD) */
-	} else {
-		/* unknown collector type but verbose doesn't have assertions so just return NULL so that a caller will observe that we failed */
-	}
-	return handler;
+    } else {
+        /* unknown collector type but verbose doesn't have assertions so just return NULL so that a caller will observe
+         * that we failed */
+    }
+    return handler;
 }
 
-MM_VerboseWriter *
-MM_VerboseManagerJava::createWriter(MM_EnvironmentBase *env, WriterType type, char *filename, UDATA fileCount, UDATA iterations)
+MM_VerboseWriter* MM_VerboseManagerJava::createWriter(
+    MM_EnvironmentBase* env, WriterType type, char* filename, UDATA fileCount, UDATA iterations)
 {
-	MM_VerboseWriter *writer = NULL;
+    MM_VerboseWriter* writer = NULL;
 
-	switch(type) {
-	case VERBOSE_WRITER_STANDARD_STREAM:
-		writer = MM_VerboseWriterStreamOutput::newInstance(env, filename);
-		break;
+    switch (type) {
+    case VERBOSE_WRITER_STANDARD_STREAM:
+        writer = MM_VerboseWriterStreamOutput::newInstance(env, filename);
+        break;
 
-	case VERBOSE_WRITER_TRACE:
-		writer = MM_VerboseWriterTrace::newInstance(env);
-		break;
+    case VERBOSE_WRITER_TRACE:
+        writer = MM_VerboseWriterTrace::newInstance(env);
+        break;
 
-	case VERBOSE_WRITER_HOOK:
-		writer = MM_VerboseWriterHook::newInstance(env);
-		break;
+    case VERBOSE_WRITER_HOOK:
+        writer = MM_VerboseWriterHook::newInstance(env);
+        break;
 
-	case VERBOSE_WRITER_FILE_LOGGING_SYNCHRONOUS:
-		writer = MM_VerboseWriterFileLoggingSynchronous::newInstance(env, this, filename, fileCount, iterations);
-		if (NULL == writer) {
-			writer = findWriterInChain(VERBOSE_WRITER_STANDARD_STREAM);
-			if (NULL != writer) {
-				writer->isActive(true);
-				return writer;
-			}
-			/* if we failed to create a file stream and there is no stderr stream try to create a stderr stream */
-			writer = MM_VerboseWriterStreamOutput::newInstance(env, NULL);
-		}
-		break;
+    case VERBOSE_WRITER_FILE_LOGGING_SYNCHRONOUS:
+        writer = MM_VerboseWriterFileLoggingSynchronous::newInstance(env, this, filename, fileCount, iterations);
+        if (NULL == writer) {
+            writer = findWriterInChain(VERBOSE_WRITER_STANDARD_STREAM);
+            if (NULL != writer) {
+                writer->isActive(true);
+                return writer;
+            }
+            /* if we failed to create a file stream and there is no stderr stream try to create a stderr stream */
+            writer = MM_VerboseWriterStreamOutput::newInstance(env, NULL);
+        }
+        break;
 
-	case VERBOSE_WRITER_FILE_LOGGING_BUFFERED:
-		writer = MM_VerboseWriterFileLoggingBuffered::newInstance(env, this, filename, fileCount, iterations);
-		if (NULL == writer) {
-			writer = findWriterInChain(VERBOSE_WRITER_STANDARD_STREAM);
-			if (NULL != writer) {
-				writer->isActive(true);
-				return writer;
-			}
-			/* if we failed to create a file stream and there is no stderr stream try to create a stderr stream */
-			writer = MM_VerboseWriterStreamOutput::newInstance(env, NULL);
-		}
-		break;
+    case VERBOSE_WRITER_FILE_LOGGING_BUFFERED:
+        writer = MM_VerboseWriterFileLoggingBuffered::newInstance(env, this, filename, fileCount, iterations);
+        if (NULL == writer) {
+            writer = findWriterInChain(VERBOSE_WRITER_STANDARD_STREAM);
+            if (NULL != writer) {
+                writer->isActive(true);
+                return writer;
+            }
+            /* if we failed to create a file stream and there is no stderr stream try to create a stderr stream */
+            writer = MM_VerboseWriterStreamOutput::newInstance(env, NULL);
+        }
+        break;
 
-	default:
-		return NULL;
-	}
+    default:
+        return NULL;
+    }
 
-	return writer;
+    return writer;
 }
 
-void
-MM_VerboseManagerJava::handleFileOpenError(MM_EnvironmentBase *env, char *fileName)
+void MM_VerboseManagerJava::handleFileOpenError(MM_EnvironmentBase* env, char* fileName)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	omrnls_printf(J9NLS_ERROR, J9NLS_GC_UNABLE_TO_OPEN_FILE, fileName);
+    OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+    omrnls_printf(J9NLS_ERROR, J9NLS_GC_UNABLE_TO_OPEN_FILE, fileName);
 }
-

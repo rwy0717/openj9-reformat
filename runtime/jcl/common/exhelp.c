@@ -24,103 +24,90 @@
 #include "j9.h"
 
 /**
-  * Throw java.lang.IndexOutOfBoundsException
-  */
-void
-throwNewIndexOutOfBoundsException(JNIEnv *env, char *message)
+ * Throw java.lang.IndexOutOfBoundsException
+ */
+void throwNewIndexOutOfBoundsException(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
-
 /**
-  * Throw java.lang.InternalError
-  */
-void
-throwNewInternalError(JNIEnv *env, char *message)
+ * Throw java.lang.InternalError
+ */
+void throwNewInternalError(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/lang/InternalError");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/lang/InternalError");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
-
 /**
-  * Throw java.lang.NullPointerException with the message provided
-  */
-void
-throwNewNullPointerException(JNIEnv *env, char *message)
+ * Throw java.lang.NullPointerException with the message provided
+ */
+void throwNewNullPointerException(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/lang/NullPointerException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/lang/NullPointerException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
-
 /**
-  * Throw java.lang.IllegalArgumentException
-  */
-void
-throwNewIllegalArgumentException(JNIEnv *env, char *message)
+ * Throw java.lang.IllegalArgumentException
+ */
+void throwNewIllegalArgumentException(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
-
 /**
-  * Throw java.lang.IllegalStateException
-  */
-void
-throwNewIllegalStateException(JNIEnv *env, char *message)
+ * Throw java.lang.IllegalStateException
+ */
+void throwNewIllegalStateException(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/lang/IllegalStateException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/lang/IllegalStateException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
-
 /**
-  * Throw java.util.zip.ZipException with the message provided
-  */
-void
-throwNewJavaZIOException(JNIEnv *env, char *message)
+ * Throw java.util.zip.ZipException with the message provided
+ */
+void throwNewJavaZIOException(JNIEnv* env, char* message)
 {
-	jclass exceptionClass = (*env)->FindClass(env, "java/util/zip/ZipException");
-	if (exceptionClass == 0) {
-		/* Just return if we can't load the exception class. */
-		return;
-	}
-	(*env)->ThrowNew(env, exceptionClass, message);
+    jclass exceptionClass = (*env)->FindClass(env, "java/util/zip/ZipException");
+    if (exceptionClass == 0) {
+        /* Just return if we can't load the exception class. */
+        return;
+    }
+    (*env)->ThrowNew(env, exceptionClass, message);
 }
 
 /**
  * Throw java/lang/UnsupportedOperationException
  */
-void
-throwNewUnsupportedOperationException(JNIEnv *env)
+void throwNewUnsupportedOperationException(JNIEnv* env)
 {
-	jclass clazz = (*env)->FindClass(env, "java/lang/UnsupportedOperationException");
-	if (NULL != clazz) {
-		(*env)->ThrowNew(env, clazz, NULL);
-	}
+    jclass clazz = (*env)->FindClass(env, "java/lang/UnsupportedOperationException");
+    if (NULL != clazz) {
+        (*env)->ThrowNew(env, clazz, NULL);
+    }
 }
-

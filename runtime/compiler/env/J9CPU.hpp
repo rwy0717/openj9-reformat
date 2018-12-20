@@ -28,25 +28,27 @@
  */
 #ifndef J9_CPU_CONNECTOR
 #define J9_CPU_CONNECTOR
-namespace J9 { class CPU; }
-namespace J9 { typedef CPU CPUConnector; }
+namespace J9 {
+class CPU;
+}
+namespace J9 {
+typedef CPU CPUConnector;
+}
 #endif
 
 #include "env/OMRCPU.hpp"
 #include "j9port.h"
 
-namespace J9
-{
-class CPU : public OMR::CPUConnector
-   {
+namespace J9 {
+class CPU : public OMR::CPUConnector {
 protected:
-   CPU() : OMR::CPUConnector() {}
+    CPU()
+        : OMR::CPUConnector()
+    {}
 
 public:
-
-   J9ProcessorDesc *TO_PORTLIB_getJ9ProcessorDesc();
-   };
-}
-
+    J9ProcessorDesc* TO_PORTLIB_getJ9ProcessorDesc();
+};
+} // namespace J9
 
 #endif

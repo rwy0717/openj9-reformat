@@ -36,41 +36,41 @@
 
 class MM_EnvironmentBase;
 
-class MM_SweepPoolManagerVLHGC : public MM_SweepPoolManager
-{
+class MM_SweepPoolManagerVLHGC : public MM_SweepPoolManager {
 private:
 protected:
 public:
-
 private:
-	/**
-	 * A helper to find the size of the final object in a chunk in order to update trailing object and hole data.
-	 * @param sweepChunk[in] The chunk for which this data must be calculated
-	 * @param trailingCandidate[in] A pointer to the slot after the beginning of the last object in the chunk
-	 * @param trailingCandidateSlotCount[in] The number of slots between the trailing candidate and the end of the chunk
-	 */
-	void calculateTrailingDetails(MM_ParallelSweepChunk *sweepChunk, UDATA *trailingCandidate, UDATA trailingCandidateSlotCount);
+    /**
+     * A helper to find the size of the final object in a chunk in order to update trailing object and hole data.
+     * @param sweepChunk[in] The chunk for which this data must be calculated
+     * @param trailingCandidate[in] A pointer to the slot after the beginning of the last object in the chunk
+     * @param trailingCandidateSlotCount[in] The number of slots between the trailing candidate and the end of the chunk
+     */
+    void calculateTrailingDetails(
+        MM_ParallelSweepChunk* sweepChunk, UDATA* trailingCandidate, UDATA trailingCandidateSlotCount);
 
 protected:
 public:
-	static MM_SweepPoolManagerVLHGC *newInstance(MM_EnvironmentBase *env);
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void flushFinalChunk(MM_EnvironmentBase *envModron, MM_MemoryPool *memoryPool);
-	virtual void connectFinalChunk(MM_EnvironmentBase *envModron, MM_MemoryPool *memoryPool);
-	virtual void poolPostProcess(MM_EnvironmentBase *envModron, MM_MemoryPool *memoryPool);
-	virtual void connectChunk(MM_EnvironmentBase *env, MM_ParallelSweepChunk *chunk);
-	virtual bool addFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk, UDATA *heapSlotFreeHead, UDATA heapSlotFreeCount);
-	virtual void updateTrailingFreeMemory(MM_EnvironmentBase *env, MM_ParallelSweepChunk *sweepChunk, UDATA *heapSlotFreeHead, UDATA heapSlotFreeCount);
-	virtual MM_SweepPoolState *getPoolState(MM_MemoryPool *memoryPool);
+    static MM_SweepPoolManagerVLHGC* newInstance(MM_EnvironmentBase* env);
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void flushFinalChunk(MM_EnvironmentBase* envModron, MM_MemoryPool* memoryPool);
+    virtual void connectFinalChunk(MM_EnvironmentBase* envModron, MM_MemoryPool* memoryPool);
+    virtual void poolPostProcess(MM_EnvironmentBase* envModron, MM_MemoryPool* memoryPool);
+    virtual void connectChunk(MM_EnvironmentBase* env, MM_ParallelSweepChunk* chunk);
+    virtual bool addFreeMemory(
+        MM_EnvironmentBase* env, MM_ParallelSweepChunk* sweepChunk, UDATA* heapSlotFreeHead, UDATA heapSlotFreeCount);
+    virtual void updateTrailingFreeMemory(
+        MM_EnvironmentBase* env, MM_ParallelSweepChunk* sweepChunk, UDATA* heapSlotFreeHead, UDATA heapSlotFreeCount);
+    virtual MM_SweepPoolState* getPoolState(MM_MemoryPool* memoryPool);
 
-	/**
-	 * Create a SweepPoolManager object.
-	 */
-	MM_SweepPoolManagerVLHGC(MM_EnvironmentBase *env)
-		: MM_SweepPoolManager(env)
-	{
-		_typeId = __FUNCTION__;
-	}
-
+    /**
+     * Create a SweepPoolManager object.
+     */
+    MM_SweepPoolManagerVLHGC(MM_EnvironmentBase* env)
+        : MM_SweepPoolManager(env)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 #endif /* SWEEPPOOLMANAGERVLHGC_HPP_ */

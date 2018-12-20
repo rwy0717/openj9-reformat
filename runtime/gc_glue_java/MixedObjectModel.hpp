@@ -36,99 +36,79 @@ class MM_GCExtensionsBase;
  * Provides information for mixed objects.
  * @ingroup GC_Base
  */
-class GC_MixedObjectModel
-{
+class GC_MixedObjectModel {
 
-/*
-* Data members
-*/
+    /*
+     * Data members
+     */
 private:
 protected:
 public:
-
-/*
-* Function members
-*/
+    /*
+     * Function members
+     */
 private:
 protected:
 public:
-	/**
-	 * Returns the size of a class, in bytes, excluding the header.
-	 * @param clazzPtr Pointer to the class whose size is required
-	 * @return Size of class in bytes excluding the header
-	 */
-	MMINLINE UDATA
-	getSizeInBytesWithoutHeader(J9Class *clazz)
-	{
-		return clazz->totalInstanceSize;
-	}
+    /**
+     * Returns the size of a class, in bytes, excluding the header.
+     * @param clazzPtr Pointer to the class whose size is required
+     * @return Size of class in bytes excluding the header
+     */
+    MMINLINE UDATA getSizeInBytesWithoutHeader(J9Class* clazz) { return clazz->totalInstanceSize; }
 
-	/**
-	 * Returns the size of a mixed object, in bytes, excluding the header.
-	 * @param objectPtr Pointer to the object whose size is required
-	 * @return Size of object in bytes excluding the header
-	 */	
-	MMINLINE UDATA
-	getSizeInBytesWithoutHeader(J9Object *objectPtr)
-	{
-		return getSizeInBytesWithoutHeader(J9GC_J9OBJECT_CLAZZ(objectPtr));
-	}
+    /**
+     * Returns the size of a mixed object, in bytes, excluding the header.
+     * @param objectPtr Pointer to the object whose size is required
+     * @return Size of object in bytes excluding the header
+     */
+    MMINLINE UDATA getSizeInBytesWithoutHeader(J9Object* objectPtr)
+    {
+        return getSizeInBytesWithoutHeader(J9GC_J9OBJECT_CLAZZ(objectPtr));
+    }
 
-	/**
-	 * Returns the size of a mixed object, in bytes, including the header.
-	 * @param objectPtr Pointer to the object whose size is required
-	 * @return Size of object in bytes including the header
-	 */		
-	MMINLINE UDATA
-	getSizeInBytesWithHeader(J9Object *objectPtr)
-	{
-		return getSizeInBytesWithoutHeader(objectPtr) + sizeof(J9Object);
-	}
-	
-	/**
-	 * Returns the header size of a given  object.
-	 * @param arrayPtr Ptr to an array for which header size will be returned
-	 * @return Size of header in bytes
-	 */
-	MMINLINE UDATA
-	getHeaderSize(J9Object *objectPtr)
-	{
-		return sizeof(J9Object);
-	}
+    /**
+     * Returns the size of a mixed object, in bytes, including the header.
+     * @param objectPtr Pointer to the object whose size is required
+     * @return Size of object in bytes including the header
+     */
+    MMINLINE UDATA getSizeInBytesWithHeader(J9Object* objectPtr)
+    {
+        return getSizeInBytesWithoutHeader(objectPtr) + sizeof(J9Object);
+    }
 
-	/**
-	 * Returns the offset of the hashcode slot, in bytes, from the beginning of the header.
-	 * @param clazzPtr Pointer to the class of the object
-	 * @return offset of the hashcode slot
-	 */
-	MMINLINE UDATA
-	getHashcodeOffset(J9Class *clazzPtr)
-	{
-		return clazzPtr->backfillOffset;
-	}
+    /**
+     * Returns the header size of a given  object.
+     * @param arrayPtr Ptr to an array for which header size will be returned
+     * @return Size of header in bytes
+     */
+    MMINLINE UDATA getHeaderSize(J9Object* objectPtr) { return sizeof(J9Object); }
 
-	/**
-	 * Returns the offset of the hashcode slot, in bytes, from the beginning of the header.
-	 * @param arrayPtr Pointer to the object
-	 * @return offset of the hashcode slot
-	 */
-	MMINLINE UDATA
-	getHashcodeOffset(J9Object *objectPtr)
-	{
-		return getHashcodeOffset(J9GC_J9OBJECT_CLAZZ(objectPtr));
-	}
+    /**
+     * Returns the offset of the hashcode slot, in bytes, from the beginning of the header.
+     * @param clazzPtr Pointer to the class of the object
+     * @return offset of the hashcode slot
+     */
+    MMINLINE UDATA getHashcodeOffset(J9Class* clazzPtr) { return clazzPtr->backfillOffset; }
 
-	/**
-	 * Initialize the receiver, a new instance of GC_ObjectModel
-	 * 
-	 * @return true on success, false on failure
-	 */
-	bool initialize(MM_GCExtensionsBase *extensions);
-	
-	/**
-	 * Tear down the receiver
-	 */
-	void tearDown(MM_GCExtensionsBase *extensions);
+    /**
+     * Returns the offset of the hashcode slot, in bytes, from the beginning of the header.
+     * @param arrayPtr Pointer to the object
+     * @return offset of the hashcode slot
+     */
+    MMINLINE UDATA getHashcodeOffset(J9Object* objectPtr) { return getHashcodeOffset(J9GC_J9OBJECT_CLAZZ(objectPtr)); }
+
+    /**
+     * Initialize the receiver, a new instance of GC_ObjectModel
+     *
+     * @return true on success, false on failure
+     */
+    bool initialize(MM_GCExtensionsBase* extensions);
+
+    /**
+     * Tear down the receiver
+     */
+    void tearDown(MM_GCExtensionsBase* extensions);
 };
 
 #endif /* MIXEDOBJECTMODEL_HPP_ */

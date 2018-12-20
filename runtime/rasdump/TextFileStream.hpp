@@ -33,48 +33,47 @@ struct J9UTF8;
 /* Class for writing to a text file                                                                    */
 /*                                                                                                */
 /**************************************************************************************************/
-class TextFileStream
-{
-public :
-	/* Constructor */
-	TextFileStream(J9PortLibrary* portLibrary);
+class TextFileStream {
+public:
+    /* Constructor */
+    TextFileStream(J9PortLibrary* portLibrary);
 
-	/* Destructor */
-	~TextFileStream();
+    /* Destructor */
+    ~TextFileStream();
 
-	/* Method for opening the file */
-	void open(const char* fileName, bool cacheWrites);
+    /* Method for opening the file */
+    void open(const char* fileName, bool cacheWrites);
 
-	/* Method for closing the file */
-	void close(void);
+    /* Method for closing the file */
+    void close(void);
 
-	/* Methods for getting the object's status */
-	bool isOpen(void) const;
-	bool isError(void) const;
+    /* Methods for getting the object's status */
+    bool isOpen(void) const;
+    bool isError(void) const;
 
-	/* Methods for writing data as characters to the file */
-	void writeCharacters (const char*   data, IDATA length);
-	void writeCharacters (const J9UTF8* data);
-	void writeCharacters (const char*   data);
-	void writePointer    (const void *data, bool printPrefix=true);
-	void writeInteger    (UDATA data, const char *format="0x%zX");
-	void writeInteger64  (U_64 data, const char *format="0x%llX");
-	void writeIntegerWithCommas(U_64 value);
-	void writeVPrintf    (const char *format, ...);
+    /* Methods for writing data as characters to the file */
+    void writeCharacters(const char* data, IDATA length);
+    void writeCharacters(const J9UTF8* data);
+    void writeCharacters(const char* data);
+    void writePointer(const void* data, bool printPrefix = true);
+    void writeInteger(UDATA data, const char* format = "0x%zX");
+    void writeInteger64(U_64 data, const char* format = "0x%llX");
+    void writeIntegerWithCommas(U_64 value);
+    void writeVPrintf(const char* format, ...);
 
-private :
-	/* Prevent use of the copy constructor and assignment operator */
-	TextFileStream(const TextFileStream& source);
-	TextFileStream& operator=(const TextFileStream& source);
-	char *_Buffer;
-	UDATA _BufferPos;
-	UDATA _BufferSize;
+private:
+    /* Prevent use of the copy constructor and assignment operator */
+    TextFileStream(const TextFileStream& source);
+    TextFileStream& operator=(const TextFileStream& source);
+    char* _Buffer;
+    UDATA _BufferPos;
+    UDATA _BufferSize;
 
-protected :
-	/* Declared data */
-	J9PortLibrary* _PortLibrary;
-	IDATA          _FileHandle;
-	bool           _Error;
+protected:
+    /* Declared data */
+    J9PortLibrary* _PortLibrary;
+    IDATA _FileHandle;
+    bool _Error;
 };
 
 #endif /* TEXTFILESTREAM_HPP */

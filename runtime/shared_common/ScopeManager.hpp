@@ -37,16 +37,15 @@
  * @see SH_ScopeManagerImpl.hpp
  * @ingroup Shared_Common
  */
-class SH_ScopeManager : public SH_Manager
-{
+class SH_ScopeManager : public SH_Manager {
 public:
-	typedef char* BlockPtr;
+    typedef char* BlockPtr;
 
-	virtual const J9UTF8* findScopeForUTF(J9VMThread* currentThread, const J9UTF8* localScope) = 0;
+    virtual const J9UTF8* findScopeForUTF(J9VMThread* currentThread, const J9UTF8* localScope) = 0;
 
-	virtual IDATA validate(J9VMThread* currentThread, const J9UTF8* partition, const J9UTF8* modContext, const ShcItem* item) = 0;
+    virtual IDATA validate(
+        J9VMThread* currentThread, const J9UTF8* partition, const J9UTF8* modContext, const ShcItem* item)
+        = 0;
 };
 
 #endif /* !defined(SCOPEMANAGER_HPP_INCLUDED) */
-
-

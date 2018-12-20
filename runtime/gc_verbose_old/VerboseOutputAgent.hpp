@@ -23,7 +23,7 @@
 
 #if !defined(_OUTPUT_AGENT_HPP_)
 #define _OUTPUT_AGENT_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "modron.h"
@@ -34,12 +34,7 @@ class MM_VerboseEventStream;
 class MM_EnvironmentBase;
 class MM_VerboseBuffer;
 
-typedef enum {
-	STANDARD_STREAM = 1,
-	FILE_LOGGING = 2,
-	TRACE = 3,
-	HOOK = 4
-} AgentType;
+typedef enum { STANDARD_STREAM = 1, FILE_LOGGING = 2, TRACE = 3, HOOK = 4 } AgentType;
 
 /** Text output at the start of verbosegc */
 #define VERBOSEGC_HEADER_TEXT_LINE1 "<?xml version=\"1.0\" ?>"
@@ -51,47 +46,46 @@ typedef enum {
 /**
  * The base class for an output agent - actual agents
  * subclass this.
- * 
+ *
  * @ingroup GC_verbose_output_agents
  */
-class MM_VerboseOutputAgent : public MM_Base
-{
+class MM_VerboseOutputAgent : public MM_Base {
 protected:
-	MM_VerboseOutputAgent *_nextAgent;
-	AgentType _type;
-	bool _isActive;
-	
-	MM_VerboseBuffer* _buffer;
-	
-	virtual void tearDown(MM_EnvironmentBase *env);
+    MM_VerboseOutputAgent* _nextAgent;
+    AgentType _type;
+    bool _isActive;
+
+    MM_VerboseBuffer* _buffer;
+
+    virtual void tearDown(MM_EnvironmentBase* env);
 
 public:
-	MMINLINE AgentType getType(void) { return _type; }
-	
-	MMINLINE bool isActive(void) { return _isActive; }
-	MMINLINE void isActive(bool isActive) { _isActive = isActive; }
+    MMINLINE AgentType getType(void) { return _type; }
 
-	MMINLINE MM_VerboseOutputAgent *getNextAgent(void) { return _nextAgent; }
-	MMINLINE void setNextAgent(MM_VerboseOutputAgent *agent) { _nextAgent = agent; }
-	
-	void processEventStream(MM_EnvironmentBase *env, MM_VerboseEventStream *eventStream);
-	
-	virtual void formatAndOutput(J9VMThread *vmThread, UDATA indent, const char *format, ...) = 0;
-	
-	virtual void endOfCycle(J9VMThread *vmThread) = 0;
-	
-	virtual void closeStream(MM_EnvironmentBase *env) = 0;
+    MMINLINE bool isActive(void) { return _isActive; }
+    MMINLINE void isActive(bool isActive) { _isActive = isActive; }
 
-	virtual void kill(MM_EnvironmentBase *env);
-	
-	virtual bool reconfigure(MM_EnvironmentBase *env, const char *filename, UDATA fileCount, UDATA iterations) = 0;
-	
-	MM_VerboseOutputAgent(MM_EnvironmentBase *env, AgentType type) :
-		_nextAgent(NULL),
-		_type(type),
-		_isActive(false),
-		_buffer(NULL)
-	{}
+    MMINLINE MM_VerboseOutputAgent* getNextAgent(void) { return _nextAgent; }
+    MMINLINE void setNextAgent(MM_VerboseOutputAgent* agent) { _nextAgent = agent; }
+
+    void processEventStream(MM_EnvironmentBase* env, MM_VerboseEventStream* eventStream);
+
+    virtual void formatAndOutput(J9VMThread* vmThread, UDATA indent, const char* format, ...) = 0;
+
+    virtual void endOfCycle(J9VMThread* vmThread) = 0;
+
+    virtual void closeStream(MM_EnvironmentBase* env) = 0;
+
+    virtual void kill(MM_EnvironmentBase* env);
+
+    virtual bool reconfigure(MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations) = 0;
+
+    MM_VerboseOutputAgent(MM_EnvironmentBase* env, AgentType type)
+        : _nextAgent(NULL)
+        , _type(type)
+        , _isActive(false)
+        , _buffer(NULL)
+    {}
 };
 
 #endif /* _OUTPUT_AGENT_HPP_ */

@@ -32,151 +32,145 @@
  * Create a new MM_VerboseEventStream instance.
  * @return Pointer to the new MM_VerboseEventStream.
  */
-MM_VerboseEventStream *
-MM_VerboseEventStream::newInstance(MM_EnvironmentBase *env, MM_VerboseManagerOld *manager)
+MM_VerboseEventStream* MM_VerboseEventStream::newInstance(MM_EnvironmentBase* env, MM_VerboseManagerOld* manager)
 {
-	MM_VerboseEventStream *eventStream = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
-	
-	eventStream = (MM_VerboseEventStream *)extensions->getForge()->allocate(sizeof(MM_VerboseEventStream), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if (eventStream) {
-		new(eventStream) MM_VerboseEventStream(env, manager);
-	}
-	return eventStream;
+    MM_VerboseEventStream* eventStream = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+
+    eventStream = (MM_VerboseEventStream*)extensions->getForge()->allocate(
+        sizeof(MM_VerboseEventStream), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (eventStream) {
+        new (eventStream) MM_VerboseEventStream(env, manager);
+    }
+    return eventStream;
 }
 
 /**
  * Kill the MM_VerboseEventStream instance.
  * Tears down the related structures and frees any storage.
  */
-void
-MM_VerboseEventStream::kill(MM_EnvironmentBase *env)
+void MM_VerboseEventStream::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
+    tearDown(env);
 
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
-	extensions->getForge()->free(this);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+    extensions->getForge()->free(this);
 }
 
 /**
  * Tear down the structures managed by the MM_VerboseEventStream.
  */
-void
-MM_VerboseEventStream::tearDown(MM_EnvironmentBase *env)
+void MM_VerboseEventStream::tearDown(MM_EnvironmentBase* env)
 {
-	MM_VerboseEvent *event, *nextEvent;
+    MM_VerboseEvent *event, *nextEvent;
 
-	event = _eventChain;
-	_eventChain = NULL;
-	_eventChainTail = NULL;
-	
-	while(NULL != event){
-		nextEvent = event->getNextEvent();
-		event->kill(env);
-		event = nextEvent;
-	}
+    event = _eventChain;
+    _eventChain = NULL;
+    _eventChainTail = NULL;
+
+    while (NULL != event) {
+        nextEvent = event->getNextEvent();
+        event->kill(env);
+        event = nextEvent;
+    }
 }
 
 /**
  * Calls each events consume routine.
  */
-void
-MM_VerboseEventStream::callConsumeRoutines(MM_EnvironmentBase *env)
+void MM_VerboseEventStream::callConsumeRoutines(MM_EnvironmentBase* env)
 {
-	MM_VerboseEvent *event = _eventChain;
-	
-	while(NULL != event) {
-		event->consumeEvents();
-		event = event->getNextEvent();
-	}
+    MM_VerboseEvent* event = _eventChain;
+
+    while (NULL != event) {
+        event->consumeEvents();
+        event = event->getNextEvent();
+    }
 }
 
 /**
  * Removes events which don't output form the chain.
  */
-void
-MM_VerboseEventStream::removeNonOutputEvents(MM_EnvironmentBase *env)
+void MM_VerboseEventStream::removeNonOutputEvents(MM_EnvironmentBase* env)
 {
-	MM_VerboseEvent *event, *nextEvent;
-	
-	event = _eventChain;
-	while(NULL != event){
-		nextEvent = event->getNextEvent();
-		if(!event->definesOutputRoutine()){
-			removeEventFromChain(env, event);
-		}
-		event = nextEvent;
-	}
+    MM_VerboseEvent *event, *nextEvent;
+
+    event = _eventChain;
+    while (NULL != event) {
+        nextEvent = event->getNextEvent();
+        if (!event->definesOutputRoutine()) {
+            removeEventFromChain(env, event);
+        }
+        event = nextEvent;
+    }
 }
 
 /**
  * Remove a specified event from the event chain.
  * @param event Pointer to the event to be removed.
  */
-void
-MM_VerboseEventStream::removeEventFromChain(MM_EnvironmentBase *env, MM_VerboseEvent *event)
+void MM_VerboseEventStream::removeEventFromChain(MM_EnvironmentBase* env, MM_VerboseEvent* event)
 {
-	MM_VerboseEvent *previousEvent = event->getPreviousEvent();
-	MM_VerboseEvent *nextEvent = event->getNextEvent();
-	
-	if(NULL != previousEvent) {
-		previousEvent->setNextEvent(nextEvent);
-	} else {
-		/* We are removing the head of the chain */
-		_eventChain = nextEvent;
-	}
-	
-	if(NULL != nextEvent) {
-		nextEvent->setPreviousEvent(previousEvent);
-	} else {
-		/* We are removing the tail of the chain */
-		_eventChainTail = previousEvent;
-	}
-	
-	event->kill(env);
+    MM_VerboseEvent* previousEvent = event->getPreviousEvent();
+    MM_VerboseEvent* nextEvent = event->getNextEvent();
+
+    if (NULL != previousEvent) {
+        previousEvent->setNextEvent(nextEvent);
+    } else {
+        /* We are removing the head of the chain */
+        _eventChain = nextEvent;
+    }
+
+    if (NULL != nextEvent) {
+        nextEvent->setPreviousEvent(previousEvent);
+    } else {
+        /* We are removing the tail of the chain */
+        _eventChainTail = previousEvent;
+    }
+
+    event->kill(env);
 }
 
 /**
  * Add an event to the event chain.
  * @param event Pointer to the event to be added.
  */
-void
-MM_VerboseEventStream::chainEvent(MM_EnvironmentBase *env, MM_VerboseEvent *event)
+void MM_VerboseEventStream::chainEvent(MM_EnvironmentBase* env, MM_VerboseEvent* event)
 {
-	UDATA oldValue, newValue;
-	
-	newValue = (UDATA)event;
-	
-	do {
-		oldValue = (UDATA)_eventChainTail;
-		((MM_VerboseEvent *)newValue)->setPreviousEvent((MM_VerboseEvent *)oldValue);
-	} while((UDATA)oldValue != MM_AtomicOperations::lockCompareExchange((volatile UDATA *)&_eventChainTail, oldValue, newValue));
-	
-	if (oldValue) {
-		((MM_VerboseEvent *)oldValue)->setNextEvent((MM_VerboseEvent*)newValue);
-	} else {
-		_eventChain = event;
-	}
+    UDATA oldValue, newValue;
+
+    newValue = (UDATA)event;
+
+    do {
+        oldValue = (UDATA)_eventChainTail;
+        ((MM_VerboseEvent*)newValue)->setPreviousEvent((MM_VerboseEvent*)oldValue);
+    } while ((UDATA)oldValue
+        != MM_AtomicOperations::lockCompareExchange((volatile UDATA*)&_eventChainTail, oldValue, newValue));
+
+    if (oldValue) {
+        ((MM_VerboseEvent*)oldValue)->setNextEvent((MM_VerboseEvent*)newValue);
+    } else {
+        _eventChain = event;
+    }
 }
 
 /**
  * Process the event stream.
  * Prepares the event stream for output and notifies the verbose manager to pass the stream to the output agents.
  */
-void
-MM_VerboseEventStream::processStream(MM_EnvironmentBase *env)
+void MM_VerboseEventStream::processStream(MM_EnvironmentBase* env)
 {
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	_manager->incrementOutputCount();
-	callConsumeRoutines(env);
-	removeNonOutputEvents(env);
-	_manager->passStreamToOutputAgents(env, this);
-	if(isDisposable()) {
-		kill(env);
-	} else {
-		_manager->setLastOutputTime(j9time_hires_clock());
-		tearDown(env);
-	}
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    _manager->incrementOutputCount();
+    callConsumeRoutines(env);
+    removeNonOutputEvents(env);
+    _manager->passStreamToOutputAgents(env, this);
+    if (isDisposable()) {
+        kill(env);
+    } else {
+        _manager->setLastOutputTime(j9time_hires_clock());
+        tearDown(env);
+    }
 }
 
 /**
@@ -187,16 +181,16 @@ MM_VerboseEventStream::processStream(MM_EnvironmentBase *env)
  * @param event pointer to the current event.
  * @return Pointer an event of that type.
  */
-MM_VerboseEvent *
-MM_VerboseEventStream::returnEvent(UDATA eventid, J9HookInterface** hookInterface, MM_VerboseEvent *event)
+MM_VerboseEvent* MM_VerboseEventStream::returnEvent(
+    UDATA eventid, J9HookInterface** hookInterface, MM_VerboseEvent* event)
 {
-	while(NULL != event) {
-		if((eventid == event->getEventType()) && (hookInterface == event->getHookInterface())) {
-			return event;
-		}
-		event = event->getPreviousEvent();
-	}
-	return NULL;
+    while (NULL != event) {
+        if ((eventid == event->getEventType()) && (hookInterface == event->getHookInterface())) {
+            return event;
+        }
+        event = event->getPreviousEvent();
+    }
+    return NULL;
 }
 
 /**
@@ -210,18 +204,18 @@ MM_VerboseEventStream::returnEvent(UDATA eventid, J9HookInterface** hookInterfac
  * @param stopHookInterface interface associated with stopEventID
  * @return Pointer an event of that type.
  */
-MM_VerboseEvent *
-MM_VerboseEventStream::returnEvent(UDATA eventid, J9HookInterface** hookInterface, MM_VerboseEvent *event, UDATA stopEventID, J9HookInterface** stopHookInterface)
+MM_VerboseEvent* MM_VerboseEventStream::returnEvent(UDATA eventid, J9HookInterface** hookInterface,
+    MM_VerboseEvent* event, UDATA stopEventID, J9HookInterface** stopHookInterface)
 {
-	while(NULL != event) {
-		if((stopEventID == event->getEventType()) && (stopHookInterface == event->getHookInterface())) {
-			/* we've hit a "stopEventID" first, so return NULL */
-			return NULL;
-		}
-		if((eventid == event->getEventType()) && (hookInterface == event->getHookInterface())) {
-			return event;
-		}
-		event = event->getPreviousEvent();
-	}
-	return NULL;
+    while (NULL != event) {
+        if ((stopEventID == event->getEventType()) && (stopHookInterface == event->getHookInterface())) {
+            /* we've hit a "stopEventID" first, so return NULL */
+            return NULL;
+        }
+        if ((eventid == event->getEventType()) && (hookInterface == event->getHookInterface())) {
+            return event;
+        }
+        event = event->getPreviousEvent();
+    }
+    return NULL;
 }

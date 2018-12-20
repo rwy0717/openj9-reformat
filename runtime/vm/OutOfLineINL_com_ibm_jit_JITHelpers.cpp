@@ -26,14 +26,12 @@
 extern "C" {
 
 /* com.ibm.jit.JITHelpers: public native boolean acmplt(Object lhs, Object rhs); */
-VM_BytecodeAction
-OutOfLineINL_com_ibm_jit_JITHelpers_acmplt(J9VMThread *currentThread, J9Method *method)
+VM_BytecodeAction OutOfLineINL_com_ibm_jit_JITHelpers_acmplt(J9VMThread* currentThread, J9Method* method)
 {
-	j9object_t rhs = *(j9object_t*)currentThread->sp;
-	j9object_t lhs = *(j9object_t*)(currentThread->sp + 1);
-	bool less = (UDATA)lhs < (UDATA)rhs;
-	VM_OutOfLineINL_Helpers::returnSingle(currentThread, less, 3);
-	return EXECUTE_BYTECODE;
+    j9object_t rhs = *(j9object_t*)currentThread->sp;
+    j9object_t lhs = *(j9object_t*)(currentThread->sp + 1);
+    bool less = (UDATA)lhs < (UDATA)rhs;
+    VM_OutOfLineINL_Helpers::returnSingle(currentThread, less, 3);
+    return EXECUTE_BYTECODE;
 }
-
 }

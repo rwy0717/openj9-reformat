@@ -26,18 +26,16 @@
 #include "jcl_internal.h"
 #include "assert.h"
 
-
-void JNICALL
-Java_java_lang_J9VMInternals_callThreadExit(JNIEnv * env, jclass clazz, jobject thread)
+void JNICALL Java_java_lang_J9VMInternals_callThreadExit(JNIEnv* env, jclass clazz, jobject thread)
 {
-	static jmethodID exitMID;
-	if (NULL == exitMID) {
-		jclass javaLangThread = (*env)->FindClass(env,"java/lang/Thread");
-		assert(javaLangThread != NULL);
+    static jmethodID exitMID;
+    if (NULL == exitMID) {
+        jclass javaLangThread = (*env)->FindClass(env, "java/lang/Thread");
+        assert(javaLangThread != NULL);
 
-		exitMID = (*env)->GetMethodID(env, javaLangThread, "exit", "()V");
-		assert(exitMID != NULL);
-	}
+        exitMID = (*env)->GetMethodID(env, javaLangThread, "exit", "()V");
+        assert(exitMID != NULL);
+    }
 
-	(*env)->CallVoidMethod(env, thread, exitMID);
+    (*env)->CallVoidMethod(env, thread, exitMID);
 }

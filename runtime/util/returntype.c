@@ -27,20 +27,18 @@
  * Returns the character that is the return type for a method and
  * stores the address that the return type starts on into *outData
  */
-U_16
-getReturnTypeFromSignature(U_8 * inData, UDATA inLength, U_8 **outData)
+U_16 getReturnTypeFromSignature(U_8* inData, UDATA inLength, U_8** outData)
 {
-	UDATA i;
+    UDATA i;
 
-	for (i = inLength - 1; i > 0; i--) {
-		if (inData[i] == ')') {
-			if (outData != NULL) {
-				*outData = &inData[i+1];
-			}
-			return inData[i+1];
-		}
-	}
+    for (i = inLength - 1; i > 0; i--) {
+        if (inData[i] == ')') {
+            if (outData != NULL) {
+                *outData = &inData[i + 1];
+            }
+            return inData[i + 1];
+        }
+    }
 
-	return 0;
+    return 0;
 }
-

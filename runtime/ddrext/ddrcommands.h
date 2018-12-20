@@ -29,6 +29,6 @@
 /**
  * commands defined here are implemented in java in DDR framework.
  */
-void dbgext_ddr(const char *args);
+void dbgext_ddr(const char* args);
 
 #endif /* DDRCOMMANDS_H_ */

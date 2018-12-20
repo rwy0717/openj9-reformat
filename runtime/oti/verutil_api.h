@@ -24,13 +24,13 @@
 #define verutil_api_h
 
 /**
-* @file verutil_api.h
-* @brief Public API for the VERUTIL module.
-*
-* This file contains public function prototypes and
-* type definitions for the VERUTIL module.
-*
-*/
+ * @file verutil_api.h
+ * @brief Public API for the VERUTIL module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the VERUTIL module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,12 +43,12 @@ extern "C" {
 /* ---------------- sigverify.c ---------------- */
 
 /**
-* Checks that the string is a well formed signature
-* @param signatureBytes Signature string
-* @param signatureLength length of the string
-* @param currentIndex starting position of the check
-* @return negative on failure, non-negative on success
-*/
+ * Checks that the string is a well formed signature
+ * @param signatureBytes Signature string
+ * @param signatureLength length of the string
+ * @param currentIndex starting position of the check
+ * @return negative on failure, non-negative on success
+ */
 IDATA verifyFieldSignatureUtf8(U_8* signatureBytes, UDATA signatureLength, UDATA currentIndex);
 
 /**
@@ -75,20 +75,20 @@ BOOLEAN verifyIdentifierUtf8(U_8* identifierStart, UDATA identifierLength);
 BOOLEAN verifyClassnameUtf8(U_8* identifierStart, UDATA identifierLength);
 
 /**
-* Verify that a string is a well-formed method signature
-* @param signatureBytes character string
-* @param signatureLength length of the string
-* @return argument count on success, -2 on arity failure, -1 on other failure.
-*/
+ * Verify that a string is a well-formed method signature
+ * @param signatureBytes character string
+ * @param signatureLength length of the string
+ * @return argument count on success, -2 on arity failure, -1 on other failure.
+ */
 IDATA verifyMethodSignatureUtf8(U_8* signatureBytes, UDATA signatureLength);
 
 /**
-* Verify that a string is a well-formed signature
-* @param signatureBytes signature
-* @param signatureLength length of the string
-* @param currentIndex starting point fpr the check
-* @return negative on failure, non-negative on success
-*/
+ * Verify that a string is a well-formed signature
+ * @param signatureBytes signature
+ * @param signatureLength length of the string
+ * @param currentIndex starting point fpr the check
+ * @return negative on failure, non-negative on success
+ */
 IDATA verifySignatureUtf8(U_8* signatureBytes, UDATA signatureLength);
 
 /**
@@ -101,8 +101,7 @@ IDATA verifySignatureUtf8(U_8* signatureBytes, UDATA signatureLength);
  *	        -2 if arity > 255
  *	        -1 on other failure
  */
-IDATA fetchArgumentOfSignature (U_8* signatureBytes, UDATA signatureLength, UDATA *currentIndex, U_8* argumentType);
-
+IDATA fetchArgumentOfSignature(U_8* signatureBytes, UDATA signatureLength, UDATA* currentIndex, U_8* argumentType);
 
 /* ---------------- cfrerr.c ---------------- */
 
@@ -116,8 +115,7 @@ IDATA fetchArgumentOfSignature (U_8* signatureBytes, UDATA signatureLength, UDAT
  * @param[in] error - the class loading error
  * @return const char* - a localized description of the error
  */
-const char*
-getJ9CfrErrorDescription(J9PortLibrary* portLib, J9CfrError* error);
+const char* getJ9CfrErrorDescription(J9PortLibrary* portLib, J9CfrError* error);
 
 /**
  * Generate a detail message for the given J9CfrError. The error is not associated with a method.
@@ -130,8 +128,8 @@ getJ9CfrErrorDescription(J9PortLibrary* portLib, J9CfrError* error);
  * @param[in] classNameLength - the number of bytes in className
  * @return const char* - a localized description of the error, or NULL if out of memory
  */
-const char*
-getJ9CfrErrorDetailMessageNoMethod(J9PortLibrary* portLib, J9CfrError* error, const U_8* className, UDATA classNameLength);
+const char* getJ9CfrErrorDetailMessageNoMethod(
+    J9PortLibrary* portLib, J9CfrError* error, const U_8* className, UDATA classNameLength);
 
 /**
  * Generate a detail message for the given J9CfrError. The error is associated with a particular method.
@@ -150,11 +148,11 @@ getJ9CfrErrorDetailMessageNoMethod(J9PortLibrary* portLib, J9CfrError* error, co
  * @param[in] detailedExceptionLength - the length of detailed exception data
  * @return const char* - a localized description of the error, or NULL if out of memory
  */
-const char*
-getJ9CfrErrorDetailMessageForMethod(J9PortLibrary* portLib, J9CfrError* error, const U_8* className, UDATA classNameLength, const U_8* methodName, UDATA methodNameLength, const U_8* methodSignature, UDATA methodSignatureLength, const U_8* detailedException, UDATA detailedExceptionLength);
+const char* getJ9CfrErrorDetailMessageForMethod(J9PortLibrary* portLib, J9CfrError* error, const U_8* className,
+    UDATA classNameLength, const U_8* methodName, UDATA methodNameLength, const U_8* methodSignature,
+    UDATA methodSignatureLength, const U_8* detailedException, UDATA detailedExceptionLength);
 
-void
-buildError(J9CfrError * errorStruct, UDATA code, UDATA action, UDATA offset);
+void buildError(J9CfrError* errorStruct, UDATA code, UDATA action, UDATA offset);
 
 /**
  * Set up bootstrap method errors if the verification error occurs.
@@ -166,8 +164,8 @@ buildError(J9CfrError * errorStruct, UDATA code, UDATA action, UDATA offset);
  * @param[in] bsmArgsIndex - the constant pool index stored in the bootstrap method arguments.
  * @param[in] cpType - the constant pool type value
  */
-void
-buildBootstrapMethodError(J9CfrError * errorStruct, UDATA code, UDATA action, UDATA offset, I_32 bsmIndex, U_32 bsmArgsIndex, U_32 cpType);
+void buildBootstrapMethodError(
+    J9CfrError* errorStruct, UDATA code, UDATA action, UDATA offset, I_32 bsmIndex, U_32 bsmArgsIndex, U_32 cpType);
 
 /**
  * Set up method errors if the verification error occurs.
@@ -179,8 +177,8 @@ buildBootstrapMethodError(J9CfrError * errorStruct, UDATA code, UDATA action, UD
  * @param[in] method - pointer to J9CfrMethod
  * @param[in] constantPoolPointer - pointer to the constant pool
  */
-void
-buildMethodError(J9CfrError * errorStruct, UDATA code, UDATA action, I_32 methodIndex, U_32 pc, J9CfrMethod* method, J9CfrConstantPoolInfo* constantPoolPointer);
+void buildMethodError(J9CfrError* errorStruct, UDATA code, UDATA action, I_32 methodIndex, U_32 pc, J9CfrMethod* method,
+    J9CfrConstantPoolInfo* constantPoolPointer);
 
 /**
  * Set up method errors for the error message framework if verification error occurs.
@@ -192,12 +190,14 @@ buildMethodError(J9CfrError * errorStruct, UDATA code, UDATA action, I_32 method
  * @param[in] pc - the pc value
  * @param[in] method - pointer to J9CfrMethod
  * @param[in] constantPoolPointer - pointer to the constant pool
- * @param[in] errorDataIndex - the index value when verification error occurs (e.g. constant pool index, local varible index, etc)
+ * @param[in] errorDataIndex - the index value when verification error occurs (e.g. constant pool index, local varible
+ * index, etc)
  * @param[in] stackmapFrameIndex - index to stack frame when error occurs
  * @param[in] stackmapFrameBCI - the bci value of the stackmap frame when error occurs
  */
-void
-buildMethodErrorWithExceptionDetails(J9CfrError * errorStruct, UDATA code, I_32 verboseErrorType, UDATA action, I_32 methodIndex, U_32 pc, J9CfrMethod* method, J9CfrConstantPoolInfo* constantPoolPointer, U_32 errorDataIndex, I_32 stackmapFrameIndex, U_32 stackmapFrameBCI);
+void buildMethodErrorWithExceptionDetails(J9CfrError* errorStruct, UDATA code, I_32 verboseErrorType, UDATA action,
+    I_32 methodIndex, U_32 pc, J9CfrMethod* method, J9CfrConstantPoolInfo* constantPoolPointer, U_32 errorDataIndex,
+    I_32 stackmapFrameIndex, U_32 stackmapFrameBCI);
 
 #ifdef __cplusplus
 }

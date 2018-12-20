@@ -36,24 +36,23 @@
  * @return the next slot in the class containing an object reference
  * @return NULL if there are no more such slots
  */
-volatile j9object_t *
-GC_ClassIteratorDeclarationOrder::nextSlot()
+volatile j9object_t* GC_ClassIteratorDeclarationOrder::nextSlot()
 {
-	volatile j9object_t *slotPtr;
+    volatile j9object_t* slotPtr;
 
-	if (classiterator_state_statics != getState()) {
-		slotPtr = GC_ClassIterator::nextSlot();
-		/* catch the initial switch to the statics state */
-		if (classiterator_state_statics != getState()) {
-			return slotPtr;
-		}
-	}
+    if (classiterator_state_statics != getState()) {
+        slotPtr = GC_ClassIterator::nextSlot();
+        /* catch the initial switch to the statics state */
+        if (classiterator_state_statics != getState()) {
+            return slotPtr;
+        }
+    }
 
-	slotPtr = _classStaticsDeclarationOrderIterator.nextSlot();
-	if(NULL != slotPtr) {
-		return slotPtr;
-	}
-	_state += 1;
+    slotPtr = _classStaticsDeclarationOrderIterator.nextSlot();
+    if (NULL != slotPtr) {
+        return slotPtr;
+    }
+    _state += 1;
 
-	return GC_ClassIterator::nextSlot();
+    return GC_ClassIterator::nextSlot();
 }

@@ -36,78 +36,72 @@
 /* temp includes */
 #include "SublistFragment.hpp"
 
-MM_UnfinalizedObjectBuffer::MM_UnfinalizedObjectBuffer(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_BaseVirtual()
-	, _maxObjectCount(maxObjectCount)
-	, _extensions(extensions)
+MM_UnfinalizedObjectBuffer::MM_UnfinalizedObjectBuffer(MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_BaseVirtual()
+    , _maxObjectCount(maxObjectCount)
+    , _extensions(extensions)
 {
-	_typeId = __FUNCTION__;
-	reset();
+    _typeId = __FUNCTION__;
+    reset();
 }
 
-void
-MM_UnfinalizedObjectBuffer::kill(MM_EnvironmentBase *env)
+void MM_UnfinalizedObjectBuffer::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-void 
-MM_UnfinalizedObjectBuffer::reset()
+void MM_UnfinalizedObjectBuffer::reset()
 {
-	_head = NULL;
-	_tail = NULL;
-	_region = NULL;
-	/* set object count to appear full so that we force initialization on the next add */
-	_objectCount = _maxObjectCount;
+    _head = NULL;
+    _tail = NULL;
+    _region = NULL;
+    /* set object count to appear full so that we force initialization on the next add */
+    _objectCount = _maxObjectCount;
 }
 
-void 
-MM_UnfinalizedObjectBuffer::flush(MM_EnvironmentBase* env)
+void MM_UnfinalizedObjectBuffer::flush(MM_EnvironmentBase* env)
 {
-	if (NULL != _head) {
-		/* call the virtual flush implementation function */
-		flushImpl(env);
-		reset();
-	}
+    if (NULL != _head) {
+        /* call the virtual flush implementation function */
+        flushImpl(env);
+        reset();
+    }
 }
 
-void
-MM_UnfinalizedObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
+void MM_UnfinalizedObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
 {
-	if ( (_objectCount < _maxObjectCount) && _region->isAddressInRegion(object) ) {
-		/* object is permitted in this buffer */
-		Assert_MM_true(NULL != _head);
-		Assert_MM_true(NULL != _tail);
-		_extensions->accessBarrier->setFinalizeLink(object, _head);
-		_head = object;
-		_objectCount += 1;
-	} else {
-		MM_HeapRegionDescriptor *region = _region;
+    if ((_objectCount < _maxObjectCount) && _region->isAddressInRegion(object)) {
+        /* object is permitted in this buffer */
+        Assert_MM_true(NULL != _head);
+        Assert_MM_true(NULL != _tail);
+        _extensions->accessBarrier->setFinalizeLink(object, _head);
+        _head = object;
+        _objectCount += 1;
+    } else {
+        MM_HeapRegionDescriptor* region = _region;
 
-		/* flush the buffer and start fresh */
-		flush(env);
-		_extensions->accessBarrier->setFinalizeLink(object, NULL);
-		_head = object;
-		_tail = object;
-		_objectCount = 1;
-		
-		if (NULL == region || !region->isAddressInRegion(object)) {
-			/* record the region which contains this object. Other objects will be permitted in the buffer if they are in the same region */
-			MM_HeapRegionManager *regionManager = _extensions->getHeap()->getHeapRegionManager();
-			region = regionManager->regionDescriptorForAddress(object);
+        /* flush the buffer and start fresh */
+        flush(env);
+        _extensions->accessBarrier->setFinalizeLink(object, NULL);
+        _head = object;
+        _tail = object;
+        _objectCount = 1;
 
-			Assert_GC_true_with_message(env, NULL != region, "Attempt to finalize object located outside of heap (stack allocated?) %p\n", object);
-		}
-		_region = region;
-	}
+        if (NULL == region || !region->isAddressInRegion(object)) {
+            /* record the region which contains this object. Other objects will be permitted in the buffer if they are
+             * in the same region */
+            MM_HeapRegionManager* regionManager = _extensions->getHeap()->getHeapRegionManager();
+            region = regionManager->regionDescriptorForAddress(object);
+
+            Assert_GC_true_with_message(env, NULL != region,
+                "Attempt to finalize object located outside of heap (stack allocated?) %p\n", object);
+        }
+        _region = region;
+    }
 }
 
-/* 
+/*
  * temporary place holder implementation - just delegate to the old fragment code.
  */
-void 
-MM_UnfinalizedObjectBuffer::flushImpl(MM_EnvironmentBase* env)
-{
-	Assert_MM_unreachable();
-}
+void MM_UnfinalizedObjectBuffer::flushImpl(MM_EnvironmentBase* env) { Assert_MM_unreachable(); }

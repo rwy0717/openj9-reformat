@@ -24,13 +24,13 @@
 #define bcproftest_internal_h
 
 /**
-* @file bcproftest_internal.h
-* @brief Internal prototypes used within the BCPROFTEST module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the BCPROFTEST module.
-*
-*/
+ * @file bcproftest_internal.h
+ * @brief Internal prototypes used within the BCPROFTEST module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the BCPROFTEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,7 +39,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #ifdef __cplusplus
 }

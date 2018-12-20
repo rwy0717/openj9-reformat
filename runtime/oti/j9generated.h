@@ -30,20 +30,20 @@ extern "C" {
 #include "j9port.h" /* for definition of struct J9RIParamters */
 #include "jithook_internal.h" /* for definition of struct J9JITHookInterface */
 
-#define J9_LOWEST_STACK_SLOT(vmThread) ((UDATA *) ((vmThread)->stackObject + 1))
+#define J9_LOWEST_STACK_SLOT(vmThread) ((UDATA*)((vmThread)->stackObject + 1))
 
-#define J9_JNI_UNWRAP_REFERENCE(o)  (*(j9object_t*)(o))
+#define J9_JNI_UNWRAP_REFERENCE(o) (*(j9object_t*)(o))
 
 typedef struct J9SidecarExitFunction {
-	struct J9SidecarExitFunction * next;
-	void (*func)(void);
+    struct J9SidecarExitFunction* next;
+    void (*func)(void);
 } J9SidecarExitFunction;
 
 struct J9JavaVM;
-typedef void (*J9SidecarExitHook)(struct J9JavaVM *);
+typedef void (*J9SidecarExitHook)(struct J9JavaVM*);
 
 struct J9VMThread;
-typedef void (*J9AsyncEventHandler)(struct J9VMThread * currentThread, IDATA handlerKey, void * userData);
+typedef void (*J9AsyncEventHandler)(struct J9VMThread* currentThread, IDATA handlerKey, void* userData);
 
 #define J9STACKSLOT UDATA
 
@@ -55,9 +55,9 @@ typedef void (*J9AsyncEventHandler)(struct J9VMThread * currentThread, IDATA han
 #endif /* J9VM_ARCH_X86 */
 
 #if defined(J9ZOS390) && !defined(J9VM_ENV_DATA64)
-#define J9_COMPATIBLE_FUNCTION_POINTER(fp)  helperCompatibleFunctionPointer( (void *)(fp) )
+#define J9_COMPATIBLE_FUNCTION_POINTER(fp) helperCompatibleFunctionPointer((void*)(fp))
 #else
-#define J9_COMPATIBLE_FUNCTION_POINTER(fp)  fp
+#define J9_COMPATIBLE_FUNCTION_POINTER(fp) fp
 #endif
 
 #if defined(J9VM_INTERP_NEW_HEADER_SHAPE)

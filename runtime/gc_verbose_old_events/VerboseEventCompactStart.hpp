@@ -36,21 +36,18 @@
  * Stores the data relating to the start of a compaction.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventCompactStart : public MM_VerboseEvent
-{
+class MM_VerboseEventCompactStart : public MM_VerboseEvent {
 public:
-		
-	static MM_VerboseEvent *newInstance(MM_CompactStartEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_CompactStartEvent* event, J9HookInterface** hookInterface);
 
-	MMINLINE virtual bool definesOutputRoutine() { return false; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventCompactStart(MM_CompactStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return false; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventCompactStart(MM_CompactStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface) {};
 };
 
 #endif /* J9VM_GC_MODRON_COMPACTION */

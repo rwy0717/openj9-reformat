@@ -19,55 +19,53 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(EVENT_GC_END_HPP_)
 #define EVENT_GC_END_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
 
 #include "VerboseEvent.hpp"
 
-
 /**
  * Stores the data relating to the end of a GC.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventGCEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventGCEnd : public MM_VerboseEvent {
 protected:
-	/**
-	 * Passed Data
-	 * @{ 
-	 */
-	MM_CommonGCEndData _gcEndData; /**< data which is common to all GC end events */
-	/** @} */
- 	
-	/**
-	 * External Data
-	 * @{ 
-	 */
-	I_64 _timeInMilliSeconds;
-	/** @} */
-	
-	void initialize(void);
-	
-	bool hasDetailedTenuredOutput();
-	//void tlhFormattedOutput(MM_VerboseOutputAgent *agent);
-	void loaFormattedOutput(MM_VerboseOutputAgent *agent);
+    /**
+     * Passed Data
+     * @{
+     */
+    MM_CommonGCEndData _gcEndData; /**< data which is common to all GC end events */
+    /** @} */
+
+    /**
+     * External Data
+     * @{
+     */
+    I_64 _timeInMilliSeconds;
+    /** @} */
+
+    void initialize(void);
+
+    bool hasDetailedTenuredOutput();
+    // void tlhFormattedOutput(MM_VerboseOutputAgent *agent);
+    void loaFormattedOutput(MM_VerboseOutputAgent* agent);
 
 public:
+    void gcEndFormattedOutput(MM_VerboseOutputAgent* agent);
 
-	void gcEndFormattedOutput(MM_VerboseOutputAgent *agent);
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return true; };
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return true; };
-
-	MM_VerboseEventGCEnd(OMR_VMThread *omrVMThread, U_64 timestamp, UDATA type, MM_CommonGCEndData* gcEndData, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(omrVMThread, timestamp, type, hookInterface),
-		_gcEndData(*gcEndData)
-	{}
+    MM_VerboseEventGCEnd(OMR_VMThread* omrVMThread, U_64 timestamp, UDATA type, MM_CommonGCEndData* gcEndData,
+        J9HookInterface** hookInterface)
+        : MM_VerboseEvent(omrVMThread, timestamp, type, hookInterface)
+        , _gcEndData(*gcEndData)
+    {}
 };
 
 #endif /* EVENT_GC_END_HPP_ */

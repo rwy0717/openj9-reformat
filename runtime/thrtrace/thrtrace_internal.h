@@ -24,13 +24,13 @@
 #define thrtrace_internal_h
 
 /**
-* @file thrtrace_internal.h
-* @brief Internal prototypes used within the THRTRACE module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the THRTRACE module.
-*
-*/
+ * @file thrtrace_internal.h
+ * @brief Internal prototypes used within the THRTRACE module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the THRTRACE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,18 +44,15 @@ extern "C" {
 /* ---------------- thrtrace.c ---------------- */
 
 /**
-* @brief
-* @param *env
-* @param recv
-* @return void
-*/
-void JNICALL 
-Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv *env, jobject recv);
-
+ * @brief
+ * @param *env
+ * @param recv
+ * @return void
+ */
+void JNICALL Java_com_ibm_oti_vm_thread_Tracing_reset(JNIEnv* env, jobject recv);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* thrtrace_internal_h */
-

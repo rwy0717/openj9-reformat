@@ -33,24 +33,18 @@ class MM_EnvironmentBase;
  * Allocates storage of the passed size.
  * @param size The size of storage to allocate.
  */
-void*
-MM_VerboseEvent::create(OMR_VMThread *omrVMThread, UDATA size)
+void* MM_VerboseEvent::create(OMR_VMThread* omrVMThread, UDATA size)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(omrVMThread)->getForge();
-	return forge->allocate(size, MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    MM_Forge* forge = MM_GCExtensions::getExtensions(omrVMThread)->getForge();
+    return forge->allocate(size, MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
 }
 
-void*
-MM_VerboseEvent::create(J9VMThread *vmThread, UDATA size)
+void* MM_VerboseEvent::create(J9VMThread* vmThread, UDATA size)
 {
-	return create((OMR_VMThread*)vmThread->omrVMThread, size);
+    return create((OMR_VMThread*)vmThread->omrVMThread, size);
 }
 
 /**
  * Frees the storage allocated for this event.
  */
-void
-MM_VerboseEvent::kill(MM_EnvironmentBase *env)
-{
-	_extensions->getForge()->free(this);
-}
+void MM_VerboseEvent::kill(MM_EnvironmentBase* env) { _extensions->getForge()->free(this); }

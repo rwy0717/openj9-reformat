@@ -22,13 +22,13 @@
 
 #include "il/J9SymbolReference.hpp"
 
-#include <stdint.h>                    // for uint32_t
-#include "compile/Compilation.hpp"     // for Compilation
+#include <stdint.h> // for uint32_t
+#include "compile/Compilation.hpp" // for Compilation
 #include "env/CompilerEnv.hpp"
 #include "env/VMAccessCriticalSection.hpp" // for VMAccessCriticalSection
-#include "il/Symbol.hpp"               // for Symbol
-#include "il/SymbolReference.hpp"      // for SymbolReference
-#include "il/symbol/StaticSymbol.hpp"  // for StaticSymbol
+#include "il/Symbol.hpp" // for Symbol
+#include "il/SymbolReference.hpp" // for SymbolReference
+#include "il/symbol/StaticSymbol.hpp" // for StaticSymbol
 #include "il/symbol/ParameterSymbol.hpp"
 #include "env/KnownObjectTable.hpp"
 #include "runtime/RuntimeAssumptions.hpp"
@@ -36,47 +36,33 @@
 #include "env/PersistentCHTable.hpp"
 #include "env/VMJ9.h"
 
-namespace J9
+namespace J9 {
+
+SymbolReference::SymbolReference(TR::SymbolReferenceTable* symRefTab, TR::Symbol* sym, mcount_t owningMethodIndex,
+    int32_t cpIndex, int32_t unresolvedIndex, TR::KnownObjectTable::Index knownObjectIndex)
 {
+    self()->init(symRefTab, symRefTab->assignSymRefNumber(self()), sym,
+        0, // Offset 0
+        owningMethodIndex, cpIndex, unresolvedIndex);
 
-SymbolReference::SymbolReference(
-      TR::SymbolReferenceTable *symRefTab,
-      TR::Symbol *sym,
-      mcount_t owningMethodIndex,
-      int32_t cpIndex,
-      int32_t unresolvedIndex,
-      TR::KnownObjectTable::Index knownObjectIndex)
-   {
-   self()->init(symRefTab,
-        symRefTab->assignSymRefNumber(self()),
-        sym,
-        0,  // Offset 0
-        owningMethodIndex,
-        cpIndex,
-        unresolvedIndex);
+    _knownObjectIndex = knownObjectIndex;
 
-   _knownObjectIndex = knownObjectIndex;
+    if (sym->isResolvedMethod())
+        symRefTab->comp()->registerResolvedMethodSymbolReference(self());
 
-   if (sym->isResolvedMethod())
-      symRefTab->comp()->registerResolvedMethodSymbolReference(self());
+    // Check for init method
+    if (sym->isMethod()) {
+        char* name = sym->castToMethodSymbol()->getMethod()->nameChars();
+        int nameLen = sym->castToMethodSymbol()->getMethod()->nameLength();
+        if ((nameLen == 6) && !strncmp(name, "<init>", 6)) {
+            self()->setInitMethod();
+        }
+    }
 
-   //Check for init method
-   if (sym->isMethod())
-      {
-      char *name         = sym->castToMethodSymbol()->getMethod()->nameChars();
-      int   nameLen      = sym->castToMethodSymbol()->getMethod()->nameLength();
-      if ((nameLen == 6) &&
-          !strncmp(name, "<init>", 6))
-         {
-         self()->setInitMethod();
-         }
-      }
+    symRefTab->checkImmutable(self());
+}
 
-   symRefTab->checkImmutable(self());
-   }
-
-
-static char * dataTypeToSig[] = {0,"B","Z","C","S","I","J","F","D",0,0,0};
+static char* dataTypeToSig[] = { 0, "B", "Z", "C", "S", "I", "J", "F", "D", 0, 0, 0 };
 
 /**
  * This method is used when _cpIndex is to be used for resolution.
@@ -85,329 +71,277 @@ static char * dataTypeToSig[] = {0,"B","Z","C","S","I","J","F","D",0,0,0};
  * This method explicitly clears unused higher order bits in _cpIndex to
  * avoid undesired sign extension.
  */
-uint32_t
-SymbolReference::getCPIndexForVM()
-   {
-   uint32_t index = (uint32_t) self()->getCPIndex();
-   return index & 0x3FFFF;      // return lower order 18 bits
-   }
+uint32_t SymbolReference::getCPIndexForVM()
+{
+    uint32_t index = (uint32_t)self()->getCPIndex();
+    return index & 0x3FFFF; // return lower order 18 bits
+}
 
-bool
-SymbolReference::isClassArray(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      return false;
+bool SymbolReference::isClassArray(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved())
+        return false;
 
-   return TR::Compiler->cls.isClassArray(c, (TR_OpaqueClassBlock *) sym->getStaticAddress());
-   }
+    return TR::Compiler->cls.isClassArray(c, (TR_OpaqueClassBlock*)sym->getStaticAddress());
+}
 
-bool
-SymbolReference::isClassFinal(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      return false;
+bool SymbolReference::isClassFinal(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved())
+        return false;
 
-   return TR::Compiler->cls.isClassFinal(c, (TR_OpaqueClassBlock *) sym->getStaticAddress());
-   }
+    return TR::Compiler->cls.isClassFinal(c, (TR_OpaqueClassBlock*)sym->getStaticAddress());
+}
 
-bool
-SymbolReference::isClassAbstract(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      return false;
+bool SymbolReference::isClassAbstract(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved())
+        return false;
 
-   return TR::Compiler->cls.isAbstractClass(c, (TR_OpaqueClassBlock *) sym->getStaticAddress());
-   }
+    return TR::Compiler->cls.isAbstractClass(c, (TR_OpaqueClassBlock*)sym->getStaticAddress());
+}
 
-bool
-SymbolReference::isClassInterface(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      return false;
+bool SymbolReference::isClassInterface(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved())
+        return false;
 
-   return TR::Compiler->cls.isInterfaceClass(c, (TR_OpaqueClassBlock *) sym->getStaticAddress());
-   }
+    return TR::Compiler->cls.isInterfaceClass(c, (TR_OpaqueClassBlock*)sym->getStaticAddress());
+}
 
 // resolved final class that is not an array returns TRUE
-bool
-SymbolReference::isNonArrayFinal(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      {
-      return false;
-      }
-   return !self()->isClassArray(c) && self()->isClassFinal(c);
-   }
+bool SymbolReference::isNonArrayFinal(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved()) {
+        return false;
+    }
+    return !self()->isClassArray(c) && self()->isClassFinal(c);
+}
 
-int32_t
-SymbolReference::classDepth(TR::Compilation * c)
-   {
-   TR::StaticSymbol * sym = self()->getSymbol()->getStaticSymbol();
-   if (sym == NULL || self()->isUnresolved())
-      {
-      return -1;
-      }
-   return (int32_t)TR::Compiler->cls.classDepthOf((TR_OpaqueClassBlock *) sym->getStaticAddress());
-   }
+int32_t SymbolReference::classDepth(TR::Compilation* c)
+{
+    TR::StaticSymbol* sym = self()->getSymbol()->getStaticSymbol();
+    if (sym == NULL || self()->isUnresolved()) {
+        return -1;
+    }
+    return (int32_t)TR::Compiler->cls.classDepthOf((TR_OpaqueClassBlock*)sym->getStaticAddress());
+}
 
+char* prependNumParensToSig(const char* name, int32_t& len, int32_t numParens, TR_AllocationKind allocKind)
+{
+    TR::Compilation* comp = TR::comp();
+    char* sig;
 
-char *
-prependNumParensToSig(const char *name, int32_t &len, int32_t numParens,  TR_AllocationKind allocKind)
-   {
-   TR::Compilation * comp = TR::comp();
-   char * sig;
+    len += numParens;
+    sig = (char*)comp->trMemory()->allocateMemory(len, allocKind);
+    int32_t i = 0;
+    while (i < numParens) {
+        sig[i] = '[';
+        i++;
+    }
+    memcpy(sig + i, name, len - numParens);
 
-   len += numParens;
-   sig = (char *)comp->trMemory()->allocateMemory(len, allocKind);
-   int32_t i = 0;
-   while (i < numParens)
-      {
-      sig[i] = '[';
-      i++;
-      }
-   memcpy(sig+i,name,len-numParens);
+    return sig;
+}
 
-   return sig;
-   }
+const char* SymbolReference::getTypeSignature(int32_t& len, TR_AllocationKind allocKind, bool* isFixed)
+{
+    TR::Compilation* comp = TR::comp();
+    bool allowForAOT = comp->getOption(TR_UseSymbolValidationManager);
 
+    TR_PersistentClassInfo* persistentClassInfo = NULL;
+    switch (_symbol->getKind()) {
+    case TR::Symbol::IsParameter:
+        return _symbol->castToParmSymbol()->getTypeSignature(len);
 
-const char *
-SymbolReference::getTypeSignature(int32_t & len, TR_AllocationKind allocKind, bool *isFixed)
-   {
-   TR::Compilation * comp = TR::comp();
-   bool allowForAOT = comp->getOption(TR_UseSymbolValidationManager);
-
-   TR_PersistentClassInfo * persistentClassInfo = NULL;
-   switch (_symbol->getKind())
-      {
-      case TR::Symbol::IsParameter:
-         return _symbol->castToParmSymbol()->getTypeSignature(len);
-
-      case TR::Symbol::IsShadow:
-          persistentClassInfo =
-             (comp->getPersistentInfo()->getPersistentCHTable() == NULL) ? NULL :
-             comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(comp->getCurrentMethod()->containingClass(), comp, allowForAOT);
-          if (persistentClassInfo &&
-              persistentClassInfo->getFieldInfo() &&
-              persistentClassInfo->getFieldInfo()->getFirst() &&
-              !self()->isUnresolved() &&
-              !_symbol->isArrayShadowSymbol() &&
-              !_symbol->isArrayletShadowSymbol())
-              {
-              TR_PersistentFieldInfo *fieldInfo = NULL;
-              if (_symbol->isPrivate() ||
-                  _symbol->isFinal())
-                  fieldInfo = persistentClassInfo->getFieldInfo()->find(comp, _symbol, self());
-
-              if (fieldInfo &&
-                  fieldInfo->isTypeInfoValid() &&
-                  (fieldInfo->getNumChars() > 0) &&
-                  performTransformation(comp,"O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                          fieldInfo->getClassPointer(), _symbol))
-                  {
-                  if (isFixed)
-                     *isFixed = true;
-                  len = fieldInfo->getNumChars();
-                  return fieldInfo->getClassPointer();
-                  }
-
-              if (fieldInfo &&
-                  fieldInfo->isBigDecimalType() &&
-                  performTransformation(comp,"O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                          "Ljava/math/BigDecimal;", _symbol))
-                 {
-                 len = 22;
-                 return "Ljava/math/BigDecimal;";
-                 }
-
-             if (fieldInfo &&
-                  fieldInfo->isBigIntegerType() &&
-                  performTransformation(comp,"O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                          "Ljava/math/BigInteger;", _symbol))
-                 {
-                 len = 22;
-                 return "Ljava/math/BigInteger;";
-                 }
-              }
-
-           return (_cpIndex > 0 ? self()->getOwningMethod(comp)->fieldSignatureChars(_cpIndex, len) : 0);
-
-      case TR::Symbol::IsStatic:
-           if (_symbol->isStatic() && _symbol->isFinal() && !self()->isUnresolved())
-               {
-               TR::StaticSymbol * symbol = _symbol->castToStaticSymbol();
-               TR::DataType type = symbol->getDataType();
-               TR_OpaqueClassBlock * classOfStatic = self()->getOwningMethod(comp)->classOfStatic(_cpIndex, allowForAOT);
-
-               bool isClassInitialized = false;
-               TR_PersistentClassInfo * classInfo =
-                  (comp->getPersistentInfo()->getPersistentCHTable() == NULL) ? NULL :
-                  comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(classOfStatic, comp, allowForAOT);
-               if (classInfo && classInfo->isInitialized())
-                  {
-                  if (classInfo->getFieldInfo() && !classInfo->cannotTrustStaticFinal())
-                     isClassInitialized = true;
-                  }
-
-              if ((classOfStatic != comp->getSystemClassPointer() &&
-                  isClassInitialized &&
-                   (type == TR::Address)))
-                 {
-                 TR::VMAccessCriticalSection vmAccessCriticalSection(comp->fej9(),
-                                                                      TR::VMAccessCriticalSection::tryToAcquireVMAccess,
-                                                                      comp);
-                 if (vmAccessCriticalSection.hasVMAccess())
-                    {
-                    uintptrj_t objectStaticAddress = (uintptrj_t)symbol->getStaticAddress();
-                    uintptrj_t objectRef = comp->fej9()->getStaticReferenceFieldAtAddress(objectStaticAddress);
-                    if (objectRef != 0)
-                       {
-                       TR_OpaqueClassBlock *classOfObject = comp->fej9()->getObjectClass(objectRef);
-                       const char * s = TR::Compiler->cls.classNameChars(comp, classOfObject, len);
-                       if (s && (s[0] != '['))
-                          {
-                          s = classNameToSignature(s, len, comp);
-                          }
-                       else
-                          {
-                          int32_t numParens = 0;
-                          while (s && (s[0] == '[') && (s[1] == 'L'))
-                             {
-                             numParens++;
-                             classOfObject = comp->fe()->getComponentClassFromArrayClass(classOfObject);
-                             s = TR::Compiler->cls.classNameChars(comp, classOfObject, len);
-                              }
-                          s = classNameToSignature(s, len, comp);
-                          s = prependNumParensToSig(s, len, numParens);
-                          }
-
-                       if (isFixed)
-                          *isFixed = true;
-                       return s;
-                       }
-                    }
-                 }
-               }
-
-         if (_symbol->isClassObject())
-            {
-            const char * sig = TR::Compiler->cls.classNameChars(comp, self(), len);
-            if (!sig)
-               {
-               len = 18;
-               return "Ljava/lang/Object;";
-               }
-            return classNameToSignature(sig, len, comp, allocKind);
-            }
-
-         if (_symbol->isConstString())
-            {
-            len = 18;
-            return "Ljava/lang/String;";
-            }
-         if (_symbol->isConstMethodType())
-            {
-            len = 21;
-            return "Ljava/lang/invoke/MethodType;";
-            }
-         if (_symbol->isConstMethodHandle())
-            {
-            len = 23;
-            return "Ljava/lang/invoke/MethodHandle;";
-            }
-         if (_symbol->isConstantDynamic())
-            {
-            TR::StaticSymbol * symbol = _symbol->castToStaticSymbol();
-            int32_t condySigLength;
-            char *returnType = symbol->getConstantDynamicClassSignature(condySigLength);
-            len = condySigLength;
-            return returnType;
-            }
-         if (_symbol->isConst())
-            {
-            len = 1;
-            return dataTypeToSig[_symbol->getDataType()];
-            }
-
-         persistentClassInfo =
-            (comp->getPersistentInfo()->getPersistentCHTable() == NULL) ? NULL :
-             comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(comp->getCurrentMethod()->containingClass(), comp, allowForAOT);
-         if (persistentClassInfo &&
-             persistentClassInfo->getFieldInfo() &&
-             persistentClassInfo->getFieldInfo()->getFirst() &&
-             !self()->isUnresolved() &&
-             !_symbol->isArrayShadowSymbol() &&
-             !_symbol->isArrayletShadowSymbol())
-            {
-            TR_PersistentFieldInfo *fieldInfo = NULL;
-            if (_symbol->isPrivate() ||
-                _symbol->isFinal())
+    case TR::Symbol::IsShadow:
+        persistentClassInfo = (comp->getPersistentInfo()->getPersistentCHTable() == NULL)
+            ? NULL
+            : comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(
+                  comp->getCurrentMethod()->containingClass(), comp, allowForAOT);
+        if (persistentClassInfo && persistentClassInfo->getFieldInfo()
+            && persistentClassInfo->getFieldInfo()->getFirst() && !self()->isUnresolved()
+            && !_symbol->isArrayShadowSymbol() && !_symbol->isArrayletShadowSymbol()) {
+            TR_PersistentFieldInfo* fieldInfo = NULL;
+            if (_symbol->isPrivate() || _symbol->isFinal())
                 fieldInfo = persistentClassInfo->getFieldInfo()->find(comp, _symbol, self());
 
-            if (fieldInfo &&
-                fieldInfo->isTypeInfoValid() &&
-                (fieldInfo->getNumChars() > 0) &&
-                performTransformation(comp, "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                      fieldInfo->getClassPointer(), _symbol))
-               {
-               if (isFixed)
-                  *isFixed = true;
-               len = fieldInfo->getNumChars();
-               return fieldInfo->getClassPointer();
-               }
-
-            if (fieldInfo &&
-                fieldInfo->isBigDecimalType() &&
-                performTransformation(comp,"O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                      "Ljava/math/BigDecimal;", _symbol))
-               {
-               len = 22;
-               return "Ljava/math/BigDecimal;";
-               }
-
-            if (fieldInfo &&
-                fieldInfo->isBigIntegerType() &&
-                performTransformation(comp,"O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
-                                          "Ljava/math/BigInteger;", _symbol))
-               {
-               len = 22;
-               return "Ljava/math/BigInteger;";
-               }
+            if (fieldInfo && fieldInfo->isTypeInfoValid() && (fieldInfo->getNumChars() > 0)
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       fieldInfo->getClassPointer(), _symbol)) {
+                if (isFixed)
+                    *isFixed = true;
+                len = fieldInfo->getNumChars();
+                return fieldInfo->getClassPointer();
             }
 
-         return self()->getOwningMethod(comp)->staticSignatureChars(_cpIndex, len);
+            if (fieldInfo && fieldInfo->isBigDecimalType()
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       "Ljava/math/BigDecimal;", _symbol)) {
+                len = 22;
+                return "Ljava/math/BigDecimal;";
+            }
 
-      case TR::Symbol::IsMethod:
-      case TR::Symbol::IsResolvedMethod:
-         {
-         TR_Method * method = _symbol->castToMethodSymbol()->getMethod();
-         if (method)
-            {
-            char * sig   = method->signatureChars();
-            char *returnType = strchr(sig,')')+1;
-            len = method->signatureLength() - (returnType-sig);
+            if (fieldInfo && fieldInfo->isBigIntegerType()
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       "Ljava/math/BigInteger;", _symbol)) {
+                len = 22;
+                return "Ljava/math/BigInteger;";
+            }
+        }
+
+        return (_cpIndex > 0 ? self()->getOwningMethod(comp)->fieldSignatureChars(_cpIndex, len) : 0);
+
+    case TR::Symbol::IsStatic:
+        if (_symbol->isStatic() && _symbol->isFinal() && !self()->isUnresolved()) {
+            TR::StaticSymbol* symbol = _symbol->castToStaticSymbol();
+            TR::DataType type = symbol->getDataType();
+            TR_OpaqueClassBlock* classOfStatic = self()->getOwningMethod(comp)->classOfStatic(_cpIndex, allowForAOT);
+
+            bool isClassInitialized = false;
+            TR_PersistentClassInfo* classInfo = (comp->getPersistentInfo()->getPersistentCHTable() == NULL)
+                ? NULL
+                : comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(
+                      classOfStatic, comp, allowForAOT);
+            if (classInfo && classInfo->isInitialized()) {
+                if (classInfo->getFieldInfo() && !classInfo->cannotTrustStaticFinal())
+                    isClassInitialized = true;
+            }
+
+            if ((classOfStatic != comp->getSystemClassPointer() && isClassInitialized && (type == TR::Address))) {
+                TR::VMAccessCriticalSection vmAccessCriticalSection(
+                    comp->fej9(), TR::VMAccessCriticalSection::tryToAcquireVMAccess, comp);
+                if (vmAccessCriticalSection.hasVMAccess()) {
+                    uintptrj_t objectStaticAddress = (uintptrj_t)symbol->getStaticAddress();
+                    uintptrj_t objectRef = comp->fej9()->getStaticReferenceFieldAtAddress(objectStaticAddress);
+                    if (objectRef != 0) {
+                        TR_OpaqueClassBlock* classOfObject = comp->fej9()->getObjectClass(objectRef);
+                        const char* s = TR::Compiler->cls.classNameChars(comp, classOfObject, len);
+                        if (s && (s[0] != '[')) {
+                            s = classNameToSignature(s, len, comp);
+                        } else {
+                            int32_t numParens = 0;
+                            while (s && (s[0] == '[') && (s[1] == 'L')) {
+                                numParens++;
+                                classOfObject = comp->fe()->getComponentClassFromArrayClass(classOfObject);
+                                s = TR::Compiler->cls.classNameChars(comp, classOfObject, len);
+                            }
+                            s = classNameToSignature(s, len, comp);
+                            s = prependNumParensToSig(s, len, numParens);
+                        }
+
+                        if (isFixed)
+                            *isFixed = true;
+                        return s;
+                    }
+                }
+            }
+        }
+
+        if (_symbol->isClassObject()) {
+            const char* sig = TR::Compiler->cls.classNameChars(comp, self(), len);
+            if (!sig) {
+                len = 18;
+                return "Ljava/lang/Object;";
+            }
+            return classNameToSignature(sig, len, comp, allocKind);
+        }
+
+        if (_symbol->isConstString()) {
+            len = 18;
+            return "Ljava/lang/String;";
+        }
+        if (_symbol->isConstMethodType()) {
+            len = 21;
+            return "Ljava/lang/invoke/MethodType;";
+        }
+        if (_symbol->isConstMethodHandle()) {
+            len = 23;
+            return "Ljava/lang/invoke/MethodHandle;";
+        }
+        if (_symbol->isConstantDynamic()) {
+            TR::StaticSymbol* symbol = _symbol->castToStaticSymbol();
+            int32_t condySigLength;
+            char* returnType = symbol->getConstantDynamicClassSignature(condySigLength);
+            len = condySigLength;
             return returnType;
-            }
-         return 0;
-         }
+        }
+        if (_symbol->isConst()) {
+            len = 1;
+            return dataTypeToSig[_symbol->getDataType()];
+        }
 
-      case TR::Symbol::IsAutomatic:
-         if (_symbol->isLocalObject())
-            {
+        persistentClassInfo = (comp->getPersistentInfo()->getPersistentCHTable() == NULL)
+            ? NULL
+            : comp->getPersistentInfo()->getPersistentCHTable()->findClassInfoAfterLocking(
+                  comp->getCurrentMethod()->containingClass(), comp, allowForAOT);
+        if (persistentClassInfo && persistentClassInfo->getFieldInfo()
+            && persistentClassInfo->getFieldInfo()->getFirst() && !self()->isUnresolved()
+            && !_symbol->isArrayShadowSymbol() && !_symbol->isArrayletShadowSymbol()) {
+            TR_PersistentFieldInfo* fieldInfo = NULL;
+            if (_symbol->isPrivate() || _symbol->isFinal())
+                fieldInfo = persistentClassInfo->getFieldInfo()->find(comp, _symbol, self());
+
+            if (fieldInfo && fieldInfo->isTypeInfoValid() && (fieldInfo->getNumChars() > 0)
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       fieldInfo->getClassPointer(), _symbol)) {
+                if (isFixed)
+                    *isFixed = true;
+                len = fieldInfo->getNumChars();
+                return fieldInfo->getClassPointer();
+            }
+
+            if (fieldInfo && fieldInfo->isBigDecimalType()
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       "Ljava/math/BigDecimal;", _symbol)) {
+                len = 22;
+                return "Ljava/math/BigDecimal;";
+            }
+
+            if (fieldInfo && fieldInfo->isBigIntegerType()
+                && performTransformation(comp,
+                       "O^O CLASS LOOKAHEAD: Returning type %s info for symbol %p based on class file examination\n",
+                       "Ljava/math/BigInteger;", _symbol)) {
+                len = 22;
+                return "Ljava/math/BigInteger;";
+            }
+        }
+
+        return self()->getOwningMethod(comp)->staticSignatureChars(_cpIndex, len);
+
+    case TR::Symbol::IsMethod:
+    case TR::Symbol::IsResolvedMethod: {
+        TR_Method* method = _symbol->castToMethodSymbol()->getMethod();
+        if (method) {
+            char* sig = method->signatureChars();
+            char* returnType = strchr(sig, ')') + 1;
+            len = method->signatureLength() - (returnType - sig);
+            return returnType;
+        }
+        return 0;
+    }
+
+    case TR::Symbol::IsAutomatic:
+        if (_symbol->isLocalObject()) {
             // todo:
-            }
-         return 0;
+        }
+        return 0;
 
-      case TR::Symbol::IsMethodMetaData:
-      case TR::Symbol::IsLabel:
-      default:
-         return 0;
-      }
-   }
-
+    case TR::Symbol::IsMethodMetaData:
+    case TR::Symbol::IsLabel:
+    default:
+        return 0;
+    }
 }
+
+} // namespace J9

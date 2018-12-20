@@ -24,73 +24,70 @@
 #include "jclprots.h"
 
 static jclass proxyDefineClass(
-		JNIEnv * env,
-		jobject classLoader,
-		jstring className,
-		jbyteArray classBytes,
-		jint offset,
-		jint length,
-		jobject pd) {
-
-	J9VMThread *currentThread = (J9VMThread *)env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-	J9StackWalkState walkState;
-	J9Class * clazz = NULL;
-
-	/* Walk the stack to find the caller class loader and protection domain */
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-
-	walkState.walkThread = currentThread;
-	walkState.skipCount = 1;
-	walkState.maxFrames = 1;
-	walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_INCLUDE_NATIVES | J9_STACKWALK_COUNT_SPECIFIED;
-	vm->walkStackFrames(currentThread, &walkState);
-	if (walkState.framesWalked == 0) {
-		vmFuncs->internalExitVMToJNI(currentThread);
-		throwNewInternalError(env, NULL);
-		return NULL;
-	}
-
-	clazz = J9_CLASS_FROM_CP(walkState.constantPool);
-	if (classLoader == NULL) {
-		j9object_t classLoaderObject = J9CLASSLOADER_CLASSLOADEROBJECT(currentThread, clazz->classLoader);
-		classLoader = vmFuncs->j9jni_createLocalRef(env, classLoaderObject);
-	}
-	if (pd == NULL) {
-		j9object_t heapClass = J9VM_J9CLASS_TO_HEAPCLASS(clazz);
-		j9object_t protectionDomainDirectReference = J9VMJAVALANGCLASS_PROTECTIONDOMAIN(currentThread, heapClass);
-		pd = vmFuncs->j9jni_createLocalRef(env, protectionDomainDirectReference);
-	}
-
-	vmFuncs->internalExitVMToJNI(currentThread);
-
-	return defineClassCommon(env, classLoader, className, classBytes, offset, length, pd, 0, NULL);
-}
-
-jclass JNICALL Java_java_lang_reflect_Proxy_defineClassImpl(JNIEnv * env, jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes)
+    JNIEnv* env, jobject classLoader, jstring className, jbyteArray classBytes, jint offset, jint length, jobject pd)
 {
-	if ( classBytes == NULL) {
-		return	NULL;
-	} else {
-		return proxyDefineClass(env, classLoader, className, classBytes, 0, (*env)->GetArrayLength(env, classBytes), NULL);
-	}
+
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    J9StackWalkState walkState;
+    J9Class* clazz = NULL;
+
+    /* Walk the stack to find the caller class loader and protection domain */
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+
+    walkState.walkThread = currentThread;
+    walkState.skipCount = 1;
+    walkState.maxFrames = 1;
+    walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_INCLUDE_NATIVES | J9_STACKWALK_COUNT_SPECIFIED;
+    vm->walkStackFrames(currentThread, &walkState);
+    if (walkState.framesWalked == 0) {
+        vmFuncs->internalExitVMToJNI(currentThread);
+        throwNewInternalError(env, NULL);
+        return NULL;
+    }
+
+    clazz = J9_CLASS_FROM_CP(walkState.constantPool);
+    if (classLoader == NULL) {
+        j9object_t classLoaderObject = J9CLASSLOADER_CLASSLOADEROBJECT(currentThread, clazz->classLoader);
+        classLoader = vmFuncs->j9jni_createLocalRef(env, classLoaderObject);
+    }
+    if (pd == NULL) {
+        j9object_t heapClass = J9VM_J9CLASS_TO_HEAPCLASS(clazz);
+        j9object_t protectionDomainDirectReference = J9VMJAVALANGCLASS_PROTECTIONDOMAIN(currentThread, heapClass);
+        pd = vmFuncs->j9jni_createLocalRef(env, protectionDomainDirectReference);
+    }
+
+    vmFuncs->internalExitVMToJNI(currentThread);
+
+    return defineClassCommon(env, classLoader, className, classBytes, offset, length, pd, 0, NULL);
 }
 
-
-jclass JNICALL 
-Java_java_lang_reflect_Proxy_defineClass0__Ljava_lang_ClassLoader_2Ljava_lang_String_2_3BII(JNIEnv * env, jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes, jint offset, jint length)
+jclass JNICALL Java_java_lang_reflect_Proxy_defineClassImpl(
+    JNIEnv* env, jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes)
 {
-	return proxyDefineClass(env, classLoader, className, classBytes, offset, length, NULL);
+    if (classBytes == NULL) {
+        return NULL;
+    } else {
+        return proxyDefineClass(
+            env, classLoader, className, classBytes, 0, (*env)->GetArrayLength(env, classBytes), NULL);
+    }
 }
 
-jclass JNICALL 
-Java_java_lang_reflect_Proxy_defineClass0__Ljava_lang_ClassLoader_2Ljava_lang_String_2_3BIILjava_lang_Object_2_3Ljava_lang_Object_2Ljava_lang_Object_2(JNIEnv * env, jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes, jint offset, jint length, jobject pd, jobject signers, jobject source)
+jclass JNICALL Java_java_lang_reflect_Proxy_defineClass0__Ljava_lang_ClassLoader_2Ljava_lang_String_2_3BII(JNIEnv* env,
+    jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes, jint offset, jint length)
 {
-	if (classLoader == NULL || pd == NULL) {
-		return proxyDefineClass(env, classLoader, className, classBytes, offset, length, pd);
-	} else {
-		return defineClassCommon(env, classLoader, className, classBytes, offset, length, pd, 0, NULL);
-	}
+    return proxyDefineClass(env, classLoader, className, classBytes, offset, length, NULL);
 }
 
+jclass JNICALL
+Java_java_lang_reflect_Proxy_defineClass0__Ljava_lang_ClassLoader_2Ljava_lang_String_2_3BIILjava_lang_Object_2_3Ljava_lang_Object_2Ljava_lang_Object_2(
+    JNIEnv* env, jclass recvClass, jobject classLoader, jstring className, jbyteArray classBytes, jint offset,
+    jint length, jobject pd, jobject signers, jobject source)
+{
+    if (classLoader == NULL || pd == NULL) {
+        return proxyDefineClass(env, classLoader, className, classBytes, offset, length, pd);
+    } else {
+        return defineClassCommon(env, classLoader, className, classBytes, offset, length, pd, 0, NULL);
+    }
+}

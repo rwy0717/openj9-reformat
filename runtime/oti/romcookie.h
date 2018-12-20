@@ -30,10 +30,14 @@ extern "C" {
 
 #include "j9comp.h"
 
-#define J9_ROM_CLASS_COOKIE_SIG { 0x4A, 0x39, 0x52, 0x4F, 0x4D, 0x43, 0x4C, 0x41, 0x53, 0x53, 0x43, 0x4F, 0x4F, 0x4B, 0x49, 0x45 }
+#define J9_ROM_CLASS_COOKIE_SIG                                                                        \
+    {                                                                                                  \
+        0x4A, 0x39, 0x52, 0x4F, 0x4D, 0x43, 0x4C, 0x41, 0x53, 0x53, 0x43, 0x4F, 0x4F, 0x4B, 0x49, 0x45 \
+    }
 /* CMVC 123277: create obfuscated magic number which can be used to prevent cookies being created in the java space */
 #if defined(J9VM_OPT_SHARED_CLASSES)
-#define J9_ROM_CLASS_COOKIE_MAGIC(javaVM, romClass) ((UDATA)((romClass->className << 8) | romClass->superclassName) ^ ~(UDATA)javaVM->sharedClassConfig->jclStringFarm)
+#define J9_ROM_CLASS_COOKIE_MAGIC(javaVM, romClass) \
+    ((UDATA)((romClass->className << 8) | romClass->superclassName) ^ ~(UDATA)javaVM->sharedClassConfig->jclStringFarm)
 #endif
 
 #define COOKIE_SIG_LENGTH 16
@@ -44,10 +48,9 @@ typedef struct J9ROMClassCookie {
     U_32 type;
 } J9ROMClassCookie;
 
-
-#define J9_ROM_CLASS_COOKIE_SIG_LENGTH  COOKIE_SIG_LENGTH
-#define J9_ROM_CLASS_COOKIE_TYPE_SHARED_CLASS  5
-#define J9_ROM_CLASS_COOKIE_VERSION  2
+#define J9_ROM_CLASS_COOKIE_SIG_LENGTH COOKIE_SIG_LENGTH
+#define J9_ROM_CLASS_COOKIE_TYPE_SHARED_CLASS 5
+#define J9_ROM_CLASS_COOKIE_VERSION 2
 
 typedef struct J9ROMClassCookieSharedClass {
     U_8 signature[16];

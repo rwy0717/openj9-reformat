@@ -33,8 +33,7 @@ extern "C" {
  * Method:    getPlatform
  * Signature: ()Lcom/ibm/j9ddr/corereaders/Platform;
  */
-JNIEXPORT jobject JNICALL 
-Java_com_ibm_j9ddr_corereaders_debugger_JniNatives_getPlatform(JNIEnv *, jclass);
+JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniNatives_getPlatform(JNIEnv*, jclass);
 
 #ifdef __cplusplus
 }

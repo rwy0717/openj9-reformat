@@ -30,8 +30,8 @@
 #include "util_internal.h"
 #include "ut_j9vmutil.h"
 
-static UDATA getFieldAnnotationsDataOffset(J9ROMFieldShape * field);
-static UDATA annotationAttributeSize(U_8 *sectionStart);
+static UDATA getFieldAnnotationsDataOffset(J9ROMFieldShape* field);
+static UDATA annotationAttributeSize(U_8* sectionStart);
 
 /* Field signature translation table
  * NOTE: this table is NOT used in this file, but declared as an
@@ -40,112 +40,90 @@ static UDATA annotationAttributeSize(U_8 *sectionStart);
  * Shift left by 16 to use as J9FieldType* */
 
 const U_8 fieldModifiersLookupTable[] = {
-	0x00												/* A */,
-	(U_8)(J9FieldTypeByte >> 16)						/* B */,
-	(U_8)(J9FieldTypeChar >> 16)						/* C */,
-	(U_8)((J9FieldSizeDouble + J9FieldTypeDouble) >> 16)/* D */,
-	0x00												/* E */,
-	(U_8)(J9FieldTypeFloat >> 16)						/* F */,
-	0x00												/* G */,
-	0x00												/* H */,
-	(U_8)(J9FieldTypeInt >> 16)							/* I */,
-	(U_8)((J9FieldSizeDouble + J9FieldTypeLong) >> 16)	/* J */,
-	0x00												/* K */,
-	(U_8)(J9FieldFlagObject >> 16)						/* L */,
-	0x00												/* M */,
-	0x00												/* N */,
-	0x00												/* O */,
-	0x00												/* P */,
+    0x00 /* A */, (U_8)(J9FieldTypeByte >> 16) /* B */, (U_8)(J9FieldTypeChar >> 16) /* C */,
+    (U_8)((J9FieldSizeDouble + J9FieldTypeDouble) >> 16) /* D */, 0x00 /* E */, (U_8)(J9FieldTypeFloat >> 16) /* F */,
+    0x00 /* G */, 0x00 /* H */, (U_8)(J9FieldTypeInt >> 16) /* I */,
+    (U_8)((J9FieldSizeDouble + J9FieldTypeLong) >> 16) /* J */, 0x00 /* K */, (U_8)(J9FieldFlagObject >> 16) /* L */,
+    0x00 /* M */, 0x00 /* N */, 0x00 /* O */, 0x00 /* P */,
 #if defined(J9VM_OPT_VALHALLA_VALUE_TYPES)
-	(U_8)(J9FieldFlagObject >> 16)						/* Q */,
+    (U_8)(J9FieldFlagObject >> 16) /* Q */,
 #else
-	0x00												/* Q */,
+    0x00 /* Q */,
 #endif /* J9VM_OPT_VALHALLA_VALUE_TYPES */
-	0x00												/* R */,
-	(U_8)(J9FieldTypeShort >> 16)						/* S */,
-	0x00												/* T */,
-	0x00												/* U */,
-	0x00												/* V */,
-	0x00												/* W */,
-	0x00												/* X */,
-	0x00												/* Y */,
-	(U_8)(J9FieldTypeBoolean >> 16)						/* Z */,
-	(U_8)(J9FieldFlagObject >> 16)						/* [ */
+    0x00 /* R */, (U_8)(J9FieldTypeShort >> 16) /* S */, 0x00 /* T */, 0x00 /* U */, 0x00 /* V */, 0x00 /* W */,
+    0x00 /* X */, 0x00 /* Y */, (U_8)(J9FieldTypeBoolean >> 16) /* Z */, (U_8)(J9FieldFlagObject >> 16) /* [ */
 };
 
-
-J9ROMFieldShape *
-romFieldsNextDo(J9ROMFieldWalkState* state)
+J9ROMFieldShape* romFieldsNextDo(J9ROMFieldWalkState* state)
 {
-	if (state->fieldsLeft == 0) {
-		return NULL;
-	}
+    if (state->fieldsLeft == 0) {
+        return NULL;
+    }
 
-	state->field = (J9ROMFieldShape *) (((U_8 *) state->field) + romFieldSize(state->field));
-	--(state->fieldsLeft);
-	return state->field;
+    state->field = (J9ROMFieldShape*)(((U_8*)state->field) + romFieldSize(state->field));
+    --(state->fieldsLeft);
+    return state->field;
 }
 
-J9ROMFieldShape *
-romFieldsStartDo(J9ROMClass * romClass, J9ROMFieldWalkState* state)
+J9ROMFieldShape* romFieldsStartDo(J9ROMClass* romClass, J9ROMFieldWalkState* state)
 {
-	state->fieldsLeft = romClass->romFieldCount;
-	if (state->fieldsLeft == 0) {
-		return NULL;
-	}
-	state->field = J9ROMCLASS_ROMFIELDS(romClass);
-	--(state->fieldsLeft);
-	return state->field;
+    state->fieldsLeft = romClass->romFieldCount;
+    if (state->fieldsLeft == 0) {
+        return NULL;
+    }
+    state->field = J9ROMCLASS_ROMFIELDS(romClass);
+    --(state->fieldsLeft);
+    return state->field;
 }
 
-void
-walkFieldHierarchyDo(J9Class *clazz, J9WalkFieldHierarchyState *state)
+void walkFieldHierarchyDo(J9Class* clazz, J9WalkFieldHierarchyState* state)
 {
-	J9ROMFieldShape *romField = NULL;
-	J9ROMFieldWalkState walkState;
+    J9ROMFieldShape* romField = NULL;
+    J9ROMFieldWalkState walkState;
 
-	/* walk class and superclasses */
-	if (FALSE == J9ROMCLASS_IS_INTERFACE(clazz->romClass)) {
-		UDATA classDepth = J9CLASS_DEPTH(clazz);
-		J9Class *currentClass = clazz;
+    /* walk class and superclasses */
+    if (FALSE == J9ROMCLASS_IS_INTERFACE(clazz->romClass)) {
+        UDATA classDepth = J9CLASS_DEPTH(clazz);
+        J9Class* currentClass = clazz;
 
-		while (NULL != currentClass) {
-			/* walk currentClass */
-			memset(&walkState, 0, sizeof(walkState));
-			romField = romFieldsStartDo(currentClass->romClass, &walkState);
-			while (NULL != romField) {
-				if (J9WalkFieldActionStop == state->fieldCallback(romField, currentClass, state->userData)) {
-					return;
-				}
-				romField = romFieldsNextDo(&walkState);
-			}
+        while (NULL != currentClass) {
+            /* walk currentClass */
+            memset(&walkState, 0, sizeof(walkState));
+            romField = romFieldsStartDo(currentClass->romClass, &walkState);
+            while (NULL != romField) {
+                if (J9WalkFieldActionStop == state->fieldCallback(romField, currentClass, state->userData)) {
+                    return;
+                }
+                romField = romFieldsNextDo(&walkState);
+            }
 
-			/* get the superclass */
-			if (classDepth >= 1) {
-				classDepth -= 1;
-				currentClass = clazz->superclasses[classDepth];
-			} else {
-				currentClass = NULL;
-			}
-		}
-	}
+            /* get the superclass */
+            if (classDepth >= 1) {
+                classDepth -= 1;
+                currentClass = clazz->superclasses[classDepth];
+            } else {
+                currentClass = NULL;
+            }
+        }
+    }
 
-	/* walk interfaces */
-	{
-		J9ITable *currentITable = (J9ITable *)clazz->iTable;
+    /* walk interfaces */
+    {
+        J9ITable* currentITable = (J9ITable*)clazz->iTable;
 
-		while (NULL != currentITable) {
-			memset(&walkState, 0, sizeof(walkState));
-			romField = romFieldsStartDo(currentITable->interfaceClass->romClass, &walkState);
-			while (NULL != romField) {
-				if (J9WalkFieldActionStop == state->fieldCallback(romField, currentITable->interfaceClass, state->userData)) {
-					return;
-				}
-				romField = romFieldsNextDo(&walkState);
-			}
-			currentITable = currentITable->next;
-		}
-	}
+        while (NULL != currentITable) {
+            memset(&walkState, 0, sizeof(walkState));
+            romField = romFieldsStartDo(currentITable->interfaceClass->romClass, &walkState);
+            while (NULL != romField) {
+                if (J9WalkFieldActionStop
+                    == state->fieldCallback(romField, currentITable->interfaceClass, state->userData)) {
+                    return;
+                }
+                romField = romFieldsNextDo(&walkState);
+            }
+            currentITable = currentITable->next;
+        }
+    }
 }
 
 /**
@@ -154,64 +132,60 @@ walkFieldHierarchyDo(J9Class *clazz, J9WalkFieldHierarchyState *state)
  * @param sectionStart pointer to the 4-byte length field preceding the actual annotation data
  * @return number of bytes in the attribute, including the length field and trailing padding.
  */
-static UDATA
-annotationAttributeSize(U_8 *sectionStart)
+static UDATA annotationAttributeSize(U_8* sectionStart)
 {
-	Assert_VMUtil_true(((UDATA)sectionStart % sizeof(U_32)) == 0);
-	/* skip over the field annotations length bytes, data, and padding */
-	return ROUND_UP_TO_POWEROF2(sizeof(U_32) + *((U_32 *)sectionStart), sizeof(U_32)); /* length + data + padding */
+    Assert_VMUtil_true(((UDATA)sectionStart % sizeof(U_32)) == 0);
+    /* skip over the field annotations length bytes, data, and padding */
+    return ROUND_UP_TO_POWEROF2(sizeof(U_32) + *((U_32*)sectionStart), sizeof(U_32)); /* length + data + padding */
 }
 
 UDATA
-romFieldSize(J9ROMFieldShape *romField)
+romFieldSize(J9ROMFieldShape* romField)
 {
-	UDATA modifiers = romField->modifiers;
-	UDATA size = sizeof(J9ROMFieldShape);
+    UDATA modifiers = romField->modifiers;
+    UDATA size = sizeof(J9ROMFieldShape);
 
-	if (modifiers & J9FieldFlagConstant) {	
-		size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
-	}
+    if (modifiers & J9FieldFlagConstant) {
+        size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
+    }
 
-	if (modifiers & J9FieldFlagHasGenericSignature) {
-		size += sizeof(U_32);
-	}
+    if (modifiers & J9FieldFlagHasGenericSignature) {
+        size += sizeof(U_32);
+    }
 
-	if (modifiers & J9FieldFlagHasFieldAnnotations) {
-		size += annotationAttributeSize((U_8 *)romField + size);
-	}
+    if (modifiers & J9FieldFlagHasFieldAnnotations) {
+        size += annotationAttributeSize((U_8*)romField + size);
+    }
 
-	if (J9_ARE_ANY_BITS_SET(modifiers, J9FieldFlagHasTypeAnnotations)) {
-		size += annotationAttributeSize((U_8 *)romField + size);
-	}
+    if (J9_ARE_ANY_BITS_SET(modifiers, J9FieldFlagHasTypeAnnotations)) {
+        size += annotationAttributeSize((U_8*)romField + size);
+    }
 
-
-	return size;
+    return size;
 }
 
-U_32 *
-romFieldInitialValueAddress(J9ROMFieldShape * field)
+U_32* romFieldInitialValueAddress(J9ROMFieldShape* field)
 {
-	if (field->modifiers & J9FieldFlagConstant) {
-		return (U_32 *) (field + 1);
-	}
+    if (field->modifiers & J9FieldFlagConstant) {
+        return (U_32*)(field + 1);
+    }
 
-	return NULL;
+    return NULL;
 }
 
-
-J9UTF8 * romFieldGenericSignature(J9ROMFieldShape * field)
+J9UTF8* romFieldGenericSignature(J9ROMFieldShape* field)
 {
-	if (field->modifiers & J9FieldFlagHasGenericSignature) {
-		U_32 * ptr = (U_32 *) (field + 1);
+    if (field->modifiers & J9FieldFlagHasGenericSignature) {
+        U_32* ptr = (U_32*)(field + 1);
 
-		if (field->modifiers & J9FieldFlagConstant) {
-			ptr += ((field->modifiers & J9FieldSizeDouble) ? 2 : 1);
-		}
+        if (field->modifiers & J9FieldFlagConstant) {
+            ptr += ((field->modifiers & J9FieldSizeDouble) ? 2 : 1);
+        }
 
-		return NNSRP_PTR_GET(ptr, J9UTF8 *);
-	}
+        return NNSRP_PTR_GET(ptr, J9UTF8*);
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -221,115 +195,105 @@ J9UTF8 * romFieldGenericSignature(J9ROMFieldShape * field)
  * @param field pointer to start of the ROM field
  * @return offset in bytes to start of annotations area.
  */
-static UDATA 
-getFieldAnnotationsDataOffset(J9ROMFieldShape * field)
+static UDATA getFieldAnnotationsDataOffset(J9ROMFieldShape* field)
 {
-	UDATA modifiers = field->modifiers;
-	UDATA size = sizeof(J9ROMFieldShape);
+    UDATA modifiers = field->modifiers;
+    UDATA size = sizeof(J9ROMFieldShape);
 
-	if (modifiers & J9FieldFlagConstant) {
-		size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
-	}
+    if (modifiers & J9FieldFlagConstant) {
+        size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
+    }
 
-	if (modifiers & J9FieldFlagHasGenericSignature) {
-		size += sizeof(U_32);
-	}
-	return size;
+    if (modifiers & J9FieldFlagHasGenericSignature) {
+        size += sizeof(U_32);
+    }
+    return size;
 }
 
-U_32 *
-getFieldAnnotationsDataFromROMField(J9ROMFieldShape * field)
+U_32* getFieldAnnotationsDataFromROMField(J9ROMFieldShape* field)
 {
-	U_32 *result = NULL;
-	if (field->modifiers & J9FieldFlagHasFieldAnnotations) {
-		UDATA size = getFieldAnnotationsDataOffset(field);
+    U_32* result = NULL;
+    if (field->modifiers & J9FieldFlagHasFieldAnnotations) {
+        UDATA size = getFieldAnnotationsDataOffset(field);
 
-		result = (U_32 *)((UDATA)field + size);
-	}
-	return result;
+        result = (U_32*)((UDATA)field + size);
+    }
+    return result;
 }
 
-
-U_32 *
-getFieldTypeAnnotationsDataFromROMField(J9ROMFieldShape * field)
+U_32* getFieldTypeAnnotationsDataFromROMField(J9ROMFieldShape* field)
 {
-	U_32 *result = NULL;
-	if (field->modifiers & J9FieldFlagHasTypeAnnotations) {
-		U_8 *fieldAnnotationsData = (U_8 *)getFieldAnnotationsDataFromROMField(field);
+    U_32* result = NULL;
+    if (field->modifiers & J9FieldFlagHasTypeAnnotations) {
+        U_8* fieldAnnotationsData = (U_8*)getFieldAnnotationsDataFromROMField(field);
 
-		if (NULL != fieldAnnotationsData) { 
-			result = (U_32 *)(fieldAnnotationsData + annotationAttributeSize(fieldAnnotationsData));
-		} else {
-			/* the type annotations are where the field annotations would have been */
-			result = (U_32 *)((UDATA)field + getFieldAnnotationsDataOffset(field));
-		}
-	}
-	return result;
+        if (NULL != fieldAnnotationsData) {
+            result = (U_32*)(fieldAnnotationsData + annotationAttributeSize(fieldAnnotationsData));
+        } else {
+            /* the type annotations are where the field annotations would have been */
+            result = (U_32*)((UDATA)field + getFieldAnnotationsDataOffset(field));
+        }
+    }
+    return result;
 }
-
-
 
 #if defined(J9VM_OUT_OF_PROCESS)
-static UDATA
-debugRomFieldSize(J9ROMFieldShape *romField)
+static UDATA debugRomFieldSize(J9ROMFieldShape* romField)
 {
-	UDATA modifiers = (UDATA)dbgReadSlot((UDATA)&((romField)->modifiers), sizeof((romField)->modifiers));
-	UDATA size = sizeof(J9ROMFieldShape);
+    UDATA modifiers = (UDATA)dbgReadSlot((UDATA) & ((romField)->modifiers), sizeof((romField)->modifiers));
+    UDATA size = sizeof(J9ROMFieldShape);
 
-	if (modifiers & J9FieldFlagConstant) {
-		size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
-	}
+    if (modifiers & J9FieldFlagConstant) {
+        size += ((modifiers & J9FieldSizeDouble) ? sizeof(U_64) : sizeof(U_32));
+    }
 
-	if (modifiers & J9FieldFlagHasGenericSignature) {
-		size += sizeof(U_32);
-	}
+    if (modifiers & J9FieldFlagHasGenericSignature) {
+        size += sizeof(U_32);
+    }
 
-	if (modifiers & J9FieldFlagHasFieldAnnotations) {
-		UDATA bytesToPad = 0;
-		U_32 annotationSize = dbgReadU32((U_32 *)((UDATA)romField + size));
-		/* add the length of annotation data */
-		size += annotationSize;
-		/* add the size of the size of the annotation data */
-		size += sizeof(U_32);
+    if (modifiers & J9FieldFlagHasFieldAnnotations) {
+        UDATA bytesToPad = 0;
+        U_32 annotationSize = dbgReadU32((U_32*)((UDATA)romField + size));
+        /* add the length of annotation data */
+        size += annotationSize;
+        /* add the size of the size of the annotation data */
+        size += sizeof(U_32);
 
-		bytesToPad = sizeof(U_32) - annotationSize%sizeof(U_32);
-		if (sizeof(U_32)==bytesToPad) {
-			bytesToPad = 0;
-		}
-		/* add the padding */
-		size += bytesToPad;
-	}
-	
-	return size;
+        bytesToPad = sizeof(U_32) - annotationSize % sizeof(U_32);
+        if (sizeof(U_32) == bytesToPad) {
+            bytesToPad = 0;
+        }
+        /* add the padding */
+        size += bytesToPad;
+    }
+
+    return size;
 }
 
-J9ROMFieldShape *
-debugRomFieldsStartDo(J9ROMClass *romClass, J9ROMFieldWalkState *state)
+J9ROMFieldShape* debugRomFieldsStartDo(J9ROMClass* romClass, J9ROMFieldWalkState* state)
 {
-	state->fieldsLeft = (U_32)dbgReadSlot((UDATA)&((romClass)->romFieldCount), sizeof((romClass)->romFieldCount));
+    state->fieldsLeft = (U_32)dbgReadSlot((UDATA) & ((romClass)->romFieldCount), sizeof((romClass)->romFieldCount));
 
-	if (state->fieldsLeft == 0) {
-		state->field = NULL;
-	} else {
-		J9ROMClass *localRomClass = dbgRead_J9ROMClass(romClass);
-		state->field = TARGET_NNSRP_GET(localRomClass->romFields, struct J9ROMFieldShape*);
-		--(state->fieldsLeft);
-		dbgFree(localRomClass);
-	}
+    if (state->fieldsLeft == 0) {
+        state->field = NULL;
+    } else {
+        J9ROMClass* localRomClass = dbgRead_J9ROMClass(romClass);
+        state->field = TARGET_NNSRP_GET(localRomClass->romFields, struct J9ROMFieldShape*);
+        --(state->fieldsLeft);
+        dbgFree(localRomClass);
+    }
 
-	return state->field;
+    return state->field;
 }
 
-
-J9ROMFieldShape *
-debugRomFieldsNextDo(J9ROMFieldWalkState *state)
+J9ROMFieldShape* debugRomFieldsNextDo(J9ROMFieldWalkState* state)
 {
-	if (state->fieldsLeft == 0) {
-		return NULL;
-	}
+    if (state->fieldsLeft == 0) {
+        return NULL;
+    }
 
-	state->field = (J9ROMFieldShape *) (((U_8 *) state->field) + debugRomFieldSize(state->field));
-	--(state->fieldsLeft);
-	return state->field;
+    state->field = (J9ROMFieldShape*)(((U_8*)state->field) + debugRomFieldSize(state->field));
+    --(state->fieldsLeft);
+    return state->field;
 }
 #endif /* defined(J9VM_OUT_OF_PROCESS) */

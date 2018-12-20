@@ -32,7 +32,7 @@
 
 /**
  * Open an existing shared semaphore using the deprecated control file format.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] cacheDirName The name of the cache directory
  * @param[in] groupPerm Group permissions to open the cache directory
@@ -46,15 +46,15 @@
  * \arg J9PORT_INFO_SHSEM_SEMID_DIFF Success - Existing semaphore opened, but OS Semaphore key is different
  * \arg J9PORT_INFO_SHSEM_PARTIAL Failure - indicates that the either control file, or the SysV IPC object is missing.
  */
-intptr_t 
-j9shsem_deprecated_openDeprecated (struct J9PortLibrary *portLibrary, const char* cacheDirName, uintptr_t groupPerm, struct j9shsem_handle** handle, const char* semname, uintptr_t cacheFileType)
+intptr_t j9shsem_deprecated_openDeprecated(struct J9PortLibrary* portLibrary, const char* cacheDirName,
+    uintptr_t groupPerm, struct j9shsem_handle** handle, const char* semname, uintptr_t cacheFileType)
 {
-	return J9PORT_ERROR_SHSEM_OPFAILED;
+    return J9PORT_ERROR_SHSEM_OPFAILED;
 }
 
 /**
  * Open an existing semaphore set, or create a new one if it does not exist
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] cacheDirName The name of the cache directory
  * @param[in] groupPerm Group permissions to open the cache directory
@@ -74,17 +74,18 @@ j9shsem_deprecated_openDeprecated (struct J9PortLibrary *portLibrary, const char
  * \arg J9PORT_INFO_SHSEM_CREATED Success - Semaphore has been created
  * \arg J9PORT_INFO_SHSEM_OPENED  Success - Existing semaphore has been opened
  */
-intptr_t 
-j9shsem_deprecated_open (struct J9PortLibrary *portLibrary, const char* cacheDirName, uintptr_t groupPerm, struct j9shsem_handle** handle, const char* semname, int setSize, int permission, uintptr_t flags, J9ControlFileStatus *controlFileStatus)
+intptr_t j9shsem_deprecated_open(struct J9PortLibrary* portLibrary, const char* cacheDirName, uintptr_t groupPerm,
+    struct j9shsem_handle** handle, const char* semname, int setSize, int permission, uintptr_t flags,
+    J9ControlFileStatus* controlFileStatus)
 {
-	return J9PORT_ERROR_SHSEM_OPFAILED;
+    return J9PORT_ERROR_SHSEM_OPFAILED;
 }
 
 /**
- * post operation increments the counter in the semaphore by 1 if there is no one in wait for the semaphore. 
- * if there are other processes suspended by wait then one of them will become runnable and 
- * the counter remains the same. 
- * 
+ * post operation increments the counter in the semaphore by 1 if there is no one in wait for the semaphore.
+ * if there are other processes suspended by wait then one of them will become runnable and
+ * the counter remains the same.
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
  * @param[in] semset The no of semaphore in the semaphore set that you want to post.
@@ -94,15 +95,15 @@ j9shsem_deprecated_open (struct J9PortLibrary *portLibrary, const char* cacheDir
  *
  * @return 0 on success, -1 on failure.
  */
-intptr_t 
-j9shsem_deprecated_post(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
+intptr_t j9shsem_deprecated_post(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
 {
-	return -1;
+    return -1;
 }
 /**
  * Wait operation decrements the counter in the semaphore set if the counter > 0
  * if counter == 0 then the caller will be suspended.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
  * @param[in] semset The no of semaphore in the semaphore set that you want to post.
@@ -110,60 +111,59 @@ j9shsem_deprecated_post(struct J9PortLibrary *portLibrary, struct j9shsem_handle
  * \arg J9PORT_SHSEM_MODE_DEFAULT The default operation flag, same as 0
  * \arg J9PORT_SHSEM_MODE_UNDO The changes made to the semaphore will be undone when this process finishes.
  * \arg J9PORT_SHSEM_MODE_NOWAIT The caller will not be suspended if sem == 0, a -1 is returned instead.
- * 
+ *
  * @return 0 on success, -1 on failure.
  */
-intptr_t
-j9shsem_deprecated_wait(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
+intptr_t j9shsem_deprecated_wait(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
 {
-	return -1;
+    return -1;
 }
 /**
  * reading the value of the semaphore in the set. This function
  * uses no synchronisation prmitives
-  * 
+ *
  * @pre caller has to deal with synchronisation issue.
  *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
  * @param[in] semset The number of semaphore in the semaphore set that you want to post.
- * 
+ *
  * @return -1 on failure, the value of the semaphore on success
- * 
+ *
  * @warning: The user will need to make sure locking is done correctly when
  * accessing semaphore values. This is because getValue simply reads the semaphore
  * value without stopping the access to the semaphore. Therefore the value of the semaphore
- * can change before the function returns. 
+ * can change before the function returns.
  */
-intptr_t 
-j9shsem_deprecated_getVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset) 
+intptr_t j9shsem_deprecated_getVal(struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset)
 {
-	return -1;
+    return -1;
 }
 
 /**
- * 
+ *
  * setting the value of the semaphore specified in semset. This function
  * uses no synchronisation prmitives
- * 
+ *
  * @pre Caller has to deal with synchronisation issue.
- * 
+ *
  * @param[in] portLibrary The port Library.
  * @param[in] handle Semaphore set handle.
  * @param[in] semset The no of semaphore in the semaphore set that you want to post.
  * @param[in] value The value that you want to set the semaphore to
- * 
+ *
  * @warning The user will need to make sure locking is done correctly when
  * accessing semaphore values. This is because setValue simply set the semaphore
  * value without stopping the access to the semaphore. Therefore the value of the semaphore
- * can change before the function returns. 
+ * can change before the function returns.
  *
  * @return 0 on success, -1 on failure.
  */
-intptr_t 
-j9shsem_deprecated_setVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, intptr_t value)
+intptr_t j9shsem_deprecated_setVal(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, intptr_t value)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -174,8 +174,9 @@ j9shsem_deprecated_setVal(struct J9PortLibrary *portLibrary, struct j9shsem_hand
  *
  * @param[in] portLibrary The port library
  * @param[in] handle A valid semaphore set handle
- * @param[out] statbuf Pointer to J9PortShsemStatistic which is populated with statistics returned by the operating system.
- * 					   On return do not expect any value in statbuf to be preserved as it is explicitly cleared by this function before getting stats.
+ * @param[out] statbuf Pointer to J9PortShsemStatistic which is populated with statistics returned by the operating
+ * system. On return do not expect any value in statbuf to be preserved as it is explicitly cleared by this function
+ * before getting stats.
  *
  * @return
  * \arg J9PORT_INFO_SHSEM_STAT_PASSED			Success - Successfully retrieved stats of the semaphore set
@@ -183,55 +184,48 @@ j9shsem_deprecated_setVal(struct J9PortLibrary *portLibrary, struct j9shsem_hand
  * \arg J9PORT_ERROR_SHSEM_STAT_BUFFER_INVALID	Failure - 'statbuf' is NULL
  * \arg J9PORT_ERROR_SHSEM_STAT_FAILED			Failure - Error in retrieving stats of the semaphore set
  */
-intptr_t
-j9shsem_deprecated_handle_stat(struct J9PortLibrary *portLibrary, struct j9shsem_handle *handle, struct J9PortShsemStatistic *statbuf)
+intptr_t j9shsem_deprecated_handle_stat(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, struct J9PortShsemStatistic* statbuf)
 {
-	return -1;
+    return -1;
 }
 
 /**
  * Release the resources allocated for the semaphore handles.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
- * 
- * @note The actual semaphore is not destroyed.  Once the close operation has been performed 
+ *
+ * @note The actual semaphore is not destroyed.  Once the close operation has been performed
  * on the semaphore handle, it is no longer valid and user needs to reissue @ref j9shsem_deprecated_open call.
  */
-void 
-j9shsem_deprecated_close (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle)
-{
-}
+void j9shsem_deprecated_close(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle) {}
 
 /**
  * Destroy the semaphore and release the resources allocated for the semaphore handles.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
- * 
+ *
  * @return 0 on success, -1 on failure.
  * @note Due to operating system restriction we may not be able to destroy the semaphore
  */
-intptr_t 
-j9shsem_deprecated_destroy (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle)
-{
-	return -1;
-}
+intptr_t j9shsem_deprecated_destroy(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle) { return -1; }
 
 /**
  * Destroy the semaphore and release the resources allocated for the semaphore handles.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
  * @param[in] cacheFileType a uintptr_t indicating the type of cache file being used
- * 
+ *
  * @return 0 on success, -1 on failure.
  * @note Due to operating system restriction we may not be able to destroy the semaphore
  */
-intptr_t 
-j9shsem_deprecated_destroyDeprecated (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle, uintptr_t cacheFileType)
+intptr_t j9shsem_deprecated_destroyDeprecated(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle, uintptr_t cacheFileType)
 {
-	return -1;
+    return -1;
 }
 
 /**
@@ -248,37 +242,25 @@ j9shsem_deprecated_destroyDeprecated (struct J9PortLibrary *portLibrary, struct 
  *
  * @note Most implementations will simply return success.
  */
-int32_t
-j9shsem_deprecated_startup(struct J9PortLibrary *portLibrary)
-{
-	return 0;
-}
+int32_t j9shsem_deprecated_startup(struct J9PortLibrary* portLibrary) { return 0; }
 /**
  * PortLibrary shutdown.
  *
- * This function is called during shutdown of the portLibrary.  Any resources that were created by @ref j9shsem_deprecated_startup
- * should be destroyed here.
+ * This function is called during shutdown of the portLibrary.  Any resources that were created by @ref
+ * j9shsem_deprecated_startup should be destroyed here.
  *
  * @param[in] portLibrary The port library.
  *
  * @note Most implementations will be empty.
  */
-void
-j9shsem_deprecated_shutdown(struct J9PortLibrary *portLibrary)
-{
-}
+void j9shsem_deprecated_shutdown(struct J9PortLibrary* portLibrary) {}
 
 /**
  * Return the platform specific semid value from the handle, or zero if there is no semid available.
- * 
+ *
  * @param[in] portLibrary The port library.
  * @param[in] handle Semaphore set handle.
  *
  * @return the semid value from the handle, or zero if there is no semid available
  */
-int32_t 
-j9shsem_deprecated_getid (struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle) 
-{
-	return 0;
-}
-
+int32_t j9shsem_deprecated_getid(struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle) { return 0; }

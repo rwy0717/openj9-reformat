@@ -22,36 +22,37 @@
 #ifndef OSRGUARDINSERTION_INCL
 #define OSRGUARDINSERTION_INCL
 
-#include <stdint.h>                           // for int32_t
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 #include "control/RecompilationInfo.hpp"
 #include "optimizer/HCRGuardAnalysis.hpp"
 
-namespace TR { class Block; }
+namespace TR {
+class Block;
+}
 
-class TR_OSRGuardInsertion : public TR::Optimization
-   {
-   public:
-   TR_OSRGuardInsertion(TR::OptimizationManager *manager)
-      : TR::Optimization(manager)
-      {}
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_OSRGuardInsertion(manager);
-      }
+class TR_OSRGuardInsertion : public TR::Optimization {
+public:
+    TR_OSRGuardInsertion(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {}
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_OSRGuardInsertion(manager);
+    }
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
 
-   private:
-   static const uint32_t defaultRematBlockLimit = 3;
+private:
+    static const uint32_t defaultRematBlockLimit = 3;
 
-   void removeHCRGuards(TR_BitVector &fearGeneratingNodes, TR_HCRGuardAnalysis* guardAnalysis);
-   void removeRedundantPotentialOSRPointHelperCalls(TR_HCRGuardAnalysis* guardAnalysis);
-   void cleanUpPotentialOSRPointHelperCalls();
-   int32_t insertOSRGuards(TR_BitVector &fearGeneratingNodes);
-   void performRemat(TR::TreeTop *osrPoint, TR::TreeTop *osrGuard, TR::TreeTop *rematDest);
-   void generateTriggeringRecompilationTrees(TR::TreeTop *osrGuard, TR_PersistentMethodInfo::InfoBits reason);
-   };
+    void removeHCRGuards(TR_BitVector& fearGeneratingNodes, TR_HCRGuardAnalysis* guardAnalysis);
+    void removeRedundantPotentialOSRPointHelperCalls(TR_HCRGuardAnalysis* guardAnalysis);
+    void cleanUpPotentialOSRPointHelperCalls();
+    int32_t insertOSRGuards(TR_BitVector& fearGeneratingNodes);
+    void performRemat(TR::TreeTop* osrPoint, TR::TreeTop* osrGuard, TR::TreeTop* rematDest);
+    void generateTriggeringRecompilationTrees(TR::TreeTop* osrGuard, TR_PersistentMethodInfo::InfoBits reason);
+};
 #endif

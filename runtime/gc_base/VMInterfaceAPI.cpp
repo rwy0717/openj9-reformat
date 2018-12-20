@@ -34,39 +34,29 @@
 
 extern "C" {
 
-void 
-j9gc_all_object_and_vm_slots_do(J9JavaVM *javaVM, void *function, void *userData, UDATA walkFlags)
+void j9gc_all_object_and_vm_slots_do(J9JavaVM* javaVM, void* function, void* userData, UDATA walkFlags)
 {
-	/* Deprecated Function - Remove */
-	Assert_MM_unreachable();
+    /* Deprecated Function - Remove */
+    Assert_MM_unreachable();
 }
 
-void 
-j9gc_flush_caches_for_walk(J9JavaVM *javaVM)
+void j9gc_flush_caches_for_walk(J9JavaVM* javaVM) { GC_OMRVMInterface::flushCachesForWalk(javaVM->omrVM); }
+
+void j9gc_flush_nonAllocationCaches_for_walk(J9JavaVM* javaVM)
 {
-	GC_OMRVMInterface::flushCachesForWalk(javaVM->omrVM);
+    J9VMThread* currentThread = javaVM->internalVMFunctions->currentVMThread(javaVM);
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(currentThread->omrVMThread);
+    GC_OMRVMInterface::flushNonAllocationCaches(env);
 }
 
-void
-j9gc_flush_nonAllocationCaches_for_walk(J9JavaVM *javaVM)
+J9HookInterface** j9gc_get_hook_interface(J9JavaVM* javaVM)
 {
-	J9VMThread* currentThread = javaVM->internalVMFunctions->currentVMThread(javaVM);
-	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(currentThread->omrVMThread);
-	GC_OMRVMInterface::flushNonAllocationCaches(env);
+    return GC_VMInterface::getHookInterface(MM_GCExtensions::getExtensions(javaVM));
 }
 
-J9HookInterface**
-j9gc_get_hook_interface(J9JavaVM *javaVM)
+J9HookInterface** j9gc_get_omr_hook_interface(OMR_VM* omrVM)
 {
-	return GC_VMInterface::getHookInterface(MM_GCExtensions::getExtensions(javaVM));
-
-}
-
-J9HookInterface**
-j9gc_get_omr_hook_interface(OMR_VM *omrVM)
-{
-	return GC_OMRVMInterface::getOmrHookInterface(MM_GCExtensionsBase::getExtensions(omrVM));
-
+    return GC_OMRVMInterface::getOmrHookInterface(MM_GCExtensionsBase::getExtensions(omrVM));
 }
 
 #if defined(J9VM_GC_ARRAYLETS)
@@ -74,24 +64,18 @@ j9gc_get_omr_hook_interface(OMR_VM *omrVM)
  * Returns the arraylet leaf size in bytes
  * @parm jajaVM - the Java VM
  * @return arraylet leaf size.
- */ 
-UDATA 
-j9gc_arraylet_getLeafSize(J9JavaVM* javaVM)
-{
-	return javaVM->arrayletLeafSize;
-}
+ */
+UDATA
+j9gc_arraylet_getLeafSize(J9JavaVM* javaVM) { return javaVM->arrayletLeafSize; }
 
 /**
  * Returns the shift count of the leaf size,
  * where leaf size = 1 << leaf lig size
  * @parm jajaVM - the Java VM
  * @return arraylet leaf log size.
- */ 
-UDATA 
-j9gc_arraylet_getLeafLogSize(J9JavaVM* javaVM)
-{
-	return javaVM->arrayletLeafLogSize;
-}
+ */
+UDATA
+j9gc_arraylet_getLeafLogSize(J9JavaVM* javaVM) { return javaVM->arrayletLeafLogSize; }
 #endif /* J9VM_GC_ARRAYLETS */
 
 } /* Extern C */

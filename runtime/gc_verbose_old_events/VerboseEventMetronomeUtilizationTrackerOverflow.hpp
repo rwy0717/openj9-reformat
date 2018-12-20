@@ -35,33 +35,33 @@
 /**
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventMetronomeUtilizationTrackerOverflow : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeUtilizationTrackerOverflow : public MM_VerboseEvent {
 private:
-	void* _utilizationTrackerAddress;
-	void* _timeSliceDurationArrayAddress;
-	UDATA _timeSliceCursor;
-	U_64 _timeInMilliSeconds;
-	
-	void initialize(MM_UtilizationTrackerOverflowEvent *event);
-	
-public:	
-	static MM_VerboseEvent *newInstance(MM_UtilizationTrackerOverflowEvent *event, J9HookInterface** hookInterface);
+    void* _utilizationTrackerAddress;
+    void* _timeSliceDurationArrayAddress;
+    UDATA _timeSliceCursor;
+    U_64 _timeInMilliSeconds;
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    void initialize(MM_UtilizationTrackerOverflowEvent* event);
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return true; }
-	MMINLINE virtual bool endsEventChain(void) { return true; }
-	
-	virtual bool isAtomic() { return true; }
-	
-	MM_VerboseEventMetronomeUtilizationTrackerOverflow(MM_UtilizationTrackerOverflowEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_utilizationTrackerAddress(event->utilizationTrackerAddress),
-		_timeSliceDurationArrayAddress(event->timeSliceDurationArrayAddress),
-		_timeSliceCursor(event->timeSliceCursor)
-	{}
+public:
+    static MM_VerboseEvent* newInstance(MM_UtilizationTrackerOverflowEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine(void) { return true; }
+    MMINLINE virtual bool endsEventChain(void) { return true; }
+
+    virtual bool isAtomic() { return true; }
+
+    MM_VerboseEventMetronomeUtilizationTrackerOverflow(
+        MM_UtilizationTrackerOverflowEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _utilizationTrackerAddress(event->utilizationTrackerAddress)
+        , _timeSliceDurationArrayAddress(event->timeSliceDurationArrayAddress)
+        , _timeSliceCursor(event->timeSliceCursor)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

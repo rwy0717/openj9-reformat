@@ -29,9 +29,4 @@
  *	provides means of compiling a shared lib containing all the code
  *	we need.
  */
-void
-jvmtiTest_fakeRef()
-{
-	Agent_OnLoad(NULL, NULL, NULL);
-}
-
+void jvmtiTest_fakeRef() { Agent_OnLoad(NULL, NULL, NULL); }

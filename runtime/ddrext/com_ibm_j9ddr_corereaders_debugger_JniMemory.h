@@ -33,96 +33,87 @@ extern "C" {
  * Method:    getByteAt
  * Signature: (J)B
  */
-JNIEXPORT jbyte JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getByteAt
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jbyte JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getByteAt(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getByteOrder
  * Signature: ()Ljava/nio/ByteOrder;
  */
-JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getByteOrder
-  (JNIEnv *, jobject);
+JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getByteOrder(JNIEnv*, jobject);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getBytesAt
  * Signature: (J[B)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getBytesAt__J_3B
-  (JNIEnv *, jobject, jlong, jbyteArray);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getBytesAt__J_3B(
+    JNIEnv*, jobject, jlong, jbyteArray);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getBytesAt
  * Signature: (J[BII)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getBytesAt__J_3BII
-  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getBytesAt__J_3BII(
+    JNIEnv*, jobject, jlong, jbyteArray, jint, jint);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getIntAt
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getIntAt
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getIntAt(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getLongAt
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getLongAt
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getLongAt(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getShortAt
  * Signature: (J)S
  */
-JNIEXPORT jshort JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getShortAt
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jshort JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getShortAt(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    isExecutable
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isExecutable
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isExecutable(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    isReadOnly
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isReadOnly
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isReadOnly(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    isShared
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isShared
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_isShared(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    readAddress
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_readAddress
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_readAddress(JNIEnv*, jobject, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniMemory
  * Method:    getValidRegionVirtual
  * Signature: (JJ)Lcom/ibm/j9ddr/corereaders/memory/MemoryRange;
  */
-JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getValidRegionVirtual
-  (JNIEnv *, jclass, jlong, jlong);
+JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniMemory_getValidRegionVirtual(
+    JNIEnv*, jclass, jlong, jlong);
 
 #ifdef __cplusplus
 }

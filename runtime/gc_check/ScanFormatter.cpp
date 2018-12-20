@@ -30,72 +30,66 @@
 
 #include "ScanFormatter.hpp"
 
-void
-GC_ScanFormatter::section(const char *type, void *pointer)
+void GC_ScanFormatter::section(const char* type, void* pointer)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
 
-	j9tty_printf(PORTLIB, "  <%s (%p)>\n", type, pointer);
-	_currentCount = 0;
+    j9tty_printf(PORTLIB, "  <%s (%p)>\n", type, pointer);
+    _currentCount = 0;
 }
 
-void
-GC_ScanFormatter::section(const char *type)
+void GC_ScanFormatter::section(const char* type)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
 
-	j9tty_printf(PORTLIB, "  <%s>\n", type);
-	_currentCount = 0;
+    j9tty_printf(PORTLIB, "  <%s>\n", type);
+    _currentCount = 0;
 }
 
-void
-GC_ScanFormatter::endSection()
+void GC_ScanFormatter::endSection()
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
-	
-	if ((0 != _currentCount) && _displayedData) {
-		j9tty_printf(PORTLIB,">\n");
-		_currentCount = 0;
-	}
+    PORT_ACCESS_FROM_PORT(_portLibrary);
+
+    if ((0 != _currentCount) && _displayedData) {
+        j9tty_printf(PORTLIB, ">\n");
+        _currentCount = 0;
+    }
 }
 
-void
-GC_ScanFormatter::entry(void *pointer)
+void GC_ScanFormatter::entry(void* pointer)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
 
-	if (0 == _currentCount) {
-		j9tty_printf(PORTLIB, "    <");
-		_displayedData = true;
-	}
-	j9tty_printf(PORTLIB, "%p ", pointer);
+    if (0 == _currentCount) {
+        j9tty_printf(PORTLIB, "    <");
+        _displayedData = true;
+    }
+    j9tty_printf(PORTLIB, "%p ", pointer);
 
-	_currentCount += 1;
+    _currentCount += 1;
 
-	if (NUMBER_ELEMENTS_DISPLAYED_PER_LINE == _currentCount) {
-		j9tty_printf(PORTLIB, ">\n");
-		_currentCount = 0;
-	}
+    if (NUMBER_ELEMENTS_DISPLAYED_PER_LINE == _currentCount) {
+        j9tty_printf(PORTLIB, ">\n");
+        _currentCount = 0;
+    }
 }
 
-void
-GC_ScanFormatter::end(const char *type, void *pointer)
+void GC_ScanFormatter::end(const char* type, void* pointer)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
-	
-	if ((0 != _currentCount) && _displayedData) {
-		j9tty_printf(PORTLIB,">\n");
-	}
-	j9tty_printf(PORTLIB, "<gc check: End scan %s (%p)>\n", type, pointer);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
+
+    if ((0 != _currentCount) && _displayedData) {
+        j9tty_printf(PORTLIB, ">\n");
+    }
+    j9tty_printf(PORTLIB, "<gc check: End scan %s (%p)>\n", type, pointer);
 }
 
-void
-GC_ScanFormatter::end(const char *type)
+void GC_ScanFormatter::end(const char* type)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
-	
-	if ((0 != _currentCount) && _displayedData) {
-		j9tty_printf(PORTLIB,">\n");
-	}
-	j9tty_printf(PORTLIB, "<gc check: End scan %s>\n", type);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
+
+    if ((0 != _currentCount) && _displayedData) {
+        j9tty_printf(PORTLIB, ">\n");
+    }
+    j9tty_printf(PORTLIB, "<gc check: End scan %s>\n", type);
 }

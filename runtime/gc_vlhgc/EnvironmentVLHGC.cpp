@@ -30,86 +30,82 @@
 #include "InterRegionRememberedSet.hpp"
 #include "RememberedSetCardBucket.hpp"
 
-MM_EnvironmentVLHGC::MM_EnvironmentVLHGC(OMR_VMThread *omrVMThread)
-	: MM_EnvironmentBase(omrVMThread)
-	,_survivorCopyScanCache(NULL)
-	,_scanCache(NULL)
-	,_deferredScanCache(NULL)
-	, _copyForwardCompactGroups(NULL)
-	, _previousConcurrentYieldCheckBytesScanned(0)
-	, _rsclBufferControlBlockHead(NULL)
-	, _rsclBufferControlBlockTail(NULL)
-	, _rsclBufferControlBlockCount(0)
-	, _rememberedSetCardBucketPool(NULL)
-	, _lastOverflowedRsclWithReleasedBuffers(NULL)
+MM_EnvironmentVLHGC::MM_EnvironmentVLHGC(OMR_VMThread* omrVMThread)
+    : MM_EnvironmentBase(omrVMThread)
+    , _survivorCopyScanCache(NULL)
+    , _scanCache(NULL)
+    , _deferredScanCache(NULL)
+    , _copyForwardCompactGroups(NULL)
+    , _previousConcurrentYieldCheckBytesScanned(0)
+    , _rsclBufferControlBlockHead(NULL)
+    , _rsclBufferControlBlockTail(NULL)
+    , _rsclBufferControlBlockCount(0)
+    , _rememberedSetCardBucketPool(NULL)
+    , _lastOverflowedRsclWithReleasedBuffers(NULL)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
 /**
  * Create an Environment object.
  */
-MM_EnvironmentVLHGC::MM_EnvironmentVLHGC(J9JavaVM *javaVM)
-	: MM_EnvironmentBase(javaVM->omrVM)
-	,_survivorCopyScanCache(NULL)
-	,_scanCache(NULL)
-	,_deferredScanCache(NULL)
-	, _copyForwardCompactGroups(NULL)
-	, _previousConcurrentYieldCheckBytesScanned(0)
-	, _rsclBufferControlBlockHead(NULL)
-	, _rsclBufferControlBlockTail(NULL)
-	, _rsclBufferControlBlockCount(0)
-	, _rememberedSetCardBucketPool(NULL)
-	, _lastOverflowedRsclWithReleasedBuffers(NULL)
+MM_EnvironmentVLHGC::MM_EnvironmentVLHGC(J9JavaVM* javaVM)
+    : MM_EnvironmentBase(javaVM->omrVM)
+    , _survivorCopyScanCache(NULL)
+    , _scanCache(NULL)
+    , _deferredScanCache(NULL)
+    , _copyForwardCompactGroups(NULL)
+    , _previousConcurrentYieldCheckBytesScanned(0)
+    , _rsclBufferControlBlockHead(NULL)
+    , _rsclBufferControlBlockTail(NULL)
+    , _rsclBufferControlBlockCount(0)
+    , _rememberedSetCardBucketPool(NULL)
+    , _lastOverflowedRsclWithReleasedBuffers(NULL)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_EnvironmentVLHGC *
-MM_EnvironmentVLHGC::newInstance(MM_GCExtensionsBase *extensions, OMR_VMThread *vmThread)
+MM_EnvironmentVLHGC* MM_EnvironmentVLHGC::newInstance(MM_GCExtensionsBase* extensions, OMR_VMThread* vmThread)
 {
-	MM_EnvironmentVLHGC *env = NULL;
-	
-	void* envPtr = (void *)pool_newElement(extensions->environments);
-	if(NULL != envPtr) {
-		env = new(envPtr) MM_EnvironmentVLHGC(vmThread);
-		if (!env->initialize(extensions)) {
-			env->kill();
-			env = NULL;	
-		}
-	}
+    MM_EnvironmentVLHGC* env = NULL;
 
-	return env;
+    void* envPtr = (void*)pool_newElement(extensions->environments);
+    if (NULL != envPtr) {
+        env = new (envPtr) MM_EnvironmentVLHGC(vmThread);
+        if (!env->initialize(extensions)) {
+            env->kill();
+            env = NULL;
+        }
+    }
+
+    return env;
 }
 
-void
-MM_EnvironmentVLHGC::kill()
+void MM_EnvironmentVLHGC::kill()
 {
-	MM_EnvironmentBase::kill();;
+    MM_EnvironmentBase::kill();
+    ;
 }
 
-bool
-MM_EnvironmentVLHGC::initialize(MM_GCExtensionsBase *extensions )
+bool MM_EnvironmentVLHGC::initialize(MM_GCExtensionsBase* extensions)
 {
-	/* initialize base class */
-	return MM_EnvironmentBase::initialize(extensions);
+    /* initialize base class */
+    return MM_EnvironmentBase::initialize(extensions);
 }
 
-void
-MM_EnvironmentVLHGC::initializeGCThread()
+void MM_EnvironmentVLHGC::initializeGCThread()
 {
-	Assert_MM_true(NULL == _rememberedSetCardBucketPool);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(this);
-	UDATA threadPoolSize = extensions->getHeap()->getHeapRegionManager()->getTableRegionCount();
-	/* Make this thread aware of its RSCL buckets for all regions */
-	_rememberedSetCardBucketPool = &extensions->rememberedSetCardBucketPool[getSlaveID() * threadPoolSize];
+    Assert_MM_true(NULL == _rememberedSetCardBucketPool);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(this);
+    UDATA threadPoolSize = extensions->getHeap()->getHeapRegionManager()->getTableRegionCount();
+    /* Make this thread aware of its RSCL buckets for all regions */
+    _rememberedSetCardBucketPool = &extensions->rememberedSetCardBucketPool[getSlaveID() * threadPoolSize];
     /* Associate buckets with approprate RSCL (each RSCL maintains a list of its own buckets) */
-	extensions->interRegionRememberedSet->threadLocalInitialize(this);
+    extensions->interRegionRememberedSet->threadLocalInitialize(this);
 }
 
-void
-MM_EnvironmentVLHGC::tearDown(MM_GCExtensionsBase *extensions)
+void MM_EnvironmentVLHGC::tearDown(MM_GCExtensionsBase* extensions)
 {
-	/* tearDown base class */
-	MM_EnvironmentBase::tearDown(extensions);
+    /* tearDown base class */
+    MM_EnvironmentBase::tearDown(extensions);
 }

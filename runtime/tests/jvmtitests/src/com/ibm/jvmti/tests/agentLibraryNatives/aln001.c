@@ -21,18 +21,8 @@
  *******************************************************************************/
 #include "jvmti_test.h"
 
-jint JNICALL
-aln001(agentEnv * agent_env, char * args)
-{
-	return JNI_OK;
-}
+jint JNICALL aln001(agentEnv* agent_env, char* args) { return JNI_OK; }
 
-void JNICALL
-Java_com_ibm_jvmti_tests_agentLibraryNatives_aln001_shortname(JNIEnv *jni_env, jclass klass) 
-{
-}
+void JNICALL Java_com_ibm_jvmti_tests_agentLibraryNatives_aln001_shortname(JNIEnv* jni_env, jclass klass) {}
 
-void JNICALL
-Java_com_ibm_jvmti_tests_agentLibraryNatives_aln001_longname__I(JNIEnv *jni_env, jclass klass) 
-{
-}
+void JNICALL Java_com_ibm_jvmti_tests_agentLibraryNatives_aln001_longname__I(JNIEnv* jni_env, jclass klass) {}

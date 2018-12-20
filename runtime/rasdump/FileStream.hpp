@@ -30,40 +30,39 @@
 /* Class for writing to a file                                                                    */
 /*                                                                                                */
 /**************************************************************************************************/
-class FileStream
-{
-public :
-	/* Constructor */
-	FileStream(J9PortLibrary* portLibrary);
+class FileStream {
+public:
+    /* Constructor */
+    FileStream(J9PortLibrary* portLibrary);
 
-	/* Destructor */
-	~FileStream();
+    /* Destructor */
+    ~FileStream();
 
-	/* Method for opening the file */
-	void open(const char* fileName);
+    /* Method for opening the file */
+    void open(const char* fileName);
 
-	/* Method for closing the file */
-	void close(void);
+    /* Method for closing the file */
+    void close(void);
 
-	/* Methods for getting the object's status */
-	bool isOpen(void) const;
-	bool hasError(void) const;
+    /* Methods for getting the object's status */
+    bool isOpen(void) const;
+    bool hasError(void) const;
 
-	/* Methods for writing data to the file */
-	void writeCharacters (const char* data, IDATA length);
-	void writeCharacters (const char* data);
-	void writeNumber     (IDATA data, int length);
+    /* Methods for writing data to the file */
+    void writeCharacters(const char* data, IDATA length);
+    void writeCharacters(const char* data);
+    void writeNumber(IDATA data, int length);
 
-private :
-	/* Prevent use of the copy constructor and assignment operator */
-	FileStream(const FileStream& source);
-	FileStream& operator=(const FileStream& source);
+private:
+    /* Prevent use of the copy constructor and assignment operator */
+    FileStream(const FileStream& source);
+    FileStream& operator=(const FileStream& source);
 
-protected :
-	/* Declared data */
-	J9PortLibrary* _PortLibrary;
-	IDATA          _FileHandle;
-	IDATA          _Error;
+protected:
+    /* Declared data */
+    J9PortLibrary* _PortLibrary;
+    IDATA _FileHandle;
+    IDATA _Error;
 };
 
 #endif

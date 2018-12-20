@@ -35,19 +35,22 @@ extern "C" {
 #endif
 
 void clearIdentifiedClasspath(J9PortLibrary* portlib, struct J9ClasspathByIDArray* theArray, void* cp);
-void registerFailedMatch(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA callerHelperID, IDATA arrayIndex, UDATA indexInCacheHelper, const char* partition, UDATA partitionLen);
-UDATA setIdentifiedClasspath(J9VMThread* currentThread, struct J9ClasspathByIDArray** theArrayPtr, IDATA helperID, UDATA itemsAdded, const char* partition, UDATA partitionLen, void* cp);
+void registerFailedMatch(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA callerHelperID,
+    IDATA arrayIndex, UDATA indexInCacheHelper, const char* partition, UDATA partitionLen);
+UDATA setIdentifiedClasspath(J9VMThread* currentThread, struct J9ClasspathByIDArray** theArrayPtr, IDATA helperID,
+    UDATA itemsAdded, const char* partition, UDATA partitionLen, void* cp);
 IDATA getIDForIdentified(J9PortLibrary* portlib, struct J9ClasspathByIDArray* theArray, void* cp, IDATA walkFrom);
-UDATA hasMatchFailedBefore(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA callerHelperID, IDATA arrayIndex, UDATA indexInCacheHelper, const char* partition, UDATA partitionLen);
+UDATA hasMatchFailedBefore(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA callerHelperID,
+    IDATA arrayIndex, UDATA indexInCacheHelper, const char* partition, UDATA partitionLen);
 void resetIdentifiedClasspath(struct J9ClasspathByID* toReset, UDATA arrayLength);
 void freeIdentifiedClasspathArray(J9PortLibrary* portlib, struct J9ClasspathByIDArray* toFree);
-void* getIdentifiedClasspath(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA helperID, UDATA itemsAdded, const char* partition, UDATA partitionLen, void** cpToFree);
-struct J9ClasspathByIDArray* initializeIdentifiedClasspathArray(J9PortLibrary* portlib, UDATA elements, const char* partition, UDATA partitionLen, IDATA partitionHash);
-
+void* getIdentifiedClasspath(J9VMThread* currentThread, struct J9ClasspathByIDArray* theArray, IDATA helperID,
+    UDATA itemsAdded, const char* partition, UDATA partitionLen, void** cpToFree);
+struct J9ClasspathByIDArray* initializeIdentifiedClasspathArray(
+    J9PortLibrary* portlib, UDATA elements, const char* partition, UDATA partitionLen, IDATA partitionHash);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif     /* classpathcache_h */
-
+#endif /* classpathcache_h */

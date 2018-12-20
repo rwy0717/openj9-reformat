@@ -23,37 +23,36 @@
 
 #if !defined(EVENT_TAROK_INCREMENT_END_HPP_)
 #define EVENT_TAROK_INCREMENT_END_HPP_
-  
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
 
 #include "VerboseEventGCEnd.hpp"
 
-
 /**
  * Stores the data relating to the end of a Tarok incremental collection
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventTarokIncrementEnd : public MM_VerboseEventGCEnd
-{
+class MM_VerboseEventTarokIncrementEnd : public MM_VerboseEventGCEnd {
 private:
-	U_64 _exclusiveAccessTime; /**< time taken to get exclusive access, passed as easy to get and saves iteration of event chain */
-	U_64 _lastIncrementStartTime;	/** The beginning of the increment for which this event is the end */
+    U_64 _exclusiveAccessTime; /**< time taken to get exclusive access, passed as easy to get and saves iteration of
+                                  event chain */
+    U_64 _lastIncrementStartTime; /** The beginning of the increment for which this event is the end */
 
 public:
-	virtual bool definesOutputRoutine();
-	virtual bool endsEventChain();
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-		
-	static MM_VerboseEvent *newInstance(MM_TarokIncrementEndEvent *event, J9HookInterface** hookInterface);
-	
-	MM_VerboseEventTarokIncrementEnd(MM_TarokIncrementEndEvent *event, J9HookInterface** hookInterface)
-		: MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface)
-		, _exclusiveAccessTime(event->exclusiveAccessTime)
-		, _lastIncrementStartTime(0)
-	{}
+    virtual bool definesOutputRoutine();
+    virtual bool endsEventChain();
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    static MM_VerboseEvent* newInstance(MM_TarokIncrementEndEvent* event, J9HookInterface** hookInterface);
+
+    MM_VerboseEventTarokIncrementEnd(MM_TarokIncrementEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface)
+        , _exclusiveAccessTime(event->exclusiveAccessTime)
+        , _lastIncrementStartTime(0)
+    {}
 };
 
 #endif /* EVENT_TAROK_INCREMENT_END_HPP_ */

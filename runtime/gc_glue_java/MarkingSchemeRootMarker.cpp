@@ -33,58 +33,46 @@
 #include "StackSlotValidator.hpp"
 #include "VMThreadIterator.hpp"
 
-void
-MM_MarkingSchemeRootMarker::doSlot(omrobjectptr_t *slotPtr)
+void MM_MarkingSchemeRootMarker::doSlot(omrobjectptr_t* slotPtr) { _markingScheme->inlineMarkObject(_env, *slotPtr); }
+
+void MM_MarkingSchemeRootMarker::doStackSlot(omrobjectptr_t* slotPtr, void* walkState, const void* stackLocation)
 {
-	_markingScheme->inlineMarkObject(_env, *slotPtr);
+    omrobjectptr_t object = *slotPtr;
+    if (_markingScheme->isHeapObject(object) && !_extensions->heap->objectIsInGap(object)) {
+        /* heap object - validate and mark */
+        Assert_MM_validStackSlot(MM_StackSlotValidator(0, object, stackLocation, walkState).validate(_env));
+        _markingScheme->inlineMarkObject(_env, object);
+
+    } else if (NULL != object) {
+        /* stack object - just validate */
+        Assert_MM_validStackSlot(
+            MM_StackSlotValidator(MM_StackSlotValidator::NOT_ON_HEAP, object, stackLocation, walkState).validate(_env));
+    }
 }
 
-void
-MM_MarkingSchemeRootMarker::doStackSlot(omrobjectptr_t *slotPtr, void *walkState, const void* stackLocation)
+void MM_MarkingSchemeRootMarker::doVMThreadSlot(omrobjectptr_t* slotPtr, GC_VMThreadIterator* vmThreadIterator)
 {
-	omrobjectptr_t object = *slotPtr;
-	if (_markingScheme->isHeapObject(object) && !_extensions->heap->objectIsInGap(object)) {
-		/* heap object - validate and mark */
-		Assert_MM_validStackSlot(MM_StackSlotValidator(0, object, stackLocation, walkState).validate(_env));
-		_markingScheme->inlineMarkObject(_env, object);
-
-	} else if (NULL != object) {
-		/* stack object - just validate */
-		Assert_MM_validStackSlot(MM_StackSlotValidator(MM_StackSlotValidator::NOT_ON_HEAP, object, stackLocation, walkState).validate(_env));
-	}
+    omrobjectptr_t object = *slotPtr;
+    if (_markingScheme->isHeapObject(object) && !_extensions->heap->objectIsInGap(object)) {
+        _markingScheme->inlineMarkObject(_env, object);
+    } else if (NULL != object) {
+        Assert_MM_true(vmthreaditerator_state_monitor_records == vmThreadIterator->getState());
+    }
 }
 
-void
-MM_MarkingSchemeRootMarker::doVMThreadSlot(omrobjectptr_t *slotPtr, GC_VMThreadIterator *vmThreadIterator)
+void MM_MarkingSchemeRootMarker::doClass(J9Class* clazz) { _markingDelegate->scanClass(_env, clazz); }
+
+void MM_MarkingSchemeRootMarker::doClassLoader(J9ClassLoader* classLoader)
 {
-	omrobjectptr_t object = *slotPtr;
-	if (_markingScheme->isHeapObject(object) && !_extensions->heap->objectIsInGap(object)) {
-		_markingScheme->inlineMarkObject(_env, object);
-	} else if (NULL != object) {
-		Assert_MM_true(vmthreaditerator_state_monitor_records == vmThreadIterator->getState());
-	}
+    /* Scan any classloader that hasn't previously marked as dead.  Don't mark them as scanned, since
+     * we won't be running MM_ParallelGlobalGC::unloadDeadClassLoaders() which clears the bit
+     */
+    if (J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
+        _markingScheme->inlineMarkObject(_env, classLoader->classLoaderObject);
+    }
 }
 
-void
-MM_MarkingSchemeRootMarker::doClass(J9Class *clazz)
+void MM_MarkingSchemeRootMarker::doFinalizableObject(omrobjectptr_t object)
 {
-	_markingDelegate->scanClass(_env, clazz);
+    _markingScheme->inlineMarkObject(_env, object);
 }
-
-void
-MM_MarkingSchemeRootMarker::doClassLoader(J9ClassLoader *classLoader)
-{
-	/* Scan any classloader that hasn't previously marked as dead.  Don't mark them as scanned, since
-	 * we won't be running MM_ParallelGlobalGC::unloadDeadClassLoaders() which clears the bit
-	 */
-	if(J9_GC_CLASS_LOADER_DEAD != (classLoader->gcFlags & J9_GC_CLASS_LOADER_DEAD)) {
-		_markingScheme->inlineMarkObject(_env, classLoader->classLoaderObject);
-	}
-}
-
-void
-MM_MarkingSchemeRootMarker::doFinalizableObject(omrobjectptr_t object)
-{
-	_markingScheme->inlineMarkObject(_env, object);
-}
-

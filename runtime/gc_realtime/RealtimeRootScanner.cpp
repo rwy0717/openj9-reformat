@@ -48,39 +48,33 @@
 #include "SublistSlotIterator.hpp"
 #include "Task.hpp"
 
-void
-MM_RealtimeRootScanner::doClass(J9Class *clazz)
+void MM_RealtimeRootScanner::doClass(J9Class* clazz)
 {
-	GC_ClassIterator objectSlotIterator(_env, clazz);
-	volatile j9object_t *objectSlotPtr = NULL;
-	while((objectSlotPtr = objectSlotIterator.nextSlot()) != NULL) {
-		/* discard volatile since we must be in stop-the-world mode */
-		doSlot((j9object_t*)objectSlotPtr);
-	}
-	GC_ClassIteratorClassSlots classSlotIterator(clazz);
-	J9Class **classSlotPtr;
-	while((classSlotPtr = classSlotIterator.nextSlot()) != NULL) {
-		doClassSlot(classSlotPtr);
-	}
+    GC_ClassIterator objectSlotIterator(_env, clazz);
+    volatile j9object_t* objectSlotPtr = NULL;
+    while ((objectSlotPtr = objectSlotIterator.nextSlot()) != NULL) {
+        /* discard volatile since we must be in stop-the-world mode */
+        doSlot((j9object_t*)objectSlotPtr);
+    }
+    GC_ClassIteratorClassSlots classSlotIterator(clazz);
+    J9Class** classSlotPtr;
+    while ((classSlotPtr = classSlotIterator.nextSlot()) != NULL) {
+        doClassSlot(classSlotPtr);
+    }
 }
 
 /* Handle a classSlot. This handler is called for every reference to a J9Class.
- * 
+ *
  */
-void
-MM_RealtimeRootScanner::doClassSlot(J9Class **clazzPtr)
-{
-	_markingScheme->markClass(_env, *clazzPtr);
-}
+void MM_RealtimeRootScanner::doClassSlot(J9Class** clazzPtr) { _markingScheme->markClass(_env, *clazzPtr); }
 
-MM_RootScanner::CompletePhaseCode
-MM_RealtimeRootScanner::scanClassesComplete(MM_EnvironmentBase *env)
+MM_RootScanner::CompletePhaseCode MM_RealtimeRootScanner::scanClassesComplete(MM_EnvironmentBase* env)
 {
-	/* TODO: consider reactivating this call */
-	// reportScanningStarted(RootScannerEntity_ClassesComplete);
-	// _realtimeGC->doTracing(_env);
-	// reportScanningEnded(RootScannerEntity_ClassesComplete);
-	return complete_phase_OK;
+    /* TODO: consider reactivating this call */
+    // reportScanningStarted(RootScannerEntity_ClassesComplete);
+    // _realtimeGC->doTracing(_env);
+    // reportScanningEnded(RootScannerEntity_ClassesComplete);
+    return complete_phase_OK;
 }
 
 /**
@@ -90,29 +84,29 @@ MM_RealtimeRootScanner::scanClassesComplete(MM_EnvironmentBase *env)
  * the beginning) or false (if the thread list iterator should just continue with the next
  * thread).
  */
-void
-MM_RealtimeRootScanner::scanThreads(MM_EnvironmentBase *env)
+void MM_RealtimeRootScanner::scanThreads(MM_EnvironmentBase* env)
 {
-	reportScanningStarted(RootScannerEntity_Threads);
+    reportScanningStarted(RootScannerEntity_Threads);
 
-	GC_VMThreadListIterator vmThreadListIterator(static_cast<J9JavaVM*>(_omrVM->_language_vm));
-	StackIteratorData localData;
+    GC_VMThreadListIterator vmThreadListIterator(static_cast<J9JavaVM*>(_omrVM->_language_vm));
+    StackIteratorData localData;
 
-	localData.rootScanner = this;
-	localData.env = env;
+    localData.rootScanner = this;
+    localData.env = env;
 
-	while(J9VMThread *walkThread = vmThreadListIterator.nextVMThread()) {
- 		MM_EnvironmentRealtime* walkThreadEnv = MM_EnvironmentRealtime::getEnvironment(walkThread);
-		if (GC_UNMARK == walkThreadEnv->_allocationColor) {
-			if (GC_UNMARK == MM_AtomicOperations::lockCompareExchangeU32(&walkThreadEnv->_allocationColor, GC_UNMARK, GC_MARK)) {
-				if (scanOneThread(env, walkThread, (void*) &localData)) {
-					vmThreadListIterator.reset(static_cast<J9JavaVM*>(_omrVM->_language_vm)->mainThread);
-				}
-			}
-		}
- 	}
+    while (J9VMThread* walkThread = vmThreadListIterator.nextVMThread()) {
+        MM_EnvironmentRealtime* walkThreadEnv = MM_EnvironmentRealtime::getEnvironment(walkThread);
+        if (GC_UNMARK == walkThreadEnv->_allocationColor) {
+            if (GC_UNMARK
+                == MM_AtomicOperations::lockCompareExchangeU32(&walkThreadEnv->_allocationColor, GC_UNMARK, GC_MARK)) {
+                if (scanOneThread(env, walkThread, (void*)&localData)) {
+                    vmThreadListIterator.reset(static_cast<J9JavaVM*>(_omrVM->_language_vm)->mainThread);
+                }
+            }
+        }
+    }
 
-	reportScanningEnded(RootScannerEntity_Threads);
+    reportScanningEnded(RootScannerEntity_Threads);
 }
 
 /**
@@ -120,136 +114,121 @@ MM_RealtimeRootScanner::scanThreads(MM_EnvironmentBase *env)
  * and after the scanning of each thread.  Scanning is skipped if the thread has already
  * been scanned in this cycle.
  **/
-bool
-MM_RealtimeRootScanner::scanOneThread(MM_EnvironmentBase *envBase, J9VMThread* walkThread, void* localData)
+bool MM_RealtimeRootScanner::scanOneThread(MM_EnvironmentBase* envBase, J9VMThread* walkThread, void* localData)
 {
-	MM_EnvironmentRealtime *env = MM_EnvironmentRealtime::getEnvironment(envBase);
-	
-	scanOneThreadImpl(env, walkThread, localData);
+    MM_EnvironmentRealtime* env = MM_EnvironmentRealtime::getEnvironment(envBase);
 
-	/* Thead count is used under verbose only.
-	 * Avoid the atomic add in the regular path.
-	 */
-	if (_realtimeGC->_sched->verbose() >= 3) {
-		MM_AtomicOperations::add(&_threadCount, 1);
-	}
-	
-	if (condYield()) {
-		/* Optionally issue verbose message */
-		if (_realtimeGC->_sched->verbose() >= 3) {
-			PORT_ACCESS_FROM_ENVIRONMENT(env);
-			j9tty_printf(PORTLIB, "Yielded during %s after scanning %d threads\n", scannerName(), _threadCount);
-		}
-		
-		return true;
-	}
+    scanOneThreadImpl(env, walkThread, localData);
 
-	return false;
+    /* Thead count is used under verbose only.
+     * Avoid the atomic add in the regular path.
+     */
+    if (_realtimeGC->_sched->verbose() >= 3) {
+        MM_AtomicOperations::add(&_threadCount, 1);
+    }
+
+    if (condYield()) {
+        /* Optionally issue verbose message */
+        if (_realtimeGC->_sched->verbose() >= 3) {
+            PORT_ACCESS_FROM_ENVIRONMENT(env);
+            j9tty_printf(PORTLIB, "Yielded during %s after scanning %d threads\n", scannerName(), _threadCount);
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
-void
-MM_RealtimeRootScanner::scanOneThreadImpl(MM_EnvironmentRealtime *env, J9VMThread* walkThread, void* localData)
+void MM_RealtimeRootScanner::scanOneThreadImpl(MM_EnvironmentRealtime* env, J9VMThread* walkThread, void* localData) {}
+
+void MM_RealtimeRootScanner::reportThreadCount(MM_EnvironmentBase* env)
 {
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    j9tty_printf(PORTLIB, "Scanned %d threads for %s\n", _threadCount, scannerName());
 }
 
-void
-MM_RealtimeRootScanner::reportThreadCount(MM_EnvironmentBase* env)
+void MM_RealtimeRootScanner::scanAtomicRoots(MM_EnvironmentRealtime* env)
 {
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
-	j9tty_printf(PORTLIB, "Scanned %d threads for %s\n", _threadCount, scannerName());
+    if (_classDataAsRoots || _nurseryReferencesOnly || _nurseryReferencesPossibly) {
+        /* The classLoaderObject of a class loader might be in the nursery, but a class loader
+         * can never be in the remembered set, so include class loaders here.
+         */
+        scanClassLoaders(env);
+    }
+
+    scanJNIGlobalReferences(env);
+
+    if (_stringTableAsRoot && (!_nurseryReferencesOnly && !_nurseryReferencesPossibly)) {
+        scanStringTable(env);
+    }
 }
 
-void
-MM_RealtimeRootScanner::scanAtomicRoots(MM_EnvironmentRealtime *env)
+void MM_RealtimeRootScanner::doStringTableSlot(J9Object** slotPtr, GC_StringTableIterator* stringTableIterator)
 {
-	if (_classDataAsRoots || _nurseryReferencesOnly || _nurseryReferencesPossibly) {
-		/* The classLoaderObject of a class loader might be in the nursery, but a class loader
-		 * can never be in the remembered set, so include class loaders here.
-		 */
-		scanClassLoaders(env);
-	}
-
-	scanJNIGlobalReferences(env);
-
-	if(_stringTableAsRoot && (!_nurseryReferencesOnly && !_nurseryReferencesPossibly)){
-		scanStringTable(env);
-	}
-}
-
-void
-MM_RealtimeRootScanner::doStringTableSlot(J9Object **slotPtr, GC_StringTableIterator *stringTableIterator)
-{
-	_env->getGCEnvironment()->_markJavaStats._stringConstantsCandidates += 1;
-	if(!_markingScheme->isMarked(*slotPtr)) {
-		_env->getGCEnvironment()->_markJavaStats._stringConstantsCleared += 1;
-		stringTableIterator->removeSlot();
-	}
+    _env->getGCEnvironment()->_markJavaStats._stringConstantsCandidates += 1;
+    if (!_markingScheme->isMarked(*slotPtr)) {
+        _env->getGCEnvironment()->_markJavaStats._stringConstantsCleared += 1;
+        stringTableIterator->removeSlot();
+    }
 }
 
 /**
  * @Clear the string table cache slot if the object is not marked
  */
-void 
-MM_RealtimeRootScanner::doStringCacheTableSlot(J9Object **slotPtr) 
+void MM_RealtimeRootScanner::doStringCacheTableSlot(J9Object** slotPtr)
 {
-	J9Object *objectPtr = *slotPtr;
-	if((NULL != objectPtr) && (!_markingScheme->isMarked(*slotPtr))) {
-		*slotPtr = NULL;
-	}	
+    J9Object* objectPtr = *slotPtr;
+    if ((NULL != objectPtr) && (!_markingScheme->isMarked(*slotPtr))) {
+        *slotPtr = NULL;
+    }
 }
 
 /**
  * Calls the Scheduler's yielding API to determine if the GC should yield.
  * @return true if the GC should yield, false otherwise
- */ 
-bool
-MM_RealtimeRootScanner::shouldYield()
-{
-	return _realtimeGC->_sched->shouldGCYield(_env, 0);
-}
+ */
+bool MM_RealtimeRootScanner::shouldYield() { return _realtimeGC->_sched->shouldGCYield(_env, 0); }
 
 /**
  * Calls the Scheduler's yielding API only if timeSlackNanoSec is non-zero or
  * if the yield count has reached 0.
  * @return true if the GC should yield, false otherwise
  */
-bool
-MM_RealtimeRootScanner::shouldYieldFromClassScan(UDATA timeSlackNanoSec)
+bool MM_RealtimeRootScanner::shouldYieldFromClassScan(UDATA timeSlackNanoSec)
 {
-	_yieldCount--;
-	if (_yieldCount < 0 || timeSlackNanoSec != 0) {
-		if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
-			return true;
-		}
-		_yieldCount = ROOT_GRANULARITY;
-	}
-	return false;
+    _yieldCount--;
+    if (_yieldCount < 0 || timeSlackNanoSec != 0) {
+        if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
+            return true;
+        }
+        _yieldCount = ROOT_GRANULARITY;
+    }
+    return false;
 }
 
-bool
-MM_RealtimeRootScanner::shouldYieldFromStringScan()
+bool MM_RealtimeRootScanner::shouldYieldFromStringScan()
 {
-	_yieldCount--;
-	if (_yieldCount < 0) {
-		if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
-			return true;
-		}
-		_yieldCount = ROOT_GRANULARITY;
-	}
-	return false;
+    _yieldCount--;
+    if (_yieldCount < 0) {
+        if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
+            return true;
+        }
+        _yieldCount = ROOT_GRANULARITY;
+    }
+    return false;
 }
 
-bool
-MM_RealtimeRootScanner::shouldYieldFromMonitorScan()
+bool MM_RealtimeRootScanner::shouldYieldFromMonitorScan()
 {
-	_yieldCount--;
-	if (_yieldCount < 0) {
-		if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
-			return true;
-		}
-		_yieldCount = ROOT_GRANULARITY;
-	}
-	return false;
+    _yieldCount--;
+    if (_yieldCount < 0) {
+        if (_realtimeGC->_sched->shouldGCYield(_env, 0)) {
+            return true;
+        }
+        _yieldCount = ROOT_GRANULARITY;
+    }
+    return false;
 }
 
 /**
@@ -258,23 +237,21 @@ MM_RealtimeRootScanner::shouldYieldFromMonitorScan()
  * the Scheduler's yield() method to clear up ambiguity but it's been left
  * untouched for reasons motivated purely by touching the least amount of code.
  */
-void
-MM_RealtimeRootScanner::yield()
+void MM_RealtimeRootScanner::yield()
 {
-	_realtimeGC->_sched->condYieldFromGC(_env);
-	_yieldCount = ROOT_GRANULARITY;
+    _realtimeGC->_sched->condYieldFromGC(_env);
+    _yieldCount = ROOT_GRANULARITY;
 }
 
 /**
  * Yield only if the Scheduler deems yielding should occur at the time of the
  * call to this method.
- */ 
-bool
-MM_RealtimeRootScanner::condYield(U_64 timeSlackNanoSec)
+ */
+bool MM_RealtimeRootScanner::condYield(U_64 timeSlackNanoSec)
 {
-	bool yielded = _realtimeGC->_sched->condYieldFromGC(_env, timeSlackNanoSec);
-	_yieldCount = ROOT_GRANULARITY;
-	return yielded;
+    bool yielded = _realtimeGC->_sched->condYieldFromGC(_env, timeSlackNanoSec);
+    _yieldCount = ROOT_GRANULARITY;
+    return yielded;
 }
 
 /**
@@ -283,42 +260,41 @@ MM_RealtimeRootScanner::condYield(U_64 timeSlackNanoSec)
  * which will be scanned by scanMonitorReferences. It should be scanned first, however, since
  * scanMonitorReferences may destroy monitors that appear in caches.
  */
-void
-MM_RealtimeRootScanner::scanMonitorLookupCaches(MM_EnvironmentBase *env)
+void MM_RealtimeRootScanner::scanMonitorLookupCaches(MM_EnvironmentBase* env)
 {
-	reportScanningStarted(RootScannerEntity_MonitorLookupCaches);
-	GC_VMThreadListIterator vmThreadListIterator(static_cast<J9JavaVM*>(_omrVM->_language_vm));
-	while(J9VMThread *walkThread = vmThreadListIterator.nextVMThread()) {
-		MM_EnvironmentRealtime* walkThreadEnv = MM_EnvironmentRealtime::getEnvironment(walkThread);
-		if (FALSE == walkThreadEnv->_monitorCacheCleared) {
-			if (FALSE == MM_AtomicOperations::lockCompareExchangeU32(&walkThreadEnv->_monitorCacheCleared, FALSE, TRUE)) {
+    reportScanningStarted(RootScannerEntity_MonitorLookupCaches);
+    GC_VMThreadListIterator vmThreadListIterator(static_cast<J9JavaVM*>(_omrVM->_language_vm));
+    while (J9VMThread* walkThread = vmThreadListIterator.nextVMThread()) {
+        MM_EnvironmentRealtime* walkThreadEnv = MM_EnvironmentRealtime::getEnvironment(walkThread);
+        if (FALSE == walkThreadEnv->_monitorCacheCleared) {
+            if (FALSE
+                == MM_AtomicOperations::lockCompareExchangeU32(&walkThreadEnv->_monitorCacheCleared, FALSE, TRUE)) {
 #if defined(J9VM_THR_LOCK_NURSERY)
-				j9objectmonitor_t *objectMonitorLookupCache = walkThread->objectMonitorLookupCache;
-				UDATA cacheIndex = 0;
-				for (; cacheIndex < J9VMTHREAD_OBJECT_MONITOR_CACHE_SIZE; cacheIndex++) {
-					doMonitorLookupCacheSlot(&objectMonitorLookupCache[cacheIndex]);
-				}
+                j9objectmonitor_t* objectMonitorLookupCache = walkThread->objectMonitorLookupCache;
+                UDATA cacheIndex = 0;
+                for (; cacheIndex < J9VMTHREAD_OBJECT_MONITOR_CACHE_SIZE; cacheIndex++) {
+                    doMonitorLookupCacheSlot(&objectMonitorLookupCache[cacheIndex]);
+                }
 #else
-				doMonitorLookupCacheSlot(&vmThread->cachedMonitor);
+                doMonitorLookupCacheSlot(&vmThread->cachedMonitor);
 #endif /* J9VM_THR_LOCK_NURSERY */
-				if (condYield()) {
-					vmThreadListIterator.reset(static_cast<J9JavaVM*>(_omrVM->_language_vm)->mainThread);
-				}
-			}
-		}
-	}
-	reportScanningEnded(RootScannerEntity_MonitorLookupCaches);
+                if (condYield()) {
+                    vmThreadListIterator.reset(static_cast<J9JavaVM*>(_omrVM->_language_vm)->mainThread);
+                }
+            }
+        }
+    }
+    reportScanningEnded(RootScannerEntity_MonitorLookupCaches);
 }
 
-void
-MM_RealtimeRootScanner::scanStringTable(MM_EnvironmentBase *env)
+void MM_RealtimeRootScanner::scanStringTable(MM_EnvironmentBase* env)
 {
-	if (env->_currentTask->synchronizeGCThreadsAndReleaseMaster(env, UNIQUE_ID)) {
-		/* We can't rely on using _unmarkedImpliesCleared because clearable phase can mark more objects.
-		 * Only at this point can we assume unmarked strings are truly dead.
-		 */
-		_realtimeGC->_unmarkedImpliesStringsCleared = true;
-		env->_currentTask->releaseSynchronizedGCThreads(env);
-	}
-	MM_RootScanner::scanStringTable(env);
+    if (env->_currentTask->synchronizeGCThreadsAndReleaseMaster(env, UNIQUE_ID)) {
+        /* We can't rely on using _unmarkedImpliesCleared because clearable phase can mark more objects.
+         * Only at this point can we assume unmarked strings are truly dead.
+         */
+        _realtimeGC->_unmarkedImpliesStringsCleared = true;
+        env->_currentTask->releaseSynchronizedGCThreads(env);
+    }
+    MM_RootScanner::scanStringTable(env);
 }

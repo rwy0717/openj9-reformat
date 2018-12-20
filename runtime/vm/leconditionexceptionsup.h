@@ -28,20 +28,22 @@
 #define leconditionexceptionsup_h
 
 typedef struct ConditionExceptionConstructorArgs {
-		char *failingRoutine;	/* this memory needs to be freed using free() when done with it, as it is allocated in e2a_func() */
-		U_64 offset;
-		U_16 *rawTokenBytes;
-		U_32 lenBytesRawTokenBytes;
-		char *facilityID;
-		U_32 c1;
-		U_32 c2;				/* doubles as the message number */
-		U_32 caze;
-		U_32 severity;
-		U_32 control;
-		U_64 iSInfo;
+    char* failingRoutine; /* this memory needs to be freed using free() when done with it, as it is allocated in
+                             e2a_func() */
+    U_64 offset;
+    U_16* rawTokenBytes;
+    U_32 lenBytesRawTokenBytes;
+    char* facilityID;
+    U_32 c1;
+    U_32 c2; /* doubles as the message number */
+    U_32 caze;
+    U_32 severity;
+    U_32 control;
+    U_64 iSInfo;
 } ConditionExceptionConstructorArgs;
 
-long getReturnAddressOfJNINative(void *builderDSA);
-void getConditionExceptionConstructorArgs(struct J9PortLibrary* portLibrary, void *gpInfo, struct ConditionExceptionConstructorArgs *ceArgs);
+long getReturnAddressOfJNINative(void* builderDSA);
+void getConditionExceptionConstructorArgs(
+    struct J9PortLibrary* portLibrary, void* gpInfo, struct ConditionExceptionConstructorArgs* ceArgs);
 
 #endif /* leconditionexceptionsup_h */

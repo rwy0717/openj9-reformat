@@ -40,38 +40,36 @@ struct J9HookInterface;
  * @todo Provide class documentation
  * @ingroup GC_Base
  */
-class GC_VMInterface
-{
+class GC_VMInterface {
 private:
 protected:
 public:
-	static J9HookInterface** getHookInterface(MM_GCExtensions *extensions);
+    static J9HookInterface** getHookInterface(MM_GCExtensions* extensions);
 
-	/**
-	 * @ingroup GC_Base
-	 * @name Locking VM Structures
-	 * When using these methods to lock VM structures, pay attention to possible
-	 * issues with VM access. 
-	 * @{
-	 */
-	static void lockClassTable(MM_GCExtensions *extensions);
-	static void unlockClassTable(MM_GCExtensions *extensions);
-	static void lockClassMemorySegmentList(MM_GCExtensions *extensions);
-	static void unlockClassMemorySegmentList(MM_GCExtensions *extensions);
-	static void lockClasses(MM_GCExtensions *extensions);
-	static void unlockClasses(MM_GCExtensions *extensions);
-	static void lockJNIGlobalReferences(MM_GCExtensions *extensions);
-	static void unlockJNIGlobalReferences(MM_GCExtensions *extensions);
-	static void lockVMThreadList(MM_GCExtensions *extensions);
-	static void unlockVMThreadList(MM_GCExtensions *extensions);
-	static void lockFinalizeList(MM_GCExtensions *extensions);
-	static void unlockFinalizeList(MM_GCExtensions *extensions);
-	static void lockClassLoaders(MM_GCExtensions *extensions);
-	static void unlockClassLoaders(MM_GCExtensions *extensions);
-	/**
-	 * @}
-	 */
+    /**
+     * @ingroup GC_Base
+     * @name Locking VM Structures
+     * When using these methods to lock VM structures, pay attention to possible
+     * issues with VM access.
+     * @{
+     */
+    static void lockClassTable(MM_GCExtensions* extensions);
+    static void unlockClassTable(MM_GCExtensions* extensions);
+    static void lockClassMemorySegmentList(MM_GCExtensions* extensions);
+    static void unlockClassMemorySegmentList(MM_GCExtensions* extensions);
+    static void lockClasses(MM_GCExtensions* extensions);
+    static void unlockClasses(MM_GCExtensions* extensions);
+    static void lockJNIGlobalReferences(MM_GCExtensions* extensions);
+    static void unlockJNIGlobalReferences(MM_GCExtensions* extensions);
+    static void lockVMThreadList(MM_GCExtensions* extensions);
+    static void unlockVMThreadList(MM_GCExtensions* extensions);
+    static void lockFinalizeList(MM_GCExtensions* extensions);
+    static void unlockFinalizeList(MM_GCExtensions* extensions);
+    static void lockClassLoaders(MM_GCExtensions* extensions);
+    static void unlockClassLoaders(MM_GCExtensions* extensions);
+    /**
+     * @}
+     */
 };
 
 #endif /* VMINTERFACE_HPP_ */
-

@@ -25,14 +25,15 @@
 
 #include "j9.h"
 
-inline void acquireVMAccessNoSuspend(J9VMThread *vmThread)
-   {
-   vmThread->javaVM->internalVMFunctions->internalAcquireVMAccessWithMask(vmThread, J9_PUBLIC_FLAGS_HALT_THREAD_ANY_NO_JAVA_SUSPEND);
-   }
+inline void acquireVMAccessNoSuspend(J9VMThread* vmThread)
+{
+    vmThread->javaVM->internalVMFunctions->internalAcquireVMAccessWithMask(
+        vmThread, J9_PUBLIC_FLAGS_HALT_THREAD_ANY_NO_JAVA_SUSPEND);
+}
 
-inline void releaseVMAccessNoSuspend(J9VMThread *vmThread)
-   {
-   vmThread->javaVM->internalVMFunctions->internalReleaseVMAccess(vmThread);
-   }
+inline void releaseVMAccessNoSuspend(J9VMThread* vmThread)
+{
+    vmThread->javaVM->internalVMFunctions->internalReleaseVMAccess(vmThread);
+}
 
 #endif // J9VMACCESS_HPP

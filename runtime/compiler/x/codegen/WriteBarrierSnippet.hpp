@@ -28,108 +28,86 @@
 
 namespace TR {
 
-class X86WriteBarrierSnippet : public TR::X86HelperCallSnippet
-   {
-   public:
+class X86WriteBarrierSnippet : public TR::X86HelperCallSnippet {
+public:
+    X86WriteBarrierSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab,
+        TR::LabelSymbol* snippetlab, TR::SymbolReference* helper, int32_t helperArgCount,
+        TR::RegisterDependencyConditions* deps)
+        : TR::X86HelperCallSnippet(cg, node, restartlab, snippetlab, helper)
+        , _deps(deps)
+        , _helperArgCount(helperArgCount)
+    {}
 
-   X86WriteBarrierSnippet(
-      TR::CodeGenerator   *cg,
-      TR::Node            *node,
-      TR::LabelSymbol      *restartlab,
-      TR::LabelSymbol      *snippetlab,
-      TR::SymbolReference *helper,
-      int32_t             helperArgCount,
-      TR::RegisterDependencyConditions *deps)
-      : TR::X86HelperCallSnippet(cg, node, restartlab, snippetlab, helper),
-            _deps(deps), _helperArgCount(helperArgCount) {}
+    TR::RealRegister* getDestOwningObjectRegister()
+    {
+        return cg()->machine()->getRealRegister(
+            _deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
+    }
 
-   TR::RealRegister *getDestOwningObjectRegister()
-      {
-      return cg()->machine()->getRealRegister(_deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
-      }
+    TR::RealRegister* getSourceRegister()
+    {
+        return cg()->machine()->getRealRegister(
+            _deps->getPostConditions()->getRegisterDependency(1)->getRealRegister());
+    }
 
-   TR::RealRegister *getSourceRegister()
-      {
-      return cg()->machine()->getRealRegister(_deps->getPostConditions()->getRegisterDependency(1)->getRealRegister());
-      }
+    TR::RealRegister* getDestAddressRegister()
+    {
+        return cg()->machine()->getRealRegister(
+            _deps->getPostConditions()->getRegisterDependency(2)->getRealRegister());
+    }
 
-   TR::RealRegister *getDestAddressRegister()
-      {
-      return cg()->machine()->getRealRegister(_deps->getPostConditions()->getRegisterDependency(2)->getRealRegister());
-      }
+    int32_t getHelperArgCount() { return _helperArgCount; }
 
-   int32_t getHelperArgCount() {return _helperArgCount;}
+    TR::RegisterDependencyConditions* getDependencies() { return _deps; }
 
-   TR::RegisterDependencyConditions *getDependencies() {return _deps;}
+    uint8_t* emitSnippetBody();
+    virtual uint8_t* buildArgs(uint8_t* buffer, bool restoreRegs) = 0;
+    virtual uint32_t getLength(int32_t estimatedSnippetStart) = 0;
 
-   uint8_t *emitSnippetBody();
-   virtual uint8_t *buildArgs(uint8_t *buffer, bool restoreRegs) = 0;
-   virtual uint32_t getLength(int32_t estimatedSnippetStart) = 0;
+    TR::RegisterDependencyConditions* _deps;
+    int32_t _helperArgCount;
+};
 
-   TR::RegisterDependencyConditions  *_deps;
-   int32_t                              _helperArgCount;
+class IA32WriteBarrierSnippet : public TR::X86WriteBarrierSnippet {
+    TR_WriteBarrierKind _wrtBarrierKind;
 
-   };
+public:
+    IA32WriteBarrierSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab,
+        TR::LabelSymbol* snippetlab, TR::SymbolReference* helper, int32_t helperArgCount,
+        TR_WriteBarrierKind wrtBarrierKind, TR::RegisterDependencyConditions* deps)
+        : TR::X86WriteBarrierSnippet(cg, node, restartlab, snippetlab, helper, helperArgCount, deps)
+        , _wrtBarrierKind(wrtBarrierKind)
+    {}
 
-class IA32WriteBarrierSnippet : public TR::X86WriteBarrierSnippet
-   {
-   TR_WriteBarrierKind _wrtBarrierKind;
-   public:
+    virtual Kind getKind() { return IsWriteBarrier; }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual uint8_t* buildArgs(uint8_t* buffer, bool restoreRegs);
 
-   IA32WriteBarrierSnippet(TR::CodeGenerator    *cg,
-                           TR::Node             *node,
-                           TR::LabelSymbol       *restartlab,
-                           TR::LabelSymbol       *snippetlab,
-                           TR::SymbolReference  *helper,
-                           int32_t              helperArgCount,
-                           TR_WriteBarrierKind  wrtBarrierKind,
-                           TR::RegisterDependencyConditions  *deps)
-      : TR::X86WriteBarrierSnippet(cg, node, restartlab, snippetlab, helper, helperArgCount, deps), _wrtBarrierKind(wrtBarrierKind) {}
+    TR_WriteBarrierKind getWriteBarrierKind() { return _wrtBarrierKind; }
+};
 
-   virtual Kind getKind() { return IsWriteBarrier; }
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual uint8_t *buildArgs(uint8_t *buffer, bool restoreRegs);
+class AMD64WriteBarrierSnippet : public TR::X86WriteBarrierSnippet {
+public:
+    AMD64WriteBarrierSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab,
+        TR::LabelSymbol* snippetlab, TR::SymbolReference* helper, int32_t helperArgCount,
+        TR::RegisterDependencyConditions* deps)
+        : TR::X86WriteBarrierSnippet(cg, node, restartlab, snippetlab, helper, helperArgCount, deps)
+    {}
 
-   TR_WriteBarrierKind getWriteBarrierKind() { return _wrtBarrierKind; }
-   };
+    virtual Kind getKind() { return IsWriteBarrierAMD64; }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual uint8_t* buildArgs(uint8_t* buffer, bool restoreRegs);
 
-
-class AMD64WriteBarrierSnippet : public TR::X86WriteBarrierSnippet
-   {
-   public:
-
-   AMD64WriteBarrierSnippet(TR::CodeGenerator   *cg,
-                            TR::Node            *node,
-                            TR::LabelSymbol      *restartlab,
-                            TR::LabelSymbol      *snippetlab,
-                            TR::SymbolReference *helper,
-                            int32_t             helperArgCount,
-                            TR::RegisterDependencyConditions  *deps)
-      : TR::X86WriteBarrierSnippet(cg, node, restartlab, snippetlab, helper, helperArgCount, deps){}
-
-   virtual Kind getKind() { return IsWriteBarrierAMD64; }
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual uint8_t *buildArgs(uint8_t *buffer, bool restoreRegs);
-
-   protected:
-   friend class TR_Debug;
-
-   };
+protected:
+    friend class TR_Debug;
+};
 
 #define AMD64_MAX_XCHG_BUFFER_SIZE (12) // = 4 * (Rex, opCode, ModRM)
 
+TR::X86WriteBarrierSnippet* generateX86WriteBarrierSnippet(TR::CodeGenerator* cg, TR::Node* node,
+    TR::LabelSymbol* restartLabel, TR::LabelSymbol* snippetLabel, TR::SymbolReference* helperSymRef,
+    int32_t helperArgCount, TR_WriteBarrierKind gcMode, TR::RegisterDependencyConditions* conditions);
 
-TR::X86WriteBarrierSnippet *
-generateX86WriteBarrierSnippet(
-   TR::CodeGenerator   *cg,
-   TR::Node            *node,
-   TR::LabelSymbol      *restartLabel,
-   TR::LabelSymbol      *snippetLabel,
-   TR::SymbolReference *helperSymRef,
-   int32_t             helperArgCount,
-   TR_WriteBarrierKind gcMode,
-   TR::RegisterDependencyConditions *conditions);
-
-}
+} // namespace TR
 
 #endif

@@ -26,43 +26,43 @@
 
 extern "C" {
 
-jvmtiError
-suspendThread(J9VMThread *currentThread, jthread thread, UDATA allowNull, UDATA *currentThreadSuspended)
+jvmtiError suspendThread(J9VMThread* currentThread, jthread thread, UDATA allowNull, UDATA* currentThreadSuspended)
 {
-	J9VMThread * targetThread;
-	jvmtiError rc;
+    J9VMThread* targetThread;
+    jvmtiError rc;
 
-	*currentThreadSuspended = FALSE;
-	rc = getVMThread(currentThread, thread, &targetThread, allowNull, TRUE);
-	if (rc == JVMTI_ERROR_NONE) {
-		if (targetThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND) {
-			rc = JVMTI_ERROR_THREAD_SUSPENDED;
-		} else {
-			if (targetThread->publicFlags & J9_PUBLIC_FLAGS_STOPPED) {
-				/* Do not suspend dead threads. Mirrors SUN behaviour. */
-				rc = JVMTI_ERROR_THREAD_NOT_ALIVE;
-			} else {
-				if (currentThread == targetThread) {
-					*currentThreadSuspended = TRUE;
-				} else {
-					currentThread->javaVM->internalVMFunctions->internalExitVMToJNI(currentThread);
-					omrthread_monitor_enter(targetThread->publicFlagsMutex);
-					VM_VMAccess::setHaltFlagForVMAccessRelease(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
-					if (VM_VMAccess::mustWaitForVMAccessRelease(targetThread)) {
-						while (J9_ARE_ALL_BITS_SET(targetThread->publicFlags, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND | J9_PUBLIC_FLAGS_VM_ACCESS)) {
-							omrthread_monitor_wait(targetThread->publicFlagsMutex);
-						}
-					}
-					omrthread_monitor_exit(targetThread->publicFlagsMutex);
-					currentThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(currentThread);
-				}
-				Trc_JVMTI_threadSuspended(targetThread);
-			}
-		}
-		releaseVMThread(currentThread, targetThread);
-	}
+    *currentThreadSuspended = FALSE;
+    rc = getVMThread(currentThread, thread, &targetThread, allowNull, TRUE);
+    if (rc == JVMTI_ERROR_NONE) {
+        if (targetThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND) {
+            rc = JVMTI_ERROR_THREAD_SUSPENDED;
+        } else {
+            if (targetThread->publicFlags & J9_PUBLIC_FLAGS_STOPPED) {
+                /* Do not suspend dead threads. Mirrors SUN behaviour. */
+                rc = JVMTI_ERROR_THREAD_NOT_ALIVE;
+            } else {
+                if (currentThread == targetThread) {
+                    *currentThreadSuspended = TRUE;
+                } else {
+                    currentThread->javaVM->internalVMFunctions->internalExitVMToJNI(currentThread);
+                    omrthread_monitor_enter(targetThread->publicFlagsMutex);
+                    VM_VMAccess::setHaltFlagForVMAccessRelease(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
+                    if (VM_VMAccess::mustWaitForVMAccessRelease(targetThread)) {
+                        while (J9_ARE_ALL_BITS_SET(targetThread->publicFlags,
+                            J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND | J9_PUBLIC_FLAGS_VM_ACCESS)) {
+                            omrthread_monitor_wait(targetThread->publicFlagsMutex);
+                        }
+                    }
+                    omrthread_monitor_exit(targetThread->publicFlagsMutex);
+                    currentThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(currentThread);
+                }
+                Trc_JVMTI_threadSuspended(targetThread);
+            }
+        }
+        releaseVMThread(currentThread, targetThread);
+    }
 
-	return rc;
+    return rc;
 }
 
 } /* extern "C" */

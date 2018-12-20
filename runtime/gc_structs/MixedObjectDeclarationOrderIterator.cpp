@@ -36,15 +36,15 @@
  * @return the next slot in the object containing an object reference
  * @return NULL if there are no more such slots
  */
-GC_SlotObject *
-GC_MixedObjectDeclarationOrderIterator::nextSlot()
+GC_SlotObject* GC_MixedObjectDeclarationOrderIterator::nextSlot()
 {
-	if (NULL == _fieldShape) {
-		return NULL;
-	}
-	
-	_slotObject.writeAddressToSlot(J9GC_J9OBJECT_FIELD_EA(_objectPtr, _walkState.fieldOffsetWalkState.result.offset));
-	_index = _walkState.referenceIndexOffset + _walkState.classIndexAdjust + _walkState.fieldOffsetWalkState.result.index - 1;
-	_fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
-	return &_slotObject;
+    if (NULL == _fieldShape) {
+        return NULL;
+    }
+
+    _slotObject.writeAddressToSlot(J9GC_J9OBJECT_FIELD_EA(_objectPtr, _walkState.fieldOffsetWalkState.result.offset));
+    _index = _walkState.referenceIndexOffset + _walkState.classIndexAdjust
+        + _walkState.fieldOffsetWalkState.result.index - 1;
+    _fieldShape = _javaVM->internalVMFunctions->fullTraversalFieldOffsetsNextDo(&_walkState);
+    return &_slotObject;
 }

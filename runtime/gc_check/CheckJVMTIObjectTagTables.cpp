@@ -31,64 +31,61 @@
 
 #if defined(J9VM_OPT_JVMTI)
 
-GC_Check *
-GC_CheckJVMTIObjectTagTables::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckJVMTIObjectTagTables::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckJVMTIObjectTagTables *check = (GC_CheckJVMTIObjectTagTables *) forge->allocate(sizeof(GC_CheckJVMTIObjectTagTables), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckJVMTIObjectTagTables(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckJVMTIObjectTagTables* check = (GC_CheckJVMTIObjectTagTables*)forge->allocate(
+        sizeof(GC_CheckJVMTIObjectTagTables), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckJVMTIObjectTagTables(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckJVMTIObjectTagTables::kill()
+void GC_CheckJVMTIObjectTagTables::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckJVMTIObjectTagTables::check()
+void GC_CheckJVMTIObjectTagTables::check()
 {
-	J9JVMTIData * jvmtiData = J9JVMTI_DATA_FROM_VM(_javaVM);
-	J9JVMTIEnv * jvmtiEnv;
-	J9Object **slotPtr;	
-	if (NULL != jvmtiData) {
-		GC_JVMTIObjectTagTableListIterator objectTagTableList(jvmtiData->environments);
-		while(NULL != (jvmtiEnv = (J9JVMTIEnv *)objectTagTableList.nextSlot())) {
-			GC_JVMTIObjectTagTableIterator objectTagTableIterator(jvmtiEnv->objectTagTable);
-			while(NULL != (slotPtr = (J9Object **)objectTagTableIterator.nextSlot())) {
-				if (_engine->checkSlotPool(_javaVM, slotPtr, jvmtiEnv->objectTagTable) != J9MODRON_SLOT_ITERATOR_OK ){
-					return;
-				}
-			}
-		}
-	}
+    J9JVMTIData* jvmtiData = J9JVMTI_DATA_FROM_VM(_javaVM);
+    J9JVMTIEnv* jvmtiEnv;
+    J9Object** slotPtr;
+    if (NULL != jvmtiData) {
+        GC_JVMTIObjectTagTableListIterator objectTagTableList(jvmtiData->environments);
+        while (NULL != (jvmtiEnv = (J9JVMTIEnv*)objectTagTableList.nextSlot())) {
+            GC_JVMTIObjectTagTableIterator objectTagTableIterator(jvmtiEnv->objectTagTable);
+            while (NULL != (slotPtr = (J9Object**)objectTagTableIterator.nextSlot())) {
+                if (_engine->checkSlotPool(_javaVM, slotPtr, jvmtiEnv->objectTagTable) != J9MODRON_SLOT_ITERATOR_OK) {
+                    return;
+                }
+            }
+        }
+    }
 }
 
-void
-GC_CheckJVMTIObjectTagTables::print()
+void GC_CheckJVMTIObjectTagTables::print()
 {
-	J9JVMTIData * jvmtiData = J9JVMTI_DATA_FROM_VM(_javaVM);
-	J9JVMTIEnv * jvmtiEnv;
-	J9Object **slotPtr;	
+    J9JVMTIData* jvmtiData = J9JVMTI_DATA_FROM_VM(_javaVM);
+    J9JVMTIEnv* jvmtiEnv;
+    J9Object** slotPtr;
 
-	if (NULL != jvmtiData) {
-		GC_ScanFormatter formatter(_portLibrary, "jvmtiObjectTagTables", (void *) jvmtiData);
+    if (NULL != jvmtiData) {
+        GC_ScanFormatter formatter(_portLibrary, "jvmtiObjectTagTables", (void*)jvmtiData);
 
-		GC_JVMTIObjectTagTableListIterator objectTagTableList(jvmtiData->environments);
-		while(NULL != (jvmtiEnv = (J9JVMTIEnv *)objectTagTableList.nextSlot())) {
-			GC_JVMTIObjectTagTableIterator objectTagTableIterator(jvmtiEnv->objectTagTable);
-			while(NULL != (slotPtr = (J9Object **)objectTagTableIterator.nextSlot())) {
-				formatter.entry((void *)*slotPtr);
-			}
-		}
+        GC_JVMTIObjectTagTableListIterator objectTagTableList(jvmtiData->environments);
+        while (NULL != (jvmtiEnv = (J9JVMTIEnv*)objectTagTableList.nextSlot())) {
+            GC_JVMTIObjectTagTableIterator objectTagTableIterator(jvmtiEnv->objectTagTable);
+            while (NULL != (slotPtr = (J9Object**)objectTagTableIterator.nextSlot())) {
+                formatter.entry((void*)*slotPtr);
+            }
+        }
 
-		formatter.end("jvmtiObjectTagTables", (void *)jvmtiData);
-	}
+        formatter.end("jvmtiObjectTagTables", (void*)jvmtiData);
+    }
 }
 
 #endif /* J9VM_OPT_JVMTI */

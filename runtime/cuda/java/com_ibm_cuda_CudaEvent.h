@@ -20,48 +20,42 @@ extern "C" {
  * Method:    create
  * Signature: (II)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaEvent_create
-  (JNIEnv *, jclass, jint, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaEvent_create(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaEvent
  * Method:    destroy
  * Signature: (IJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaEvent_destroy
-  (JNIEnv *, jclass, jint, jlong);
+void JNICALL Java_com_ibm_cuda_CudaEvent_destroy(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaEvent
  * Method:    elapsedTimeSince
  * Signature: (JJ)F
  */
-jfloat JNICALL Java_com_ibm_cuda_CudaEvent_elapsedTimeSince
-  (JNIEnv *, jclass, jlong, jlong);
+jfloat JNICALL Java_com_ibm_cuda_CudaEvent_elapsedTimeSince(JNIEnv*, jclass, jlong, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaEvent
  * Method:    query
  * Signature: (J)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaEvent_query
-  (JNIEnv *, jclass, jlong);
+jint JNICALL Java_com_ibm_cuda_CudaEvent_query(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaEvent
  * Method:    record
  * Signature: (IJJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaEvent_record
-  (JNIEnv *, jclass, jint, jlong, jlong);
+void JNICALL Java_com_ibm_cuda_CudaEvent_record(JNIEnv*, jclass, jint, jlong, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaEvent
  * Method:    synchronize
  * Signature: (J)V
  */
-void JNICALL Java_com_ibm_cuda_CudaEvent_synchronize
-  (JNIEnv *, jclass, jlong);
+void JNICALL Java_com_ibm_cuda_CudaEvent_synchronize(JNIEnv*, jclass, jlong);
 
 #ifdef __cplusplus
 }

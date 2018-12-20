@@ -23,78 +23,77 @@
 #include "InterRegionRememberedSet.hpp"
 #include "RememberedSetCardListBufferIterator.hpp"
 
-void
-GC_RememberedSetCardListBufferIterator::unlinkCurrentBuffer(MM_EnvironmentBase* env)
+void GC_RememberedSetCardListBufferIterator::unlinkCurrentBuffer(MM_EnvironmentBase* env)
 {
-	/* remove from the list
-	 * (it's a single linked list, so we keep track of the previous buffer while iterating)
-	 */
-	if (NULL == _cardBufferControlBlockPrevious) {
-		_currentBucket->_cardBufferControlBlockHead = _cardBufferControlBlockCurrent->_next;
-	} else {
-		_cardBufferControlBlockPrevious->_next = _cardBufferControlBlockCurrent->_next;
-	}
+    /* remove from the list
+     * (it's a single linked list, so we keep track of the previous buffer while iterating)
+     */
+    if (NULL == _cardBufferControlBlockPrevious) {
+        _currentBucket->_cardBufferControlBlockHead = _cardBufferControlBlockCurrent->_next;
+    } else {
+        _cardBufferControlBlockPrevious->_next = _cardBufferControlBlockCurrent->_next;
+    }
 
-	if (_currentBucket->isCurrentSlotWithinBuffer(_bufferCardList)) {
-		/* make the _current bucket looks like point to the end of a full buffer */
-		_currentBucket->_current = _bufferCardList + MM_RememberedSetCardBucket::MAX_BUFFER_SIZE;
-	}
+    if (_currentBucket->isCurrentSlotWithinBuffer(_bufferCardList)) {
+        /* make the _current bucket looks like point to the end of a full buffer */
+        _currentBucket->_current = _bufferCardList + MM_RememberedSetCardBucket::MAX_BUFFER_SIZE;
+    }
 
-	_currentBucket->_bufferCount -= 1;
-	_rscl->_bufferCount -= 1;
-	if (0 == _currentBucket->_bufferCount) {
-		/* no more buffers, in the bucket */
-		_currentBucket->_current = NULL;
-		Assert_MM_true(NULL == _currentBucket->_cardBufferControlBlockHead);
-	}
-
+    _currentBucket->_bufferCount -= 1;
+    _rscl->_bufferCount -= 1;
+    if (0 == _currentBucket->_bufferCount) {
+        /* no more buffers, in the bucket */
+        _currentBucket->_current = NULL;
+        Assert_MM_true(NULL == _currentBucket->_cardBufferControlBlockHead);
+    }
 }
 
-bool
-GC_RememberedSetCardListBufferIterator::nextBucket(MM_EnvironmentBase* env)
+bool GC_RememberedSetCardListBufferIterator::nextBucket(MM_EnvironmentBase* env)
 {
-	/* next bucket in the list */
-	do {
-		if (NULL == _currentBucket) {
-			_currentBucket = _rscl->_bucketListHead;
-		} else {
-			_currentBucket = _currentBucket->_next;
-			_cardBufferControlBlockPrevious = NULL;
-		}
-		if (NULL == _currentBucket) {
-			/* this was the last bucket */
-			return false;
-		}
+    /* next bucket in the list */
+    do {
+        if (NULL == _currentBucket) {
+            _currentBucket = _rscl->_bucketListHead;
+        } else {
+            _currentBucket = _currentBucket->_next;
+            _cardBufferControlBlockPrevious = NULL;
+        }
+        if (NULL == _currentBucket) {
+            /* this was the last bucket */
+            return false;
+        }
 
-		_cardBufferControlBlockNext = _currentBucket->_cardBufferControlBlockHead;
-		/* if no buffer in this bucket, retry */
-	} while (NULL == _cardBufferControlBlockNext);
+        _cardBufferControlBlockNext = _currentBucket->_cardBufferControlBlockHead;
+        /* if no buffer in this bucket, retry */
+    } while (NULL == _cardBufferControlBlockNext);
 
-	return true;
+    return true;
 }
 
-MM_CardBufferControlBlock *
-GC_RememberedSetCardListBufferIterator::nextBuffer(MM_EnvironmentBase* env, MM_RememberedSetCard **lastCard)
+MM_CardBufferControlBlock* GC_RememberedSetCardListBufferIterator::nextBuffer(
+    MM_EnvironmentBase* env, MM_RememberedSetCard** lastCard)
 {
-	do {
-		if (NULL != _cardBufferControlBlockNext) {
-			/* TODO: could this condition be simplified? */
-			if (((NULL != _cardBufferControlBlockPrevious) && (_cardBufferControlBlockPrevious->_next == _cardBufferControlBlockCurrent))
-					|| ((NULL == _cardBufferControlBlockPrevious) && (_currentBucket->_cardBufferControlBlockHead == _cardBufferControlBlockCurrent))) {
-				_cardBufferControlBlockPrevious = _cardBufferControlBlockCurrent;
-			}
-			_cardBufferControlBlockCurrent = _cardBufferControlBlockNext;
-			_cardBufferControlBlockNext = _cardBufferControlBlockCurrent->_next;
+    do {
+        if (NULL != _cardBufferControlBlockNext) {
+            /* TODO: could this condition be simplified? */
+            if (((NULL != _cardBufferControlBlockPrevious)
+                    && (_cardBufferControlBlockPrevious->_next == _cardBufferControlBlockCurrent))
+                || ((NULL == _cardBufferControlBlockPrevious)
+                       && (_currentBucket->_cardBufferControlBlockHead == _cardBufferControlBlockCurrent))) {
+                _cardBufferControlBlockPrevious = _cardBufferControlBlockCurrent;
+            }
+            _cardBufferControlBlockCurrent = _cardBufferControlBlockNext;
+            _cardBufferControlBlockNext = _cardBufferControlBlockCurrent->_next;
 
-			_bufferCardList = _cardBufferControlBlockCurrent->_card;
-			if (_currentBucket->isCurrentSlotWithinBuffer(_bufferCardList)) {
-				*lastCard = _currentBucket->_current;
-			} else {
-				*lastCard = _cardBufferControlBlockCurrent->_card + MM_RememberedSetCardBucket::MAX_BUFFER_SIZE;
-			}
-			return _cardBufferControlBlockCurrent;
-		}
-	} while (nextBucket(env));
+            _bufferCardList = _cardBufferControlBlockCurrent->_card;
+            if (_currentBucket->isCurrentSlotWithinBuffer(_bufferCardList)) {
+                *lastCard = _currentBucket->_current;
+            } else {
+                *lastCard = _cardBufferControlBlockCurrent->_card + MM_RememberedSetCardBucket::MAX_BUFFER_SIZE;
+            }
+            return _cardBufferControlBlockCurrent;
+        }
+    } while (nextBucket(env));
 
-	return NULL;
+    return NULL;
 }

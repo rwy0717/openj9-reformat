@@ -31,36 +31,32 @@
 
 /**
  * A per-thread buffer of recently allocated reference objects.
- * The buffer is periodically flushed to the global list. 
+ * The buffer is periodically flushed to the global list.
  */
-class MM_ReferenceObjectBufferStandard : public MM_ReferenceObjectBuffer
-{
+class MM_ReferenceObjectBufferStandard : public MM_ReferenceObjectBuffer {
 private:
-	UDATA _referenceObjectListIndex; /**< List index to dump buffer to.  This is a cyclic index fro 0->listsize-1 */
+    UDATA _referenceObjectListIndex; /**< List index to dump buffer to.  This is a cyclic index fro 0->listsize-1 */
 protected:
 public:
-	
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
-	
 public:
-
-	static MM_ReferenceObjectBufferStandard *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush 
-	 */
-	MM_ReferenceObjectBufferStandard(UDATA maxObjectCount);
+    static MM_ReferenceObjectBufferStandard* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_ReferenceObjectBufferStandard(UDATA maxObjectCount);
 };
 
 #endif /* REFERENCEOBJECTBUFFERSTANDARD_HPP_ */

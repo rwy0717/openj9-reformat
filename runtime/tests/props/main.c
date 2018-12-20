@@ -25,50 +25,50 @@
 #include "exelib_api.h"
 #include <string.h>
 
-extern CuSuite *GetTestSuite(void);
+extern CuSuite* GetTestSuite(void);
 
 J9PortLibrary* g_PortLibrary;
 
-UDATA RunAllTests(J9PortLibrary *portLibrary)
+UDATA RunAllTests(J9PortLibrary* portLibrary)
 {
-	UDATA start, end;
-	CuString *output = CuStringNew();
-	CuSuite *suite = CuSuiteNew();
-	PORT_ACCESS_FROM_PORT(portLibrary);
+    UDATA start, end;
+    CuString* output = CuStringNew();
+    CuSuite* suite = CuSuiteNew();
+    PORT_ACCESS_FROM_PORT(portLibrary);
 
-	CuSuiteAddSuite(suite, GetTestSuite());
- 
-	start = j9time_usec_clock();
-	CuSuiteRun(suite);
-	end = j9time_usec_clock();
+    CuSuiteAddSuite(suite, GetTestSuite());
 
-	CuSuiteSummary(suite, output);
-	CuSuiteDetails(suite, output);
+    start = j9time_usec_clock();
+    CuSuiteRun(suite);
+    end = j9time_usec_clock();
 
-	printf("%s\n", output->buffer);
-	printf("Tests took %zd usec to run.\n", end - start);
+    CuSuiteSummary(suite, output);
+    CuSuiteDetails(suite, output);
 
-	if (suite->failCount == 0){
-		return 0;
-	} else {
-		return 1;
-	}
+    printf("%s\n", output->buffer);
+    printf("Tests took %zd usec to run.\n", end - start);
+
+    if (suite->failCount == 0) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 UDATA
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg)
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg)
 {
-	struct j9cmdlineOptions * startupOptions = (struct j9cmdlineOptions *) arg;
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	
-	g_PortLibrary = portLibrary;	
+    struct j9cmdlineOptions* startupOptions = (struct j9cmdlineOptions*)arg;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+
+    g_PortLibrary = portLibrary;
 
 #if defined(J9VM_OPT_MEMORY_CHECK_SUPPORT)
-	/* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
-	memoryCheck_parseCmdLine( PORTLIB, startupOptions->argc-1, startupOptions->argv );
+    /* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
+    memoryCheck_parseCmdLine(PORTLIB, startupOptions->argc - 1, startupOptions->argv);
 #endif /* J9VM_OPT_MEMORY_CHECK_SUPPORT */
 
-	cutest_parseCmdLine( PORTLIB, startupOptions->argc-1, startupOptions->argv);
+    cutest_parseCmdLine(PORTLIB, startupOptions->argc - 1, startupOptions->argv);
 
-	return RunAllTests(portLibrary);
+    return RunAllTests(portLibrary);
 }

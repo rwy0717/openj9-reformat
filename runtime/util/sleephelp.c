@@ -25,11 +25,4 @@
 #include "util_internal.h"
 
 IDATA
-callThreadSleep(IDATA sleepTime)
-{
-	return omrthread_sleep(sleepTime);
-}
-
-
-
-
+callThreadSleep(IDATA sleepTime) { return omrthread_sleep(sleepTime); }

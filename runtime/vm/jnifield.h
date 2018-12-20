@@ -34,33 +34,33 @@ extern "C" {
  * Refer to the JNI documentation.
  */
 
-jboolean JNICALL getBooleanField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jbyte JNICALL getByteField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jshort JNICALL getShortField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jchar JNICALL getCharField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jint JNICALL getIntField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jlong JNICALL getLongField(JNIEnv *env, jobject obj, jfieldID fieldID);
+jboolean JNICALL getBooleanField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jbyte JNICALL getByteField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jshort JNICALL getShortField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jchar JNICALL getCharField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jint JNICALL getIntField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jlong JNICALL getLongField(JNIEnv* env, jobject obj, jfieldID fieldID);
 
-void JNICALL setByteField(JNIEnv *env, jobject obj, jfieldID fieldID, jbyte value);
-void JNICALL setBooleanField(JNIEnv *env, jobject obj, jfieldID fieldID, jboolean value);
-void JNICALL setCharField(JNIEnv *env, jobject obj, jfieldID fieldID, jchar value);
-void JNICALL setShortField(JNIEnv *env, jobject obj, jfieldID fieldID, jshort value);
-void JNICALL setIntField(JNIEnv *env, jobject obj, jfieldID fieldID, jint value);
-void JNICALL setLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
+void JNICALL setByteField(JNIEnv* env, jobject obj, jfieldID fieldID, jbyte value);
+void JNICALL setBooleanField(JNIEnv* env, jobject obj, jfieldID fieldID, jboolean value);
+void JNICALL setCharField(JNIEnv* env, jobject obj, jfieldID fieldID, jchar value);
+void JNICALL setShortField(JNIEnv* env, jobject obj, jfieldID fieldID, jshort value);
+void JNICALL setIntField(JNIEnv* env, jobject obj, jfieldID fieldID, jint value);
+void JNICALL setLongField(JNIEnv* env, jobject obj, jfieldID fieldID, jlong value);
 
 #ifdef J9VM_INTERP_FLOAT_SUPPORT
-jfloat JNICALL getFloatField(JNIEnv *env, jobject obj, jfieldID fieldID);
-jdouble JNICALL getDoubleField(JNIEnv *env, jobject obj, jfieldID fieldID);
+jfloat JNICALL getFloatField(JNIEnv* env, jobject obj, jfieldID fieldID);
+jdouble JNICALL getDoubleField(JNIEnv* env, jobject obj, jfieldID fieldID);
 
-void JNICALL setFloatField(JNIEnv *env, jobject obj, jfieldID fieldID, jfloat value);
-void JNICALL setDoubleField(JNIEnv *env, jobject obj, jfieldID fieldID, jdouble value);
+void JNICALL setFloatField(JNIEnv* env, jobject obj, jfieldID fieldID, jfloat value);
+void JNICALL setDoubleField(JNIEnv* env, jobject obj, jfieldID fieldID, jdouble value);
 #endif /* J9VM_INTERP_FLOAT_SUPPORT */
 
-void JNICALL setObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject valueRef);
-jobject JNICALL getObjectField(JNIEnv *env, jobject obj, jfieldID fieldID);
+void JNICALL setObjectField(JNIEnv* env, jobject obj, jfieldID fieldID, jobject valueRef);
+jobject JNICALL getObjectField(JNIEnv* env, jobject obj, jfieldID fieldID);
 
-void JNICALL setObjectArrayElement(JNIEnv *env, jobjectArray arrayRef, jsize index, jobject valueRef);
-jobject JNICALL getObjectArrayElement(JNIEnv *env, jobjectArray arrayRef, jsize index);
+void JNICALL setObjectArrayElement(JNIEnv* env, jobjectArray arrayRef, jsize index, jobject valueRef);
+jobject JNICALL getObjectArrayElement(JNIEnv* env, jobjectArray arrayRef, jsize index);
 
 #ifdef __cplusplus
 }

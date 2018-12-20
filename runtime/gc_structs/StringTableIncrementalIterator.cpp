@@ -28,57 +28,51 @@
 #include "StringTableIncrementalIterator.hpp"
 #include "ModronAssertions.h"
 
-void **
-GC_StringTableIncrementalIterator::nextSlot()
+void** GC_StringTableIncrementalIterator::nextSlot()
 {
-	if (NULL == _currentPuddle) {
-		return NULL;
-	}
+    if (NULL == _currentPuddle) {
+        return NULL;
+    }
 
-	_lastNode = _nextNode;
-	if (NULL != _nextNode) {
-		_nextNode = (void **)pool_nextDo(&_poolState);
-	}
+    _lastNode = _nextNode;
+    if (NULL != _nextNode) {
+        _nextNode = (void**)pool_nextDo(&_poolState);
+    }
 
-	if (NULL == _lastNode) {
-		_lastSlot = NULL;
-	} else {
-		switch (_iterateState) {
-		case ITERATE_NODE_POOL:
-			/* Data section appears at the start of list nodes */
-			_lastSlot = (void **)_lastNode;
-			break;
-		case ITERATE_TREE_POOL:
-			/* Data section appears after the tree node fields */
-			_lastSlot = (void **)AVL_NODE_TO_DATA(_lastNode);
-			break;
-		default:
-			Assert_MM_unreachable();
-			break;
-		}
-	}
+    if (NULL == _lastNode) {
+        _lastSlot = NULL;
+    } else {
+        switch (_iterateState) {
+        case ITERATE_NODE_POOL:
+            /* Data section appears at the start of list nodes */
+            _lastSlot = (void**)_lastNode;
+            break;
+        case ITERATE_TREE_POOL:
+            /* Data section appears after the tree node fields */
+            _lastSlot = (void**)AVL_NODE_TO_DATA(_lastNode);
+            break;
+        default:
+            Assert_MM_unreachable();
+            break;
+        }
+    }
 
-	return _lastSlot;
+    return _lastSlot;
 }
 
-void
-GC_StringTableIncrementalIterator::removeSlot()
-{
-	hashTableRemove(_hashTable, _lastSlot);
-}
+void GC_StringTableIncrementalIterator::removeSlot() { hashTableRemove(_hashTable, _lastSlot); }
 
 /*
  * Update _nextNode, _currentPuddle, _nextPuddle fields based on the _currentIteratePool
  * and _nextPuddle.
  */
-void
-GC_StringTableIncrementalIterator::getNext()
+void GC_StringTableIncrementalIterator::getNext()
 {
-	_currentPuddle = _nextPuddle;
-	if (NULL != _currentPuddle) {
-		_nextNode = poolPuddle_startDo(_currentIteratePool, _currentPuddle, &_poolState, FALSE);
-		_nextPuddle = J9POOLPUDDLE_NEXTPUDDLE(_currentPuddle);
-	}
+    _currentPuddle = _nextPuddle;
+    if (NULL != _currentPuddle) {
+        _nextNode = poolPuddle_startDo(_currentIteratePool, _currentPuddle, &_poolState, FALSE);
+        _nextPuddle = J9POOLPUDDLE_NEXTPUDDLE(_currentPuddle);
+    }
 }
 
 /**
@@ -90,23 +84,22 @@ GC_StringTableIncrementalIterator::getNext()
  * @return true if there is another increment remaining
  * @return false if there are no more increments
  */
-bool
-GC_StringTableIncrementalIterator::nextIncrement()
+bool GC_StringTableIncrementalIterator::nextIncrement()
 {
-	getNext();
-	if (NULL == _currentPuddle) {
-		if (ITERATE_NODE_POOL == _iterateState) {
-			/* start iterating tree nodes pool */
-			_iterateState = ITERATE_TREE_POOL;
-			_currentIteratePool = _stringTableTreeNodePool;
-			_nextPuddle = J9POOLPUDDLELIST_NEXTPUDDLE(J9POOL_PUDDLELIST(_stringTableTreeNodePool));
-			getNext();
-		}
-	}
+    getNext();
+    if (NULL == _currentPuddle) {
+        if (ITERATE_NODE_POOL == _iterateState) {
+            /* start iterating tree nodes pool */
+            _iterateState = ITERATE_TREE_POOL;
+            _currentIteratePool = _stringTableTreeNodePool;
+            _nextPuddle = J9POOLPUDDLELIST_NEXTPUDDLE(J9POOL_PUDDLELIST(_stringTableTreeNodePool));
+            getNext();
+        }
+    }
 
-	if (NULL != _currentPuddle) {
-		return true;
-	} else {
-		return false;
-	}
+    if (NULL != _currentPuddle) {
+        return true;
+    } else {
+        return false;
+    }
 }

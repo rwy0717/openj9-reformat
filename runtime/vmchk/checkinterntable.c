@@ -41,90 +41,86 @@
  *					Ensure J9InternHashTableEntry->classLoader is valid
  */
 
-static BOOLEAN verifyJ9ClassLoader(J9JavaVM *vm, J9ClassLoader *classLoader);
+static BOOLEAN verifyJ9ClassLoader(J9JavaVM* vm, J9ClassLoader* classLoader);
 
-
-void
-checkLocalInternTableSanity(J9JavaVM *vm)
+void checkLocalInternTableSanity(J9JavaVM* vm)
 {
-	UDATA count = 0;
-	J9TranslationBufferSet *dynamicLoadBuffers;
+    UDATA count = 0;
+    J9TranslationBufferSet* dynamicLoadBuffers;
 
-	vmchkPrintf(vm, "  %s Checking ROM intern string nodes>\n", VMCHECK_PREFIX);
+    vmchkPrintf(vm, "  %s Checking ROM intern string nodes>\n", VMCHECK_PREFIX);
 
-	dynamicLoadBuffers = (J9TranslationBufferSet *)DBG_ARROW(vm, dynamicLoadBuffers);
-	if (dynamicLoadBuffers != NULL) {
-		J9DbgROMClassBuilder *romClassBuilder = (J9DbgROMClassBuilder *)DBG_ARROW(dynamicLoadBuffers, romClassBuilder);
-		/* We don't need to use DBG_ARROW() below because we are taking its address (not dereferencing it).. */
-		J9DbgStringInternTable *stringInternTable = &(romClassBuilder->stringInternTable);
-		J9InternHashTableEntry *node= (J9InternHashTableEntry*)DBG_ARROW(stringInternTable, headNode);
+    dynamicLoadBuffers = (J9TranslationBufferSet*)DBG_ARROW(vm, dynamicLoadBuffers);
+    if (dynamicLoadBuffers != NULL) {
+        J9DbgROMClassBuilder* romClassBuilder = (J9DbgROMClassBuilder*)DBG_ARROW(dynamicLoadBuffers, romClassBuilder);
+        /* We don't need to use DBG_ARROW() below because we are taking its address (not dereferencing it).. */
+        J9DbgStringInternTable* stringInternTable = &(romClassBuilder->stringInternTable);
+        J9InternHashTableEntry* node = (J9InternHashTableEntry*)DBG_ARROW(stringInternTable, headNode);
 
-		while (NULL != node) {
-			J9ClassLoader *classLoader = (J9ClassLoader *)DBG_ARROW(node, classLoader);
-			if (J9_ARE_NO_BITS_SET(DBG_ARROW(classLoader, gcFlags), J9_GC_CLASS_LOADER_DEAD)) {
-				J9UTF8 *utf8 = (J9UTF8 *)DBG_ARROW(node, utf8);
-				if (FALSE == verifyUTF8(utf8)) {
-					vmchkPrintf(vm, " %s - Invalid utf8=0x%p for node=0x%p>\n",
-						VMCHECK_FAILED, utf8, node);
-				}
+        while (NULL != node) {
+            J9ClassLoader* classLoader = (J9ClassLoader*)DBG_ARROW(node, classLoader);
+            if (J9_ARE_NO_BITS_SET(DBG_ARROW(classLoader, gcFlags), J9_GC_CLASS_LOADER_DEAD)) {
+                J9UTF8* utf8 = (J9UTF8*)DBG_ARROW(node, utf8);
+                if (FALSE == verifyUTF8(utf8)) {
+                    vmchkPrintf(vm, " %s - Invalid utf8=0x%p for node=0x%p>\n", VMCHECK_FAILED, utf8, node);
+                }
 
-				if (FALSE == verifyJ9ClassLoader(vm, classLoader)) {
-					vmchkPrintf(vm, " %s - Invalid classLoader=0x%p for node=0x%p>\n",
-						VMCHECK_FAILED, classLoader, node);
-				}
-			}
-			count++;
-			node = (J9InternHashTableEntry *)DBG_ARROW(node, nextNode);
-		}
-	}
+                if (FALSE == verifyJ9ClassLoader(vm, classLoader)) {
+                    vmchkPrintf(
+                        vm, " %s - Invalid classLoader=0x%p for node=0x%p>\n", VMCHECK_FAILED, classLoader, node);
+                }
+            }
+            count++;
+            node = (J9InternHashTableEntry*)DBG_ARROW(node, nextNode);
+        }
+    }
 
-	vmchkPrintf(vm, "  %s Checking %d ROM intern string nodes done>\n", VMCHECK_PREFIX, count);
+    vmchkPrintf(vm, "  %s Checking %d ROM intern string nodes done>\n", VMCHECK_PREFIX, count);
 }
 
 BOOLEAN
-verifyUTF8(J9UTF8 *utf8)
+verifyUTF8(J9UTF8* utf8)
 {
-	U_8 *utf8Data;
-	U_32 length;
+    U_8* utf8Data;
+    U_32 length;
 
-	if (NULL == utf8) {
-		return FALSE;
-	}
+    if (NULL == utf8) {
+        return FALSE;
+    }
 
-	length = J9UTF8_LENGTH(utf8);
-	utf8Data = J9UTF8_DATA(utf8);
+    length = J9UTF8_LENGTH(utf8);
+    utf8Data = J9UTF8_DATA(utf8);
 
-	while (length > 0) {
-		U_16 temp;
-		U_32 lengthRead = decodeUTF8CharN(utf8Data, &temp, length);
+    while (length > 0) {
+        U_16 temp;
+        U_32 lengthRead = decodeUTF8CharN(utf8Data, &temp, length);
 
-		if (0 == lengthRead) {
-			return FALSE;
-		}
+        if (0 == lengthRead) {
+            return FALSE;
+        }
 
-		length -= lengthRead;
-		utf8Data += lengthRead;
-	}
+        length -= lengthRead;
+        utf8Data += lengthRead;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
-static BOOLEAN
-verifyJ9ClassLoader(J9JavaVM *vm, J9ClassLoader *classLoader)
+static BOOLEAN verifyJ9ClassLoader(J9JavaVM* vm, J9ClassLoader* classLoader)
 {
-	BOOLEAN valid = FALSE;
-	J9ClassLoader *walk;
-	J9ClassLoaderWalkState walkState;
+    BOOLEAN valid = FALSE;
+    J9ClassLoader* walk;
+    J9ClassLoaderWalkState walkState;
 
-	walk = vmchkAllClassLoadersStartDo(vm, &walkState);
-	while (NULL != walk) {
-		if (walk == classLoader) {
-			valid = TRUE;
-			break;
-		}
-		walk = vmchkAllClassLoadersNextDo(vm, &walkState);
-	}
-	vmchkAllClassLoadersEndDo(vm, &walkState);
+    walk = vmchkAllClassLoadersStartDo(vm, &walkState);
+    while (NULL != walk) {
+        if (walk == classLoader) {
+            valid = TRUE;
+            break;
+        }
+        walk = vmchkAllClassLoadersNextDo(vm, &walkState);
+    }
+    vmchkAllClassLoadersEndDo(vm, &walkState);
 
-	return valid;
+    return valid;
 }

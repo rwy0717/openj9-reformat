@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(METRONOME_ALARM_HPP_)
 #define METRONOME_ALARM_HPP_ 1
 
@@ -48,7 +48,7 @@ class MM_MetronomeAlarmThread;
 #include <signal.h>
 #endif /* LINUX */
 
- /**
+/**
  * MM_Alarm
  * A hi-resolution alarm that Metronome can use to gain control periodically
  * This is an abstract class - you need to create a concrete alarm which is currently
@@ -58,87 +58,86 @@ class MM_MetronomeAlarmThread;
  *  MM_ITAlarm (interval timer alarm - default if nothing else available - not very high resolution)
  * Use the factory service createAlarm() to create the right initial alarm for the system
  */
-class MM_Alarm : protected MM_BaseVirtual
-{	
+class MM_Alarm : protected MM_BaseVirtual {
 private:
 protected:
-	MM_Alarm(MM_OSInterface* osInterface)
-	{
-		_typeId = __FUNCTION__;
-		_osInterface = osInterface;
-	}
-	virtual void tearDown(MM_EnvironmentBase *env);
+    MM_Alarm(MM_OSInterface* osInterface)
+    {
+        _typeId = __FUNCTION__;
+        _osInterface = osInterface;
+    }
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	MM_OSInterface* _osInterface;
+    MM_OSInterface* _osInterface;
 
 public:
-	virtual void kill(MM_EnvironmentBase *envModron);
+    virtual void kill(MM_EnvironmentBase* envModron);
 
-	virtual bool initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread)=0;
-	static MM_Alarm * factory(MM_EnvironmentBase *env, MM_OSInterface* osInterface);
-	virtual void describe(J9PortLibrary* port, char *buffer, I_32 bufferSize)=0;
+    virtual bool initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread) = 0;
+    static MM_Alarm* factory(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
+    virtual void describe(J9PortLibrary* port, char* buffer, I_32 bufferSize) = 0;
 
-	virtual void sleep()=0;
-	virtual void wakeUp(MM_MetronomeAlarmThread *) {};
+    virtual void sleep() = 0;
+    virtual void wakeUp(MM_MetronomeAlarmThread*) {};
 };
 
-class MM_HRTAlarm : public MM_Alarm
-{
+class MM_HRTAlarm : public MM_Alarm {
 public:
-	static MM_HRTAlarm * newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface);
+    static MM_HRTAlarm* newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
 
-	MM_HRTAlarm(MM_OSInterface * osInterface) : MM_Alarm(osInterface)
-	{
-		_typeId = __FUNCTION__;
-	}
-	virtual void sleep();
-	virtual void describe(J9PortLibrary* port, char *buffer, I_32 bufferSize);
-	virtual bool initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread);
+    MM_HRTAlarm(MM_OSInterface* osInterface)
+        : MM_Alarm(osInterface)
+    {
+        _typeId = __FUNCTION__;
+    }
+    virtual void sleep();
+    virtual void describe(J9PortLibrary* port, char* buffer, I_32 bufferSize);
+    virtual bool initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread);
 };
 
-class MM_RTCAlarm : public MM_Alarm
-{
+class MM_RTCAlarm : public MM_Alarm {
 private:
 #if defined(LINUX) && !defined(J9ZTPF)
-	IDATA RTCfd;
+    IDATA RTCfd;
 #endif /* defined(LINUX) && !defined(J9ZTPF) */
 
 public:
-	static MM_RTCAlarm * newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface);
+    static MM_RTCAlarm* newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
 
-	MM_RTCAlarm(MM_OSInterface * osInterface) : MM_Alarm(osInterface)
-	{
-		_typeId = __FUNCTION__;
-	}
-	virtual void sleep();
-	virtual void describe(J9PortLibrary* port, char *buffer, I_32 bufferSize);
-	virtual bool initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread);
+    MM_RTCAlarm(MM_OSInterface* osInterface)
+        : MM_Alarm(osInterface)
+    {
+        _typeId = __FUNCTION__;
+    }
+    virtual void sleep();
+    virtual void describe(J9PortLibrary* port, char* buffer, I_32 bufferSize);
+    virtual bool initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread);
 };
 
-class MM_ITAlarm : public MM_Alarm
-{
+class MM_ITAlarm : public MM_Alarm {
 private:
 #if defined(WIN32)
-	UINT _uTimerId;
+    UINT _uTimerId;
 #endif /* WIN32 */
 protected:
-	virtual void tearDown(MM_EnvironmentBase *env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
 public:
-	static MM_ITAlarm * newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface);
+    static MM_ITAlarm* newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface);
 
-	MM_ITAlarm(MM_OSInterface * osInterface) : MM_Alarm(osInterface)
-	{
-		_typeId = __FUNCTION__;
-	}
-	virtual void sleep();
-	virtual void describe(J9PortLibrary* port, char *buffer, I_32 bufferSize);
-	virtual bool initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread);
-	static void alarm_handler(MM_MetronomeAlarmThread *);
-	virtual void wakeUp(MM_MetronomeAlarmThread *alarmThread) { alarm_handler(alarmThread); }
+    MM_ITAlarm(MM_OSInterface* osInterface)
+        : MM_Alarm(osInterface)
+    {
+        _typeId = __FUNCTION__;
+    }
+    virtual void sleep();
+    virtual void describe(J9PortLibrary* port, char* buffer, I_32 bufferSize);
+    virtual bool initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread);
+    static void alarm_handler(MM_MetronomeAlarmThread*);
+    virtual void wakeUp(MM_MetronomeAlarmThread* alarmThread) { alarm_handler(alarmThread); }
 
-#if defined(LINUX) 
-	static MM_MetronomeAlarmThread *alarmHandlerArgument;  /**< signal handlers do not get user-supplied args	 */
+#if defined(LINUX)
+    static MM_MetronomeAlarmThread* alarmHandlerArgument; /**< signal handlers do not get user-supplied args	 */
 #endif /* LINUX */
 };
 

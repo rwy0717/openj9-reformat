@@ -24,13 +24,13 @@
 #define objprof_api_h
 
 /**
-* @file objprof_api.h
-* @brief Public API for the OBJPROF module.
-*
-* This file contains public function prototypes and
-* type definitions for the OBJPROF module.
-*
-*/
+ * @file objprof_api.h
+ * @brief Public API for the OBJPROF module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the OBJPROF module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,15 +43,13 @@ extern "C" {
 /* ---------------- objprof.c ---------------- */
 
 /**
-* @brief
-* @param *jvm
-* @param options
-* @param *reserved
-* @return jint
-*/
-jint JNICALL 
-JVM_OnLoad( JavaVM *jvm, char* options, void *reserved );
-
+ * @brief
+ * @param *jvm
+ * @param options
+ * @param *reserved
+ * @return jint
+ */
+jint JNICALL JVM_OnLoad(JavaVM* jvm, char* options, void* reserved);
 
 #ifdef __cplusplus
 }

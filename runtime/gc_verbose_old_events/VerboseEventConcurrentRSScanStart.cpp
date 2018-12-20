@@ -20,23 +20,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventConcurrentRSScanStart.hpp"
 
 /**
  * Create an new instance of a MM_VerboseEventConcurrentRSScanStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventConcurrentRSScanStart::newInstance(MM_ConcurrentRememberedSetScanStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventConcurrentRSScanStart::newInstance(
+    MM_ConcurrentRememberedSetScanStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventConcurrentRSScanStart *eventObject;
-	
-	eventObject = (MM_VerboseEventConcurrentRSScanStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventConcurrentRSScanStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventConcurrentRSScanStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventConcurrentRSScanStart* eventObject;
+
+    eventObject = (MM_VerboseEventConcurrentRSScanStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventConcurrentRSScanStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventConcurrentRSScanStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -44,16 +45,10 @@ MM_VerboseEventConcurrentRSScanStart::newInstance(MM_ConcurrentRememberedSetScan
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventConcurrentRSScanStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventConcurrentRSScanStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventConcurrentRSScanStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventConcurrentRSScanStart::formattedOutput(MM_VerboseOutputAgent* agent) {}

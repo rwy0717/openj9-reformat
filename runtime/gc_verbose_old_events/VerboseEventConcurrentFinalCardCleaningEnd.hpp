@@ -34,33 +34,33 @@
  * Stores the data relating to the end of  concurrent final card cleaning.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentFinalCardCleaningEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentFinalCardCleaningEnd : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_finalcleanedCards;	/**< the number of cards cleaned in final card cleaning */
-	UDATA	_bytesTraced; /**< he number of bytes traced during card cleaning */
-	UDATA	_workStackOverflowCount; /**< the current count of concurrent work stack overflows */
-	
-	/* Consumed Data */
-	U_64	_conFinalCCStartTime; /**< timestamp of Final card cleaning start */
-	UDATA	_workStackOverflowCountStart; /**< the count of concurrent work stacks overflows at start of final card clean */
+    /* Passed Data */
+    UDATA _finalcleanedCards; /**< the number of cards cleaned in final card cleaning */
+    UDATA _bytesTraced; /**< he number of bytes traced during card cleaning */
+    UDATA _workStackOverflowCount; /**< the current count of concurrent work stack overflows */
+
+    /* Consumed Data */
+    U_64 _conFinalCCStartTime; /**< timestamp of Final card cleaning start */
+    UDATA
+        _workStackOverflowCountStart; /**< the count of concurrent work stacks overflows at start of final card clean */
 public:
+    static MM_VerboseEvent* newInstance(
+        MM_ConcurrentCollectionCardCleaningEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ConcurrentCollectionCardCleaningEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
 
-	MM_VerboseEventConcurrentFinalCardCleaningEnd(MM_ConcurrentCollectionCardCleaningEndEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_finalcleanedCards(event->finalcleanedCards),
-	_bytesTraced(event->bytesTraced),
-	_workStackOverflowCount(event->workStackOverflowCount)
-	{};
+    MM_VerboseEventConcurrentFinalCardCleaningEnd(
+        MM_ConcurrentCollectionCardCleaningEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _finalcleanedCards(event->finalcleanedCards)
+        , _bytesTraced(event->bytesTraced)
+        , _workStackOverflowCount(event->workStackOverflowCount) {};
 };
 
 #endif /* EVENT_CON_FCC_END_HPP_ */

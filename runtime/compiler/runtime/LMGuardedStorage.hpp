@@ -28,8 +28,8 @@
 #include "compile/Compilation.hpp"
 #include "env/jittypes.h"
 
-#define J9PORT_GS_ENABLED ((uint32_t) 0x1)
-#define J9PORT_GS_INITIALIZED ((uint32_t) 0x2)
+#define J9PORT_GS_ENABLED ((uint32_t)0x1)
+#define J9PORT_GS_INITIALIZED ((uint32_t)0x2)
 
 #define IS_THREAD_GS_INITIALIZED(vmThread) ((vmThread->gsParameters.flags & J9PORT_GS_INITIALIZED) != 0)
 #define IS_THREAD_GS_ENABLED(vmThread) ((vmThread->gsParameters.flags & J9PORT_GS_ENABLED) != 0)
@@ -39,35 +39,32 @@
  * for platform specific purposes. This class is used to encapsulate the code
  * that is common between the different platforms.
  */
-class TR_LMGuardedStorage
-   {
+class TR_LMGuardedStorage {
 public:
+    /**
+     * Constructor.
+     * @param jitConfig the J9JITConfig
+     */
+    TR_LMGuardedStorage(J9JITConfig* jitConfig);
 
-   /**
-    * Constructor.
-    * @param jitConfig the J9JITConfig
-    */
-   TR_LMGuardedStorage (J9JITConfig *jitConfig);
+    /**
+     * Pure virtual method to initialize guarded storage on given app thread.
+     * @param vmThread The VM thread to initialize guarded storage.
+     * @return true if initialization is successful; false otherwise.
+     */
+    virtual bool initializeThread(J9VMThread* vmThread) { return false; }
 
-   /**
-    * Pure virtual method to initialize guarded storage on given app thread.
-    * @param vmThread The VM thread to initialize guarded storage.
-    * @return true if initialization is successful; false otherwise.
-    */
-   virtual bool initializeThread(J9VMThread *vmThread) {return false;}
+    /**
+     * Pure virtual method to deinitialize guarded storage on given app thread
+     * @param vmThread The VM thread to deinitialize guarded storage.
+     * @return true if deinitialization is successful; false otherwise.
+     */
+    virtual bool deinitializeThread(J9VMThread* vmThread) { return false; }
 
-   /**
-    * Pure virtual method to deinitialize guarded storage on given app thread
-    * @param vmThread The VM thread to deinitialize guarded storage.
-    * @return true if deinitialization is successful; false otherwise.
-    */
-   virtual bool deinitializeThread(J9VMThread *vmThread) {return false;}
+    // JIT Config Cache
+    J9JITConfig* _jitConfig;
 
-   // JIT Config Cache
-   J9JITConfig                    *_jitConfig;
-
-   // TR_Compilation cache
-   TR::CompilationInfo             *_compInfo;
-   };
+    // TR_Compilation cache
+    TR::CompilationInfo* _compInfo;
+};
 #endif
-

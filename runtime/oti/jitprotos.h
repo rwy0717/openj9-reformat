@@ -23,102 +23,97 @@
 #ifndef JITPROTOS_H
 #define JITPROTOS_H
 
-
-
 #include "j9.h"
 #include "j9cp.h"
 #include "jitavl.h"
-
-
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* prototypes from dlt.c */
-void * setUpForDLT(J9VMThread * currentThread, J9StackWalkState * walkState);
+void* setUpForDLT(J9VMThread* currentThread, J9StackWalkState* walkState);
 
-extern J9_CFUNC void   induceOSROnCurrentThread(J9VMThread * currentThread);
-extern J9_CFUNC UDATA osrFrameSize(J9Method *method);
-extern J9_CFUNC UDATA osrFrameSizeRomMethod(J9ROMMethod *romMethod);
-extern J9_CFUNC UDATA ensureOSRBufferSize(J9JavaVM *vm, UDATA osrFramesByteSize, UDATA osrScratchBufferByteSize, UDATA osrStackFrameByteSize);
-extern J9_CFUNC void jitStackLocalsModified (J9VMThread * currentThread, J9StackWalkState * walkState);
+extern J9_CFUNC void induceOSROnCurrentThread(J9VMThread* currentThread);
+extern J9_CFUNC UDATA osrFrameSize(J9Method* method);
+extern J9_CFUNC UDATA osrFrameSizeRomMethod(J9ROMMethod* romMethod);
+extern J9_CFUNC UDATA ensureOSRBufferSize(
+    J9JavaVM* vm, UDATA osrFramesByteSize, UDATA osrScratchBufferByteSize, UDATA osrStackFrameByteSize);
+extern J9_CFUNC void jitStackLocalsModified(J9VMThread* currentThread, J9StackWalkState* walkState);
 #if (defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)) /* priv. proto (autogen) */
-extern J9_CFUNC J9JITDecompilationInfo *
-jitCleanUpDecompilationStack (J9VMThread * currentThread, J9StackWalkState * walkState, UDATA dropCurrentFrame);
+extern J9_CFUNC J9JITDecompilationInfo* jitCleanUpDecompilationStack(
+    J9VMThread* currentThread, J9StackWalkState* walkState, UDATA dropCurrentFrame);
 #endif /* J9VM_INTERP_HOT_CODE_REPLACEMENT (autogen) */
 
-extern J9_CFUNC void   jitDataBreakpointRemoved (J9VMThread * currentThread);
+extern J9_CFUNC void jitDataBreakpointRemoved(J9VMThread* currentThread);
 #if (defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)) /* priv. proto (autogen) */
-extern J9_CFUNC void   jitDecompileMethodForFramePop (J9VMThread * currentThread, UDATA skipCount);
+extern J9_CFUNC void jitDecompileMethodForFramePop(J9VMThread* currentThread, UDATA skipCount);
 #endif /* J9VM_INTERP_HOT_CODE_REPLACEMENT (autogen) */
 
-extern J9_CFUNC void   jitExceptionCaught (J9VMThread * currentThread);
-extern J9_CFUNC void   jitSingleStepRemoved (J9VMThread * currentThread);
-extern J9_CFUNC void   jitDataBreakpointAdded (J9VMThread * currentThread);
-extern J9_CFUNC void  
-jitBreakpointedMethodCompiled (J9VMThread * currentThread, J9Method * method, void * startAddress);
-extern J9_CFUNC UDATA
-initializeFSD (J9JavaVM * vm);
-extern J9_CFUNC void 
-induceOSROnCurrentThread(J9VMThread * currentThread);
+extern J9_CFUNC void jitExceptionCaught(J9VMThread* currentThread);
+extern J9_CFUNC void jitSingleStepRemoved(J9VMThread* currentThread);
+extern J9_CFUNC void jitDataBreakpointAdded(J9VMThread* currentThread);
+extern J9_CFUNC void jitBreakpointedMethodCompiled(J9VMThread* currentThread, J9Method* method, void* startAddress);
+extern J9_CFUNC UDATA initializeFSD(J9JavaVM* vm);
+extern J9_CFUNC void induceOSROnCurrentThread(J9VMThread* currentThread);
 #if (defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)) /* priv. proto (autogen) */
-extern J9_CFUNC void   jitHotswapOccurred (J9VMThread * currentThread);
+extern J9_CFUNC void jitHotswapOccurred(J9VMThread* currentThread);
 #endif /* J9VM_INTERP_HOT_CODE_REPLACEMENT (autogen) */
 
-extern J9_CFUNC void   jitCodeBreakpointAdded (J9VMThread * currentThread, J9Method * method);
-extern J9_CFUNC void   jitSingleStepAdded (J9VMThread * currentThread);
-extern J9_CFUNC void   jitDecompileMethod (J9VMThread * currentThread, J9JITDecompilationInfo * decompRecord);
-extern J9_CFUNC void   jitCodeBreakpointRemoved (J9VMThread * currentThread, J9Method * method);
-extern J9_CFUNC UDATA  jitIsMethodBreakpointed(J9VMThread *currentThread, J9Method *method);
+extern J9_CFUNC void jitCodeBreakpointAdded(J9VMThread* currentThread, J9Method* method);
+extern J9_CFUNC void jitSingleStepAdded(J9VMThread* currentThread);
+extern J9_CFUNC void jitDecompileMethod(J9VMThread* currentThread, J9JITDecompilationInfo* decompRecord);
+extern J9_CFUNC void jitCodeBreakpointRemoved(J9VMThread* currentThread, J9Method* method);
+extern J9_CFUNC UDATA jitIsMethodBreakpointed(J9VMThread* currentThread, J9Method* method);
 
-extern J9_CFUNC void   c_jitDecompileAfterAllocation(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileAfterMonitorEnter(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileAtCurrentPC(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileAtExceptionCatch(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileBeforeMethodMonitorEnter(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileBeforeReportMethodEnter(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitReportExceptionCatch(J9VMThread * currentThread);
-extern J9_CFUNC void   c_jitDecompileOnReturn(J9VMThread * currentThread);
+extern J9_CFUNC void c_jitDecompileAfterAllocation(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileAfterMonitorEnter(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileAtCurrentPC(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileAtExceptionCatch(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileBeforeMethodMonitorEnter(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileBeforeReportMethodEnter(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitReportExceptionCatch(J9VMThread* currentThread);
+extern J9_CFUNC void c_jitDecompileOnReturn(J9VMThread* currentThread);
 
-extern J9_CFUNC void * j9ThunkLookupNameAndSig (void * jitConfig, void *parm);
+extern J9_CFUNC void* j9ThunkLookupNameAndSig(void* jitConfig, void* parm);
 
-extern J9_CFUNC J9JITHashTable *avl_jit_artifact_insert_existing_table (J9AVLTree * tree, J9JITHashTable * hashTable);
-extern J9_CFUNC J9AVLTree * jit_allocate_artifacts (J9PortLibrary * portLibrary);
+extern J9_CFUNC J9JITHashTable* avl_jit_artifact_insert_existing_table(J9AVLTree* tree, J9JITHashTable* hashTable);
+extern J9_CFUNC J9AVLTree* jit_allocate_artifacts(J9PortLibrary* portLibrary);
 
-extern J9_CFUNC UDATA  jitWalkStackFrames (J9StackWalkState *walkState);
-extern J9_CFUNC J9JITExceptionTable * jitGetExceptionTableFromPC (J9VMThread * vmThread, UDATA jitPC);
-extern J9_CFUNC UDATA  jitGetOwnedObjectMonitors(J9StackWalkState *state);
+extern J9_CFUNC UDATA jitWalkStackFrames(J9StackWalkState* walkState);
+extern J9_CFUNC J9JITExceptionTable* jitGetExceptionTableFromPC(J9VMThread* vmThread, UDATA jitPC);
+extern J9_CFUNC UDATA jitGetOwnedObjectMonitors(J9StackWalkState* state);
 #if (defined(J9VM_INTERP_STACKWALK_TRACING)) /* priv. proto (autogen) */
-extern J9_CFUNC void jitPrintRegisterMapArray (J9StackWalkState * walkState, char * description);
+extern J9_CFUNC void jitPrintRegisterMapArray(J9StackWalkState* walkState, char* description);
 #endif /* J9VM_INTERP_STACKWALK_TRACING (autogen) */
 
-
-extern J9_CFUNC J9JITHashTable *jit_artifact_add_code_cache (J9PortLibrary * portLibrary, J9AVLTree * tree, J9MemorySegment * cacheToInsert, J9JITHashTable *optionalHashTable);
-extern J9_CFUNC UDATA jit_artifact_insert (J9PortLibrary * portLibrary, J9AVLTree * tree, J9JITExceptionTable * dataToInsert);
-extern J9_CFUNC J9JITHashTable *
-jit_artifact_protected_add_code_cache (J9JavaVM * vm, J9AVLTree * tree, J9MemorySegment * cacheToInsert, J9JITHashTable *optionalHashTable);
-extern J9_CFUNC UDATA jit_artifact_remove (J9PortLibrary * portLibrary, J9AVLTree * tree, J9JITExceptionTable * dataToDelete);
+extern J9_CFUNC J9JITHashTable* jit_artifact_add_code_cache(
+    J9PortLibrary* portLibrary, J9AVLTree* tree, J9MemorySegment* cacheToInsert, J9JITHashTable* optionalHashTable);
+extern J9_CFUNC UDATA jit_artifact_insert(
+    J9PortLibrary* portLibrary, J9AVLTree* tree, J9JITExceptionTable* dataToInsert);
+extern J9_CFUNC J9JITHashTable* jit_artifact_protected_add_code_cache(
+    J9JavaVM* vm, J9AVLTree* tree, J9MemorySegment* cacheToInsert, J9JITHashTable* optionalHashTable);
+extern J9_CFUNC UDATA jit_artifact_remove(
+    J9PortLibrary* portLibrary, J9AVLTree* tree, J9JITExceptionTable* dataToDelete);
 
 /* prototypes from thunkcrt.c */
-void * j9ThunkLookupNameAndSig(void * jitConfig, void *parm);
-UDATA j9ThunkTableAllocate(J9JavaVM * vm);
-void j9ThunkTableFree(J9JavaVM * vm);
-void * j9ThunkLookupSignature(void * jitConfig, UDATA signatureLength, char *signatureChars);
-IDATA j9ThunkNewNameAndSig(void * jitConfig, void *parm, void *thunkAddress);
-IDATA j9ThunkNewSignature(void * jitConfig, int signatureLength, char *signatureChars, void *thunkAddress);
-void * j9ThunkVMHelperFromSignature(void * jitConfig, UDATA signatureLength, char *signatureChars);
-void * j9ThunkInvokeExactHelperFromSignature(void * jitConfig, UDATA signatureLength, char *signatureChars);
+void* j9ThunkLookupNameAndSig(void* jitConfig, void* parm);
+UDATA j9ThunkTableAllocate(J9JavaVM* vm);
+void j9ThunkTableFree(J9JavaVM* vm);
+void* j9ThunkLookupSignature(void* jitConfig, UDATA signatureLength, char* signatureChars);
+IDATA j9ThunkNewNameAndSig(void* jitConfig, void* parm, void* thunkAddress);
+IDATA j9ThunkNewSignature(void* jitConfig, int signatureLength, char* signatureChars, void* thunkAddress);
+void* j9ThunkVMHelperFromSignature(void* jitConfig, UDATA signatureLength, char* signatureChars);
+void* j9ThunkInvokeExactHelperFromSignature(void* jitConfig, UDATA signatureLength, char* signatureChars);
 
 /* prototypes from CodertVMHelpers.cpp */
-void initializeDirectJNI (J9JavaVM *vm);
+void initializeDirectJNI(J9JavaVM* vm);
 
 /* prototypes from jsr292.c */
 void i2jFSDAssert();
 
 /* prototype from cnathelp.cpp */
-void initPureCFunctionTable(J9JavaVM *vm);
+void initPureCFunctionTable(J9JavaVM* vm);
 
 /**
  * Make the stack walkable by simulating a call to a resolve helper
@@ -129,14 +124,14 @@ void initPureCFunctionTable(J9JavaVM *vm);
  * @param[in] pc the JIT PC for the resolve frame
  * @param[in] flags the resolve frame flags
  */
-void buildBranchJITResolveFrame(J9VMThread *currentThread, void *pc, UDATA flags);
+void buildBranchJITResolveFrame(J9VMThread* currentThread, void* pc, UDATA flags);
 
 /**
  * Collapse a resolve frame built by buildBranchJITResolveFrame.
  *
  * @param[in] currentThread the current J9VMThread
  */
-void restoreBranchJITResolveFrame(J9VMThread *currentThread);
+void restoreBranchJITResolveFrame(J9VMThread* currentThread);
 
 /* Fast path only C helpers to be called directly from the compiled code */
 
@@ -153,22 +148,22 @@ void restoreBranchJITResolveFrame(J9VMThread *currentThread);
 /* New-style helpers */
 
 #if !defined(J9VM_ENV_DATA64)
-U_64 J9FASTCALL fast_jitVolatileReadLong(J9VMThread *currentThread, U_64 *address);
-void J9FASTCALL fast_jitVolatileWriteLong(J9VMThread *currentThread, U_64* address, U_64 value);
-jdouble J9FASTCALL fast_jitVolatileReadDouble(J9VMThread *currentThread, U_64* address);
-void J9FASTCALL fast_jitVolatileWriteDouble(J9VMThread *currentThread, U_64 *address, jdouble value);
+U_64 J9FASTCALL fast_jitVolatileReadLong(J9VMThread* currentThread, U_64* address);
+void J9FASTCALL fast_jitVolatileWriteLong(J9VMThread* currentThread, U_64* address, U_64 value);
+jdouble J9FASTCALL fast_jitVolatileReadDouble(J9VMThread* currentThread, U_64* address);
+void J9FASTCALL fast_jitVolatileWriteDouble(J9VMThread* currentThread, U_64* address, jdouble value);
 #endif /* !J9VM_ENV_DATA64 */
-void J9FASTCALL fast_jitCheckIfFinalizeObject(J9VMThread *currentThread, j9object_t object);
-void J9FASTCALL fast_jitCollapseJNIReferenceFrame(J9VMThread *currentThread);
+void J9FASTCALL fast_jitCheckIfFinalizeObject(J9VMThread* currentThread, j9object_t object);
+void J9FASTCALL fast_jitCollapseJNIReferenceFrame(J9VMThread* currentThread);
 #if defined(J9VM_ARCH_X86) || defined(J9VM_ARCH_S390)
 /* TODO Will be cleaned once all platforms adopt the correct parameter order */
-UDATA J9FASTCALL fast_jitInstanceOf(J9VMThread *currentThread, j9object_t object, J9Class *castClass);
-UDATA J9FASTCALL fast_jitCheckAssignable(J9VMThread *currentThread, J9Class *clazz, J9Class *castClass);
+UDATA J9FASTCALL fast_jitInstanceOf(J9VMThread* currentThread, j9object_t object, J9Class* castClass);
+UDATA J9FASTCALL fast_jitCheckAssignable(J9VMThread* currentThread, J9Class* clazz, J9Class* castClass);
 #else /* J9VM_ARCH_X86 || J9VM_ARCH_S390*/
-UDATA J9FASTCALL fast_jitInstanceOf(J9VMThread *currentThread, J9Class *castClass, j9object_t object);
-UDATA J9FASTCALL fast_jitCheckAssignable(J9VMThread *currentThread, J9Class *castClass, J9Class *clazz);
+UDATA J9FASTCALL fast_jitInstanceOf(J9VMThread* currentThread, J9Class* castClass, j9object_t object);
+UDATA J9FASTCALL fast_jitCheckAssignable(J9VMThread* currentThread, J9Class* castClass, J9Class* clazz);
 #endif /* J9VM_ARCH_X86 || J9VM_ARCH_S390*/
-UDATA J9FASTCALL fast_jitObjectHashCode(J9VMThread *currentThread, j9object_t object);
+UDATA J9FASTCALL fast_jitObjectHashCode(J9VMThread* currentThread, j9object_t object);
 
 #ifdef __cplusplus
 }

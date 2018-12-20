@@ -26,47 +26,45 @@
 
 #include "MarkJavaStats.hpp"
 
-void
-MM_MarkJavaStats::clear()
+void MM_MarkJavaStats::clear()
 {
-	_unfinalizedCandidates = 0;
-	_unfinalizedEnqueued = 0;
+    _unfinalizedCandidates = 0;
+    _unfinalizedEnqueued = 0;
 
-	_ownableSynchronizerCandidates = 0;
-	_ownableSynchronizerCleared = 0;
+    _ownableSynchronizerCandidates = 0;
+    _ownableSynchronizerCleared = 0;
 
-	_weakReferenceStats.clear();
-	_softReferenceStats.clear();
-	_phantomReferenceStats.clear();
+    _weakReferenceStats.clear();
+    _softReferenceStats.clear();
+    _phantomReferenceStats.clear();
 
-	_stringConstantsCleared = 0;
-	_stringConstantsCandidates = 0;
+    _stringConstantsCleared = 0;
+    _stringConstantsCandidates = 0;
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
-	splitArraysProcessed = 0;
-	splitArraysAmount = 0;
+    splitArraysProcessed = 0;
+    splitArraysAmount = 0;
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 };
 
-void
-MM_MarkJavaStats::merge(MM_MarkJavaStats* statsToMerge)
+void MM_MarkJavaStats::merge(MM_MarkJavaStats* statsToMerge)
 {
-	_unfinalizedCandidates += statsToMerge->_unfinalizedCandidates;
-	_unfinalizedEnqueued += statsToMerge->_unfinalizedEnqueued;
+    _unfinalizedCandidates += statsToMerge->_unfinalizedCandidates;
+    _unfinalizedEnqueued += statsToMerge->_unfinalizedEnqueued;
 
-	_ownableSynchronizerCandidates += statsToMerge->_ownableSynchronizerCandidates;
-	_ownableSynchronizerCleared += statsToMerge->_ownableSynchronizerCleared;
+    _ownableSynchronizerCandidates += statsToMerge->_ownableSynchronizerCandidates;
+    _ownableSynchronizerCleared += statsToMerge->_ownableSynchronizerCleared;
 
-	_weakReferenceStats.merge(&statsToMerge->_weakReferenceStats);
-	_softReferenceStats.merge(&statsToMerge->_softReferenceStats);
-	_phantomReferenceStats.merge(&statsToMerge->_phantomReferenceStats);
+    _weakReferenceStats.merge(&statsToMerge->_weakReferenceStats);
+    _softReferenceStats.merge(&statsToMerge->_softReferenceStats);
+    _phantomReferenceStats.merge(&statsToMerge->_phantomReferenceStats);
 
-	_stringConstantsCleared += statsToMerge->_stringConstantsCleared;
-	_stringConstantsCandidates += statsToMerge->_stringConstantsCandidates;
+    _stringConstantsCleared += statsToMerge->_stringConstantsCleared;
+    _stringConstantsCandidates += statsToMerge->_stringConstantsCandidates;
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
-	/* It may not ever be useful to merge these stats, but do it anyways */
-	splitArraysProcessed += statsToMerge->splitArraysProcessed;
-	splitArraysAmount += statsToMerge->splitArraysAmount;
+    /* It may not ever be useful to merge these stats, but do it anyways */
+    splitArraysProcessed += statsToMerge->splitArraysProcessed;
+    splitArraysAmount += statsToMerge->splitArraysAmount;
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 };

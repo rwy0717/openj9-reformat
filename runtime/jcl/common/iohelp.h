@@ -26,11 +26,8 @@
 #include "jcl.h"
 
 /* DIR_SEPARATOR is defined in j9comp.h */
-#define jclSeparator DIR_SEPARATOR 
+#define jclSeparator DIR_SEPARATOR
 
-void ioh_convertToPlatform(char *path);
+void ioh_convertToPlatform(char* path);
 
-
-#endif     /* iohelp_h */
-
-
+#endif /* iohelp_h */

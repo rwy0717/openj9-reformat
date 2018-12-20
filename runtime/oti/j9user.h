@@ -27,11 +27,11 @@
 #include "j9.h"
 
 /* platform specific, describes included modules */
-#include "j9cfg.h"		
+#include "j9cfg.h"
 
 /* random table in hash.c */
 extern const U_8 RandomValues[];
 
-typedef	j9object_t EsObject;
+typedef j9object_t EsObject;
 
 #endif /* j9user_h */

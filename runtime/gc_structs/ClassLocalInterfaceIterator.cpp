@@ -36,17 +36,15 @@
  * @return the next interface reference slot in the class
  * @return NULL if the class has no more interface references
  */
-J9Class **
-GC_ClassLocalInterfaceIterator::nextSlot()
+J9Class** GC_ClassLocalInterfaceIterator::nextSlot()
 {
-	J9Class **slotPtr;
+    J9Class** slotPtr;
 
-	if(_iTable == _superclassITable) {
-		return NULL;
-	}
+    if (_iTable == _superclassITable) {
+        return NULL;
+    }
 
-	slotPtr = &_iTable->interfaceClass;
-	_iTable = _iTable->next;
-	return slotPtr;
+    slotPtr = &_iTable->interfaceClass;
+    _iTable = _iTable->next;
+    return slotPtr;
 }
-

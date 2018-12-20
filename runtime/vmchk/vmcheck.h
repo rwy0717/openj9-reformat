@@ -26,35 +26,34 @@
 #include "vmchkdbg.h"
 
 #define VMCHECK_PREFIX "<vm check:"
-#define VMCHECK_FAILED "    "VMCHECK_PREFIX" FAILED"
+#define VMCHECK_FAILED "    " VMCHECK_PREFIX " FAILED"
 
 /*
  * Note: All functions in this module that have parameters that are pointers
  *       to VM structures expect "remote" pointers when out of process.
  */
 
-void vmchkPrintf(J9JavaVM *vm, const char *format, ...);
-IDATA J9VMDllMain(J9JavaVM *vm, IDATA stage, void *reserved);
+void vmchkPrintf(J9JavaVM* vm, const char* format, ...);
+IDATA J9VMDllMain(J9JavaVM* vm, IDATA stage, void* reserved);
 
 /* checkclasses.c */
-void checkJ9ClassSanity(J9JavaVM *vm);
-J9MemorySegment * findSegmentInClassLoaderForAddress(J9ClassLoader *classLoader, U_8 *address);
+void checkJ9ClassSanity(J9JavaVM* vm);
+J9MemorySegment* findSegmentInClassLoaderForAddress(J9ClassLoader* classLoader, U_8* address);
 
 /* checkmethods.c */
-void checkJ9MethodSanity(J9JavaVM *vm);
+void checkJ9MethodSanity(J9JavaVM* vm);
 
 /* checkromclasses.c */
-void checkJ9ROMClassSanity(J9JavaVM *vm);
+void checkJ9ROMClassSanity(J9JavaVM* vm);
 
 /* checkthreads.c */
-void checkJ9VMThreadSanity(J9JavaVM *vm);
+void checkJ9VMThreadSanity(J9JavaVM* vm);
 
 /* checkinterntable.c */
-void checkLocalInternTableSanity(J9JavaVM *vm);
-BOOLEAN verifyUTF8(J9UTF8 *utf8);
+void checkLocalInternTableSanity(J9JavaVM* vm);
+BOOLEAN verifyUTF8(J9UTF8* utf8);
 
 /* checkclconstraints.c */
-void checkClassLoadingConstraints(J9JavaVM *vm);
+void checkClassLoadingConstraints(J9JavaVM* vm);
 
-#endif     /* vmcheck_h */
-
+#endif /* vmcheck_h */

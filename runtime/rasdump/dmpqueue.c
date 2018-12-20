@@ -22,107 +22,103 @@
 
 #include "rasdump_internal.h"
 
-
-omr_error_t
-insertDumpAgent(struct J9JavaVM *vm, struct J9RASdumpAgent *agent)
+omr_error_t insertDumpAgent(struct J9JavaVM* vm, struct J9RASdumpAgent* agent)
 {
-	J9RASdumpQueue *queue;
+    J9RASdumpQueue* queue;
 
-	/*
-	 * Sanity check
-	 */
-	if ( FIND_DUMP_QUEUE(vm, queue) ) {
+    /*
+     * Sanity check
+     */
+    if (FIND_DUMP_QUEUE(vm, queue)) {
 
-		J9RASdumpAgent **oldNextPtr = &queue->agents, *node = *oldNextPtr;
-		omr_error_t rc = OMR_ERROR_NONE;
+        J9RASdumpAgent **oldNextPtr = &queue->agents, *node = *oldNextPtr;
+        omr_error_t rc = OMR_ERROR_NONE;
 
-		/* install any necessary dump hooks */
-		if( (rc = rasDumpEnableHooks(vm, agent->eventMask)) != OMR_ERROR_NONE ) {
-			return rc;
-		}
+        /* install any necessary dump hooks */
+        if ((rc = rasDumpEnableHooks(vm, agent->eventMask)) != OMR_ERROR_NONE) {
+            return rc;
+        }
 
-		/* Higher priority dumps run before lower priority dumps */
-		while ( node && node->priority >= agent->priority ) {
-			oldNextPtr = &node->nextPtr; node = *oldNextPtr;
-		}
+        /* Higher priority dumps run before lower priority dumps */
+        while (node && node->priority >= agent->priority) {
+            oldNextPtr = &node->nextPtr;
+            node = *oldNextPtr;
+        }
 
-		/* clear count */
-		agent->count = 0;
+        /* clear count */
+        agent->count = 0;
 
-		/* verify start..stop range (allow n..n-1 to indicate open-ended range) */
-		if ( agent->stopOnCount < agent->startOnCount ) {
-			agent->stopOnCount = agent->startOnCount - 1;
-		}
+        /* verify start..stop range (allow n..n-1 to indicate open-ended range) */
+        if (agent->stopOnCount < agent->startOnCount) {
+            agent->stopOnCount = agent->startOnCount - 1;
+        }
 
-		/* Insert agent at correct priority level */
-		agent->nextPtr = node;
-		*oldNextPtr = agent;
+        /* Insert agent at correct priority level */
+        agent->nextPtr = node;
+        *oldNextPtr = agent;
 
-		return rc;
-	}
+        return rc;
+    }
 
-	return OMR_ERROR_INTERNAL;
+    return OMR_ERROR_INTERNAL;
 }
 
-
-omr_error_t
-removeDumpAgent(struct J9JavaVM *vm, struct J9RASdumpAgent *agent)
+omr_error_t removeDumpAgent(struct J9JavaVM* vm, struct J9RASdumpAgent* agent)
 {
-	J9RASdumpQueue *queue;
+    J9RASdumpQueue* queue;
 
-	/*
-	 * Sanity check
-	 */
-	if ( FIND_DUMP_QUEUE(vm, queue) ) {
+    /*
+     * Sanity check
+     */
+    if (FIND_DUMP_QUEUE(vm, queue)) {
 
-		J9RASdumpAgent **oldNextPtr = &queue->agents, *node = *oldNextPtr;
+        J9RASdumpAgent **oldNextPtr = &queue->agents, *node = *oldNextPtr;
 
-		/* Must search to find correct place in the singly-linked list */
-		while ( node && node != agent ) {
-			oldNextPtr = &node->nextPtr; node = *oldNextPtr;
-		}
+        /* Must search to find correct place in the singly-linked list */
+        while (node && node != agent) {
+            oldNextPtr = &node->nextPtr;
+            node = *oldNextPtr;
+        }
 
-		if ( node ) {
-			/* Remove agent if found */
-			*oldNextPtr = node->nextPtr;
-			node->nextPtr = NULL;
-		}
+        if (node) {
+            /* Remove agent if found */
+            *oldNextPtr = node->nextPtr;
+            node->nextPtr = NULL;
+        }
 
-		return node ? OMR_ERROR_NONE : OMR_ERROR_INTERNAL;
-	}
+        return node ? OMR_ERROR_NONE : OMR_ERROR_INTERNAL;
+    }
 
-	return OMR_ERROR_INTERNAL;
+    return OMR_ERROR_INTERNAL;
 }
 
-
-omr_error_t
-seekDumpAgent(struct J9JavaVM *vm, struct J9RASdumpAgent **agentPtr, J9RASdumpFn dumpFn)
+omr_error_t seekDumpAgent(struct J9JavaVM* vm, struct J9RASdumpAgent** agentPtr, J9RASdumpFn dumpFn)
 {
-	J9RASdumpQueue *queue;
+    J9RASdumpQueue* queue;
 
-	/*
-	 * Sanity check
-	 */
-	if ( FIND_DUMP_QUEUE(vm, queue) ) {
+    /*
+     * Sanity check
+     */
+    if (FIND_DUMP_QUEUE(vm, queue)) {
 
-		J9RASdumpAgent *node = *agentPtr;
+        J9RASdumpAgent* node = *agentPtr;
 
-		/* Start from next agent, else start from the beginning */
-		node = node ? node->nextPtr : queue->agents;
+        /* Start from next agent, else start from the beginning */
+        node = node ? node->nextPtr : queue->agents;
 
-		/* Agents with same dumpFn will be found in priority order */
-		while ( node && dumpFn && node->dumpFn != dumpFn ) {
-			node = node->nextPtr;
-		}
+        /* Agents with same dumpFn will be found in priority order */
+        while (node && dumpFn && node->dumpFn != dumpFn) {
+            node = node->nextPtr;
+        }
 
-		/* Update the current position */
-		*agentPtr = node;
+        /* Update the current position */
+        *agentPtr = node;
 
-		return node ? OMR_ERROR_NONE : OMR_ERROR_INTERNAL;
-	}
+        return node ? OMR_ERROR_NONE : OMR_ERROR_INTERNAL;
+    }
 
-	/* Blank current position */
-	*agentPtr = NULL;
+    /* Blank current position */
+    *agentPtr = NULL;
 
-	return OMR_ERROR_INTERNAL;
+    return OMR_ERROR_INTERNAL;
 }

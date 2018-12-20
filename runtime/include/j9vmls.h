@@ -45,10 +45,10 @@ extern "C" {
  * The VM local storage function table.
  */
 typedef struct J9VMLSFunctionTable {
-    UDATA  (JNICALL *J9VMLSAllocKeys)(JNIEnv * env, UDATA * pInitCount, ...) ;
-    void  (JNICALL *J9VMLSFreeKeys)(JNIEnv * env, UDATA * pInitCount, ...) ;
-    void*  (JNICALL *J9VMLSGet)(JNIEnv * env, void * key) ;
-    void*  (JNICALL *J9VMLSSet)(JNIEnv * env, void ** pKey, void * value) ;
+    UDATA(JNICALL* J9VMLSAllocKeys)(JNIEnv* env, UDATA* pInitCount, ...);
+    void(JNICALL* J9VMLSFreeKeys)(JNIEnv* env, UDATA* pInitCount, ...);
+    void*(JNICALL* J9VMLSGet)(JNIEnv* env, void* key);
+    void*(JNICALL* J9VMLSSet)(JNIEnv* env, void** pKey, void* value);
 } J9VMLSFunctionTable;
 
 /**
@@ -105,15 +105,17 @@ typedef struct J9VMLSFunctionTable {
 #ifdef USING_VMI
 #define J9VMLS_FNTBL(env) (*VMI_GetVMIFromJNIEnv(env))->GetVMLSFunctions(VMI_GetVMIFromJNIEnv(env))
 #else
-#define J9VMLS_FNTBL(env) ((J9VMLSFunctionTable *) ((((void ***) (env))[offsetof(J9VMThread,javaVM)/sizeof(UDATA)])[offsetof(J9JavaVM,vmLocalStorageFunctions)/sizeof(UDATA)]))
+#define J9VMLS_FNTBL(env)                                                  \
+    ((J9VMLSFunctionTable*)((((void***)(env))[offsetof(J9VMThread, javaVM) \
+        / sizeof(UDATA)])[offsetof(J9JavaVM, vmLocalStorageFunctions) / sizeof(UDATA)]))
 #endif
 
 #ifdef J9VM_OPT_MULTI_VM
 #define J9VMLS_GET(env, key) (J9VMLS_FNTBL(env)->J9VMLSGet(env, (key)))
-#define J9VMLS_SET(env, key, value) (J9VMLS_FNTBL(env)->J9VMLSSet(env, &(key), (void *) (value)))
+#define J9VMLS_SET(env, key, value) (J9VMLS_FNTBL(env)->J9VMLSSet(env, &(key), (void*)(value)))
 #else
 #define J9VMLS_GET(env, key) (key)
-#define J9VMLS_SET(env, key, value) ((key) = (void *) (value))
+#define J9VMLS_SET(env, key, value) ((key) = (void*)(value))
 #endif
 
 #ifdef __cplusplus

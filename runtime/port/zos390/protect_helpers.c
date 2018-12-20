@@ -25,7 +25,6 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-
 /**
  * @internal @file
  * @ingroup Port
@@ -36,38 +35,36 @@
  *
  * Adheres to the j9shmem_protect() and omrmmap() APIs
  */
-intptr_t
-protect_memory(struct J9PortLibrary *portLibrary, void *address, uintptr_t length, uintptr_t flags)
+intptr_t protect_memory(struct J9PortLibrary* portLibrary, void* address, uintptr_t length, uintptr_t flags)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	uintptr_t index;
-	intptr_t unixFlags = 0;
-	intptr_t rc = -1;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    uintptr_t index;
+    intptr_t unixFlags = 0;
+    intptr_t rc = -1;
 
-	if ((flags & OMRPORT_PAGE_PROTECT_WRITE) == 0) {
-		/*omrtty_printf(portLibrary,"Calling _MPROT addr=%d length=%d\n",address,length);*/
-		rc = _MPROT((uintptr_t)address, ((uintptr_t)address) + length - 1); /*flags 0=prot 1=unprot */
-	} else {
-		/*omrtty_printf(portLibrary,"Calling _MUNPROT addr=%d length=%d\n",address,length);*/
-		rc = _MUNPROT((uintptr_t)address, ((uintptr_t)address) + length - 1); /*flags 0=prot 1=unprot */
-	}
+    if ((flags & OMRPORT_PAGE_PROTECT_WRITE) == 0) {
+        /*omrtty_printf(portLibrary,"Calling _MPROT addr=%d length=%d\n",address,length);*/
+        rc = _MPROT((uintptr_t)address, ((uintptr_t)address) + length - 1); /*flags 0=prot 1=unprot */
+    } else {
+        /*omrtty_printf(portLibrary,"Calling _MUNPROT addr=%d length=%d\n",address,length);*/
+        rc = _MUNPROT((uintptr_t)address, ((uintptr_t)address) + length - 1); /*flags 0=prot 1=unprot */
+    }
 
-	/* Code for zOS 64-bit will need to build a ranglist and pass it in */
+    /* Code for zOS 64-bit will need to build a ranglist and pass it in */
 
-	if (rc != 0) {
-		omrerror_set_last_error(errno, OMRPORT_PAGE_PROTECT_FAILED);
-	}
+    if (rc != 0) {
+        omrerror_set_last_error(errno, OMRPORT_PAGE_PROTECT_FAILED);
+    }
 
-	return rc;
+    return rc;
 }
 
-uintptr_t
-protect_region_granularity(struct J9PortLibrary *portLibrary, void *address)
+uintptr_t protect_region_granularity(struct J9PortLibrary* portLibrary, void* address)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	uintptr_t granularity = 0;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    uintptr_t granularity = 0;
 
-	granularity = omrvmem_supported_page_sizes()[0];
+    granularity = omrvmem_supported_page_sizes()[0];
 
-	return granularity;
+    return granularity;
 }

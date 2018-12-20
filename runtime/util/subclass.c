@@ -24,38 +24,29 @@
 #include "j9consts.h"
 #include "util_internal.h"
 
-
-J9Class *
-allSubclassesStartDo(J9Class * rootClass, J9SubclassWalkState * subclassState, UDATA includeRootClass)
+J9Class* allSubclassesStartDo(J9Class* rootClass, J9SubclassWalkState* subclassState, UDATA includeRootClass)
 {
-	subclassState->rootDepth = J9CLASS_DEPTH(rootClass);
-	subclassState->currentClass = rootClass;
+    subclassState->rootDepth = J9CLASS_DEPTH(rootClass);
+    subclassState->currentClass = rootClass;
 
-	if (includeRootClass) {
-		return rootClass;
-	}
+    if (includeRootClass) {
+        return rootClass;
+    }
 
-	return allSubclassesNextDo(subclassState);
+    return allSubclassesNextDo(subclassState);
 }
 
-
-
-J9Class *
-allSubclassesNextDo(J9SubclassWalkState * subclassState)
+J9Class* allSubclassesNextDo(J9SubclassWalkState* subclassState)
 {
-	J9Class * nextSubclass = subclassState->currentClass->subclassTraversalLink;
+    J9Class* nextSubclass = subclassState->currentClass->subclassTraversalLink;
 
-	if (nextSubclass != NULL) {
-		if (J9CLASS_DEPTH(nextSubclass) <= subclassState->rootDepth) {
-			nextSubclass = NULL;
-		} else {
-			subclassState->currentClass = nextSubclass;
-		}
-	}
+    if (nextSubclass != NULL) {
+        if (J9CLASS_DEPTH(nextSubclass) <= subclassState->rootDepth) {
+            nextSubclass = NULL;
+        } else {
+            subclassState->currentClass = nextSubclass;
+        }
+    }
 
-	return nextSubclass;
+    return nextSubclass;
 }
-
-
-
-

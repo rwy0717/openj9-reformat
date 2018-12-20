@@ -29,8 +29,8 @@
 
 #include "pcstack.h"
 #include "jbcmap.h"
-#include "bcsizes.h" 
-#include "bcnames.h" 
+#include "bcsizes.h"
+#include "bcnames.h"
 #include "j9port.h"
 #include "j9protos.h"
 #include "rommeth.h"
@@ -304,35 +304,36 @@ typedef void (*DISASSEMBLY_PRINT_FN)(void *userData, char *format, ...);
 
 static void maciek_cfdumpBytecodePrintFunction(void *userData, char *format, ...);
 
-
-
 #define _NEXT_LE_U16(value, index) ((value = (U_16)index[0] | ((U_16)index[1] << 8)), index += 2, value)
-#define _NEXT_LE_U32(value, index) ((value = (U_32)index[0] | ((U_32)index[1] << 8) | ((U_32)index[2] << 16) | ((U_32)index[3] << 24)), index += 4, value)
+#define _NEXT_LE_U32(value, index)                                                                                   \
+    ((value = (U_32)index[0] | ((U_32)index[1] << 8) | ((U_32)index[2] << 16) | ((U_32)index[3] << 24)), index += 4, \
+        value)
 #define _NEXT_BE_U16(value, index) ((value = ((U_16)index[0] << 8) | index[1]), index += 2, value)
-#define _NEXT_BE_U32(value, index) ((value = ((U_32)index[0] << 24) | ((U_32)index[1] << 16) | ((U_32)index[2] << 8) | (U_32)index[3]), index += 4, value)
+#define _NEXT_BE_U32(value, index)                                                                                   \
+    ((value = ((U_32)index[0] << 24) | ((U_32)index[1] << 16) | ((U_32)index[2] << 8) | (U_32)index[3]), index += 4, \
+        value)
 
 #define _GETNEXT_U8(value, index) (value = *(index++))
 
-#define _GETNEXT_U16(value, index) \
-	if (bigEndian) { \
-		_NEXT_BE_U16(value, index); \
-	} else { \
-		_NEXT_LE_U16(value, index); \
-	} \
+#define _GETNEXT_U16(value, index)  \
+    if (bigEndian) {                \
+        _NEXT_BE_U16(value, index); \
+    } else {                        \
+        _NEXT_LE_U16(value, index); \
+    }
 
-#define _GETNEXT_U32(value, index) \
-	if (bigEndian) { \
-		_NEXT_BE_U32(value, index); \
-	} else { \
-		_NEXT_LE_U32(value, index); \
-	} \
+#define _GETNEXT_U32(value, index)  \
+    if (bigEndian) {                \
+        _NEXT_BE_U32(value, index); \
+    } else {                        \
+        _NEXT_LE_U32(value, index); \
+    }
 
 #define UTF_MAX_LENGTH 128
-#define DUMP_UTF(val) \
-		outputFunction(userData, \
-			((((J9UTF8*)(val))->length > UTF_MAX_LENGTH) ? "%.*s..." : "%.*s"), \
-			((((J9UTF8*)(val))->length > UTF_MAX_LENGTH) ? UTF_MAX_LENGTH : ((J9UTF8*)(val))->length), \
-			(((char *)(val))+2))
+#define DUMP_UTF(val)                                                                              \
+    outputFunction(userData, ((((J9UTF8*)(val))->length > UTF_MAX_LENGTH) ? "%.*s..." : "%.*s"),   \
+        ((((J9UTF8*)(val))->length > UTF_MAX_LENGTH) ? UTF_MAX_LENGTH : ((J9UTF8*)(val))->length), \
+        (((char*)(val)) + 2))
 
 
 IDATA
@@ -701,7 +702,6 @@ static void maciek_cfdumpBytecodePrintFunction(void *userData, char *format, ...
 #else
 
 /* to avoid warnings */
-void gcp_bcdump_stub(void) {
-}
+void gcp_bcdump_stub(void) {}
 
 #endif

@@ -28,174 +28,175 @@
 #include "infra/Annotations.hpp"
 #include "p/codegen/PPCInstruction.hpp"
 
-namespace TR { class CodeGenerator; }
+namespace TR {
+class CodeGenerator;
+}
 class TR_J2IThunk;
 
-extern void ppcCodeSync(uint8_t *codePointer, uint32_t codeSize);
+extern void ppcCodeSync(uint8_t* codePointer, uint32_t codeSize);
 
 namespace TR {
 
-class PPCCallSnippet : public TR::Snippet
-   {
-   uint8_t *callRA;
-   int32_t  sizeOfArguments;
+class PPCCallSnippet : public TR::Snippet {
+    uint8_t* callRA;
+    int32_t sizeOfArguments;
 
-   bool needsGCMap(TR::CodeGenerator *cg, TR::SymbolReference *methodSymRef)
-      {
-      TR_J9VMBase *fej9 = (TR_J9VMBase *)(cg->fe());
-      if (OMR_UNLIKELY(cg->comp()->compileRelocatableCode()))
-         return false;
-      TR::MethodSymbol *methodSymbol = methodSymRef->getSymbol()->castToMethodSymbol();
-      return !methodSymRef->isUnresolved() &&
-             (methodSymbol->isVMInternalNative() || methodSymbol->isJITInternalNative());
-      }
+    bool needsGCMap(TR::CodeGenerator* cg, TR::SymbolReference* methodSymRef)
+    {
+        TR_J9VMBase* fej9 = (TR_J9VMBase*)(cg->fe());
+        if (OMR_UNLIKELY(cg->comp()->compileRelocatableCode()))
+            return false;
+        TR::MethodSymbol* methodSymbol = methodSymRef->getSymbol()->castToMethodSymbol();
+        return !methodSymRef->isUnresolved()
+            && (methodSymbol->isVMInternalNative() || methodSymbol->isJITInternalNative());
+    }
 
-   protected:
-   TR_RuntimeHelper getInterpretedDispatchHelper(TR::SymbolReference *methodSymRef,
-                                                 TR::DataType type, bool isSynchronized,
-                                                 bool& isNativeStatic, TR::CodeGenerator* cg);
-   TR::SymbolReference * _realMethodSymbolReference;
+protected:
+    TR_RuntimeHelper getInterpretedDispatchHelper(TR::SymbolReference* methodSymRef, TR::DataType type,
+        bool isSynchronized, bool& isNativeStatic, TR::CodeGenerator* cg);
+    TR::SymbolReference* _realMethodSymbolReference;
 
-   public:
+public:
+    PPCCallSnippet(TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s)
+        : TR::Snippet(cg, c, lab, needsGCMap(cg, c->getSymbolReference()))
+        , sizeOfArguments(s)
+        , callRA(0)
+    {
+        _realMethodSymbolReference = NULL;
+    }
 
-   PPCCallSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s)
-      : TR::Snippet(cg, c, lab, needsGCMap(cg, c->getSymbolReference())), sizeOfArguments(s), callRA(0)
-      {
-      _realMethodSymbolReference = NULL;
-      }
+    PPCCallSnippet(TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, TR::SymbolReference* symRef, int32_t s)
+        : TR::Snippet(cg, c, lab, needsGCMap(cg, symRef ? symRef : c->getSymbolReference()))
+        , sizeOfArguments(s)
+        , callRA(0)
+    {
+        _realMethodSymbolReference = symRef;
+    }
 
-   PPCCallSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, TR::SymbolReference *symRef, int32_t s)
-      : TR::Snippet(cg, c, lab, needsGCMap(cg, symRef ? symRef : c->getSymbolReference())), sizeOfArguments(s), callRA(0)
-      {
-      _realMethodSymbolReference = symRef;
-      }
+    virtual Kind getKind() { return IsCall; }
 
-   virtual Kind getKind() { return IsCall; }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    int32_t getSizeOfArguments() { return sizeOfArguments; }
+    int32_t setSizeOfArguments(int32_t s) { return (sizeOfArguments = s); }
 
-   int32_t getSizeOfArguments()          {return sizeOfArguments;}
-   int32_t setSizeOfArguments(int32_t s) {return (sizeOfArguments = s);}
+    uint8_t* getCallRA() { return callRA; }
+    uint8_t* setCallRA(uint8_t* ra) { return (callRA = ra); }
 
-   uint8_t *getCallRA() {return callRA;}
-   uint8_t *setCallRA(uint8_t *ra) {return (callRA=ra);}
+    TR::SymbolReference* getRealMethodSymbolReference() { return _realMethodSymbolReference; }
+    void setRealMethodSymbolReference(TR::SymbolReference* sf) { _realMethodSymbolReference = sf; }
 
-   TR::SymbolReference *getRealMethodSymbolReference() {return _realMethodSymbolReference;}
-   void setRealMethodSymbolReference(TR::SymbolReference *sf) {_realMethodSymbolReference = sf;}
+    uint8_t* setUpArgumentsInRegister(uint8_t* buffer, TR::Node* callNode, int32_t argSize, TR::CodeGenerator* cg);
 
-   uint8_t *setUpArgumentsInRegister(uint8_t *buffer, TR::Node *callNode, int32_t argSize, TR::CodeGenerator *cg);
+    static uint8_t* generateVIThunk(TR::Node* callNode, int32_t argSize, TR::CodeGenerator* cg);
+    static TR_J2IThunk* generateInvokeExactJ2IThunk(
+        TR::Node* callNode, int32_t argSize, TR::CodeGenerator* cg, char* signature);
+    static int32_t instructionCountForArguments(TR::Node* callNode, TR::CodeGenerator* cg);
+};
 
-   static uint8_t *generateVIThunk(TR::Node *callNode, int32_t argSize, TR::CodeGenerator *cg);
-   static TR_J2IThunk *generateInvokeExactJ2IThunk(TR::Node *callNode, int32_t argSize, TR::CodeGenerator *cg, char *signature);
-   static int32_t instructionCountForArguments(TR::Node *callNode, TR::CodeGenerator *cg);
-   };
+class PPCUnresolvedCallSnippet : public TR::PPCCallSnippet {
 
-class PPCUnresolvedCallSnippet : public TR::PPCCallSnippet
-   {
+public:
+    PPCUnresolvedCallSnippet(TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s)
+        : TR::PPCCallSnippet(cg, c, lab, s)
+    {}
 
-   public:
+    virtual Kind getKind() { return IsUnresolvedCall; }
 
-   PPCUnresolvedCallSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s)
-      : TR::PPCCallSnippet(cg, c, lab, s)
-      {
-      }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual Kind getKind() { return IsUnresolvedCall; }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual uint8_t *emitSnippetBody();
+class PPCVirtualSnippet : public TR::Snippet {
+    TR::LabelSymbol* returnLabel;
+    int32_t sizeOfArguments;
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
+public:
+    PPCVirtualSnippet(TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s, TR::LabelSymbol* retl,
+        bool isGCSafePoint = false)
+        : TR::Snippet(cg, c, lab, isGCSafePoint)
+        , sizeOfArguments(s)
+        , returnLabel(retl)
+    {}
 
-class PPCVirtualSnippet : public TR::Snippet
-   {
-   TR::LabelSymbol *returnLabel;
-   int32_t  sizeOfArguments;
+    virtual Kind getKind() { return IsVirtual; }
 
-   public:
+    virtual uint8_t* emitSnippetBody();
 
-   PPCVirtualSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s, TR::LabelSymbol *retl, bool isGCSafePoint = false)
-      : TR::Snippet(cg, c, lab, isGCSafePoint), sizeOfArguments(s), returnLabel(retl) {}
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
 
-   virtual Kind getKind() { return IsVirtual; }
+    int32_t getSizeOfArguments() { return sizeOfArguments; }
+    int32_t setSizeOfArguments(int32_t s) { return (sizeOfArguments = s); }
 
-   virtual uint8_t *emitSnippetBody();
+    TR::LabelSymbol* getReturnLabel() { return returnLabel; }
+    TR::LabelSymbol* setReturnLabel(TR::LabelSymbol* rl) { return (returnLabel = rl); }
+};
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
+class PPCVirtualUnresolvedSnippet : public TR::PPCVirtualSnippet {
+    uint8_t* thunkAddress;
 
-   int32_t getSizeOfArguments()          {return sizeOfArguments;}
-   int32_t setSizeOfArguments(int32_t s) {return (sizeOfArguments = s);}
+public:
+    PPCVirtualUnresolvedSnippet(
+        TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s, TR::LabelSymbol* retl)
+        : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true)
+        , thunkAddress(NULL)
+    {}
 
-   TR::LabelSymbol *getReturnLabel() {return returnLabel;}
-   TR::LabelSymbol *setReturnLabel(TR::LabelSymbol *rl) {return (returnLabel=rl);}
-   };
+    PPCVirtualUnresolvedSnippet(
+        TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s, TR::LabelSymbol* retl, uint8_t* thunkPtr)
+        : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true)
+        , thunkAddress(thunkPtr)
+    {}
 
-class PPCVirtualUnresolvedSnippet : public TR::PPCVirtualSnippet
-   {
-   uint8_t *thunkAddress;
-   public:
+    virtual Kind getKind() { return IsVirtualUnresolved; }
 
-   PPCVirtualUnresolvedSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s, TR::LabelSymbol *retl)
-      : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true), thunkAddress(NULL)
-      {
-      }
+    virtual uint8_t* emitSnippetBody();
 
-   PPCVirtualUnresolvedSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s, TR::LabelSymbol *retl, uint8_t *thunkPtr)
-      : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true), thunkAddress(thunkPtr)
-      {
-      }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual Kind getKind() { return IsVirtualUnresolved; }
+class PPCInterfaceCallSnippet : public TR::PPCVirtualSnippet {
+    TR::Instruction *_upperInstruction, *_lowerInstruction;
+    int32_t _tocOffset;
+    uint8_t* thunkAddress;
 
-   virtual uint8_t *emitSnippetBody();
+public:
+    PPCInterfaceCallSnippet(TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s, TR::LabelSymbol* retl)
+        : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true)
+        , _upperInstruction(NULL)
+        , _lowerInstruction(NULL)
+        , _tocOffset(0)
+        , thunkAddress(NULL)
+    {}
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
+    PPCInterfaceCallSnippet(
+        TR::CodeGenerator* cg, TR::Node* c, TR::LabelSymbol* lab, int32_t s, TR::LabelSymbol* retl, uint8_t* thunkPtr)
+        : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true)
+        , _upperInstruction(NULL)
+        , _lowerInstruction(NULL)
+        , _tocOffset(0)
+        , thunkAddress(thunkPtr)
+    {}
 
-class PPCInterfaceCallSnippet : public TR::PPCVirtualSnippet
-   {
-   TR::Instruction *_upperInstruction, *_lowerInstruction;
-   int32_t            _tocOffset;
-   uint8_t *thunkAddress;
+    virtual Kind getKind() { return IsInterfaceCall; }
 
-   public:
+    TR::Instruction* getUpperInstruction() { return _upperInstruction; }
+    TR::Instruction* setUpperInstruction(TR::Instruction* pi) { return (_upperInstruction = pi); }
 
-   PPCInterfaceCallSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s, TR::LabelSymbol *retl)
-      : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true),
-        _upperInstruction(NULL), _lowerInstruction(NULL), _tocOffset(0), thunkAddress(NULL)
-      {
-      }
+    TR::Instruction* getLowerInstruction() { return _lowerInstruction; }
+    TR::Instruction* setLowerInstruction(TR::Instruction* pi) { return (_lowerInstruction = pi); }
 
-   PPCInterfaceCallSnippet(TR::CodeGenerator *cg, TR::Node *c, TR::LabelSymbol *lab, int32_t s, TR::LabelSymbol *retl, uint8_t *thunkPtr)
-      : TR::PPCVirtualSnippet(cg, c, lab, s, retl, true),
-        _upperInstruction(NULL), _lowerInstruction(NULL), _tocOffset(0), thunkAddress(thunkPtr)
-      {
-      }
+    int32_t getTOCOffset() { return _tocOffset; }
+    void setTOCOffset(int32_t v) { _tocOffset = v; }
 
-   virtual Kind getKind() { return IsInterfaceCall; }
+    virtual uint8_t* emitSnippetBody();
 
-   TR::Instruction *getUpperInstruction() {return _upperInstruction;}
-   TR::Instruction *setUpperInstruction(TR::Instruction *pi)
-      {
-      return (_upperInstruction = pi);
-      }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   TR::Instruction *getLowerInstruction() {return _lowerInstruction;}
-   TR::Instruction *setLowerInstruction(TR::Instruction *pi)
-      {
-      return (_lowerInstruction = pi);
-      }
-
-   int32_t getTOCOffset() {return _tocOffset;}
-   void setTOCOffset(int32_t v) {_tocOffset = v;}
-
-   virtual uint8_t *emitSnippetBody();
-
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
-
-}
+} // namespace TR
 
 #endif

@@ -31,27 +31,24 @@ static JavacoreGenAgent* javacoreGenAgent;
 extern "C" {
 #endif
 
-void JNICALL
-Agent_OnUnload(JavaVM * vm)
+void JNICALL Agent_OnUnload(JavaVM* vm)
 {
-	JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
-	agent->shutdown();
-	agent->kill();
+    JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
+    agent->shutdown();
+    agent->kill();
 }
 
-jint JNICALL
-Agent_OnLoad(JavaVM * vm, char * options, void * reserved)
+jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved)
 {
-	JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
-	return agent->setup(options);
+    JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
+    return agent->setup(options);
 }
 
-jint JNICALL
-Agent_OnAttach(JavaVM * vm, char * options, void * reserved)
+jint JNICALL Agent_OnAttach(JavaVM* vm, char* options, void* reserved)
 {
-	JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
-	return  agent->setup(options);
-	/* need to add code here that will get jvmti_env and jni env and then call startGenerationThread */
+    JavacoreGenAgent* agent = JavacoreGenAgent::getAgent(vm, &javacoreGenAgent);
+    return agent->setup(options);
+    /* need to add code here that will get jvmti_env and jni env and then call startGenerationThread */
 }
 
 #ifdef __cplusplus
@@ -69,17 +66,16 @@ Agent_OnAttach(JavaVM * vm, char * options, void * reserved)
  */
 bool JavacoreGenAgent::init()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	if (!RuntimeToolsIntervalAgent::init()){
-		return false;
-	}
+    if (!RuntimeToolsIntervalAgent::init()) {
+        return false;
+    }
 
-	_cls = NULL;
-	_method = NULL;
+    _cls = NULL;
+    _method = NULL;
 
-	return true;
-
+    return true;
 }
 
 /**
@@ -87,11 +83,10 @@ bool JavacoreGenAgent::init()
  */
 void JavacoreGenAgent::kill()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	j9mem_free_memory(this);
+    j9mem_free_memory(this);
 }
-
 
 /**
  * This method is used to create an instance
@@ -99,19 +94,19 @@ void JavacoreGenAgent::kill()
  * @param vm java vm that can be used by this manager
  * @returns an instance of the class
  */
-JavacoreGenAgent* JavacoreGenAgent::newInstance(JavaVM * vm)
+JavacoreGenAgent* JavacoreGenAgent::newInstance(JavaVM* vm)
 {
-	J9JavaVM * javaVM = ((J9InvocationJavaVM *)vm)->j9vm;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
-	JavacoreGenAgent* obj = (JavacoreGenAgent*) j9mem_allocate_memory(sizeof(JavacoreGenAgent), OMRMEM_CATEGORY_VM);
-	if (obj){
-		new (obj) JavacoreGenAgent(vm);
-		if (!obj->init()){
-			obj->kill();
-			obj = NULL;
-		}
-	}
-	return obj;
+    J9JavaVM* javaVM = ((J9InvocationJavaVM*)vm)->j9vm;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
+    JavacoreGenAgent* obj = (JavacoreGenAgent*)j9mem_allocate_memory(sizeof(JavacoreGenAgent), OMRMEM_CATEGORY_VM);
+    if (obj) {
+        new (obj) JavacoreGenAgent(vm);
+        if (!obj->init()) {
+            obj->kill();
+            obj = NULL;
+        }
+    }
+    return obj;
 }
 
 /**
@@ -119,22 +114,22 @@ JavacoreGenAgent* JavacoreGenAgent::newInstance(JavaVM * vm)
  */
 void JavacoreGenAgent::runAction()
 {
-	/* if this is the first time lookup the class/method id we need to generate the javacore */
-	if (_method == NULL){
-		_cls = getEnv()->FindClass("com/ibm/jvm/Dump");
-		if (!getEnv()->ExceptionCheck()) {
-			_method = getEnv()->GetStaticMethodID(_cls, "JavaDump", "()V");
-			if (getEnv()->ExceptionCheck()) {
-				_method = NULL;
-				error("failed to lookup JavaDump method\n");
-			}
-		} else {
-			error("failed to lookup Dump class\n");
-		}
-	}
+    /* if this is the first time lookup the class/method id we need to generate the javacore */
+    if (_method == NULL) {
+        _cls = getEnv()->FindClass("com/ibm/jvm/Dump");
+        if (!getEnv()->ExceptionCheck()) {
+            _method = getEnv()->GetStaticMethodID(_cls, "JavaDump", "()V");
+            if (getEnv()->ExceptionCheck()) {
+                _method = NULL;
+                error("failed to lookup JavaDump method\n");
+            }
+        } else {
+            error("failed to lookup Dump class\n");
+        }
+    }
 
-	/* generate a javacore */
-	if (_method != NULL){
-		getEnv()->CallStaticVoidMethod(_cls, _method);
-	}
+    /* generate a javacore */
+    if (_method != NULL) {
+        getEnv()->CallStaticVoidMethod(_cls, _method);
+    }
 }

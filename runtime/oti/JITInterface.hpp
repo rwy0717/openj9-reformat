@@ -34,28 +34,28 @@ extern "C" {
 /* x86-64 */
 
 typedef struct {
-	union {
-		UDATA numbered[16];
-		struct {
-			UDATA rax;
-			UDATA rbx;
-			UDATA rcx;
-			UDATA rdx;
-			UDATA rdi;
-			UDATA rsi;
-			UDATA rbp;
-			UDATA rsp;
-			UDATA r8;
-			UDATA r9;
-			UDATA r10;
-			UDATA r11;
-			UDATA r12;
-			UDATA r13;
-			UDATA r14;
-			UDATA r15;
-		} named;
-	} gpr;
-	U_64 fpr[16];
+    union {
+        UDATA numbered[16];
+        struct {
+            UDATA rax;
+            UDATA rbx;
+            UDATA rcx;
+            UDATA rdx;
+            UDATA rdi;
+            UDATA rsi;
+            UDATA rbp;
+            UDATA rsp;
+            UDATA r8;
+            UDATA r9;
+            UDATA r10;
+            UDATA r11;
+            UDATA r12;
+            UDATA r13;
+            UDATA r14;
+            UDATA r15;
+        } named;
+    } gpr;
+    U_64 fpr[16];
 } J9JITRegisters;
 
 #else /*J9VM_ENV_DATA64 */
@@ -63,20 +63,20 @@ typedef struct {
 /* x86-32*/
 
 typedef struct {
-	union {
-		UDATA numbered[8];
-		struct {
-			UDATA eax;
-			UDATA ebx;
-			UDATA ecx;
-			UDATA edx;
-			UDATA edi;
-			UDATA esi;
-			UDATA ebp;
-			UDATA esp;
-		} named;
-	} gpr;
-	U_64 fpr[8];
+    union {
+        UDATA numbered[8];
+        struct {
+            UDATA eax;
+            UDATA ebx;
+            UDATA ecx;
+            UDATA edx;
+            UDATA edi;
+            UDATA esi;
+            UDATA ebp;
+            UDATA esp;
+        } named;
+    } gpr;
+    U_64 fpr[8];
 } J9JITRegisters;
 
 #endif /* J9VM_ENV_DATA64 */
@@ -84,34 +84,34 @@ typedef struct {
 #elif defined(J9VM_ARCH_POWER)
 
 typedef struct {
-	union {
-		UDATA numbered[32];
-	} gpr;
-	U_64 fpr[32];
-	UDATA cr;
-	UDATA lr;
+    union {
+        UDATA numbered[32];
+    } gpr;
+    U_64 fpr[32];
+    UDATA cr;
+    UDATA lr;
 } J9JITRegisters;
 
 #elif defined(J9VM_ARCH_S390)
 
 typedef struct {
-	union {
+    union {
 #if defined(J9VM_JIT_32BIT_USES64BIT_REGISTERS)
-		UDATA numbered[32];
+        UDATA numbered[32];
 #else
-		UDATA numbered[16];
+        UDATA numbered[16];
 #endif
-	} gpr;
-	U_64 fpr[16];
+    } gpr;
+    U_64 fpr[16];
 } J9JITRegisters;
 
 #elif defined(J9VM_ARCH_ARM)
 
 typedef struct {
-	union {
-		UDATA numbered[16];
-	} gpr;
-	U_64 fpr[16];
+    union {
+        UDATA numbered[16];
+    } gpr;
+    U_64 fpr[16];
 } J9JITRegisters;
 
 #else
@@ -120,133 +120,124 @@ typedef struct {
 
 } /* extern "C" */
 
-class VM_JITInterface
-{
-/*
- * Data members
- */
+class VM_JITInterface {
+    /*
+     * Data members
+     */
 private:
 protected:
 public:
-
-/*
- * Function members
- */
+    /*
+     * Function members
+     */
 private:
 protected:
 public:
-
-	static VMINLINE UDATA
-	jitVTableIndex(void *jitReturnAddress, UDATA interfaceVTableIndex)
-	{
-		UDATA jitVTableIndex = interfaceVTableIndex;
+    static VMINLINE UDATA jitVTableIndex(void* jitReturnAddress, UDATA interfaceVTableIndex)
+    {
+        UDATA jitVTableIndex = interfaceVTableIndex;
 #if defined(J9VM_ARCH_X86)
-		if (0xE8 != ((U_8*)jitReturnAddress)[-5]) {
-			/* Virtual call - decode from instruction */
-			jitVTableIndex = (UDATA)(IDATA)(((I_32*)jitReturnAddress)[-1]);
-		}
+        if (0xE8 != ((U_8*)jitReturnAddress)[-5]) {
+            /* Virtual call - decode from instruction */
+            jitVTableIndex = (UDATA)(IDATA)(((I_32*)jitReturnAddress)[-1]);
+        }
 #elif defined(J9VM_ARCH_POWER)
-		if (0x7D8903A6 == ((U_32*)jitReturnAddress)[-2]) {
-			U_32 minus3 = ((U_32*)jitReturnAddress)[-3];
-			/* always fetch low 16 bits of vTable index from virtual send */
-			IDATA methodIndex = (IDATA)(I_16)minus3;
-			/* determine if we are a >32k send */
-			U_32 minus4 = ((U_32*)jitReturnAddress)[-4];
-			if (0x3D800000 == (minus4 & 0xFFE00000)) {
-				if (0x000C0000 == (minus3 & 0x001F0000)) {
-					/* fetch high 16 bits of vTable index from virtual send and merge */
-					IDATA indexHigh = (IDATA)(I_16)minus4;
-					methodIndex += (indexHigh << 16);
-				}
-			}
-			jitVTableIndex = (UDATA)methodIndex;
-		}
+        if (0x7D8903A6 == ((U_32*)jitReturnAddress)[-2]) {
+            U_32 minus3 = ((U_32*)jitReturnAddress)[-3];
+            /* always fetch low 16 bits of vTable index from virtual send */
+            IDATA methodIndex = (IDATA)(I_16)minus3;
+            /* determine if we are a >32k send */
+            U_32 minus4 = ((U_32*)jitReturnAddress)[-4];
+            if (0x3D800000 == (minus4 & 0xFFE00000)) {
+                if (0x000C0000 == (minus3 & 0x001F0000)) {
+                    /* fetch high 16 bits of vTable index from virtual send and merge */
+                    IDATA indexHigh = (IDATA)(I_16)minus4;
+                    methodIndex += (indexHigh << 16);
+                }
+            }
+            jitVTableIndex = (UDATA)methodIndex;
+        }
 #elif defined(J9VM_ARCH_ARM)
-		/* Virtual send layout is:
-		 *	...
-		 *	ldr r15,[register - vTableOffset]
-		 *	<- return address points here
-		 *
-		 * Interface send layout is:
-		 *	...
-		 *	b snippet
-		 *	<- return address points here
-		 */
-		UDATA instruction = ((U_32*)jitReturnAddress)[-1];
-		if (0x0410F000 == (instruction & 0x0E10F000)) {
-			/* Virtual - unsigned offset is in the low 12 bits, assume the sign bit is set (i.e. the offset is always negative) */
-			jitVTableIndex = 0 - (instruction & 0x00000FFF);
-		}
+        /* Virtual send layout is:
+         *	...
+         *	ldr r15,[register - vTableOffset]
+         *	<- return address points here
+         *
+         * Interface send layout is:
+         *	...
+         *	b snippet
+         *	<- return address points here
+         */
+        UDATA instruction = ((U_32*)jitReturnAddress)[-1];
+        if (0x0410F000 == (instruction & 0x0E10F000)) {
+            /* Virtual - unsigned offset is in the low 12 bits, assume the sign bit is set (i.e. the offset is always
+             * negative) */
+            jitVTableIndex = 0 - (instruction & 0x00000FFF);
+        }
 #elif defined(J9VM_ARCH_S390)
-		/* The vtable index is always in the register */
+        /* The vtable index is always in the register */
 #else
 #error UNKNOWN PROCESSOR
 #endif
-		return jitVTableIndex;
-	}
+        return jitVTableIndex;
+    }
 
-	static VMINLINE void*
-	peekJITReturnAddress(J9VMThread *vmThread, UDATA *sp)
-	{
+    static VMINLINE void* peekJITReturnAddress(J9VMThread* vmThread, UDATA* sp)
+    {
 #if defined(J9VM_ARCH_X86)
-		return *(void**)sp;
+        return *(void**)sp;
 #elif defined(J9VM_ARCH_POWER)
-		return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->lr;
+        return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->lr;
 #elif defined(J9VM_ARCH_ARM)
-		return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14];
+        return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14];
 #elif defined(J9VM_ARCH_S390)
-		return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14];
+        return (void*)((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14];
 #else
 #error UNKNOWN PROCESSOR
 #endif
-	}
+    }
 
-	static VMINLINE void
-	restoreJITReturnAddress(J9VMThread *vmThread, UDATA * &sp, void *returnAddress)
-	{
+    static VMINLINE void restoreJITReturnAddress(J9VMThread* vmThread, UDATA*& sp, void* returnAddress)
+    {
 #if defined(J9VM_ARCH_X86)
-		*--sp = (UDATA)returnAddress;
+        *--sp = (UDATA)returnAddress;
 #elif defined(J9VM_ARCH_POWER)
-		((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->lr = (UDATA)returnAddress;
+        ((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->lr = (UDATA)returnAddress;
 #elif defined(J9VM_ARCH_ARM)
-		((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14] = (UDATA)returnAddress;
+        ((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14] = (UDATA)returnAddress;
 #elif defined(J9VM_ARCH_S390)
-		((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14] = (UDATA)returnAddress;
+        ((J9JITRegisters*)vmThread->entryLocalStorage->jitGlobalStorageBase)->gpr.numbered[14] = (UDATA)returnAddress;
 #else
 #error UNKNOWN PROCESSOR
 #endif
-	}
+    }
 
-	static VMINLINE void*
-	fetchJITReturnAddress(J9VMThread *vmThread, UDATA * &sp)
-	{
-		void *returnAddress = peekJITReturnAddress(vmThread, sp);
-		sp += J9SW_JIT_STACK_SLOTS_USED_BY_CALL;
-		return returnAddress;
-	}
+    static VMINLINE void* fetchJITReturnAddress(J9VMThread* vmThread, UDATA*& sp)
+    {
+        void* returnAddress = peekJITReturnAddress(vmThread, sp);
+        sp += J9SW_JIT_STACK_SLOTS_USED_BY_CALL;
+        return returnAddress;
+    }
 
-	static VMINLINE void
-	enableRuntimeInstrumentation(J9VMThread *currentThread)
-	{
+    static VMINLINE void enableRuntimeInstrumentation(J9VMThread* currentThread)
+    {
 #if defined(J9VM_JIT_RUNTIME_INSTRUMENTATION)
-		if (J9_ARE_ANY_BITS_SET(currentThread->jitCurrentRIFlags, J9_JIT_TOGGLE_RI_ON_TRANSITION)) {
-			PORT_ACCESS_FROM_VMC(currentThread);
-			j9ri_enable(NULL);
-		}
+        if (J9_ARE_ANY_BITS_SET(currentThread->jitCurrentRIFlags, J9_JIT_TOGGLE_RI_ON_TRANSITION)) {
+            PORT_ACCESS_FROM_VMC(currentThread);
+            j9ri_enable(NULL);
+        }
 #endif /* J9VM_JIT_RUNTIME_INSTRUMENTATION */
-	}
+    }
 
-	static VMINLINE void
-	disableRuntimeInstrumentation(J9VMThread *currentThread)
-	{
+    static VMINLINE void disableRuntimeInstrumentation(J9VMThread* currentThread)
+    {
 #if defined(J9VM_JIT_RUNTIME_INSTRUMENTATION)
-		if (J9_ARE_ANY_BITS_SET(currentThread->jitCurrentRIFlags, J9_JIT_TOGGLE_RI_ON_TRANSITION)) {
-			PORT_ACCESS_FROM_VMC(currentThread);
-			j9ri_disable(NULL);
-		}
+        if (J9_ARE_ANY_BITS_SET(currentThread->jitCurrentRIFlags, J9_JIT_TOGGLE_RI_ON_TRANSITION)) {
+            PORT_ACCESS_FROM_VMC(currentThread);
+            j9ri_disable(NULL);
+        }
 #endif /* J9VM_JIT_RUNTIME_INSTRUMENTATION */
-	}
-
+    }
 };
 
 #endif /* JITINTERFACE_HPP_ */

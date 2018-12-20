@@ -20,27 +20,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
-
 #include "j9cfg.h"
 #include "j9comp.h"
 #include "util_internal.h"
 
 #if defined(J9ZOS390)
-void *helperCompatibleFunctionPointer(void *fp) 
+void* helperCompatibleFunctionPointer(void* fp)
 {
 #if defined(J9ZOS390) && !defined(J9VM_ENV_DATA64)
-	/* For ZOS/31 bit:  constuct an XPLINK function descriptor from a given function descriptor. 
-	 * __bldxfd() is a ZOS/31supplied API that does the construction if the given function descriptor 
-	 * is not already XPLINK.  If the descriptor [fp] is XPLINK, then __bldxfd() just returns it.  
-	 */ 
-	void *rc;
-	extern char *__bldxfd(void *fp);  
-	rc = __bldxfd(fp);
-	return rc;  
+    /* For ZOS/31 bit:  constuct an XPLINK function descriptor from a given function descriptor.
+     * __bldxfd() is a ZOS/31supplied API that does the construction if the given function descriptor
+     * is not already XPLINK.  If the descriptor [fp] is XPLINK, then __bldxfd() just returns it.
+     */
+    void* rc;
+    extern char* __bldxfd(void* fp);
+    rc = __bldxfd(fp);
+    return rc;
 #else
-	return fp; 
-#endif 
+    return fp;
+#endif
 }
 #endif /* defined(J9ZOS390) */
-

@@ -26,32 +26,29 @@ extern "C" {
  * Method:    getAttribute
  * Signature: (IJI)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaFunction_getAttribute
-  (JNIEnv *, jclass, jint, jlong, jint);
+jint JNICALL Java_com_ibm_cuda_CudaFunction_getAttribute(JNIEnv*, jclass, jint, jlong, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaFunction
  * Method:    launch
  * Signature: (IJIIIIIIIJ[J)V
  */
-void JNICALL Java_com_ibm_cuda_CudaFunction_launch
-  (JNIEnv *, jclass, jint, jlong, jint, jint, jint, jint, jint, jint, jint, jlong, jlongArray);
+void JNICALL Java_com_ibm_cuda_CudaFunction_launch(
+    JNIEnv*, jclass, jint, jlong, jint, jint, jint, jint, jint, jint, jint, jlong, jlongArray);
 
 /*
  * Class:     com_ibm_cuda_CudaFunction
  * Method:    setCacheConfig
  * Signature: (IJI)V
  */
-void JNICALL Java_com_ibm_cuda_CudaFunction_setCacheConfig
-  (JNIEnv *, jclass, jint, jlong, jint);
+void JNICALL Java_com_ibm_cuda_CudaFunction_setCacheConfig(JNIEnv*, jclass, jint, jlong, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaFunction
  * Method:    setSharedMemConfig
  * Signature: (IJI)V
  */
-void JNICALL Java_com_ibm_cuda_CudaFunction_setSharedMemConfig
-  (JNIEnv *, jclass, jint, jlong, jint);
+void JNICALL Java_com_ibm_cuda_CudaFunction_setSharedMemConfig(JNIEnv*, jclass, jint, jlong, jint);
 
 #ifdef __cplusplus
 }

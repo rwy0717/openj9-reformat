@@ -38,59 +38,58 @@ class GC_CheckEngine;
 
 /**
  * GC_Check - abstract class for defining types of check
- * 
+ *
  * An abstract class for defining a type of check gc_check
  * can perform. Actual checks should derive from this then
  * be attached to a "check cycle" that manages all the checks
  * to be performed during one invocation of gc_check
  */
-class GC_Check : public MM_Base
-{
-	/*
-	 * Data members
-	 */
+class GC_Check : public MM_Base {
+    /*
+     * Data members
+     */
 private:
 protected:
-	J9JavaVM *_javaVM;
-	GC_CheckEngine *_engine;
-	MM_GCExtensions *_extensions;
-	J9PortLibrary *_portLibrary; 	/**< we use a separate portlibrary (not the one from the javaVM) because this code
-										also runs out-of-process, where javaVM is the crashed VM (that doesn't have
-										a valid portlibrary) */
-										
-	GC_Check *_next; /**< pointer to the next check in the list (these objects are chained inside a GC_CheckCycle) */
-	UDATA _bitId; /**< identifier of particular Check class that is initialized by appropriate J9MODRON_GCCHK_SCAN_xxx bit */
+    J9JavaVM* _javaVM;
+    GC_CheckEngine* _engine;
+    MM_GCExtensions* _extensions;
+    J9PortLibrary* _portLibrary; /**< we use a separate portlibrary (not the one from the javaVM) because this code
+                                                                         also runs out-of-process, where javaVM is the
+                                    crashed VM (that doesn't have a valid portlibrary) */
+
+    GC_Check* _next; /**< pointer to the next check in the list (these objects are chained inside a GC_CheckCycle) */
+    UDATA _bitId; /**< identifier of particular Check class that is initialized by appropriate J9MODRON_GCCHK_SCAN_xxx
+                     bit */
 
 public:
-	
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
 protected:
-	virtual void check() = 0; /**< run the check */
-	virtual void print() = 0; /**< dump the check structure to tty */
+    virtual void check() = 0; /**< run the check */
+    virtual void print() = 0; /**< dump the check structure to tty */
 
 public:
-	virtual void kill() = 0;
-	
-	void setNext(GC_Check *check) { _next = check; }
-	GC_Check *getNext(void) { return _next; }
-	void setBitId(UDATA bitId) { _bitId = bitId; }
-	UDATA getBitId() { return _bitId; }
-	
-	void run(bool shouldCheck, bool shouldPrint);   /**< run gc_check on the structure */
-	virtual const char *getCheckName() = 0; /**< get a string representing this check-type */
+    virtual void kill() = 0;
 
-	GC_Check(J9JavaVM *javaVM, GC_CheckEngine *engine)
-		: MM_Base()
-		, _javaVM(javaVM)
-		, _engine(engine)
-		, _extensions(MM_GCExtensions::getExtensions(javaVM))
-		, _portLibrary(javaVM->portLibrary)
-		, _next(NULL)
-		, _bitId(0)
-	{ }
+    void setNext(GC_Check* check) { _next = check; }
+    GC_Check* getNext(void) { return _next; }
+    void setBitId(UDATA bitId) { _bitId = bitId; }
+    UDATA getBitId() { return _bitId; }
+
+    void run(bool shouldCheck, bool shouldPrint); /**< run gc_check on the structure */
+    virtual const char* getCheckName() = 0; /**< get a string representing this check-type */
+
+    GC_Check(J9JavaVM* javaVM, GC_CheckEngine* engine)
+        : MM_Base()
+        , _javaVM(javaVM)
+        , _engine(engine)
+        , _extensions(MM_GCExtensions::getExtensions(javaVM))
+        , _portLibrary(javaVM->portLibrary)
+        , _next(NULL)
+        , _bitId(0)
+    {}
 };
 
 #endif /* CHECK_HPP_ */

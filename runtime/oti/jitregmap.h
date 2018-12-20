@@ -32,7 +32,7 @@ extern "C" {
 /* MethodMetaData.h defines this unnecessarily, just undo it here */
 #undef jitCalleeSavedRegisterList
 
-extern char * jitRegisterNames[];
+extern char* jitRegisterNames[];
 extern U_8 jitCalleeDestroyedRegisterList[];
 extern U_8 jitCalleeSavedRegisterList[];
 

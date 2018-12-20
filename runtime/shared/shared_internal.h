@@ -24,13 +24,13 @@
 #define shared_internal_h
 
 /**
-* @file shared_internal.h
-* @brief Internal prototypes used within the SHARED module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the SHARED module.
-*
-*/
+ * @file shared_internal.h
+ * @brief Internal prototypes used within the SHARED module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the SHARED module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -40,10 +40,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* shared_internal_h */
-

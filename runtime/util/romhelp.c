@@ -26,52 +26,47 @@
 #include "util_internal.h"
 #include "ut_j9vmutil.h"
 
-J9ROMMethod *
-getOriginalROMMethodUnchecked(J9Method * method)
+J9ROMMethod* getOriginalROMMethodUnchecked(J9Method* method)
 {
-	J9Class * methodClass = J9_CLASS_FROM_METHOD(method);
-	J9ROMClass * romClass = methodClass->romClass;
-	J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
-	U_8 * bytecodes = J9_BYTECODE_START_FROM_ROM_METHOD(romMethod);
+    J9Class* methodClass = J9_CLASS_FROM_METHOD(method);
+    J9ROMClass* romClass = methodClass->romClass;
+    J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
+    U_8* bytecodes = J9_BYTECODE_START_FROM_ROM_METHOD(romMethod);
 
-	Trc_VMUtil_getOriginalROMMethodUnchecked_Entry(method);
+    Trc_VMUtil_getOriginalROMMethodUnchecked_Entry(method);
 
-	if ((bytecodes < (U_8 *) romClass) || (bytecodes >= ((U_8 *) romClass + romClass->romSize))) {
-		UDATA methodIndex = getMethodIndexUnchecked(method);
-		if (methodIndex < UDATA_MAX) {
-			romMethod = J9ROMCLASS_ROMMETHODS(romClass);
-			while (methodIndex) {
-				romMethod = nextROMMethod(romMethod);
-				--methodIndex;
-			}
-		} else {
-			romMethod = NULL;
-			Trc_VMUtil_getOriginalROMMethodUnchecked_getMethodIndexFailed(method);
-		}
-	}
+    if ((bytecodes < (U_8*)romClass) || (bytecodes >= ((U_8*)romClass + romClass->romSize))) {
+        UDATA methodIndex = getMethodIndexUnchecked(method);
+        if (methodIndex < UDATA_MAX) {
+            romMethod = J9ROMCLASS_ROMMETHODS(romClass);
+            while (methodIndex) {
+                romMethod = nextROMMethod(romMethod);
+                --methodIndex;
+            }
+        } else {
+            romMethod = NULL;
+            Trc_VMUtil_getOriginalROMMethodUnchecked_getMethodIndexFailed(method);
+        }
+    }
 
-	Trc_VMUtil_getOriginalROMMethodUnchecked_Exit(romMethod);
+    Trc_VMUtil_getOriginalROMMethodUnchecked_Exit(romMethod);
 
-	return romMethod;
+    return romMethod;
 }
 
-J9ROMMethod *
-getOriginalROMMethod(J9Method * method)
+J9ROMMethod* getOriginalROMMethod(J9Method* method)
 {
-	J9ROMMethod * romMethod = NULL;
+    J9ROMMethod* romMethod = NULL;
 
-	Trc_VMUtil_getOriginalROMMethod_Entry(method);
+    Trc_VMUtil_getOriginalROMMethod_Entry(method);
 
-	romMethod = getOriginalROMMethodUnchecked(method);
-	/* ROM method not found in ROM class, just use the one provided by the RAM method */
-	if (NULL == romMethod) {
-		romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
-	}
+    romMethod = getOriginalROMMethodUnchecked(method);
+    /* ROM method not found in ROM class, just use the one provided by the RAM method */
+    if (NULL == romMethod) {
+        romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
+    }
 
-	Trc_VMUtil_getOriginalROMMethod_Exit(romMethod);
+    Trc_VMUtil_getOriginalROMMethod_Exit(romMethod);
 
-	return romMethod;
+    return romMethod;
 }
-
-
-

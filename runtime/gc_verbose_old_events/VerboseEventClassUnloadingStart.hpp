@@ -34,21 +34,18 @@
  * Stores the data relating to the start of class unloading.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventClassUnloadingStart : public MM_VerboseEvent
-{
+class MM_VerboseEventClassUnloadingStart : public MM_VerboseEvent {
 public:
+    static MM_VerboseEvent* newInstance(MM_ClassUnloadingStartEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ClassUnloadingStartEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return false; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    MMINLINE virtual bool definesOutputRoutine() { return false; };
+    MMINLINE virtual bool endsEventChain() { return false; };
 
-	MM_VerboseEventClassUnloadingStart(MM_ClassUnloadingStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{};
+    MM_VerboseEventClassUnloadingStart(MM_ClassUnloadingStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface) {};
 };
 
 #endif /* EVENT_CLASS_UNLOADING_START_HPP_ */

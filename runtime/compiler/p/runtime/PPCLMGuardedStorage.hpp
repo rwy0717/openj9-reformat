@@ -30,43 +30,40 @@
 
 class TR_J9VMBase;
 struct TR_PPCHWProfilerEBBContext;
-int32_t lmEventHandler(TR_PPCHWProfilerEBBContext *context);
+int32_t lmEventHandler(TR_PPCHWProfilerEBBContext* context);
 
-class TR_PPCLMGuardedStorage : public TR_LMGuardedStorage
-   {
+class TR_PPCLMGuardedStorage : public TR_LMGuardedStorage {
 public:
-   TR_PERSISTENT_ALLOC(TR_Memory::PPCLMGuardedStorage);
-   
-   /**
-    * Constructor.
-    * @param jitConfig the J9JITConfig
-    */
-   TR_PPCLMGuardedStorage(J9JITConfig *jitConfig);
-   
-   
-   // --------------------------------------------------------------------------------------
-   // HW Profiler Management Methods
-   
-   /**
-    * Static method used to allocate the HW Profiler
-    * @param jitConfig The J9JITConfig
-    * @return pointer to the HWPRofiler
-    */
-   static TR_PPCLMGuardedStorage* allocate(J9JITConfig *jitConfig, bool ebbSetupDone);
-   
-   /**
-    * Initialize hardware profiling on given app thread.
-    * @param vmThread The VM thread to initialize profiling.
-    * @return true if initialization is successful; false otherwise.
-    */
-   virtual bool initializeThread(J9VMThread *vmThread);
-   
-   /**
-    * Deinitialize hardware profiling on given app thread
-    * @param vmThread The VM thread to deinitialize profiling.
-    * @return true if deinitialization is successful; false otherwise.
-    */
-   virtual bool deinitializeThread(J9VMThread *vmThread);
-   };
-#endif /* PPCHWPROFILER_INCL */
+    TR_PERSISTENT_ALLOC(TR_Memory::PPCLMGuardedStorage);
 
+    /**
+     * Constructor.
+     * @param jitConfig the J9JITConfig
+     */
+    TR_PPCLMGuardedStorage(J9JITConfig* jitConfig);
+
+    // --------------------------------------------------------------------------------------
+    // HW Profiler Management Methods
+
+    /**
+     * Static method used to allocate the HW Profiler
+     * @param jitConfig The J9JITConfig
+     * @return pointer to the HWPRofiler
+     */
+    static TR_PPCLMGuardedStorage* allocate(J9JITConfig* jitConfig, bool ebbSetupDone);
+
+    /**
+     * Initialize hardware profiling on given app thread.
+     * @param vmThread The VM thread to initialize profiling.
+     * @return true if initialization is successful; false otherwise.
+     */
+    virtual bool initializeThread(J9VMThread* vmThread);
+
+    /**
+     * Deinitialize hardware profiling on given app thread
+     * @param vmThread The VM thread to deinitialize profiling.
+     * @return true if deinitialization is successful; false otherwise.
+     */
+    virtual bool deinitializeThread(J9VMThread* vmThread);
+};
+#endif /* PPCHWPROFILER_INCL */

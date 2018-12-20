@@ -30,15 +30,15 @@
 #define CACHE_NAME "OSCacheUnitTest"
 #define CACHE_NAME1 "OSCacheUnitTest1"
 
-class Init : public SH_OSCache::SH_OSCacheInitializer
-{
+class Init : public SH_OSCache::SH_OSCacheInitializer {
 public:
-	void *operator new(size_t t, void* i) { return i; }
-	virtual void init(char* data, U_32 len, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT, U_32 readWriteLen, U_32 sotfMaxBytes)
-	{
-		/* Copy some dummy data into the cache - use it to test reading the data back later */
-		memcpy(data, "abcde", 5);	
-	}
+    void* operator new(size_t t, void* i) { return i; }
+    virtual void init(
+        char* data, U_32 len, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT, U_32 readWriteLen, U_32 sotfMaxBytes)
+    {
+        /* Copy some dummy data into the cache - use it to test reading the data back later */
+        memcpy(data, "abcde", 5);
+    }
 };
 
 #endif /* OSCACHETEST_HPP_INCLUDED */

@@ -24,13 +24,13 @@
 #define gdb_api_h
 
 /**
-* @file gdb_api.h
-* @brief Public API for the GDB module.
-*
-* This file contains public function prototypes and
-* type definitions for the GDB module.
-*
-*/
+ * @file gdb_api.h
+ * @brief Public API for the GDB module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the GDB module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -45,13 +45,12 @@ extern "C" {
 /* ---------------- j9gdb.c ---------------- */
 
 /**
-* @brief
-* @param *arg
-* @return UDATA
-*/
+ * @brief
+ * @param *arg
+ * @return UDATA
+ */
 UDATA
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
-
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 #ifdef __cplusplus
 }

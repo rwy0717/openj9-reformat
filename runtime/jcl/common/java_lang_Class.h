@@ -26,10 +26,10 @@
 #include "j9.h"
 
 typedef struct DoPrivilegedMethodArgs {
-	UDATA frameCounter;		/* the frame just walked */
-	j9object_t accControlContext;	/* arg0EA[-1] - AccessControlContext */
-	j9object_t permissions;	/* arg0EA[-2] - Limited permission array */
-	struct DoPrivilegedMethodArgs* next;	/* next DoPrivilegedMethodArgs structure */
+    UDATA frameCounter; /* the frame just walked */
+    j9object_t accControlContext; /* arg0EA[-1] - AccessControlContext */
+    j9object_t permissions; /* arg0EA[-2] - Limited permission array */
+    struct DoPrivilegedMethodArgs* next; /* next DoPrivilegedMethodArgs structure */
 } DoPrivilegedMethodArgs;
 
-#endif	/* java_lang_Class_h */
+#endif /* java_lang_Class_h */

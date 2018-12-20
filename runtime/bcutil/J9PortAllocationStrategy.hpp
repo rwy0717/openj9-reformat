@@ -33,19 +33,19 @@
 
 #include "AllocationStrategy.hpp"
 
-class J9PortAllocationStrategy : public AllocationStrategy
-{
+class J9PortAllocationStrategy : public AllocationStrategy {
 public:
-	J9PortAllocationStrategy(J9PortLibrary* portLibrary) :
-		_portLibrary(portLibrary)
-	{
-	}
+    J9PortAllocationStrategy(J9PortLibrary* portLibrary)
+        : _portLibrary(portLibrary)
+    {}
 
-	U_8* allocate(UDATA byteAmount);
-	void updateFinalROMSize(UDATA finalSize) {/* do nothing */}
+    U_8* allocate(UDATA byteAmount);
+    void updateFinalROMSize(UDATA finalSize)
+    { /* do nothing */
+    }
 
 private:
-	J9PortLibrary* _portLibrary;
+    J9PortLibrary* _portLibrary;
 };
 
 #endif /* J9PORTALLOCATIONSTRATEGY_HPP_ */

@@ -34,24 +34,24 @@
  * Create an new instance of a MM_VerboseEventGlobalGCEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventCompletedConcurrentSweep::newInstance(MM_CompletedConcurrentSweep *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventCompletedConcurrentSweep::newInstance(
+    MM_CompletedConcurrentSweep* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventCompletedConcurrentSweep *eventObject;
-	
-	eventObject = (MM_VerboseEventCompletedConcurrentSweep *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventCompletedConcurrentSweep));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventCompletedConcurrentSweep(event, hookInterface);
-		eventObject->initialize();
-	}
-	return eventObject;
+    MM_VerboseEventCompletedConcurrentSweep* eventObject;
+
+    eventObject = (MM_VerboseEventCompletedConcurrentSweep*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventCompletedConcurrentSweep));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventCompletedConcurrentSweep(event, hookInterface);
+        eventObject->initialize();
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventCompletedConcurrentSweep::initialize(void)
+void MM_VerboseEventCompletedConcurrentSweep::initialize(void)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	_timeInMilliSeconds = omrtime_current_time_millis();
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    _timeInMilliSeconds = omrtime_current_time_millis();
 }
 
 /**
@@ -59,61 +59,61 @@ MM_VerboseEventCompletedConcurrentSweep::initialize(void)
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventCompletedConcurrentSweep::consumeEvents(void)
-{
-}
+void MM_VerboseEventCompletedConcurrentSweep::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventCompletedConcurrentSweep::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventCompletedConcurrentSweep::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	char timestamp[32];
-	UDATA indentLevel = _manager->getIndentLevel();
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	
-	switch((SweepCompletionReason)_reason) {
+    char timestamp[32];
+    UDATA indentLevel = _manager->getIndentLevel();
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
 
-	case ABOUT_TO_GC:
-	
-		omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<con event=\"completed full sweep\" timestamp=\"%s\">", timestamp);
-		
-		_manager->incrementIndent();
-		indentLevel = _manager->getIndentLevel();
-		
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<stats sweepbytes=\"%zu\" sweeptime=\"%llu.%03.3llu\" connectbytes=\"%zu\" connecttime=\"%llu.%03.3llu\" />",
-			_bytesSwept,
-			_timeElapsedSweep / 1000,
-			_timeElapsedSweep % 1000,
-			_bytesConnected,
-			_timeElapsedConnect / 1000,
-			_timeElapsedConnect % 1000);
-		
-		_manager->decrementIndent();
-		indentLevel = _manager->getIndentLevel();
-		
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
-		break;
-	case COMPACTION_REQUIRED:
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"completed sweep to facilitate compaction\" />");
-		break;
-	case CONTRACTION_REQUIRED:
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"completed sweep to facilitate contraction\" />");
-		break;
-	case EXPANSION_REQUIRED:	
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"completed sweep to facilitate expansion\" />");
-		break;
-	case LOA_RESIZE:	
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"completed sweep to facilitate LOA resize\" />");
-		break;
-	case SYSTEM_GC:
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"completed sweep due to system gc\" />");
-		break;
-	default:
-		assume0(0);
-	}		
+    switch ((SweepCompletionReason)_reason) {
+
+    case ABOUT_TO_GC:
+
+        omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<con event=\"completed full sweep\" timestamp=\"%s\">", timestamp);
+
+        _manager->incrementIndent();
+        indentLevel = _manager->getIndentLevel();
+
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<stats sweepbytes=\"%zu\" sweeptime=\"%llu.%03.3llu\" connectbytes=\"%zu\" connecttime=\"%llu.%03.3llu\" "
+            "/>",
+            _bytesSwept, _timeElapsedSweep / 1000, _timeElapsedSweep % 1000, _bytesConnected,
+            _timeElapsedConnect / 1000, _timeElapsedConnect % 1000);
+
+        _manager->decrementIndent();
+        indentLevel = _manager->getIndentLevel();
+
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</con>");
+        break;
+    case COMPACTION_REQUIRED:
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"completed sweep to facilitate compaction\" />");
+        break;
+    case CONTRACTION_REQUIRED:
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"completed sweep to facilitate contraction\" />");
+        break;
+    case EXPANSION_REQUIRED:
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"completed sweep to facilitate expansion\" />");
+        break;
+    case LOA_RESIZE:
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"completed sweep to facilitate LOA resize\" />");
+        break;
+    case SYSTEM_GC:
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"completed sweep due to system gc\" />");
+        break;
+    default:
+        assume0(0);
+    }
 }

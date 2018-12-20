@@ -33,12 +33,11 @@
  * Structure holding information relating to tgc tracing for the scavenger.
  */
 typedef struct TgcScavengerExtensions {
-	UDATA unused;
+    UDATA unused;
 } TgcScavengerExtensions;
-	
-bool tgcScavengerInitialize(J9JavaVM *javaVM);
-bool tgcScavengerSurvivalStatsInitialize(J9JavaVM *javaVM);
-bool tgcScavengerMemoryStatsInitialize(J9JavaVM *javaVM);
 
+bool tgcScavengerInitialize(J9JavaVM* javaVM);
+bool tgcScavengerSurvivalStatsInitialize(J9JavaVM* javaVM);
+bool tgcScavengerMemoryStatsInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCSCAVENGER_HPP_ */

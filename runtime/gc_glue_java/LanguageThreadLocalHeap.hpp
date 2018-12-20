@@ -30,42 +30,45 @@ typedef J9ModronThreadLocalHeap LanguageThreadLocalHeapStruct;
 class MM_LanguageThreadLocalHeap {
 
 public:
-	LanguageThreadLocalHeapStruct* getLanguageThreadLocalHeapStruct(MM_EnvironmentBase* env, bool zeroTLH)
-	{
+    LanguageThreadLocalHeapStruct* getLanguageThreadLocalHeapStruct(MM_EnvironmentBase* env, bool zeroTLH)
+    {
 #if defined(J9VM_GC_NON_ZERO_TLH)
-		if (!zeroTLH) {
-			return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroAllocateThreadLocalHeap;
-		}
+        if (!zeroTLH) {
+            return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroAllocateThreadLocalHeap;
+        }
 #endif /* defined(J9VM_GC_NON_ZERO_TLH) */
-		return &static_cast<J9VMThread*>(env->getLanguageVMThread())->allocateThreadLocalHeap;
-	}
+        return &static_cast<J9VMThread*>(env->getLanguageVMThread())->allocateThreadLocalHeap;
+    }
 
-	U_8 ** getPointerToHeapAlloc(MM_EnvironmentBase* env, bool zeroTLH) {
+    U_8** getPointerToHeapAlloc(MM_EnvironmentBase* env, bool zeroTLH)
+    {
 #if defined(J9VM_GC_NON_ZERO_TLH)
-		if (!zeroTLH) {
-			return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroHeapAlloc;
-		}
+        if (!zeroTLH) {
+            return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroHeapAlloc;
+        }
 #endif /* defined(J9VM_GC_NON_ZERO_TLH) */
-		return &static_cast<J9VMThread*>(env->getLanguageVMThread())->heapAlloc;
-	}
+        return &static_cast<J9VMThread*>(env->getLanguageVMThread())->heapAlloc;
+    }
 
-	U_8 ** getPointerToHeapTop(MM_EnvironmentBase* env, bool zeroTLH) {
+    U_8** getPointerToHeapTop(MM_EnvironmentBase* env, bool zeroTLH)
+    {
 #if defined(J9VM_GC_NON_ZERO_TLH)
-		if (!zeroTLH) {
-			return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroHeapTop;
-		}
+        if (!zeroTLH) {
+            return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroHeapTop;
+        }
 #endif /* defined(J9VM_GC_NON_ZERO_TLH) */
-		return &static_cast<J9VMThread*>(env->getLanguageVMThread())->heapTop;
-	}
+        return &static_cast<J9VMThread*>(env->getLanguageVMThread())->heapTop;
+    }
 
-	IDATA * getPointerToTlhPrefetchFTA(MM_EnvironmentBase* env, bool zeroTLH) {
+    IDATA* getPointerToTlhPrefetchFTA(MM_EnvironmentBase* env, bool zeroTLH)
+    {
 #if defined(J9VM_GC_NON_ZERO_TLH)
-		if (!zeroTLH) {
-			return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroTlhPrefetchFTA;
-		}
+        if (!zeroTLH) {
+            return &static_cast<J9VMThread*>(env->getLanguageVMThread())->nonZeroTlhPrefetchFTA;
+        }
 #endif /* defined(J9VM_GC_NON_ZERO_TLH) */
-		return &static_cast<J9VMThread*>(env->getLanguageVMThread())->tlhPrefetchFTA;
-	}
+        return &static_cast<J9VMThread*>(env->getLanguageVMThread())->tlhPrefetchFTA;
+    }
 };
 
 #endif /* LANGUAGETHREADLOCALHEAP_HPP_ */

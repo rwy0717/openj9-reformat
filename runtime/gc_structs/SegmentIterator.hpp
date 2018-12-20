@@ -33,42 +33,36 @@
 #include "modronbase.h"
 #include "j9.h"
 
-
 /**
  * Iterate over a linked list of memory segments.
  * @ingroup GC_Structs
  */
-class GC_SegmentIterator
-{
-	J9MemorySegment *_memorySegment;
-	uintptr_t _flags;
+class GC_SegmentIterator {
+    J9MemorySegment* _memorySegment;
+    uintptr_t _flags;
 
 public:
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; }
 
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; }
-	
-	/**
-	 * @param memorySegment the list of segments to iterate over
-	 * @flags for every segment returned by nextSegment(), all bits in <code>flags</code>
-	 * will also be in the <code>type</code> field of that segment.
-	 */
-	GC_SegmentIterator(J9MemorySegmentList *memorySegmentList, uintptr_t flags) :
-		_memorySegment(memorySegmentList->nextSegment),
-		_flags(flags)
-	{};
+    /**
+     * @param memorySegment the list of segments to iterate over
+     * @flags for every segment returned by nextSegment(), all bits in <code>flags</code>
+     * will also be in the <code>type</code> field of that segment.
+     */
+    GC_SegmentIterator(J9MemorySegmentList* memorySegmentList, uintptr_t flags)
+        : _memorySegment(memorySegmentList->nextSegment)
+        , _flags(flags) {};
 
-	/**
-	 * @param memorySegment the first segment in the list
-	 * @flags for every segment returned by nextSegment(), all bits in <code>flags</code>
-	 * will also be in the <code>type</code> field of that segment.
-	 */	
-	GC_SegmentIterator(J9MemorySegment *memorySegment, uintptr_t flags) :
-		_memorySegment(memorySegment),
-		_flags(flags)
-	{};	
+    /**
+     * @param memorySegment the first segment in the list
+     * @flags for every segment returned by nextSegment(), all bits in <code>flags</code>
+     * will also be in the <code>type</code> field of that segment.
+     */
+    GC_SegmentIterator(J9MemorySegment* memorySegment, uintptr_t flags)
+        : _memorySegment(memorySegment)
+        , _flags(flags) {};
 
-	J9MemorySegment *nextSegment();
+    J9MemorySegment* nextSegment();
 };
 
 #endif /* SEGMENTITERATOR_HPP_ */
-

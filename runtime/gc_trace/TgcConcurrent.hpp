@@ -33,9 +33,9 @@
  * Structure holding information relating to tgc tracing for concurrent mark.
  */
 typedef struct TgcConcurrentExtensions {
-	UDATA gcCountAtBackgroundThreadActivation;
+    UDATA gcCountAtBackgroundThreadActivation;
 } TgcConcurrentExtensions;
 
-bool tgcConcurrentInitialize(J9JavaVM *javaVM);
+bool tgcConcurrentInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCCONCURRENT_HPP_ */

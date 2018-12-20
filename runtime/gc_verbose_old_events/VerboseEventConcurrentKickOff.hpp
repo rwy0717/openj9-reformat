@@ -35,41 +35,38 @@
  * Stores the data relating to the kickoff of a concurrent collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentKickOff : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentKickOff : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_nurseryFreeBytes; /**< number of bytes free in the nursery */
-	UDATA	_tenureFreeBytes; /**< number of bytes free in the tenure area */
-	UDATA	_traceTarget; /**< the targetted number of bytes to be concurrently traced */
-	UDATA	_kickOffThreshold; /**< the number of bytes free at which concurrent gc will begin */
-	UDATA	_kickOffReason; /**< the reason for kickoff */
-	UDATA	_languageKickOffReason; /**< the reason for kickoff */
-	
-	I_64 _timeInMilliSeconds;
-	
-	void initialize(void);
-	const char *getKickoffReasonAsString(UDATA reason, UDATA languageReason);
+    /* Passed Data */
+    UDATA _nurseryFreeBytes; /**< number of bytes free in the nursery */
+    UDATA _tenureFreeBytes; /**< number of bytes free in the tenure area */
+    UDATA _traceTarget; /**< the targetted number of bytes to be concurrently traced */
+    UDATA _kickOffThreshold; /**< the number of bytes free at which concurrent gc will begin */
+    UDATA _kickOffReason; /**< the reason for kickoff */
+    UDATA _languageKickOffReason; /**< the reason for kickoff */
+
+    I_64 _timeInMilliSeconds;
+
+    void initialize(void);
+    const char* getKickoffReasonAsString(UDATA reason, UDATA languageReason);
 
 public:
+    static MM_VerboseEvent* newInstance(MM_ConcurrentKickoffEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ConcurrentKickoffEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return true; };
-		
-	MM_VerboseEventConcurrentKickOff(MM_ConcurrentKickoffEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_nurseryFreeBytes(event->commonData->nurseryFreeBytes),
-	_tenureFreeBytes(event->commonData->tenureFreeBytes),
-	_traceTarget(event->traceTarget),
-	_kickOffThreshold(event->kickOffThreshold),
-	_kickOffReason(event->reason),
-	_languageKickOffReason(event->languageReason)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return true; };
+
+    MM_VerboseEventConcurrentKickOff(MM_ConcurrentKickoffEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _nurseryFreeBytes(event->commonData->nurseryFreeBytes)
+        , _tenureFreeBytes(event->commonData->tenureFreeBytes)
+        , _traceTarget(event->traceTarget)
+        , _kickOffThreshold(event->kickOffThreshold)
+        , _kickOffReason(event->reason)
+        , _languageKickOffReason(event->languageReason) {};
 };
 
 #endif /* EVENT_CON_KICKOFF_HPP_ */

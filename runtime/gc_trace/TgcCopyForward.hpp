@@ -30,7 +30,7 @@
 #define TGCCOPYFORWARD_HPP_
 
 #if defined(J9VM_GC_VLHGC)
-bool tgcCopyForwardInitialize(J9JavaVM *javaVM);
+bool tgcCopyForwardInitialize(J9JavaVM* javaVM);
 #endif /* defined(J9VM_GC_VLHGC) */
 
 #endif /* TGCCOPYFORWARD_HPP_ */

@@ -37,24 +37,22 @@
  * Get the next object reference in the JVMTI Object Tag table.
  * @return A slot pointer (NULL when no more slots)
  */
-void **
-GC_JVMTIObjectTagTableIterator::nextSlot()
+void** GC_JVMTIObjectTagTableIterator::nextSlot()
 {
-	J9JVMTIObjectTag *objTag = (J9JVMTIObjectTag *)_hashTableIterator.nextSlot();
-	_lastTag = objTag;
-	return (void **)&objTag->ref;
+    J9JVMTIObjectTag* objTag = (J9JVMTIObjectTag*)_hashTableIterator.nextSlot();
+    _lastTag = objTag;
+    return (void**)&objTag->ref;
 }
 
 /**
  * NULLs out the current object reference slot
  */
-void 
-GC_JVMTIObjectTagTableIterator::removeSlot()
+void GC_JVMTIObjectTagTableIterator::removeSlot()
 {
-	J9JVMTIObjectTag *objTag = (J9JVMTIObjectTag *)_lastTag;
-	if (NULL != objTag) {
-		objTag->ref = NULL;
-	}
+    J9JVMTIObjectTag* objTag = (J9JVMTIObjectTag*)_lastTag;
+    if (NULL != objTag) {
+        objTag->ref = NULL;
+    }
 }
 
 #endif /* J9VM_OPT_JVMTI */

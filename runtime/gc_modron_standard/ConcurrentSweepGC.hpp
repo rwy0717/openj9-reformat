@@ -39,32 +39,33 @@ class MM_MemorySubSpace;
  * Temporary GC class to finish full blown concurrent sweep functionality.
  * This class allows exploration of details concurrent sweep is missing to operate in a real world environment.
  */
-class MM_ConcurrentSweepGC : public MM_ParallelGlobalGC
-{
+class MM_ConcurrentSweepGC : public MM_ParallelGlobalGC {
 private:
-	J9JavaVM *_javaVM;
+    J9JavaVM* _javaVM;
+
 protected:
 public:
-
 private:
 protected:
-	virtual void internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription, U_32 gcCode);
+    virtual void internalPreCollect(
+        MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, MM_AllocateDescription* allocDescription, U_32 gcCode);
 
 public:
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_COLLECTOR_CONCURRENTSWEEPGC; };
-	
-	static MM_ConcurrentSweepGC *newInstance(MM_EnvironmentBase *env);
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_COLLECTOR_CONCURRENTSWEEPGC; };
 
-	virtual void payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, MM_MemorySubSpace *baseSubSpace, MM_AllocateDescription *allocDescription);
-		
-	virtual bool replenishPoolForAllocate(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool, UDATA size);
+    static MM_ConcurrentSweepGC* newInstance(MM_EnvironmentBase* env);
 
-	MM_ConcurrentSweepGC(MM_EnvironmentBase *env)
-		: MM_ParallelGlobalGC(env)
-		, _javaVM((J9JavaVM*)env->getOmrVM()->_language_vm)
-	{
-		_typeId = __FUNCTION__;
-	}
+    virtual void payAllocationTax(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace, MM_MemorySubSpace* baseSubSpace,
+        MM_AllocateDescription* allocDescription);
+
+    virtual bool replenishPoolForAllocate(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool, UDATA size);
+
+    MM_ConcurrentSweepGC(MM_EnvironmentBase* env)
+        : MM_ParallelGlobalGC(env)
+        , _javaVM((J9JavaVM*)env->getOmrVM()->_language_vm)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 #endif /* J9VM_GC_CONCURRENT_SWEEP */

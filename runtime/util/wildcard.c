@@ -41,47 +41,45 @@
  * This function only supports leading or trailing wild card characters.
  * The only supported wild card character is '*'.
  *
- * Returns 0 on success, or non-zero if the input string contains wild card characters 
+ * Returns 0 on success, or non-zero if the input string contains wild card characters
  * in an unsupported location.
  */
 IDATA
-parseWildcard(const char * pattern, UDATA patternLength, const char** needle, UDATA* needleLength, U_32 * matchFlag)
+parseWildcard(const char* pattern, UDATA patternLength, const char** needle, UDATA* needleLength, U_32* matchFlag)
 {
-	IDATA rc = 0;
-	const char *str;
+    IDATA rc = 0;
+    const char* str;
 
-	Trc_Util_parseWildcard_Entry(patternLength, pattern);
+    Trc_Util_parseWildcard_Entry(patternLength, pattern);
 
-	*matchFlag = 0;
-	if (patternLength > 0 && *pattern == WILDCARD_CHARACTER) {
-		patternLength--;
-		pattern++;
-		*matchFlag |= LEADING_WILDCARD;
-	}
+    *matchFlag = 0;
+    if (patternLength > 0 && *pattern == WILDCARD_CHARACTER) {
+        patternLength--;
+        pattern++;
+        *matchFlag |= LEADING_WILDCARD;
+    }
 
-	for (str = pattern; str < pattern + patternLength; str++) {
-		if (*str == WILDCARD_CHARACTER) {
-			if (str == pattern + patternLength - 1) {
-				*matchFlag |= TRAILING_WILDCARD;
-				patternLength--;
-				break;
-			} else {
-				/* invalid wildcard */
-				Trc_Util_parseWildcard_Error();
-				return -1;
-			}
-		}
-	}
+    for (str = pattern; str < pattern + patternLength; str++) {
+        if (*str == WILDCARD_CHARACTER) {
+            if (str == pattern + patternLength - 1) {
+                *matchFlag |= TRAILING_WILDCARD;
+                patternLength--;
+                break;
+            } else {
+                /* invalid wildcard */
+                Trc_Util_parseWildcard_Error();
+                return -1;
+            }
+        }
+    }
 
-	*needleLength = patternLength;
-	*needle = pattern;
+    *needleLength = patternLength;
+    *needle = pattern;
 
-	Trc_Util_parseWildcard_Exit(patternLength, pattern, *matchFlag);
+    Trc_Util_parseWildcard_Exit(patternLength, pattern, *matchFlag);
 
-	return 0;
+    return 0;
 }
-
-
 
 /*
  * Determines if needle appears in haystack, using the match rules
@@ -93,46 +91,41 @@ parseWildcard(const char * pattern, UDATA patternLength, const char** needle, UD
 IDATA
 wildcardMatch(U_32 matchFlag, const char* needle, UDATA needleLength, const char* haystack, UDATA haystackLength)
 {
-	IDATA retval = FALSE;
+    IDATA retval = FALSE;
 
-	switch(matchFlag) {
-	case EXACT_MATCH:
-		if(haystackLength == needleLength && memcmp(haystack, needle, needleLength) == 0) {
-			retval = TRUE;
-		}
-		break;
-	case LEADING_WILDCARD:
-		if(haystackLength >= needleLength) {
-			if (memcmp(haystack + (haystackLength - needleLength), needle, needleLength) == 0) {
-				retval = TRUE;
-			}
-		}
-		break;
-	case TRAILING_WILDCARD:
-		if(haystackLength >= needleLength) {
-			if (memcmp(haystack, needle, needleLength) == 0) {
-				retval = TRUE;
-			}
-		}
-		break;
-	case BOTH_WILDCARDS:
-		if(needleLength == 0) {
-			retval = TRUE;
-		} else if (haystackLength >= needleLength) {
-			UDATA i;
-			for (i = 0; i <= haystackLength - needleLength; i++) {
-				if (memcmp(haystack + i, needle, needleLength) == 0) {
-					retval = TRUE;
-					break;
-				}
-			}
-		}
-	}
+    switch (matchFlag) {
+    case EXACT_MATCH:
+        if (haystackLength == needleLength && memcmp(haystack, needle, needleLength) == 0) {
+            retval = TRUE;
+        }
+        break;
+    case LEADING_WILDCARD:
+        if (haystackLength >= needleLength) {
+            if (memcmp(haystack + (haystackLength - needleLength), needle, needleLength) == 0) {
+                retval = TRUE;
+            }
+        }
+        break;
+    case TRAILING_WILDCARD:
+        if (haystackLength >= needleLength) {
+            if (memcmp(haystack, needle, needleLength) == 0) {
+                retval = TRUE;
+            }
+        }
+        break;
+    case BOTH_WILDCARDS:
+        if (needleLength == 0) {
+            retval = TRUE;
+        } else if (haystackLength >= needleLength) {
+            UDATA i;
+            for (i = 0; i <= haystackLength - needleLength; i++) {
+                if (memcmp(haystack + i, needle, needleLength) == 0) {
+                    retval = TRUE;
+                    break;
+                }
+            }
+        }
+    }
 
-	return retval;
+    return retval;
 }
-
-
-
-
-

@@ -23,7 +23,7 @@
 
 #include "fr.h"
 
-static agentEnv * _agentEnv;
+static agentEnv* _agentEnv;
 
 static int res_c1 = 0;
 static int res_c2 = 0;
@@ -32,99 +32,97 @@ static int res_count = 0;
 
 static jvmtiTestFollowRefsUserData userData;
 
-jint JNICALL
-fr004(agentEnv * env, char * args)
+jint JNICALL fr004(agentEnv* env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiCapabilities capabilities;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	if (!ensureVersion(env, JVMTI_VERSION_1_1)) {
-		return JNI_ERR;
-	}   
-       
-	_agentEnv = env;
+    if (!ensureVersion(env, JVMTI_VERSION_1_1)) {
+        return JNI_ERR;
+    }
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_tag_objects = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}
-	
-	tagManager_initialize(env);
-	
-	return JNI_OK;
+    _agentEnv = env;
+
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_tag_objects = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
+
+    tagManager_initialize(env);
+
+    return JNI_OK;
 }
 
-
-static jint JNICALL 
-testFollowReferences_primitiveFieldCallback(jvmtiHeapReferenceKind reference_kind, const jvmtiHeapReferenceInfo* referrer_info, jlong class_tag, jlong* tag_ptr, jvalue value, jvmtiPrimitiveType value_type, void* user_data)
+static jint JNICALL testFollowReferences_primitiveFieldCallback(jvmtiHeapReferenceKind reference_kind,
+    const jvmtiHeapReferenceInfo* referrer_info, jlong class_tag, jlong* tag_ptr, jvalue value,
+    jvmtiPrimitiveType value_type, void* user_data)
 {
-	
-	if (*tag_ptr != 0L) {
-		queueTag(*tag_ptr);
-		queueTag(class_tag);
-		printf("testFollowReferences_primitiveFieldCallback tag %llx:%llx\n", class_tag, *tag_ptr);
-				
-		if (value_type == JVMTI_PRIMITIVE_TYPE_INT) {
-			if (value.i == 100)
-				res_c1 = 100;
-			if (value.i == 200)
-				res_c2 = 200;
-			if (value.i == 300)
-				res_c3 = 300;			
-		}
-		
-		res_count++;
-		
-	} else {
-		if (class_tag != 0L) {
-			printf("testFollowReferences_primitiveFieldCallback Class tag %llx\n", class_tag);
-		}
-	}
-	
-	return JVMTI_VISIT_OBJECTS;
+
+    if (*tag_ptr != 0L) {
+        queueTag(*tag_ptr);
+        queueTag(class_tag);
+        printf("testFollowReferences_primitiveFieldCallback tag %llx:%llx\n", class_tag, *tag_ptr);
+
+        if (value_type == JVMTI_PRIMITIVE_TYPE_INT) {
+            if (value.i == 100)
+                res_c1 = 100;
+            if (value.i == 200)
+                res_c2 = 200;
+            if (value.i == 300)
+                res_c3 = 300;
+        }
+
+        res_count++;
+
+    } else {
+        if (class_tag != 0L) {
+            printf("testFollowReferences_primitiveFieldCallback Class tag %llx\n", class_tag);
+        }
+    }
+
+    return JVMTI_VISIT_OBJECTS;
 }
 
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_followReferences_fr004_followObjectPrimitiveFields(JNIEnv * jni_env, jclass klass, jobject initialObject, jclass filterClass)
+jboolean JNICALL Java_com_ibm_jvmti_tests_followReferences_fr004_followObjectPrimitiveFields(
+    JNIEnv* jni_env, jclass klass, jobject initialObject, jclass filterClass)
 {
-	jvmtiError err;
-	jvmtiHeapCallbacks callbacks;	
-	JVMTI_ACCESS_FROM_AGENT(_agentEnv);
-	jint errorCount;
-	jint filterTag = JVMTI_HEAP_FILTER_UNTAGGED | JVMTI_HEAP_FILTER_CLASS_UNTAGGED;
-	
-	errorCount = getErrorCount();
-	
-	/* Test Follow References  Callback */
-	memset(&callbacks, 0x00, sizeof(jvmtiHeapCallbacks));
-	memset(&userData, 0x00, sizeof(jvmtiTestFollowRefsUserData));	
-	callbacks.primitive_field_callback = testFollowReferences_primitiveFieldCallback;
-	err = (*jvmti_env)->FollowReferences(jvmti_env, filterTag, filterClass, initialObject, &callbacks, (void *) &userData);
-	if (err != JVMTI_ERROR_NONE) {
-		error(_agentEnv, err, "FollowReferences failed");
-		return JNI_FALSE;		
-	}
+    jvmtiError err;
+    jvmtiHeapCallbacks callbacks;
+    JVMTI_ACCESS_FROM_AGENT(_agentEnv);
+    jint errorCount;
+    jint filterTag = JVMTI_HEAP_FILTER_UNTAGGED | JVMTI_HEAP_FILTER_CLASS_UNTAGGED;
 
-	if (errorCount != getErrorCount()) {
-		return JNI_FALSE;
-	} 
+    errorCount = getErrorCount();
 
-	if (res_c1 != 100 || res_c2 != 200 || res_c3 != 300) {
-		error(_agentEnv, JVMTI_ERROR_INTERNAL, "Received no primitive field callback for one or more of the expected fields");
-		return JNI_FALSE;
-	}
-		
-	if (res_count != 3) {
-		error(_agentEnv, JVMTI_ERROR_INTERNAL, "Expected 3 primitive field callbacks, got %d", res_count);
-		return JNI_FALSE;
-	}
-	
-	return JNI_TRUE;
-	 
+    /* Test Follow References  Callback */
+    memset(&callbacks, 0x00, sizeof(jvmtiHeapCallbacks));
+    memset(&userData, 0x00, sizeof(jvmtiTestFollowRefsUserData));
+    callbacks.primitive_field_callback = testFollowReferences_primitiveFieldCallback;
+    err = (*jvmti_env)
+              ->FollowReferences(jvmti_env, filterTag, filterClass, initialObject, &callbacks, (void*)&userData);
+    if (err != JVMTI_ERROR_NONE) {
+        error(_agentEnv, err, "FollowReferences failed");
+        return JNI_FALSE;
+    }
+
+    if (errorCount != getErrorCount()) {
+        return JNI_FALSE;
+    }
+
+    if (res_c1 != 100 || res_c2 != 200 || res_c3 != 300) {
+        error(_agentEnv, JVMTI_ERROR_INTERNAL,
+            "Received no primitive field callback for one or more of the expected fields");
+        return JNI_FALSE;
+    }
+
+    if (res_count != 3) {
+        error(_agentEnv, JVMTI_ERROR_INTERNAL, "Expected 3 primitive field callbacks, got %d", res_count);
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
 }

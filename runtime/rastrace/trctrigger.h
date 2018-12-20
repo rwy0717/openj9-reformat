@@ -29,16 +29,17 @@ extern "C" {
 
 #include "rastrace_external.h"
 
-#define RAS_TRACE_METHOD_NAME           "RSME"
-#define RAS_TRIGGER_METHOD_RULE_NAME    "RSTM"
+#define RAS_TRACE_METHOD_NAME "RSME"
+#define RAS_TRIGGER_METHOD_RULE_NAME "RSTM"
 #define RAS_TRIGGERED_METHOD_BLOCK_NAME "RSMB"
 
 #if 0
-#define RAS_DBGOUT(x)                       \
-	if (RAS_GLOBAL(debug)){                 \
-		fprintf x;                          \
-		fflush(stderr);                     \
-		} else;
+#define RAS_DBGOUT(x)        \
+    if (RAS_GLOBAL(debug)) { \
+        fprintf x;           \
+        fflush(stderr);      \
+    } else                   \
+        ;
 #else
 #define RAS_DBGOUT(x)
 #endif
@@ -49,8 +50,8 @@ extern "C" {
  * ======================================================================
  */
 typedef struct RasHeader {
-	char eyecatcher[4];
-	int length;
+    char eyecatcher[4];
+    int length;
 } RasHeader;
 
 /*
@@ -59,15 +60,15 @@ typedef struct RasHeader {
  * ======================================================================
  */
 typedef struct RasTriggerTpidRange {
-	RasHeader header;
-	struct RasTriggerTpidRange *next;
-	char *compName;
-	unsigned int startTpid;
-	unsigned int endTpid;
-	uint32_t delay;
-	int32_t match;
-	uintptr_t spinlock;
-	uint32_t actionIndex;
+    RasHeader header;
+    struct RasTriggerTpidRange* next;
+    char* compName;
+    unsigned int startTpid;
+    unsigned int endTpid;
+    uint32_t delay;
+    int32_t match;
+    uintptr_t spinlock;
+    uint32_t actionIndex;
 } RasTriggerTpidRange;
 
 /*
@@ -76,15 +77,15 @@ typedef struct RasTriggerTpidRange {
  * ======================================================================
  */
 typedef struct RasTriggerGroup {
-	RasHeader header;
-	struct RasTriggerGroup *next;
-	char *groupName;
-	uint32_t delay;
-	int32_t match;
-	uint32_t actionIndex;
+    RasHeader header;
+    struct RasTriggerGroup* next;
+    char* groupName;
+    uint32_t delay;
+    int32_t match;
+    uint32_t actionIndex;
 } RasTriggerGroup;
 
-void triggerHit(OMR_VMThread *thr, char *compName, uint32_t traceId, TriggerPhase phase);
+void triggerHit(OMR_VMThread* thr, char* compName, uint32_t traceId, TriggerPhase phase);
 
 #ifdef __cplusplus
 }

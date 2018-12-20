@@ -25,9 +25,8 @@
 #include "jclprots.h"
 #include "jcl_internal.h"
 
-void JNICALL
-Java_java_lang_Object_registerNatives(JNIEnv *env, jclass jlClass)
+void JNICALL Java_java_lang_Object_registerNatives(JNIEnv* env, jclass jlClass)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	j9tty_printf(PORTLIB,"HACK @ %s.%d: Oracle Java_java_lang_Object_registerNatives() stubbed out.");
+    PORT_ACCESS_FROM_ENV(env);
+    j9tty_printf(PORTLIB, "HACK @ %s.%d: Oracle Java_java_lang_Object_registerNatives() stubbed out.");
 }

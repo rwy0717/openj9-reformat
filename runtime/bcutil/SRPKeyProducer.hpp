@@ -33,55 +33,54 @@
 
 class ClassFileOracle;
 
-class SRPKeyProducer
-{
+class SRPKeyProducer {
 public:
-	SRPKeyProducer(ClassFileOracle *classFileOracle);
+    SRPKeyProducer(ClassFileOracle* classFileOracle);
 
-	/* generateKey can no-longer be called after getMaxKey has been called */
-	UDATA generateKey();
-	UDATA getMaxKey();
+    /* generateKey can no-longer be called after getMaxKey has been called */
+    UDATA generateKey();
+    UDATA getMaxKey();
 
-	UDATA mapCfrConstantPoolIndexToKey(U_16 index)
-	{
-		Trc_BCU_Assert_LessThan(index, _cfrConstantPoolCount);
-		return index;
-	}
+    UDATA mapCfrConstantPoolIndexToKey(U_16 index)
+    {
+        Trc_BCU_Assert_LessThan(index, _cfrConstantPoolCount);
+        return index;
+    }
 
-	U_16 mapKeyToCfrConstantPoolIndex(UDATA key)
-	{
-		Trc_BCU_Assert_LessThan(key, _cfrConstantPoolCount);
-		return U_16(key);
-	}
+    U_16 mapKeyToCfrConstantPoolIndex(UDATA key)
+    {
+        Trc_BCU_Assert_LessThan(key, _cfrConstantPoolCount);
+        return U_16(key);
+    }
 
-	UDATA mapMethodIndexToStackMapKey(U_16 index)
-	{
-		Trc_BCU_Assert_LessThan(index, _methodCount);
-		return UDATA(index) + _startStackMapKeys;
-	}
+    UDATA mapMethodIndexToStackMapKey(U_16 index)
+    {
+        Trc_BCU_Assert_LessThan(index, _methodCount);
+        return UDATA(index) + _startStackMapKeys;
+    }
 
-	UDATA mapMethodIndexToMethodDebugInfoKey(U_16 index)
-	{
-		Trc_BCU_Assert_LessThan(index, _methodCount);
-		return UDATA(index) + _startMethodDebugInfoKeys;
-	}
+    UDATA mapMethodIndexToMethodDebugInfoKey(U_16 index)
+    {
+        Trc_BCU_Assert_LessThan(index, _methodCount);
+        return UDATA(index) + _startMethodDebugInfoKeys;
+    }
 
-	UDATA mapMethodIndexToVariableInfoKey(U_16 index)
-	{
-		Trc_BCU_Assert_LessThan(index, _methodCount);
-		return UDATA(index) + _startVariableInfoKeys;
-	}
+    UDATA mapMethodIndexToVariableInfoKey(U_16 index)
+    {
+        Trc_BCU_Assert_LessThan(index, _methodCount);
+        return UDATA(index) + _startVariableInfoKeys;
+    }
 
-	bool isKeyToCfrConstantPoolItem(UDATA key) { return key < _cfrConstantPoolCount;}
+    bool isKeyToCfrConstantPoolItem(UDATA key) { return key < _cfrConstantPoolCount; }
 
 private:
-	U_16 _cfrConstantPoolCount;
-	U_16 _methodCount;
-	UDATA _startStackMapKeys;
-	UDATA _startMethodDebugInfoKeys;
-	UDATA _startVariableInfoKeys;
-	UDATA _maxKey;
-	bool _getMaxKeyWasCalled;
+    U_16 _cfrConstantPoolCount;
+    U_16 _methodCount;
+    UDATA _startStackMapKeys;
+    UDATA _startMethodDebugInfoKeys;
+    UDATA _startVariableInfoKeys;
+    UDATA _maxKey;
+    bool _getMaxKeyWasCalled;
 };
 
 #endif /* SRPKEYPRODUCER_HPP_ */

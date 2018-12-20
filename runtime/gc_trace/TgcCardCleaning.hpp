@@ -32,7 +32,7 @@
  * Initialize the card cleaning trace extension. Register hooks for the end of a GC cycle.
  *
  * @param[in] javaVM	The JavaVM structure
- * 
+ *
  * @return Return 0 on success, otherwise return positive integer
  */
 UDATA tgcCardCleaningInitialize(J9JavaVM* javaVM);

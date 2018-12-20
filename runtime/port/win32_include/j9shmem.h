@@ -26,19 +26,18 @@
 #include <windows.h>
 
 typedef struct j9shmem_handle {
-	void* region;
-	const char* rootName;
-	uintptr_t size;
-	intptr_t mappedFile;
-	HANDLE shmHandle;
-	DWORD perm;
-	PROCESS_INFORMATION* helperpi;
-	BOOL creator;
-	OMRMemCategory* category;
+    void* region;
+    const char* rootName;
+    uintptr_t size;
+    intptr_t mappedFile;
+    HANDLE shmHandle;
+    DWORD perm;
+    PROCESS_INFORMATION* helperpi;
+    BOOL creator;
+    OMRMemCategory* category;
 } j9shmem_handle;
 
-char* getSharedMemoryPathandFileName(struct J9PortLibrary* portLibrary, const char*  cacheDirName, const char* sharedMemoryFileName);
+char* getSharedMemoryPathandFileName(
+    struct J9PortLibrary* portLibrary, const char* cacheDirName, const char* sharedMemoryFileName);
 
-#endif     /* j9shmem_h */
-
-
+#endif /* j9shmem_h */

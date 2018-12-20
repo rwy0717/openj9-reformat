@@ -26,25 +26,20 @@
 #include "j9vmutilnls.h"
 
 #if defined(WIN32)
-omr_error_t
-OMR_Glue_GetVMDirectoryToken(void **token)
+omr_error_t OMR_Glue_GetVMDirectoryToken(void** token)
 {
-	/* Return the name of a DLL that resides in the VM directory. */
-	*token = (void *)J9_PORT_DLL_NAME;
-	return OMR_ERROR_NONE;
+    /* Return the name of a DLL that resides in the VM directory. */
+    *token = (void*)J9_PORT_DLL_NAME;
+    return OMR_ERROR_NONE;
 }
 #endif /* defined(WIN32) */
 
 /**
  * Provides the thread name to be used when no name is given.
  */
-char *
-OMR_Glue_GetThreadNameForUnamedThread(OMR_VMThread *vmThread)
+char* OMR_Glue_GetThreadNameForUnamedThread(OMR_VMThread* vmThread)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(vmThread);
-	return (char *)omrnls_lookup_message(
-			J9NLS_DO_NOT_APPEND_NEWLINE | J9NLS_DO_NOT_PRINT_MESSAGE_TAG,
-			J9NLS_VMUTIL_THREAD_NAME_UNNAMED__MODULE,
-			J9NLS_VMUTIL_THREAD_NAME_UNNAMED__ID,
-			NULL);
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(vmThread);
+    return (char*)omrnls_lookup_message(J9NLS_DO_NOT_APPEND_NEWLINE | J9NLS_DO_NOT_PRINT_MESSAGE_TAG,
+        J9NLS_VMUTIL_THREAD_NAME_UNNAMED__MODULE, J9NLS_VMUTIL_THREAD_NAME_UNNAMED__ID, NULL);
 }

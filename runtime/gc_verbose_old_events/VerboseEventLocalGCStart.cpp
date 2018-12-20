@@ -32,16 +32,16 @@
  * Create an new instance of a MM_VerboseEventLocalGCStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventLocalGCStart::newInstance(MM_LocalGCStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventLocalGCStart::newInstance(MM_LocalGCStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventLocalGCStart *eventObject;
-	
-	eventObject = (MM_VerboseEventLocalGCStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventLocalGCStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventLocalGCStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventLocalGCStart* eventObject;
+
+    eventObject = (MM_VerboseEventLocalGCStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventLocalGCStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventLocalGCStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -49,39 +49,31 @@ MM_VerboseEventLocalGCStart::newInstance(MM_LocalGCStartEvent *event, J9HookInte
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventLocalGCStart::consumeEvents(void)
-{
-	_lastLocalTime = _manager->getLastLocalGCTime();
-}
+void MM_VerboseEventLocalGCStart::consumeEvents(void) { _lastLocalTime = _manager->getLastLocalGCTime(); }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventLocalGCStart::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventLocalGCStart::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
-	U_64 timeInMicroSeconds;
-	U_64 prevTime;
+    UDATA indentLevel = _manager->getIndentLevel();
+    PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
+    U_64 timeInMicroSeconds;
+    U_64 prevTime;
 
-	if (1 == _localGCCount) {
-		prevTime = _manager->getInitializedTime();
-	} else {
-		prevTime = _lastLocalTime;
-	}
-	timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);	
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<gc type=\"scavenger\" id=\"%zu\" totalid=\"%zu\" intervalms=\"%llu.%03.3llu\">", 
-		_localGCCount,
-		_localGCCount + _globalGCCount,
-		timeInMicroSeconds / 1000,
-		timeInMicroSeconds % 1000
-	);
-	
-	_manager->incrementIndent();
+    if (1 == _localGCCount) {
+        prevTime = _manager->getInitializedTime();
+    } else {
+        prevTime = _lastLocalTime;
+    }
+    timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<gc type=\"scavenger\" id=\"%zu\" totalid=\"%zu\" intervalms=\"%llu.%03.3llu\">", _localGCCount,
+        _localGCCount + _globalGCCount, timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
+
+    _manager->incrementIndent();
 }
 
 #endif /* defined(J9VM_GC_MODRON_SCAVENGER) */

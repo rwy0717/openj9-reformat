@@ -32,6 +32,4 @@
 #include "j9port.h"
 #include "j9lib.h"
 
-#endif     /* shmem_h */
- 
-
+#endif /* shmem_h */

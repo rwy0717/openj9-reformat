@@ -36,43 +36,39 @@
 
 /**
  * Iterate over class references (but not object references) in the constant pool of a class.
- * 
+ *
  * @see GC_ConstantPoolObjectSlotIterator
  * @ingroup GC_Structs
  */
-class GC_ConstantPoolClassSlotIterator
-{
+class GC_ConstantPoolClassSlotIterator {
 
-	J9Object **_cpEntry;
-	U_32 _cpEntryCount;
-	U_32 _cpEntryTotal;
-	U_32 *_cpDescriptionSlots;
-	U_32 _cpDescription;
-	UDATA _cpDescriptionIndex;
-	
+    J9Object** _cpEntry;
+    U_32 _cpEntryCount;
+    U_32 _cpEntryTotal;
+    U_32* _cpDescriptionSlots;
+    U_32 _cpDescription;
+    UDATA _cpDescriptionIndex;
+
 public:
-	GC_ConstantPoolClassSlotIterator(J9Class *clazz) :
-		_cpEntry((J9Object **)J9_CP_FROM_CLASS(clazz)),
-		_cpEntryCount(clazz->romClass->ramConstantPoolCount)
-	{
-		_cpEntryTotal = _cpEntryCount;
-		if(_cpEntryCount) {
-			_cpDescriptionSlots = SRP_PTR_GET(&clazz->romClass->cpShapeDescription, U_32 *);
-			_cpDescriptionIndex = 0;
-		}
+    GC_ConstantPoolClassSlotIterator(J9Class* clazz)
+        : _cpEntry((J9Object**)J9_CP_FROM_CLASS(clazz))
+        , _cpEntryCount(clazz->romClass->ramConstantPoolCount)
+    {
+        _cpEntryTotal = _cpEntryCount;
+        if (_cpEntryCount) {
+            _cpDescriptionSlots = SRP_PTR_GET(&clazz->romClass->cpShapeDescription, U_32*);
+            _cpDescriptionIndex = 0;
+        }
+    };
 
-	};
+    /**
+     * Gets the current constant pool index.
+     * @return zero based constant pool index of the entry returned by the last call of nextSlot.
+     * @return -1 if nextSlot has yet to be called.
+     */
+    MMINLINE IDATA getIndex() { return _cpEntryTotal - _cpEntryCount - 1; }
 
-	/**
-	 * Gets the current constant pool index.
-	 * @return zero based constant pool index of the entry returned by the last call of nextSlot.
-	 * @return -1 if nextSlot has yet to be called.
-	 */
-	MMINLINE IDATA getIndex() {
-		return _cpEntryTotal - _cpEntryCount - 1;
-	}
-
-	J9Class **nextSlot();
+    J9Class** nextSlot();
 };
 
 #endif /* CONSTANTPOOLCLASSSLOTITERATOR_HPP_ */

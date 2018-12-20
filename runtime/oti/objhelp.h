@@ -23,19 +23,21 @@
 #ifndef objhelp_h
 #define objhelp_h
 
-#define PUSH_OBJECT_IN_SPECIAL_FRAME(vmThread, obj) \
-	do { \
-		*((j9object_t*) (--(vmThread)->sp)) = (obj); \
-		*((UDATA *) &((vmThread)->literals)) += sizeof(UDATA); \
-	} while(0)
+#define PUSH_OBJECT_IN_SPECIAL_FRAME(vmThread, obj)          \
+    do {                                                     \
+        *((j9object_t*)(--(vmThread)->sp)) = (obj);          \
+        *((UDATA*)&((vmThread)->literals)) += sizeof(UDATA); \
+    } while (0)
 
 #define POP_OBJECT_IN_SPECIAL_FRAME(vmThread) \
-	(*((UDATA *) &((vmThread)->literals)) -= sizeof(UDATA), *((j9object_t*) (((vmThread)->sp)++)))
+    (*((UDATA*)&((vmThread)->literals)) -= sizeof(UDATA), *((j9object_t*)(((vmThread)->sp)++)))
 
-#define DROP_OBJECT_IN_SPECIAL_FRAME(vmThread) \
-	do { *((UDATA *) &((vmThread)->literals)) -= sizeof(UDATA); (vmThread)->sp += 1; } while(0)
+#define DROP_OBJECT_IN_SPECIAL_FRAME(vmThread)               \
+    do {                                                     \
+        *((UDATA*)&((vmThread)->literals)) -= sizeof(UDATA); \
+        (vmThread)->sp += 1;                                 \
+    } while (0)
 
-#define PEEK_OBJECT_IN_SPECIAL_FRAME(vmThread, index) \
-	((j9object_t*) ((vmThread)->sp))[(index)]
+#define PEEK_OBJECT_IN_SPECIAL_FRAME(vmThread, index) ((j9object_t*)((vmThread)->sp))[(index)]
 
-#endif     /* objhelp_h */
+#endif /* objhelp_h */

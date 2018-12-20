@@ -33,84 +33,82 @@
 
 #if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT))
 
-
-char* getDefaultBootstrapClassPath(J9JavaVM * vm, char* javaHome)
+char* getDefaultBootstrapClassPath(J9JavaVM* vm, char* javaHome)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	char separator = (char) j9sysinfo_get_classpathSeparator();
-	extern const char* const jclBootstrapClassPath[];
-	extern char* jclBootstrapClassPathAllocated[];
-	char **entry = NULL;
-	char *path = NULL;
-	char *lastEntry = NULL;
-	UDATA pathLength = 0;
-	UDATA javaHomeLength = strlen(javaHome);
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    char separator = (char)j9sysinfo_get_classpathSeparator();
+    extern const char* const jclBootstrapClassPath[];
+    extern char* jclBootstrapClassPathAllocated[];
+    char** entry = NULL;
+    char* path = NULL;
+    char* lastEntry = NULL;
+    UDATA pathLength = 0;
+    UDATA javaHomeLength = strlen(javaHome);
 
-	for (entry = GLOBAL_TABLE(jclBootstrapClassPath); NULL != *entry; ++entry)	{
-		lastEntry = *entry;
+    for (entry = GLOBAL_TABLE(jclBootstrapClassPath); NULL != *entry; ++entry) {
+        lastEntry = *entry;
 
-		pathLength += strlen(lastEntry);
+        pathLength += strlen(lastEntry);
 
-		/*
-		 * Entries that start with ! don't need our attention:
-		 * The space for the exclamation mark will be consumed
-		 * by a path separator.
-		 */
-		if ('!' != lastEntry[0]) {
-			pathLength += javaHomeLength;
-			pathLength += 1; /* for separator or NUL-terminator */
-			pathLength += sizeof("/lib/") - 1;
-		}
-	}
+        /*
+         * Entries that start with ! don't need our attention:
+         * The space for the exclamation mark will be consumed
+         * by a path separator.
+         */
+        if ('!' != lastEntry[0]) {
+            pathLength += javaHomeLength;
+            pathLength += 1; /* for separator or NUL-terminator */
+            pathLength += sizeof("/lib/") - 1;
+        }
+    }
 
-	/* Always create space enough for the NUL-terminator. */
-	if (0 == pathLength) {
-		pathLength = 1;
-	}
+    /* Always create space enough for the NUL-terminator. */
+    if (0 == pathLength) {
+        pathLength = 1;
+    }
 
-	path = j9mem_allocate_memory(pathLength, J9MEM_CATEGORY_VM_JCL);
-	if (NULL != path) {
-		UDATA i = 0;
-		char* subPath = path;
+    path = j9mem_allocate_memory(pathLength, J9MEM_CATEGORY_VM_JCL);
+    if (NULL != path) {
+        UDATA i = 0;
+        char* subPath = path;
 
-		/* Always NUL-terminate the path. */
-		path[0] = '\0';
+        /* Always NUL-terminate the path. */
+        path[0] = '\0';
 
-		for (entry = GLOBAL_TABLE(jclBootstrapClassPath), i = 0; NULL != *entry; ++entry, ++i) {
-			UDATA subLength = 0;
+        for (entry = GLOBAL_TABLE(jclBootstrapClassPath), i = 0; NULL != *entry; ++entry, ++i) {
+            UDATA subLength = 0;
 
-			/* add a separator before the second and subsequent entries */
-			if (0 != i) {
-				*subPath = separator;
-				subPath += 1;
-				pathLength -= 1;
-			}
+            /* add a separator before the second and subsequent entries */
+            if (0 != i) {
+                *subPath = separator;
+                subPath += 1;
+                pathLength -= 1;
+            }
 
-			lastEntry = *entry;
+            lastEntry = *entry;
 
-			if ('!' == lastEntry[0]) {
-				j9str_printf(PORTLIB, subPath, (U_32)pathLength, "%s", lastEntry + 1);
-				j9mem_free_memory(*entry);
-			} else {
-				j9str_printf(PORTLIB, subPath, (U_32)pathLength,
-								"%s" DIR_SEPARATOR_STR "lib" DIR_SEPARATOR_STR "%s",
-								/* classes.zip */ javaHome, *entry);
-				/* if this entry was allocated then free it as we will not use it
-				 * after this point */
-				if (NULL != jclBootstrapClassPathAllocated[i]) {
-					j9mem_free_memory(jclBootstrapClassPathAllocated[i]);
-				}
-			}
-			*entry = NULL;
-			jclBootstrapClassPathAllocated[i] = NULL;
+            if ('!' == lastEntry[0]) {
+                j9str_printf(PORTLIB, subPath, (U_32)pathLength, "%s", lastEntry + 1);
+                j9mem_free_memory(*entry);
+            } else {
+                j9str_printf(PORTLIB, subPath, (U_32)pathLength, "%s" DIR_SEPARATOR_STR "lib" DIR_SEPARATOR_STR "%s",
+                    /* classes.zip */ javaHome, *entry);
+                /* if this entry was allocated then free it as we will not use it
+                 * after this point */
+                if (NULL != jclBootstrapClassPathAllocated[i]) {
+                    j9mem_free_memory(jclBootstrapClassPathAllocated[i]);
+                }
+            }
+            *entry = NULL;
+            jclBootstrapClassPathAllocated[i] = NULL;
 
-			subLength = strlen(subPath);
-			subPath += subLength;
-			pathLength -= subLength;
-		}
-	}
+            subLength = strlen(subPath);
+            subPath += subLength;
+            pathLength -= subLength;
+        }
+    }
 
-	return path;
+    return path;
 }
 
 #endif /* J9VM_OPT_DYNAMIC_LOAD_SUPPORT */

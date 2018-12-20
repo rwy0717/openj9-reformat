@@ -36,42 +36,43 @@
  * A specialized root scanner for rescanning thread slots in order to auto-remember stack- (or thread-)
  * referenced object
  */
-class MM_ScavengerThreadRescanner : public MM_RootScanner
-{
+class MM_ScavengerThreadRescanner : public MM_RootScanner {
 private:
-	MM_Scavenger *_scavenger;
+    MM_Scavenger* _scavenger;
 
 public:
-	MM_ScavengerThreadRescanner(MM_EnvironmentBase *env, MM_Scavenger *scavenger) :
-	MM_RootScanner(env),
-	_scavenger(scavenger)
-	{
-		_typeId = __FUNCTION__;
-		setNurseryReferencesOnly(true);
-	};
+    MM_ScavengerThreadRescanner(MM_EnvironmentBase* env, MM_Scavenger* scavenger)
+        : MM_RootScanner(env)
+        , _scavenger(scavenger)
+    {
+        _typeId = __FUNCTION__;
+        setNurseryReferencesOnly(true);
+    };
 
-	virtual void doStackSlot(omrobjectptr_t *slotPtr, void *walkState, const void* stackLocation) {
-		_scavenger->rescanThreadSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
-	}
+    virtual void doStackSlot(omrobjectptr_t* slotPtr, void* walkState, const void* stackLocation)
+    {
+        _scavenger->rescanThreadSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
+    }
 
-	virtual void doVMThreadSlot(omrobjectptr_t *slotPtr, GC_VMThreadIterator *vmThreadIterator) {
-		_scavenger->rescanThreadSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
-	}
+    virtual void doVMThreadSlot(omrobjectptr_t* slotPtr, GC_VMThreadIterator* vmThreadIterator)
+    {
+        _scavenger->rescanThreadSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
+    }
 
-	virtual void doSlot(omrobjectptr_t *slotPtr) {
-		/* we only process thread and stack slots with this scanner */
-		Assert_MM_unreachable();
-	}
+    virtual void doSlot(omrobjectptr_t* slotPtr)
+    {
+        /* we only process thread and stack slots with this scanner */
+        Assert_MM_unreachable();
+    }
 
-	virtual void doClass(J9Class *clazz) {
-		/* we do not process classes in the scavenger */
-		Assert_MM_unreachable();
-	}
+    virtual void doClass(J9Class* clazz)
+    {
+        /* we do not process classes in the scavenger */
+        Assert_MM_unreachable();
+    }
 
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void doFinalizableObject(omrobjectptr_t object) {
-		Assert_MM_unreachable();
-	}
+    virtual void doFinalizableObject(omrobjectptr_t object) { Assert_MM_unreachable(); }
 #endif /* J9VM_GC_FINALIZATION */
 };
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */

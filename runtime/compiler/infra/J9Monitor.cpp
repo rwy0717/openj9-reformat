@@ -29,96 +29,56 @@
 #include "infra/Monitor.hpp"
 #include "infra/MonitorTable.hpp"
 
-TR::MonitorTable *OMR::MonitorTable::_instance = 0;
+TR::MonitorTable* OMR::MonitorTable::_instance = 0;
 
-TR::Monitor *memoryAllocMonitor = NULL;
+TR::Monitor* memoryAllocMonitor = NULL;
 
-TR::Monitor *
-J9::Monitor::create(char *name)
-   {
-   return TR::MonitorTable::get()->create(name);
-   }
+TR::Monitor* J9::Monitor::create(char* name) { return TR::MonitorTable::get()->create(name); }
 
-void
-J9::Monitor::destroy(TR::Monitor *monitor)
-   {
-   // The monitor will be destroyed when the monitor table is destroyed
-   }
+void J9::Monitor::destroy(TR::Monitor* monitor)
+{
+    // The monitor will be destroyed when the monitor table is destroyed
+}
 
-bool
-J9::Monitor::init(char *name)
-   {
-   setNext(0);
-   if (j9thread_monitor_init_with_name((J9ThreadMonitor**)&_monitor, 0, name))
-      return false;
-   else
-      return true;
-   }
+bool J9::Monitor::init(char* name)
+{
+    setNext(0);
+    if (j9thread_monitor_init_with_name((J9ThreadMonitor**)&_monitor, 0, name))
+        return false;
+    else
+        return true;
+}
 
-bool
-J9::Monitor::initFromVMMutex(void *mutex)
-   {
-   _monitor = (J9ThreadMonitor*)mutex;
-   return true;
-   }
+bool J9::Monitor::initFromVMMutex(void* mutex)
+{
+    _monitor = (J9ThreadMonitor*)mutex;
+    return true;
+}
 
-void
-J9::Monitor::enter()
-   {
-   TR_ASSERT(_monitor != TR::MonitorTable::get()->getClassTableMutex()->getVMMonitor(), "Use TR::ClassTableCriticalSection instead");
-   j9thread_monitor_enter(_monitor);
-   }
+void J9::Monitor::enter()
+{
+    TR_ASSERT(_monitor != TR::MonitorTable::get()->getClassTableMutex()->getVMMonitor(),
+        "Use TR::ClassTableCriticalSection instead");
+    j9thread_monitor_enter(_monitor);
+}
 
-void
-J9::Monitor::destroy()
-   {
-   j9thread_monitor_destroy(_monitor);
-   }  //FIXME: remove from the table as well
+void J9::Monitor::destroy() { j9thread_monitor_destroy(_monitor); } // FIXME: remove from the table as well
 
-void
-J9::Monitor::wait()
-   {
-   j9thread_monitor_wait(_monitor);
-   }
+void J9::Monitor::wait() { j9thread_monitor_wait(_monitor); }
 
-intptr_t
-J9::Monitor::wait_timed(int64_t millis, int32_t nanos)
-   {
-   return j9thread_monitor_wait_timed(_monitor, millis, nanos);
-   }
+intptr_t J9::Monitor::wait_timed(int64_t millis, int32_t nanos)
+{
+    return j9thread_monitor_wait_timed(_monitor, millis, nanos);
+}
 
-void
-J9::Monitor::notify()
-   {
-   j9thread_monitor_notify(_monitor);
-   }
+void J9::Monitor::notify() { j9thread_monitor_notify(_monitor); }
 
-void
-J9::Monitor::notifyAll()
-   {
-   j9thread_monitor_notify_all(_monitor);
-   }
+void J9::Monitor::notifyAll() { j9thread_monitor_notify_all(_monitor); }
 
-int32_t
-J9::Monitor::exit()
-   {
-   return (int32_t)j9thread_monitor_exit(_monitor);
-   }
+int32_t J9::Monitor::exit() { return (int32_t)j9thread_monitor_exit(_monitor); }
 
-int32_t
-J9::Monitor::try_enter()
-   {
-   return (int32_t)j9thread_monitor_try_enter(_monitor);
-   }
+int32_t J9::Monitor::try_enter() { return (int32_t)j9thread_monitor_try_enter(_monitor); }
 
-int32_t
-J9::Monitor::num_waiting()
-   {
-   return (int32_t)j9thread_monitor_num_waiting(_monitor);
-   }
+int32_t J9::Monitor::num_waiting() { return (int32_t)j9thread_monitor_num_waiting(_monitor); }
 
-int32_t
-J9::Monitor::owned_by_self()
-   {
-   return (int32_t)j9thread_monitor_owned_by_self(_monitor);
-   }
+int32_t J9::Monitor::owned_by_self() { return (int32_t)j9thread_monitor_owned_by_self(_monitor); }

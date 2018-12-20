@@ -32,16 +32,17 @@
  * Create an new instance of a MM_VerboseEventConcurrentAborted event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventConcurrentAborted::newInstance(MM_ConcurrentAbortedEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventConcurrentAborted::newInstance(
+    MM_ConcurrentAbortedEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventConcurrentAborted *eventObject;
-	
-	eventObject = (MM_VerboseEventConcurrentAborted *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventConcurrentAborted));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventConcurrentAborted(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventConcurrentAborted* eventObject;
+
+    eventObject = (MM_VerboseEventConcurrentAborted*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventConcurrentAborted));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventConcurrentAborted(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -49,51 +50,44 @@ MM_VerboseEventConcurrentAborted::newInstance(MM_ConcurrentAbortedEvent *event, 
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventConcurrentAborted::consumeEvents(void)
-{
-}
+void MM_VerboseEventConcurrentAborted::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventConcurrentAborted::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventConcurrentAborted::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<con event=\"aborted\" reason=\"%s\" />", getReasonAsString());
+    UDATA indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<con event=\"aborted\" reason=\"%s\" />", getReasonAsString());
 }
 
 /**
  * Return the reason for aborted concurrent collect as a string
  * @param reason reason code
  */
-const char *
-MM_VerboseEventConcurrentAborted::getReasonAsString()
+const char* MM_VerboseEventConcurrentAborted::getReasonAsString()
 {
-	const char *result;
+    const char* result;
 
-	switch((CollectionAbortReason)_reason) {
-	case ABORT_COLLECTION_INSUFFICENT_PROGRESS:
-		result = "insufficient progress made";
-		break;
-	case ABORT_COLLECTION_REMEMBERSET_OVERFLOW:
-		result = "remembered set overflow";
-		break;
-	case ABORT_COLLECTION_SCAVENGE_REMEMBEREDSET_OVERFLOW:
-		result = "scavenge remembered set overflow";
-		break;
-	case ABORT_COLLECTION_PREPARE_HEAP_FOR_WALK:
-		result = "prepare heap for walk";
-		break;
-	default:
-		result = "unknown";
-	}
+    switch ((CollectionAbortReason)_reason) {
+    case ABORT_COLLECTION_INSUFFICENT_PROGRESS:
+        result = "insufficient progress made";
+        break;
+    case ABORT_COLLECTION_REMEMBERSET_OVERFLOW:
+        result = "remembered set overflow";
+        break;
+    case ABORT_COLLECTION_SCAVENGE_REMEMBEREDSET_OVERFLOW:
+        result = "scavenge remembered set overflow";
+        break;
+    case ABORT_COLLECTION_PREPARE_HEAP_FOR_WALK:
+        result = "prepare heap for walk";
+        break;
+    default:
+        result = "unknown";
+    }
 
-	return result;
+    return result;
 }
-
-
-

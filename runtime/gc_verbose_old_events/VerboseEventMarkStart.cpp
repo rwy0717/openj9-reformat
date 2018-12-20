@@ -27,16 +27,16 @@
  * Create an new instance of a MM_VerboseEventMarkStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMarkStart::newInstance(MM_MarkStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMarkStart::newInstance(MM_MarkStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMarkStart *eventObject;
-	
-	eventObject = (MM_VerboseEventMarkStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMarkStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMarkStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventMarkStart* eventObject;
+
+    eventObject
+        = (MM_VerboseEventMarkStart*)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMarkStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMarkStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -44,16 +44,10 @@ MM_VerboseEventMarkStart::newInstance(MM_MarkStartEvent *event, J9HookInterface*
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMarkStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventMarkStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMarkStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventMarkStart::formattedOutput(MM_VerboseOutputAgent* agent) {}

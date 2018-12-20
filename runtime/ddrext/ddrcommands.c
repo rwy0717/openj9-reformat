@@ -24,91 +24,83 @@
 #include "ddrutils.h"
 #include "ddrio.h"
 
-static void
-ddrProcessLine(const char *args)
+static void ddrProcessLine(const char* args)
 {
-	static int initialized = 0;
-	static jclass ddrInteractiveCls;
-	static jmethodID processLineMethod;
-	static jstring commandString;
-	static jobjectArray methodArgs;
-	ddrExtEnv * ddrEnv = NULL;
+    static int initialized = 0;
+    static jclass ddrInteractiveCls;
+    static jmethodID processLineMethod;
+    static jstring commandString;
+    static jobjectArray methodArgs;
+    ddrExtEnv* ddrEnv = NULL;
 
-	ddrEnv = ddrGetEnv();
-	if (ddrEnv == NULL) {
-		dbgWriteString("DDR: failed obtaining DDR plugin extension environment\n");
-		return;
-	}
+    ddrEnv = ddrGetEnv();
+    if (ddrEnv == NULL) {
+        dbgWriteString("DDR: failed obtaining DDR plugin extension environment\n");
+        return;
+    }
 
-	if ((strcmp("exit",args) == STRING_MATCHED)) {
-		dbgext_stopddr(args);
-		return;
-	}
+    if ((strcmp("exit", args) == STRING_MATCHED)) {
+        dbgext_stopddr(args);
+        return;
+    }
 
-	if (initialized == 0) {
+    if (initialized == 0) {
 
-		ddrInteractiveCls = (*ddrEnv->env)->FindClass(ddrEnv->env, "com/ibm/j9ddr/tools/ddrinteractive/DDRInteractive");
-		if (ddrInteractiveCls == NULL) {
-			dbgWriteString("DDR: failed to find class com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive\n");
-			return;
-		}
+        ddrInteractiveCls = (*ddrEnv->env)->FindClass(ddrEnv->env, "com/ibm/j9ddr/tools/ddrinteractive/DDRInteractive");
+        if (ddrInteractiveCls == NULL) {
+            dbgWriteString("DDR: failed to find class com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive\n");
+            return;
+        }
 
-		processLineMethod = (*ddrEnv->env)->GetMethodID(ddrEnv->env, ddrInteractiveCls, "processLine", "(Ljava/lang/String;)V");
-		if (processLineMethod == NULL) {
-			dbgWriteString("DDR: failed to find method: processLine\n");
-			return;
-		}
+        processLineMethod
+            = (*ddrEnv->env)->GetMethodID(ddrEnv->env, ddrInteractiveCls, "processLine", "(Ljava/lang/String;)V");
+        if (processLineMethod == NULL) {
+            dbgWriteString("DDR: failed to find method: processLine\n");
+            return;
+        }
 
-		initialized = 1;
-	}
+        initialized = 1;
+    }
 
-	commandString = (*ddrEnv->env)->NewStringUTF(ddrEnv->env, args);  
+    commandString = (*ddrEnv->env)->NewStringUTF(ddrEnv->env, args);
 
-	(*ddrEnv->env)->CallVoidMethod(ddrEnv->env, ddrEnv->ddrContext, processLineMethod, commandString);
-	if((*ddrEnv->env)->ExceptionCheck(ddrEnv->env)) {
-		dbgWriteString("DDR: exception while calling com/ibm/j9ddr/tools/ddrinteractive/DDRInteractive/processLine()\n");
-	}
-	// Write the output once the JNI method call is complete so that
-	// using "q" to quit a command when it pages can't force an unexpected
-	// return from JNI.
-	dbgext_flushoutput();
+    (*ddrEnv->env)->CallVoidMethod(ddrEnv->env, ddrEnv->ddrContext, processLineMethod, commandString);
+    if ((*ddrEnv->env)->ExceptionCheck(ddrEnv->env)) {
+        dbgWriteString(
+            "DDR: exception while calling com/ibm/j9ddr/tools/ddrinteractive/DDRInteractive/processLine()\n");
+    }
+    // Write the output once the JNI method call is complete so that
+    // using "q" to quit a command when it pages can't force an unexpected
+    // return from JNI.
+    dbgext_flushoutput();
 
-	return;
+    return;
 }
 
-
-void
-dbgext_ddr(const char *args) 
+void dbgext_ddr(const char* args)
 {
-	ddrExtEnv * ddrEnv = ddrGetEnv();
+    ddrExtEnv* ddrEnv = ddrGetEnv();
 
-	if (ddrEnv == NULL) {
-		if (ddrHasExited()) {
-			dbgWriteString("DDR: DDR has exited, close the debugger and start it again\n");
-			return;
-		} else if (ddrStart() == NULL) {
-			dbgWriteString("DDR: Failed to start the DDR JVM\n");
-			return;
-		}
-	}
+    if (ddrEnv == NULL) {
+        if (ddrHasExited()) {
+            dbgWriteString("DDR: DDR has exited, close the debugger and start it again\n");
+            return;
+        } else if (ddrStart() == NULL) {
+            dbgWriteString("DDR: Failed to start the DDR JVM\n");
+            return;
+        }
+    }
 
-	ddrProcessLine(args);
+    ddrProcessLine(args);
 }
 
+void dbgext_startddr(const char* args) { ddrStart(); }
 
-void
-dbgext_startddr(const char *args)
+void dbgext_stopddr(const char* args)
 {
-	ddrStart();
-}
- 
-void
-dbgext_stopddr(const char *args)
-{
-	ddrExtEnv * ddrEnv = ddrGetEnv();
+    ddrExtEnv* ddrEnv = ddrGetEnv();
 
-	if (ddrEnv != NULL) {
-		ddrStop(ddrEnv);
-	}
+    if (ddrEnv != NULL) {
+        ddrStop(ddrEnv);
+    }
 }
- 

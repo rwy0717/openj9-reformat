@@ -26,4 +26,4 @@
 #include "j9.h"
 #include "vmi.h"
 
-#endif     /* jcl_h */
+#endif /* jcl_h */

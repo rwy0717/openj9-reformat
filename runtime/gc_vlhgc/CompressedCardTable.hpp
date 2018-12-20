@@ -29,7 +29,6 @@
 #if !defined(COMPRESSEDCARDTABLE_HPP_)
 #define COMPRESSEDCARDTABLE_HPP_
 
-
 #include "j9.h"
 #include "j9cfg.h"
 
@@ -42,140 +41,137 @@ class MM_EnvironmentBase;
 class MM_Heap;
 class MM_HeapRegionDescriptor;
 
-
-class MM_CompressedCardTable : public MM_BaseNonVirtual
-{
+class MM_CompressedCardTable : public MM_BaseNonVirtual {
 public:
 protected:
 private:
-	UDATA *_compressedCardTable;	/**< start address of compressed card table */
-	UDATA _heapBase;	/**< Store heap base locally. Use UDATA type because need it for arithmetic only */
-	volatile UDATA _totalRegions;	/**< total number of regions discovered at table rebuild time */
-	volatile UDATA _regionsProcessed; /**< number of regions completed while table is being rebuilt */
+    UDATA* _compressedCardTable; /**< start address of compressed card table */
+    UDATA _heapBase; /**< Store heap base locally. Use UDATA type because need it for arithmetic only */
+    volatile UDATA _totalRegions; /**< total number of regions discovered at table rebuild time */
+    volatile UDATA _regionsProcessed; /**< number of regions completed while table is being rebuilt */
 
 public:
-	/**
-	 * Create new instance of class
-	 * @param env current thread environment
-	 * @param heap current heap
-	 */
-	static MM_CompressedCardTable *newInstance(MM_EnvironmentBase *env, MM_Heap *heap);
+    /**
+     * Create new instance of class
+     * @param env current thread environment
+     * @param heap current heap
+     */
+    static MM_CompressedCardTable* newInstance(MM_EnvironmentBase* env, MM_Heap* heap);
 
-	/**
-	 * Set all Compressed Cards correspondent with given heap range dirty for partial collect
-	 * @param startHeapAddress start heap address
-	 * @param endHeapAddress end heap adress
-	 */
-	void setCompressedCardsDirtyForPartialCollect(void *startHeapAddress, void *endHeapAddress);
+    /**
+     * Set all Compressed Cards correspondent with given heap range dirty for partial collect
+     * @param startHeapAddress start heap address
+     * @param endHeapAddress end heap adress
+     */
+    void setCompressedCardsDirtyForPartialCollect(void* startHeapAddress, void* endHeapAddress);
 
-	/**
-	 * Rebuild Compressed Cards for given heap range
-	 * Card is going to be marked dirty if original card is dirty for partial collect
-	 * @param env current thread environment
-	 * @param startHeapAddress start heap address
-	 * @param endHeapAddress end heap adress
-	 */
-	void rebuildCompressedCardTableForPartialCollect(MM_EnvironmentBase *env, void *startHeapAddress, void *endHeapAddress);
+    /**
+     * Rebuild Compressed Cards for given heap range
+     * Card is going to be marked dirty if original card is dirty for partial collect
+     * @param env current thread environment
+     * @param startHeapAddress start heap address
+     * @param endHeapAddress end heap adress
+     */
+    void rebuildCompressedCardTableForPartialCollect(
+        MM_EnvironmentBase* env, void* startHeapAddress, void* endHeapAddress);
 
-	/**
-	 * Check is Compressed Card correspondent with heap address dirty for partial collect
-	 * @param env current thread environment
-	 * @param heapAddress heap address
-	 * @return true if fast card is set dirty
-	 */
-	bool isCompressedCardDirtyForPartialCollect(MM_EnvironmentBase *env, void *heapAddr);
+    /**
+     * Check is Compressed Card correspondent with heap address dirty for partial collect
+     * @param env current thread environment
+     * @param heapAddress heap address
+     * @return true if fast card is set dirty
+     */
+    bool isCompressedCardDirtyForPartialCollect(MM_EnvironmentBase* env, void* heapAddr);
 
-	/**
-	 * Cleaning cards for range
-	 * Iterate Compressed Cards and clean marked dirty
-	 * It is important that set of card states treated 'dirty' in given Card Cleaner must be the same or narrower then
-	 * was used for in Compressed Card Table rebuild. If it is not correct some dirty cards might be missed
-	 * @param env current thread environment
-	 * @param cardCleaner given Card Cleaner
-	 * @param region region card cleaning should be done
-	 */
-	void cleanCardsInRegion(MM_EnvironmentBase *env, MM_CardCleaner *cardCleaner, MM_HeapRegionDescriptor *region);
+    /**
+     * Cleaning cards for range
+     * Iterate Compressed Cards and clean marked dirty
+     * It is important that set of card states treated 'dirty' in given Card Cleaner must be the same or narrower then
+     * was used for in Compressed Card Table rebuild. If it is not correct some dirty cards might be missed
+     * @param env current thread environment
+     * @param cardCleaner given Card Cleaner
+     * @param region region card cleaning should be done
+     */
+    void cleanCardsInRegion(MM_EnvironmentBase* env, MM_CardCleaner* cardCleaner, MM_HeapRegionDescriptor* region);
 
-	/**
-	 * Check is Card Table Summary rebuild is completed
-	 * @return true if rebuild is completed
-	 */
-	bool isReady();
+    /**
+     * Check is Card Table Summary rebuild is completed
+     * @return true if rebuild is completed
+     */
+    bool isReady();
 
-	/**
-	 * Clear processed regions counter
-	 */
-	MMINLINE void clearRegionsProcessedCounter()
-	{
-		_regionsProcessed = 0;
-	}
+    /**
+     * Clear processed regions counter
+     */
+    MMINLINE void clearRegionsProcessedCounter() { _regionsProcessed = 0; }
 
-	/**
-	 * Atomically increment processed regions counter
-	 * @param total total number of discovered regions
-	 * @param processed number of processed regions
-	 */
-	MMINLINE void incrementProcessedRegionsCounter(UDATA total, UDATA processed)
-	{
-		_totalRegions = total;
+    /**
+     * Atomically increment processed regions counter
+     * @param total total number of discovered regions
+     * @param processed number of processed regions
+     */
+    MMINLINE void incrementProcessedRegionsCounter(UDATA total, UDATA processed)
+    {
+        _totalRegions = total;
 
-		if (processed > 0) {
-			MM_AtomicOperations::storeSync();
-			MM_AtomicOperations::add(&_regionsProcessed, processed);
-		}
-	}
+        if (processed > 0) {
+            MM_AtomicOperations::storeSync();
+            MM_AtomicOperations::add(&_regionsProcessed, processed);
+        }
+    }
 
-	/**
-	 * General class kill
-	 * @param env current thread environment
-	 */
-	void kill(MM_EnvironmentBase *env);
+    /**
+     * General class kill
+     * @param env current thread environment
+     */
+    void kill(MM_EnvironmentBase* env);
 
 protected:
-	/**
-	 * General class initialization
-	 * @param env current thread environment
-	 * @param heap heap
-	 */
-	bool initialize(MM_EnvironmentBase *env, MM_Heap *heap);
+    /**
+     * General class initialization
+     * @param env current thread environment
+     * @param heap heap
+     */
+    bool initialize(MM_EnvironmentBase* env, MM_Heap* heap);
 
-	/**
-	 * General class tear down
-	 * @param env current thread environment
-	 */
-	void tearDown(MM_EnvironmentBase *env);
+    /**
+     * General class tear down
+     * @param env current thread environment
+     */
+    void tearDown(MM_EnvironmentBase* env);
 
-	/**
-	 * Create a compressedCardTable object.
-	 */
-	MM_CompressedCardTable()
-		: MM_BaseNonVirtual()
-		, _compressedCardTable(NULL)
-		, _heapBase(0)
-		, _totalRegions(1)
-		, _regionsProcessed(0)
-	{
-		_typeId = __FUNCTION__;
-	}
+    /**
+     * Create a compressedCardTable object.
+     */
+    MM_CompressedCardTable()
+        : MM_BaseNonVirtual()
+        , _compressedCardTable(NULL)
+        , _heapBase(0)
+        , _totalRegions(1)
+        , _regionsProcessed(0)
+    {
+        _typeId = __FUNCTION__;
+    }
 
 private:
-	/**
-	 * Check should card be treated as dirty for partial collect
-	 * @param state current card state
-	 */
-	bool isDirtyCardForPartialCollect(Card state);
+    /**
+     * Check should card be treated as dirty for partial collect
+     * @param state current card state
+     */
+    bool isDirtyCardForPartialCollect(Card state);
 
-	/**
-	 * Cleaning cards for range
-	 * Iterate Compressed Cards and clean marked dirty
-	 * It is important that set of card states treated 'dirty' in given Card Cleaner must be the same or narrower then
-	 * was used for in Compressed Card Table rebuild. If it is not correct some dirty cards might be missed
-	 * @param env current thread environment
-	 * @param cardCleaner given Card Cleaner
-	 * @param startHeapAddress start heap address
-	 * @param endHeapAddress end heap adress
-	 */
-	void cleanCardsInRange(MM_EnvironmentBase *env, MM_CardCleaner *cardCleaner, void *startHeapAddress, void *endHeapAddress);
+    /**
+     * Cleaning cards for range
+     * Iterate Compressed Cards and clean marked dirty
+     * It is important that set of card states treated 'dirty' in given Card Cleaner must be the same or narrower then
+     * was used for in Compressed Card Table rebuild. If it is not correct some dirty cards might be missed
+     * @param env current thread environment
+     * @param cardCleaner given Card Cleaner
+     * @param startHeapAddress start heap address
+     * @param endHeapAddress end heap adress
+     */
+    void cleanCardsInRange(
+        MM_EnvironmentBase* env, MM_CardCleaner* cardCleaner, void* startHeapAddress, void* endHeapAddress);
 };
 
 #endif /* COMPRESSEDCARDTABLE_HPP_ */

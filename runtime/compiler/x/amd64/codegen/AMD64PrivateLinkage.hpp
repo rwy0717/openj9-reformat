@@ -27,77 +27,67 @@
 
 #include "x/codegen/X86PrivateLinkage.hpp"
 
-namespace TR { class AMD64PrivateLinkage; }
+namespace TR {
+class AMD64PrivateLinkage;
+}
 class J2IThunk;
 
 namespace TR {
 
 // Pseudo-safe downcast function, since all linkages are AMD64PrivateLinkages
 //
-inline TR::AMD64PrivateLinkage * toAMD64PrivateLinkage(TR::Linkage *l) { return (TR::AMD64PrivateLinkage *)l; }
+inline TR::AMD64PrivateLinkage* toAMD64PrivateLinkage(TR::Linkage* l) { return (TR::AMD64PrivateLinkage*)l; }
 
+class AMD64PrivateLinkage : public TR::X86PrivateLinkage {
+public:
+    AMD64PrivateLinkage(TR::CodeGenerator* cg);
+    virtual TR::Register* buildJNIDispatch(TR::Node* callNode);
 
-class AMD64PrivateLinkage : public TR::X86PrivateLinkage
-   {
-   public:
+protected:
+    virtual TR::Instruction* savePreservedRegisters(TR::Instruction* cursor);
+    virtual TR::Instruction* restorePreservedRegisters(TR::Instruction* cursor);
 
-   AMD64PrivateLinkage(TR::CodeGenerator *cg);
-   virtual TR::Register *buildJNIDispatch(TR::Node *callNode);
+    virtual int32_t buildCallArguments(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies)
+    {
+        return buildArgs(callNode, dependencies);
+    }
 
-   protected:
+    int32_t argAreaSize(TR::ResolvedMethodSymbol* methodSymbol);
+    int32_t argAreaSize(TR::Node* callNode);
 
-   virtual TR::Instruction *savePreservedRegisters(TR::Instruction *cursor);
-   virtual TR::Instruction *restorePreservedRegisters(TR::Instruction *cursor);
+    virtual uint8_t* flushArguments(TR::Node* callNode, uint8_t* cursor, bool calculateSizeOnly,
+        int32_t* sizeOfFlushArea, bool isReturnAddressOnStack, bool isLoad);
+    virtual TR::Instruction* flushArguments(
+        TR::Instruction* prev, TR::ResolvedMethodSymbol* methodSymbol, bool isReturnAddressOnStack, bool isLoad);
 
-   virtual int32_t buildCallArguments(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies)
-      {
-      return buildArgs(callNode, dependencies);
-      }
+    // Handles the precondition side of the call, which arises from arguments,
+    // and includes generating movs for arguments passed on the stack.
+    // Returns the number of bytes of the outgoing argument area actually used
+    // for this call.
+    //
+    virtual int32_t buildArgs(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies);
 
-   int32_t argAreaSize(TR::ResolvedMethodSymbol *methodSymbol);
-   int32_t argAreaSize(TR::Node *callNode);
+    virtual void mapIncomingParms(TR::ResolvedMethodSymbol* method);
 
-   virtual uint8_t *flushArguments(TR::Node *callNode, uint8_t *cursor, bool calculateSizeOnly, int32_t *sizeOfFlushArea, bool isReturnAddressOnStack, bool isLoad);
-   virtual TR::Instruction *flushArguments(TR::Instruction *prev, TR::ResolvedMethodSymbol *methodSymbol, bool isReturnAddressOnStack, bool isLoad);
+    int32_t buildPrivateLinkageArgs(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies,
+        bool rightToLeftHelperLinkage, bool passArgsOnStack = false);
 
-   // Handles the precondition side of the call, which arises from arguments,
-   // and includes generating movs for arguments passed on the stack.
-   // Returns the number of bytes of the outgoing argument area actually used
-   // for this call.
-   //
-   virtual int32_t buildArgs(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies);
+    virtual void buildVirtualOrComputedCall(
+        TR::X86CallSite& site, TR::LabelSymbol* entryLabel, TR::LabelSymbol* doneLabel, uint8_t* thunk);
+    virtual TR::Instruction* buildPICSlot(
+        TR::X86PICSlot picSlot, TR::LabelSymbol* mismatchLabel, TR::LabelSymbol* doneLabel, TR::X86CallSite& site);
+    virtual void buildIPIC(
+        TR::X86CallSite& site, TR::LabelSymbol* entryLabel, TR::LabelSymbol* doneLabel, uint8_t* thunk);
+    virtual uint8_t* generateVirtualIndirectThunk(TR::Node* callNode);
+    virtual TR_J2IThunk* generateInvokeExactJ2IThunk(TR::Node* callNode, char* signature);
 
-   virtual void mapIncomingParms(TR::ResolvedMethodSymbol *method);
+    TR::Instruction* generateFlushInstruction(TR::Instruction* prev, TR_MovOperandTypes operandType,
+        TR::DataType dataType, TR::RealRegister::RegNum regIndex, TR::Register* espReg, int32_t offset,
+        TR::CodeGenerator* cg);
+};
 
-   int32_t buildPrivateLinkageArgs(
-         TR::Node *callNode,
-         TR::RegisterDependencyConditions *dependencies,
-         bool rightToLeftHelperLinkage,
-         bool passArgsOnStack = false);
-
-   virtual void buildVirtualOrComputedCall(TR::X86CallSite &site, TR::LabelSymbol *entryLabel, TR::LabelSymbol *doneLabel, uint8_t *thunk);
-   virtual TR::Instruction *buildPICSlot(TR::X86PICSlot picSlot, TR::LabelSymbol *mismatchLabel, TR::LabelSymbol *doneLabel, TR::X86CallSite &site);
-   virtual void buildIPIC(TR::X86CallSite &site, TR::LabelSymbol *entryLabel, TR::LabelSymbol *doneLabel, uint8_t *thunk);
-   virtual uint8_t *generateVirtualIndirectThunk(TR::Node *callNode);
-   virtual TR_J2IThunk *generateInvokeExactJ2IThunk(TR::Node *callNode, char *signature);
-
-   TR::Instruction *generateFlushInstruction(
-         TR::Instruction *prev,
-         TR_MovOperandTypes operandType,
-         TR::DataType dataType,
-         TR::RealRegister::RegNum regIndex,
-         TR::Register *espReg,
-         int32_t offset,
-         TR::CodeGenerator *cg);
-   };
-
-}
+} // namespace TR
 
 #endif
 
 #endif
-

@@ -27,136 +27,126 @@
 #include "bcutil_internal.h"
 
 typedef struct romClassTableQueryEntry {
-	J9ROMClass *romClass;
-	U_8 *charData;
-	UDATA length;
+    J9ROMClass* romClass;
+    U_8* charData;
+    UDATA length;
 } romClassTableQueryEntry;
 
 typedef union romClassTableEntry {
-	UDATA tag;
-	J9ROMClass* romClass;
+    UDATA tag;
+    J9ROMClass* romClass;
 } romClassTableEntry;
 
-static void
-romClassHashGetName(void *key, const U_8 **name, UDATA *nameLength)
+static void romClassHashGetName(void* key, const U_8** name, UDATA* nameLength)
 {
-	romClassTableEntry *entry = (romClassTableEntry*)key;
+    romClassTableEntry* entry = (romClassTableEntry*)key;
 
-	/* We can distinguish between the different types of entries by the first slot.
-	 * Query entries always have a NULL romClass field, romClasses have a non-NULL field.
-	 */
-	if (entry->tag == 0) {
-		romClassTableQueryEntry *queryEntry = (romClassTableQueryEntry*)entry;
+    /* We can distinguish between the different types of entries by the first slot.
+     * Query entries always have a NULL romClass field, romClasses have a non-NULL field.
+     */
+    if (entry->tag == 0) {
+        romClassTableQueryEntry* queryEntry = (romClassTableQueryEntry*)entry;
 
-		*name = queryEntry->charData;
-		*nameLength = queryEntry->length;
-	} else {
-		J9UTF8 *className = J9ROMCLASS_CLASSNAME(entry->romClass);
+        *name = queryEntry->charData;
+        *nameLength = queryEntry->length;
+    } else {
+        J9UTF8* className = J9ROMCLASS_CLASSNAME(entry->romClass);
 
-		*name = J9UTF8_DATA(className);
-		*nameLength = J9UTF8_LENGTH(className);
-	}
+        *name = J9UTF8_DATA(className);
+        *nameLength = J9UTF8_LENGTH(className);
+    }
 }
 
-static UDATA
-romClassHashEqualFn(void *leftKey, void *rightKey, void *userData)
+static UDATA romClassHashEqualFn(void* leftKey, void* rightKey, void* userData)
 {
-	const U_8 *leftName;
-	UDATA leftLength;
-	const U_8 *rightName;
-	UDATA rightLength;
+    const U_8* leftName;
+    UDATA leftLength;
+    const U_8* rightName;
+    UDATA rightLength;
 
-	romClassHashGetName(leftKey, &leftName, &leftLength);
-	romClassHashGetName(rightKey, &rightName, &rightLength);
+    romClassHashGetName(leftKey, &leftName, &leftLength);
+    romClassHashGetName(rightKey, &rightName, &rightLength);
 
-	return J9UTF8_DATA_EQUALS(leftName, leftLength, rightName, rightLength);
+    return J9UTF8_DATA_EQUALS(leftName, leftLength, rightName, rightLength);
 }
 
-static UDATA
-romClassHashFn(void *key, void *userData)
+static UDATA romClassHashFn(void* key, void* userData)
 {
-	const U_8 *name;
-	UDATA length;
-	UDATA hash;
-	UDATA i;
+    const U_8* name;
+    UDATA length;
+    UDATA hash;
+    UDATA i;
 
-	romClassHashGetName(key, &name, &length);
+    romClassHashGetName(key, &name, &length);
 
-	hash = 0;
-	for (i = 0; i < length; ++i) {
-		hash = (hash << 5) - hash + name[i];
-	}
+    hash = 0;
+    for (i = 0; i < length; ++i) {
+        hash = (hash << 5) - hash + name[i];
+    }
 
-	return hash;
+    return hash;
 }
 
-J9HashTable*
-romClassHashTableNew(J9JavaVM *vm, U_32 initialSize)
+J9HashTable* romClassHashTableNew(J9JavaVM* vm, U_32 initialSize)
 {
-	J9HashTable *table;
+    J9HashTable* table;
 
-	table = hashTableNew(OMRPORT_FROM_J9PORT(vm->portLibrary), J9_GET_CALLSITE(), initialSize,
-		sizeof(romClassTableEntry), sizeof(char *), J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION,
-		 J9MEM_CATEGORY_CLASSES, romClassHashFn, romClassHashEqualFn, NULL, vm);
-	return table;
+    table = hashTableNew(OMRPORT_FROM_J9PORT(vm->portLibrary), J9_GET_CALLSITE(), initialSize,
+        sizeof(romClassTableEntry), sizeof(char*), J9HASH_TABLE_ALLOW_SIZE_OPTIMIZATION, J9MEM_CATEGORY_CLASSES,
+        romClassHashFn, romClassHashEqualFn, NULL, vm);
+    return table;
 }
 
-void
-romClassHashTableFree(J9HashTable *hashTable)
+void romClassHashTableFree(J9HashTable* hashTable) { hashTableFree(hashTable); }
+
+UDATA
+romClassHashTableAdd(J9HashTable* hashTable, J9ROMClass* value)
 {
-	hashTableFree(hashTable);
+    UDATA result = 1; /* failure */
+    romClassTableEntry entry;
+
+    entry.romClass = value;
+    if (NULL != hashTableAdd(hashTable, &entry)) {
+        result = 0; /* success */
+    }
+
+    return result;
+}
+
+J9ROMClass* romClassHashTableFind(J9HashTable* hashTable, U_8* className, UDATA classNameLength)
+{
+    romClassTableQueryEntry entry;
+    romClassTableEntry* result;
+
+    entry.romClass = NULL;
+    entry.charData = className;
+    entry.length = classNameLength;
+    result = (romClassTableEntry*)hashTableFind(hashTable, &entry);
+    if (NULL != result) {
+        return result->romClass;
+    } else {
+        return NULL;
+    }
+}
+
+void romClassHashTableReplace(J9HashTable* hashTable, J9ROMClass* originalClass, J9ROMClass* replacementClass)
+{
+    romClassTableEntry* result;
+    romClassTableEntry original;
+
+    original.romClass = originalClass;
+
+    result = hashTableFind(hashTable, &original);
+    if ((result != NULL) && (result->romClass == originalClass)) {
+        result->romClass = replacementClass;
+    }
 }
 
 UDATA
-romClassHashTableAdd(J9HashTable *hashTable, J9ROMClass *value)
+romClassHashTableDelete(J9HashTable* hashTable, J9ROMClass* romClass)
 {
-	UDATA result = 1; /* failure */
-	romClassTableEntry entry;
+    romClassTableEntry entry;
 
-	entry.romClass = value;
-	if (NULL != hashTableAdd(hashTable, &entry)) {
-		result = 0; /* success */
-	}
-
-	return result;
-}
-
-J9ROMClass*
-romClassHashTableFind(J9HashTable *hashTable, U_8 *className, UDATA classNameLength)
-{
-	romClassTableQueryEntry entry;
-	romClassTableEntry *result;
-
-	entry.romClass = NULL;
-	entry.charData = className;
-	entry.length = classNameLength;
-	result = (romClassTableEntry*)hashTableFind(hashTable, &entry);
-	if (NULL != result) {
-		return result->romClass;
-	} else {
-		return NULL;
-	}
-}
-
-void
-romClassHashTableReplace(J9HashTable *hashTable, J9ROMClass *originalClass, J9ROMClass *replacementClass)
-{
-	romClassTableEntry *result;
-	romClassTableEntry original;
-
-	original.romClass = originalClass;
-
-	result = hashTableFind(hashTable, &original);
-	if ( (result != NULL) && (result->romClass == originalClass)) {
-		result->romClass = replacementClass;
-	}
-}
-
-UDATA
-romClassHashTableDelete(J9HashTable *hashTable, J9ROMClass *romClass)
-{
-	romClassTableEntry entry;
-
-	entry.romClass = romClass;
-	return hashTableRemove(hashTable, &entry);
+    entry.romClass = romClass;
+    return hashTableRemove(hashTable, &entry);
 }

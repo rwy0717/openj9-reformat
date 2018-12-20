@@ -31,36 +31,36 @@
 
 #if defined(J9VM_GC_REALTIME)
 
-MM_HeapRegionDescriptorRealtime::MM_HeapRegionDescriptorRealtime(MM_EnvironmentBase *env, void *lowAddress, void *highAddress)
-	: MM_HeapRegionDescriptorSegregated(env, lowAddress, highAddress)
+MM_HeapRegionDescriptorRealtime::MM_HeapRegionDescriptorRealtime(
+    MM_EnvironmentBase* env, void* lowAddress, void* highAddress)
+    : MM_HeapRegionDescriptorSegregated(env, lowAddress, highAddress)
 {
-	_arrayletBackPointers = ((UDATA **)(this + 1));
-	_typeId = __FUNCTION__;
+    _arrayletBackPointers = ((UDATA**)(this + 1));
+    _typeId = __FUNCTION__;
 }
 
-bool
-MM_HeapRegionDescriptorRealtime::initialize(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager)
+bool MM_HeapRegionDescriptorRealtime::initialize(MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager)
 {
-	if (!MM_HeapRegionDescriptorSegregated::initialize(env, regionManager)) {
-		return false;
-	}
-	
-	_nextOverflowedRegion = NULL;
+    if (!MM_HeapRegionDescriptorSegregated::initialize(env, regionManager)) {
+        return false;
+    }
 
-	return true;
+    _nextOverflowedRegion = NULL;
+
+    return true;
 }
 
-bool 
-MM_HeapRegionDescriptorRealtime::initializer(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor, void *lowAddress, void *highAddress)
+bool MM_HeapRegionDescriptorRealtime::initializer(MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager,
+    MM_HeapRegionDescriptor* descriptor, void* lowAddress, void* highAddress)
 {
-	new((MM_HeapRegionDescriptorRealtime*)descriptor) MM_HeapRegionDescriptorRealtime(env, lowAddress, highAddress);
-	return ((MM_HeapRegionDescriptorRealtime*)descriptor)->initialize(env, regionManager);
+    new ((MM_HeapRegionDescriptorRealtime*)descriptor) MM_HeapRegionDescriptorRealtime(env, lowAddress, highAddress);
+    return ((MM_HeapRegionDescriptorRealtime*)descriptor)->initialize(env, regionManager);
 }
 
-void 
-MM_HeapRegionDescriptorRealtime::destructor(MM_EnvironmentBase *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor)
+void MM_HeapRegionDescriptorRealtime::destructor(
+    MM_EnvironmentBase* env, MM_HeapRegionManager* regionManager, MM_HeapRegionDescriptor* descriptor)
 {
-	((MM_HeapRegionDescriptorRealtime*)descriptor)->tearDown(env);
+    ((MM_HeapRegionDescriptorRealtime*)descriptor)->tearDown(env);
 }
 
 #endif /* J9VM_GC_REALTIME */

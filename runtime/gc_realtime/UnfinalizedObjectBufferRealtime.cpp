@@ -30,51 +30,44 @@
 #include "HeapRegionDescriptorRealtime.hpp"
 #include "UnfinalizedObjectList.hpp"
 
-MM_UnfinalizedObjectBufferRealtime::MM_UnfinalizedObjectBufferRealtime(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
-	,_unfinalizedObjectListIndex(0)
+MM_UnfinalizedObjectBufferRealtime::MM_UnfinalizedObjectBufferRealtime(
+    MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
+    , _unfinalizedObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_UnfinalizedObjectBufferRealtime *
-MM_UnfinalizedObjectBufferRealtime::newInstance(MM_EnvironmentBase *env)
+MM_UnfinalizedObjectBufferRealtime* MM_UnfinalizedObjectBufferRealtime::newInstance(MM_EnvironmentBase* env)
 {
-	MM_UnfinalizedObjectBufferRealtime *unfinalizedObjectBuffer = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_UnfinalizedObjectBufferRealtime* unfinalizedObjectBuffer = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferRealtime *)env->getForge()->allocate(sizeof(MM_UnfinalizedObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != unfinalizedObjectBuffer) {
-		new(unfinalizedObjectBuffer) MM_UnfinalizedObjectBufferRealtime(extensions, extensions->objectListFragmentCount);
-		if (!unfinalizedObjectBuffer->initialize(env)) {
-			unfinalizedObjectBuffer->kill(env);
-			unfinalizedObjectBuffer = NULL;
-		}
-	}
+    unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferRealtime*)env->getForge()->allocate(
+        sizeof(MM_UnfinalizedObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != unfinalizedObjectBuffer) {
+        new (unfinalizedObjectBuffer)
+            MM_UnfinalizedObjectBufferRealtime(extensions, extensions->objectListFragmentCount);
+        if (!unfinalizedObjectBuffer->initialize(env)) {
+            unfinalizedObjectBuffer->kill(env);
+            unfinalizedObjectBuffer = NULL;
+        }
+    }
 
-	return unfinalizedObjectBuffer;
+    return unfinalizedObjectBuffer;
 }
 
-bool
-MM_UnfinalizedObjectBufferRealtime::initialize(MM_EnvironmentBase *base)
-{
-	return true;
-}
+bool MM_UnfinalizedObjectBufferRealtime::initialize(MM_EnvironmentBase* base) { return true; }
 
-void
-MM_UnfinalizedObjectBufferRealtime::tearDown(MM_EnvironmentBase *base)
-{
+void MM_UnfinalizedObjectBufferRealtime::tearDown(MM_EnvironmentBase* base) {}
 
-}
-
-void
-MM_UnfinalizedObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
+void MM_UnfinalizedObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	MM_UnfinalizedObjectList *unfinalizedObjectList = &extensions->unfinalizedObjectLists[_unfinalizedObjectListIndex];
-	unfinalizedObjectList->addAll(env, _head, _tail);
-	_unfinalizedObjectListIndex += 1;
-	if (MM_HeapRegionDescriptorRealtime::getUnfinalizedObjectListCount(env) == _unfinalizedObjectListIndex) {
-		_unfinalizedObjectListIndex = 0;
-	}
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    MM_UnfinalizedObjectList* unfinalizedObjectList = &extensions->unfinalizedObjectLists[_unfinalizedObjectListIndex];
+    unfinalizedObjectList->addAll(env, _head, _tail);
+    _unfinalizedObjectListIndex += 1;
+    if (MM_HeapRegionDescriptorRealtime::getUnfinalizedObjectListCount(env) == _unfinalizedObjectListIndex) {
+        _unfinalizedObjectListIndex = 0;
+    }
 }

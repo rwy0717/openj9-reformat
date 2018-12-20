@@ -36,28 +36,27 @@
 #include "Check.hpp"
 
 /**
- * 
+ *
  */
-class GC_CheckFinalizableList : public GC_Check
-{
+class GC_CheckFinalizableList : public GC_Check {
 private:
-	virtual void check(); /**< run the check */
-	virtual void print(); /**< dump the check structure to tty */
+    virtual void check(); /**< run the check */
+    virtual void print(); /**< dump the check structure to tty */
 
-	j9object_t peekSystemFinalizableObject(GC_FinalizeListManager *finalizeListManager);
-	j9object_t peekNextSystemFinalizableObject(GC_FinalizeListManager *finalizeListManager, j9object_t current);
-	j9object_t peekDefaultFinalizableObject(GC_FinalizeListManager *finalizeListManager);
-	j9object_t peekNextDefaultFinalizableObject(GC_FinalizeListManager *finalizeListManager, j9object_t current);
+    j9object_t peekSystemFinalizableObject(GC_FinalizeListManager* finalizeListManager);
+    j9object_t peekNextSystemFinalizableObject(GC_FinalizeListManager* finalizeListManager, j9object_t current);
+    j9object_t peekDefaultFinalizableObject(GC_FinalizeListManager* finalizeListManager);
+    j9object_t peekNextDefaultFinalizableObject(GC_FinalizeListManager* finalizeListManager, j9object_t current);
 
 public:
-	static GC_Check *newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine);
-	virtual void kill();
+    static GC_Check* newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine);
+    virtual void kill();
 
-	virtual const char *getCheckName() { return "FINALIZABLE"; };
+    virtual const char* getCheckName() { return "FINALIZABLE"; };
 
-	GC_CheckFinalizableList(J9JavaVM *javaVM, GC_CheckEngine *engine) :
-		GC_Check(javaVM, engine)
-	{}
+    GC_CheckFinalizableList(J9JavaVM* javaVM, GC_CheckEngine* engine)
+        : GC_Check(javaVM, engine)
+    {}
 };
 
 #endif /* J9VM_GC_FINALIZATION */

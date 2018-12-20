@@ -34,55 +34,53 @@
 #include "TgcAllocation.hpp"
 #include "HeapStats.hpp"
 
-static void
-tgcAllocationPrintStats(OMR_VMThread* omrVMThread)
+static void tgcAllocationPrintStats(OMR_VMThread* omrVMThread)
 {
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(omrVMThread);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(ext);
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(omrVMThread);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(ext);
 
-	MM_AllocationStats *allocStats = &ext->allocationStats;
+    MM_AllocationStats* allocStats = &ext->allocationStats;
 
-	tgcExtensions->printf("---------- Allocation Statistics ----------\n");
+    tgcExtensions->printf("---------- Allocation Statistics ----------\n");
 #if defined(J9VM_GC_THREAD_LOCAL_HEAP)
-	UDATA tlhRefreshCountTotal = allocStats->_tlhRefreshCountFresh + allocStats->_tlhRefreshCountReused;
-	UDATA tlhAllocatedTotal = allocStats->tlhBytesAllocated();
-	tgcExtensions->printf("TLH Refresh Count Total:       %12zu\n", tlhRefreshCountTotal);
-	tgcExtensions->printf("TLH Refresh Count Fresh:       %12zu\n", allocStats->_tlhRefreshCountFresh);
-	tgcExtensions->printf("TLH Refresh Count Reused:      %12zu\n", allocStats->_tlhRefreshCountReused);
-	tgcExtensions->printf("TLH Refresh Bytes Total:       %12zu\n", tlhAllocatedTotal);
-	tgcExtensions->printf("TLH Refresh Bytes Fresh:       %12zu\n", allocStats->_tlhAllocatedFresh);
-	tgcExtensions->printf("TLH Discarded Bytes:           %12zu\n", allocStats->_tlhDiscardedBytes);
-	tgcExtensions->printf("TLH Refresh Bytes Reused:      %12zu\n", allocStats->_tlhAllocatedReused);
-	tgcExtensions->printf("TLH Requested Bytes:           %12zu\n", allocStats->_tlhRequestedBytes);
-	tgcExtensions->printf("TLH Max Abandoned List Length: %12zu\n", allocStats->_tlhMaxAbandonedListSize);
+    UDATA tlhRefreshCountTotal = allocStats->_tlhRefreshCountFresh + allocStats->_tlhRefreshCountReused;
+    UDATA tlhAllocatedTotal = allocStats->tlhBytesAllocated();
+    tgcExtensions->printf("TLH Refresh Count Total:       %12zu\n", tlhRefreshCountTotal);
+    tgcExtensions->printf("TLH Refresh Count Fresh:       %12zu\n", allocStats->_tlhRefreshCountFresh);
+    tgcExtensions->printf("TLH Refresh Count Reused:      %12zu\n", allocStats->_tlhRefreshCountReused);
+    tgcExtensions->printf("TLH Refresh Bytes Total:       %12zu\n", tlhAllocatedTotal);
+    tgcExtensions->printf("TLH Refresh Bytes Fresh:       %12zu\n", allocStats->_tlhAllocatedFresh);
+    tgcExtensions->printf("TLH Discarded Bytes:           %12zu\n", allocStats->_tlhDiscardedBytes);
+    tgcExtensions->printf("TLH Refresh Bytes Reused:      %12zu\n", allocStats->_tlhAllocatedReused);
+    tgcExtensions->printf("TLH Requested Bytes:           %12zu\n", allocStats->_tlhRequestedBytes);
+    tgcExtensions->printf("TLH Max Abandoned List Length: %12zu\n", allocStats->_tlhMaxAbandonedListSize);
 #endif /* defined (J9VM_GC_THREAD_LOCAL_HEAP) */
-	tgcExtensions->printf("Normal Allocated Count:        %12zu\n", allocStats->_allocationCount);
-	tgcExtensions->printf("Normal Allocated Bytes:        %12zu\n", allocStats->_allocationBytes);
+    tgcExtensions->printf("Normal Allocated Count:        %12zu\n", allocStats->_allocationCount);
+    tgcExtensions->printf("Normal Allocated Bytes:        %12zu\n", allocStats->_allocationBytes);
 }
 
-static void
-tgcHookAllocationGlobalPrintStats(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookAllocationGlobalPrintStats(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
-	tgcAllocationPrintStats(event->currentThread);
+    MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
+    tgcAllocationPrintStats(event->currentThread);
 }
 
-static void
-tgcHookAllocationLocalPrintStats(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookAllocationLocalPrintStats(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_LocalGCStartEvent* event = (MM_LocalGCStartEvent*)eventData;
-	tgcAllocationPrintStats(event->currentThread);
+    MM_LocalGCStartEvent* event = (MM_LocalGCStartEvent*)eventData;
+    tgcAllocationPrintStats(event->currentThread);
 }
 
-bool
-tgcAllocationInitialize(J9JavaVM *javaVM)
+bool tgcAllocationInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	J9HookInterface** omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*omrHooks)->J9HookRegisterWithCallSite(omrHooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookAllocationGlobalPrintStats, OMR_GET_CALLSITE(), NULL);
-	(*omrHooks)->J9HookRegisterWithCallSite(omrHooks, J9HOOK_MM_OMR_LOCAL_GC_START, tgcHookAllocationLocalPrintStats, OMR_GET_CALLSITE(), NULL);
+    J9HookInterface** omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*omrHooks)->J9HookRegisterWithCallSite(
+        omrHooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookAllocationGlobalPrintStats, OMR_GET_CALLSITE(), NULL);
+    (*omrHooks)->J9HookRegisterWithCallSite(
+        omrHooks, J9HOOK_MM_OMR_LOCAL_GC_START, tgcHookAllocationLocalPrintStats, OMR_GET_CALLSITE(), NULL);
 
-	return result;
+    return result;
 }

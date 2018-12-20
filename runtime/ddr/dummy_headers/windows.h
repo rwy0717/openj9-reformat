@@ -21,7 +21,7 @@
  *******************************************************************************/
 #ifndef WINDOWS_H
 #define WINDOWS_H
-typedef void *HANDLE;
+typedef void* HANDLE;
 typedef int CRITICAL_SECTION;
 typedef int DWORD;
 typedef int PROCESS_INFORMATION;
@@ -45,27 +45,19 @@ typedef int PTRANSLATE_ADDRESS_ROUTINE64;
 typedef int PVOID;
 typedef int HINSTANCE;
 typedef LPAPI_VERSION (*IMAGEHLPAPIVERSION)(void);
-typedef BOOL (__stdcall *SYMINITIALIZE) (HANDLE, PSTR, BOOL);
-typedef BOOL (__stdcall *SYMINITIALIZEW) (HANDLE, PWSTR, BOOL);
-typedef BOOL (__stdcall *SYMCLEANUP)(HANDLE hProcess);
-typedef BOOL (__stdcall *SYMCLEANUP) (HANDLE);
-typedef DWORD (__stdcall *SYMGETOPTIONS) (void);
-typedef DWORD (__stdcall *SYMSETOPTIONS) (DWORD);
-typedef BOOL (__stdcall *SYMFROMADDR) (HANDLE, DWORD64, PDWORD64, PSYMBOL_INFO);
-typedef BOOL (__stdcall *STACKWALK64) ( DWORD
-          ,HANDLE
-          ,HANDLE
-          ,LPSTACKFRAME64
-          ,PVOID
-          ,PREAD_PROCESS_MEMORY_ROUTINE64
-          ,PFUNCTION_TABLE_ACCESS_ROUTINE64
-          ,PGET_MODULE_BASE_ROUTINE64
-          ,PTRANSLATE_ADDRESS_ROUTINE64
-           );
+typedef BOOL(__stdcall* SYMINITIALIZE)(HANDLE, PSTR, BOOL);
+typedef BOOL(__stdcall* SYMINITIALIZEW)(HANDLE, PWSTR, BOOL);
+typedef BOOL(__stdcall* SYMCLEANUP)(HANDLE hProcess);
+typedef BOOL(__stdcall* SYMCLEANUP)(HANDLE);
+typedef DWORD(__stdcall* SYMGETOPTIONS)(void);
+typedef DWORD(__stdcall* SYMSETOPTIONS)(DWORD);
+typedef BOOL(__stdcall* SYMFROMADDR)(HANDLE, DWORD64, PDWORD64, PSYMBOL_INFO);
+typedef BOOL(__stdcall* STACKWALK64)(DWORD, HANDLE, HANDLE, LPSTACKFRAME64, PVOID, PREAD_PROCESS_MEMORY_ROUTINE64,
+    PFUNCTION_TABLE_ACCESS_ROUTINE64, PGET_MODULE_BASE_ROUTINE64, PTRANSLATE_ADDRESS_ROUTINE64);
 typedef int SOCKADDR;
 typedef int SOCKET;
 typedef int SOCKADDR_IN;
-typedef void *KAFFINITY;
+typedef void* KAFFINITY;
 typedef unsigned short WORD;
 typedef unsigned char BYTE;
 typedef int INT;

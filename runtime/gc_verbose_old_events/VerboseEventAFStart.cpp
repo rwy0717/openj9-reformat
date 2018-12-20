@@ -30,17 +30,18 @@
  * Create an new instance of a MM_VerboseEventAFStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventAFStart::newInstance(MM_AllocationFailureStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventAFStart::newInstance(
+    MM_AllocationFailureStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventAFStart *eventObject;
-	
-	eventObject = (MM_VerboseEventAFStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventAFStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventAFStart(event, hookInterface);
-		eventObject->initialize();
-	}
-	return eventObject;
+    MM_VerboseEventAFStart* eventObject;
+
+    eventObject
+        = (MM_VerboseEventAFStart*)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventAFStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventAFStart(event, hookInterface);
+        eventObject->initialize();
+    }
+    return eventObject;
 }
 
 /**
@@ -48,78 +49,72 @@ MM_VerboseEventAFStart::newInstance(MM_AllocationFailureStartEvent *event, J9Hoo
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventAFStart::consumeEvents(void)
+void MM_VerboseEventAFStart::consumeEvents(void)
 {
-	/* Increment collection count */
-	(MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->incrementNurseryAFCount()) : (_manager->incrementTenureAFCount());
-	
-	/* Consume global data */
-	_lastAFTime = (MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->getLastNurseryAFTime()) : (_manager->getLastTenureAFTime());
-	_AFCount = (MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->getNurseryAFCount()) : (_manager->getTenureAFCount());
+    /* Increment collection count */
+    (MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->incrementNurseryAFCount()) : (_manager->incrementTenureAFCount());
+
+    /* Consume global data */
+    _lastAFTime
+        = (MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->getLastNurseryAFTime()) : (_manager->getLastTenureAFTime());
+    _AFCount = (MEMORY_TYPE_NEW == _subSpaceType) ? (_manager->getNurseryAFCount()) : (_manager->getTenureAFCount());
 }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventAFStart::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventAFStart::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
-	char timestamp[32];
-	UDATA indentLevel = _manager->getIndentLevel();
-	U_64 timeInMicroSeconds;
-	U_64 prevTime;	
-	
-	j9str_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	switch(_subSpaceType) {
-		case 0:
-			agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<af type=\"UNKNOWN!!\" />");
-			return;
-			break;
-		
-		case MEMORY_TYPE_NEW:
+    PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)_omrThread->_language_vmthread)->javaVM);
+    char timestamp[32];
+    UDATA indentLevel = _manager->getIndentLevel();
+    U_64 timeInMicroSeconds;
+    U_64 prevTime;
 
-			if (1 == _manager->getNurseryAFCount()) {
-				prevTime = _manager->getInitializedTime();
-			} else {
-				prevTime = _lastAFTime;
-			}
-			timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
-			agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<af type=\"nursery\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">",
-				_manager->getNurseryAFCount(),
-				timestamp,
-				timeInMicroSeconds / 1000,
-				timeInMicroSeconds % 1000
-			);
-			break;
-		
-		case MEMORY_TYPE_OLD:
+    j9str_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+    switch (_subSpaceType) {
+    case 0:
+        agent->formatAndOutput(
+            static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<af type=\"UNKNOWN!!\" />");
+        return;
+        break;
 
-			if (1 == _manager->getTenureAFCount()) {
-				prevTime = _manager->getInitializedTime();
-			} else {
-				prevTime = _lastAFTime;
-			}			
-			timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
-			agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<af type=\"tenured\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">",
-				_manager->getTenureAFCount(),
-				timestamp,
-				timeInMicroSeconds / 1000,
-				timeInMicroSeconds % 1000
-			);
-			break;
-		default:
-			break;
-	}
-	
-	_manager->incrementIndent();
-	indentLevel = _manager->getIndentLevel();
+    case MEMORY_TYPE_NEW:
 
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<minimum requested_bytes=\"%zu\" />", _requestedBytes);
+        if (1 == _manager->getNurseryAFCount()) {
+            prevTime = _manager->getInitializedTime();
+        } else {
+            prevTime = _lastAFTime;
+        }
+        timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<af type=\"nursery\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">",
+            _manager->getNurseryAFCount(), timestamp, timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
+        break;
 
-	/* output the common GC start info */
-	gcStartFormattedOutput(agent);
+    case MEMORY_TYPE_OLD:
 
+        if (1 == _manager->getTenureAFCount()) {
+            prevTime = _manager->getInitializedTime();
+        } else {
+            prevTime = _lastAFTime;
+        }
+        timeInMicroSeconds = j9time_hires_delta(prevTime, _time, J9PORT_TIME_DELTA_IN_MICROSECONDS);
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<af type=\"tenured\" id=\"%zu\" timestamp=\"%s\" intervalms=\"%llu.%03.3llu\">",
+            _manager->getTenureAFCount(), timestamp, timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
+        break;
+    default:
+        break;
+    }
+
+    _manager->incrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<minimum requested_bytes=\"%zu\" />", _requestedBytes);
+
+    /* output the common GC start info */
+    gcStartFormattedOutput(agent);
 }

@@ -58,199 +58,198 @@ class MM_SweepPoolState;
  * Task to perform sweep.
  * @ingroup GC_Modron_Standard
  */
-class MM_ParallelSweepVLHGCTask : public MM_ParallelTask
-{
+class MM_ParallelSweepVLHGCTask : public MM_ParallelTask {
 private:
 protected:
-	MM_ParallelSweepSchemeVLHGC *_sweepScheme;
-	MM_CycleState *_cycleState;  /**< Current cycle state used for tasks dispatched */
+    MM_ParallelSweepSchemeVLHGC* _sweepScheme;
+    MM_CycleState* _cycleState; /**< Current cycle state used for tasks dispatched */
 
 public:
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_SWEEP; };
-	
-	virtual void run(MM_EnvironmentBase *env);
-	virtual void setup(MM_EnvironmentBase *env);
-	virtual void cleanup(MM_EnvironmentBase *env);
-	
-	void masterSetup(MM_EnvironmentBase *env);
-	void masterCleanup(MM_EnvironmentBase *env);
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_SWEEP; };
+
+    virtual void run(MM_EnvironmentBase* env);
+    virtual void setup(MM_EnvironmentBase* env);
+    virtual void cleanup(MM_EnvironmentBase* env);
+
+    void masterSetup(MM_EnvironmentBase* env);
+    void masterCleanup(MM_EnvironmentBase* env);
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
-	virtual void synchronizeGCThreads(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase *env, const char *id);
+    virtual void synchronizeGCThreads(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase* env, const char* id);
 #endif /* J9MODRON_TGC_PARALLEL_STATISTICS */
 
-	/**
-	 * Create a ParallelSweepTaskVLHGC object.
-	 */
-	MM_ParallelSweepVLHGCTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_ParallelSweepSchemeVLHGC *sweepScheme, MM_CycleState *cycleState) :
-		MM_ParallelTask(env, dispatcher),
-		_sweepScheme(sweepScheme),
-		_cycleState(cycleState)
-	{
-		_typeId = __FUNCTION__;
-	}
+    /**
+     * Create a ParallelSweepTaskVLHGC object.
+     */
+    MM_ParallelSweepVLHGCTask(MM_EnvironmentBase* env, MM_Dispatcher* dispatcher,
+        MM_ParallelSweepSchemeVLHGC* sweepScheme, MM_CycleState* cycleState)
+        : MM_ParallelTask(env, dispatcher)
+        , _sweepScheme(sweepScheme)
+        , _cycleState(cycleState)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 /**
  * @todo Provide class documentation
  * @ingroup GC_Modron_Standard
  */
-class MM_ParallelSweepSchemeVLHGC : public MM_BaseVirtual
-{
-/*
- * Data members
- */
+class MM_ParallelSweepSchemeVLHGC : public MM_BaseVirtual {
+    /*
+     * Data members
+     */
 private:
-	UDATA _chunksPrepared; 
-	MM_GCExtensions *_extensions;
-	MM_Dispatcher *_dispatcher;
-	MM_CycleState _cycleState;  /**< Current cycle state information used to formulate receiver state for any operations  */
-	U_8 *_currentSweepBits;	/**< The base address of the raw bits used by the _currentMarkMap (sweep knows about this in order to perform some optimized types of map walking) */
-	MM_HeapRegionManager *_regionManager; /**< A cached pointer to the global heap region manager */
+    UDATA _chunksPrepared;
+    MM_GCExtensions* _extensions;
+    MM_Dispatcher* _dispatcher;
+    MM_CycleState
+        _cycleState; /**< Current cycle state information used to formulate receiver state for any operations  */
+    U_8* _currentSweepBits; /**< The base address of the raw bits used by the _currentMarkMap (sweep knows about this in
+                               order to perform some optimized types of map walking) */
+    MM_HeapRegionManager* _regionManager; /**< A cached pointer to the global heap region manager */
 
-	void *_heapBase;
+    void* _heapBase;
 
-	MM_SweepHeapSectioning *_sweepHeapSectioning;	/**< pointer to Sweep Heap Sectioning */
+    MM_SweepHeapSectioning* _sweepHeapSectioning; /**< pointer to Sweep Heap Sectioning */
 
-	J9Pool *_poolSweepPoolState;				/**< Memory pools for SweepPoolState*/ 
-	omrthread_monitor_t _mutexSweepPoolState;	/**< Monitor to protect memory pool operations for sweepPoolState*/
-	
+    J9Pool* _poolSweepPoolState; /**< Memory pools for SweepPoolState*/
+    omrthread_monitor_t _mutexSweepPoolState; /**< Monitor to protect memory pool operations for sweepPoolState*/
+
 protected:
 public:
-	
-/*
- * Function members
- */
+    /*
+     * Function members
+     */
 private:
 protected:
-	
-	virtual bool initialize(MM_EnvironmentVLHGC *env);
-	virtual void tearDown(MM_EnvironmentVLHGC *env);
+    virtual bool initialize(MM_EnvironmentVLHGC* env);
+    virtual void tearDown(MM_EnvironmentVLHGC* env);
 
-	void initializeSweepChunkTable(MM_EnvironmentVLHGC *env);
+    void initializeSweepChunkTable(MM_EnvironmentVLHGC* env);
 
-	void sweepMarkMapBody(UDATA * &markMapCurrent, UDATA * &markMapChunkTop, UDATA * &markMapFreeHead, UDATA &heapSlotFreeCount, UDATA * &heapSlotFreeCurrent, UDATA * &heapSlotFreeHead);
-	void sweepMarkMapHead(UDATA *markMapFreeHead, UDATA *markMapChunkBase, UDATA * &heapSlotFreeHead, UDATA &heapSlotFreeCount);
-	void sweepMarkMapTail(UDATA *markMapCurrent, UDATA *markMapChunkTop, UDATA &heapSlotFreeCount);
+    void sweepMarkMapBody(UDATA*& markMapCurrent, UDATA*& markMapChunkTop, UDATA*& markMapFreeHead,
+        UDATA& heapSlotFreeCount, UDATA*& heapSlotFreeCurrent, UDATA*& heapSlotFreeHead);
+    void sweepMarkMapHead(
+        UDATA* markMapFreeHead, UDATA* markMapChunkBase, UDATA*& heapSlotFreeHead, UDATA& heapSlotFreeCount);
+    void sweepMarkMapTail(UDATA* markMapCurrent, UDATA* markMapChunkTop, UDATA& heapSlotFreeCount);
 
-	bool sweepChunk(MM_EnvironmentVLHGC *env, MM_ParallelSweepChunk *sweepChunk);
-	void sweepAllChunks(MM_EnvironmentVLHGC *env, UDATA totalChunkCount);
-	UDATA prepareAllChunks(MM_EnvironmentVLHGC *env);
+    bool sweepChunk(MM_EnvironmentVLHGC* env, MM_ParallelSweepChunk* sweepChunk);
+    void sweepAllChunks(MM_EnvironmentVLHGC* env, UDATA totalChunkCount);
+    UDATA prepareAllChunks(MM_EnvironmentVLHGC* env);
 
-	/**
-	 * Accurately measure the dark matter within the mark map UDATA beginning at heapSlotFreeCurrent.
-	 * Leading dark matter (before the first marked object) is not included.
-	 * Trailing dark matter (after the last marked object) is included, even if it falls outside of the
-	 * mark map range.
-	 * 
-	 * For each heap visit, collect information whether the object is scannable.
-	 *
-	 * @param sweepChunk[in] the sweepChunk to be measured
-	 * @param markMapCurrent[in] the address of the mark map word to be measured 
-	 * @param heapSlotFreeCurrent[in] the first slot in the section of heap to be measured
-	 * 
-	 * @return the dark matter, measured in bytes, in the range 
-	 */
-	UDATA performSamplingCalculations(MM_ParallelSweepChunk *sweepChunk, UDATA* markMapCurrent, UDATA* heapSlotFreeCurrent);
+    /**
+     * Accurately measure the dark matter within the mark map UDATA beginning at heapSlotFreeCurrent.
+     * Leading dark matter (before the first marked object) is not included.
+     * Trailing dark matter (after the last marked object) is included, even if it falls outside of the
+     * mark map range.
+     *
+     * For each heap visit, collect information whether the object is scannable.
+     *
+     * @param sweepChunk[in] the sweepChunk to be measured
+     * @param markMapCurrent[in] the address of the mark map word to be measured
+     * @param heapSlotFreeCurrent[in] the first slot in the section of heap to be measured
+     *
+     * @return the dark matter, measured in bytes, in the range
+     */
+    UDATA performSamplingCalculations(
+        MM_ParallelSweepChunk* sweepChunk, UDATA* markMapCurrent, UDATA* heapSlotFreeCurrent);
 
-	/**
-	 * Accurately measure the dark matter within the specified sweepChunk.
-	 *
-	 * @param env[in] the current thread 
-	 * @param sweepChunk[in] the sweepChunk to be measured
-	 * 
-	 * @return the dark matter, measured in bytes, in the chunk 
-	 */
-	UDATA measureAllDarkMatter(MM_EnvironmentVLHGC *env, MM_ParallelSweepChunk *sweepChunk);
-	
-	virtual void connectChunk(MM_EnvironmentVLHGC *env, MM_ParallelSweepChunk *chunk);
-	void connectAllChunks(MM_EnvironmentVLHGC *env, UDATA totalChunkCount);
+    /**
+     * Accurately measure the dark matter within the specified sweepChunk.
+     *
+     * @param env[in] the current thread
+     * @param sweepChunk[in] the sweepChunk to be measured
+     *
+     * @return the dark matter, measured in bytes, in the chunk
+     */
+    UDATA measureAllDarkMatter(MM_EnvironmentVLHGC* env, MM_ParallelSweepChunk* sweepChunk);
 
-	void initializeSweepStates(MM_EnvironmentBase *env);
+    virtual void connectChunk(MM_EnvironmentVLHGC* env, MM_ParallelSweepChunk* chunk);
+    void connectAllChunks(MM_EnvironmentVLHGC* env, UDATA totalChunkCount);
 
-	void flushFinalChunk(MM_EnvironmentBase *envModron, MM_MemoryPool *memoryPool);
-	/**
-	 * Flushes and connects the final chunk of each region.
-	 * If a given region is empty, this call will also clear its card table.
-	 * @note Called in parallel
-	 * @param env[in] A GC thread
-	 */
-	void flushAllFinalChunks(MM_EnvironmentBase *env);
+    void initializeSweepStates(MM_EnvironmentBase* env);
 
-	MMINLINE MM_Heap *getHeap() { return _extensions->heap; };
+    void flushFinalChunk(MM_EnvironmentBase* envModron, MM_MemoryPool* memoryPool);
+    /**
+     * Flushes and connects the final chunk of each region.
+     * If a given region is empty, this call will also clear its card table.
+     * @note Called in parallel
+     * @param env[in] A GC thread
+     */
+    void flushAllFinalChunks(MM_EnvironmentBase* env);
 
-	void internalSweep(MM_EnvironmentVLHGC *env);
-	
-	virtual void setupForSweep(MM_EnvironmentVLHGC *env);
+    MMINLINE MM_Heap* getHeap() { return _extensions->heap; };
 
-	void recycleFreeRegions(MM_EnvironmentVLHGC *env);
+    void internalSweep(MM_EnvironmentVLHGC* env);
 
-	static void hookMemoryPoolNew(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
-	static void hookMemoryPoolKill(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+    virtual void setupForSweep(MM_EnvironmentVLHGC* env);
 
-	void updateProjectedLiveBytesAfterSweep(MM_EnvironmentVLHGC *env);
+    void recycleFreeRegions(MM_EnvironmentVLHGC* env);
+
+    static void hookMemoryPoolNew(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+    static void hookMemoryPoolKill(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
+
+    void updateProjectedLiveBytesAfterSweep(MM_EnvironmentVLHGC* env);
 
 public:
-	static MM_ParallelSweepSchemeVLHGC *newInstance(MM_EnvironmentVLHGC *env); 
-	virtual void kill(MM_EnvironmentVLHGC *env);
-	
-	/**
- 	* Request to create sweepPoolState class for pool
- 	* @param  memoryPool memory pool to attach sweep state to
- 	* @return pointer to created class
- 	*/
-	virtual void *createSweepPoolState(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool);
+    static MM_ParallelSweepSchemeVLHGC* newInstance(MM_EnvironmentVLHGC* env);
+    virtual void kill(MM_EnvironmentVLHGC* env);
 
-	/**
- 	* Request to destroy sweepPoolState class for pool
- 	* @param  sweepPoolState class to destroy
- 	*/
-	virtual void deleteSweepPoolState(MM_EnvironmentBase *env, void *sweepPoolState);
+    /**
+     * Request to create sweepPoolState class for pool
+     * @param  memoryPool memory pool to attach sweep state to
+     * @return pointer to created class
+     */
+    virtual void* createSweepPoolState(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool);
 
-	virtual void sweep(MM_EnvironmentVLHGC *env);
-	virtual void completeSweep(MM_EnvironmentBase *env, SweepCompletionReason reason);
-	virtual bool sweepForMinimumSize(MM_EnvironmentBase *env, MM_MemorySubSpace *baseMemorySubSpace, MM_AllocateDescription *allocateDescription);
+    /**
+     * Request to destroy sweepPoolState class for pool
+     * @param  sweepPoolState class to destroy
+     */
+    virtual void deleteSweepPoolState(MM_EnvironmentBase* env, void* sweepPoolState);
 
-	MM_SweepPoolState *getPoolState(MM_MemoryPool *memoryPool);
+    virtual void sweep(MM_EnvironmentVLHGC* env);
+    virtual void completeSweep(MM_EnvironmentBase* env, SweepCompletionReason reason);
+    virtual bool sweepForMinimumSize(
+        MM_EnvironmentBase* env, MM_MemorySubSpace* baseMemorySubSpace, MM_AllocateDescription* allocateDescription);
 
-	/**
-	 * Set the current cycle state information.
-	 */
-	void setCycleState(MM_CycleState *cycleState) {
-		_cycleState = *cycleState;
-	}
+    MM_SweepPoolState* getPoolState(MM_MemoryPool* memoryPool);
 
-	/**
-	 * Clear the current cycle state information.
-	 */
-	void clearCycleState() {
-		_cycleState = MM_CycleStateVLHGC();
-	}
+    /**
+     * Set the current cycle state information.
+     */
+    void setCycleState(MM_CycleState* cycleState) { _cycleState = *cycleState; }
 
-	bool heapAddRange(MM_EnvironmentVLHGC *env, MM_MemorySubSpace *subspace, UDATA size, void *lowAddress, void *highAddress);
-	bool heapRemoveRange(
-		MM_EnvironmentVLHGC *env, MM_MemorySubSpace *subspace, UDATA size, void *lowAddress, void *highAddress,
-		void *lowValidAddress, void *highValidAddress);
-	/**
-	 * Called after the heap geometry changes to allow any data structures dependent on this to be updated.
-	 * This call could be triggered by memory ranges being added to or removed from the heap or memory being
-	 * moved from one subspace to another.
-	 * @param env[in] The thread which performed the change in heap geometry 
-	 */
-	void heapReconfigured(MM_EnvironmentVLHGC *env);
+    /**
+     * Clear the current cycle state information.
+     */
+    void clearCycleState() { _cycleState = MM_CycleStateVLHGC(); }
+
+    bool heapAddRange(
+        MM_EnvironmentVLHGC* env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress);
+    bool heapRemoveRange(MM_EnvironmentVLHGC* env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress,
+        void* highAddress, void* lowValidAddress, void* highValidAddress);
+    /**
+     * Called after the heap geometry changes to allow any data structures dependent on this to be updated.
+     * This call could be triggered by memory ranges being added to or removed from the heap or memory being
+     * moved from one subspace to another.
+     * @param env[in] The thread which performed the change in heap geometry
+     */
+    void heapReconfigured(MM_EnvironmentVLHGC* env);
 
 #if defined(J9VM_GC_CONCURRENT_SWEEP)
-	virtual bool replenishPoolForAllocate(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool, UDATA size);
+    virtual bool replenishPoolForAllocate(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool, UDATA size);
 #endif /* J9VM_GC_CONCURRENT_SWEEP */
 
-	/**
-	 * Create a ParallelSweepSchemeVLHGC object.
-	 */
-	MM_ParallelSweepSchemeVLHGC(MM_EnvironmentVLHGC *env);
+    /**
+     * Create a ParallelSweepSchemeVLHGC object.
+     */
+    MM_ParallelSweepSchemeVLHGC(MM_EnvironmentVLHGC* env);
 
-	friend class MM_ParallelSweepVLHGCTask;
+    friend class MM_ParallelSweepVLHGCTask;
 };
 
 #endif /* PARALLELSWEEPSCHEMEVLHGC_HPP_ */

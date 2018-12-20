@@ -33,27 +33,25 @@ extern "C" {
  * Method:    getNumberRegisters
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getNumberRegisters
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getNumberRegisters(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniRegisters
  * Method:    getRegisterName
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getRegisterName
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT jstring JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getRegisterName(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniRegisters
  * Method:    getRegisterValue
  * Signature: (JJ)Ljava/lang/Number;
  */
-JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getRegisterValue
-  (JNIEnv *, jclass, jlong, jlong);
+JNIEXPORT jobject JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_getRegisterValue(
+    JNIEnv*, jclass, jlong, jlong);
 
-JNIEXPORT jboolean JNICALL
-Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_fetchRegisters(JNIEnv * env, jobject obj, jlong tid);
+JNIEXPORT jboolean JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniRegisters_fetchRegisters(
+    JNIEnv* env, jobject obj, jlong tid);
 
 #ifdef __cplusplus
 }

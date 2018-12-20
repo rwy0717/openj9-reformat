@@ -34,7 +34,7 @@
 #include <ffi_common.h>
 
 #if !FFI_MMAP_EXEC_WRIT && !FFI_EXEC_TRAMPOLINE_TABLE
-# if __gnu_linux__ && !defined(__ANDROID__)
+#if __gnu_linux__ && !defined(__ANDROID__)
 /* This macro indicates it may be forbidden to map anonymous memory
    with both write and execute permission.  Code compiled when this
    option is defined will attempt to map such pages once, but if it
@@ -42,33 +42,33 @@
    executable filesystem and mapping pages from it into separate
    locations in the virtual memory space, one location writable and
    another executable.  */
-#  define FFI_MMAP_EXEC_WRIT 1
-#  define HAVE_MNTENT 1
-# endif
-# if defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)
-/* Windows systems may have Data Execution Protection (DEP) enabled, 
+#define FFI_MMAP_EXEC_WRIT 1
+#define HAVE_MNTENT 1
+#endif
+#if defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)
+/* Windows systems may have Data Execution Protection (DEP) enabled,
    which requires the use of VirtualMalloc/VirtualFree to alloc/free
    executable memory. */
-#  define FFI_MMAP_EXEC_WRIT 1
-# endif
+#define FFI_MMAP_EXEC_WRIT 1
+#endif
 #endif
 
 #if FFI_MMAP_EXEC_WRIT && !defined FFI_MMAP_EXEC_SELINUX
-# ifdef __linux__
+#ifdef __linux__
 /* When defined to 1 check for SELinux and if SELinux is active,
    don't attempt PROT_EXEC|PROT_WRITE mapping at all, as that
    might cause audit messages.  */
-#  define FFI_MMAP_EXEC_SELINUX 1
-# endif
+#define FFI_MMAP_EXEC_SELINUX 1
+#endif
 #endif
 
 #if FFI_CLOSURES
 
-# if FFI_EXEC_TRAMPOLINE_TABLE
+#if FFI_EXEC_TRAMPOLINE_TABLE
 
 // Per-target implementation; It's unclear what can reasonable be shared between two OS/architecture implementations.
 
-# elif FFI_MMAP_EXEC_WRIT /* !FFI_EXEC_TRAMPOLINE_TABLE */
+#elif FFI_MMAP_EXEC_WRIT /* !FFI_EXEC_TRAMPOLINE_TABLE */
 
 #define USE_LOCKS 1
 #define USE_DL_PREFIX 1
@@ -129,42 +129,37 @@
 
 static int selinux_enabled = -1;
 
-static int
-selinux_enabled_check (void)
+static int selinux_enabled_check(void)
 {
-  struct statfs sfs;
-  FILE *f;
-  char *buf = NULL;
-  size_t len = 0;
+    struct statfs sfs;
+    FILE* f;
+    char* buf = NULL;
+    size_t len = 0;
 
-  if (statfs ("/selinux", &sfs) >= 0
-      && (unsigned int) sfs.f_type == 0xf97cff8cU)
-    return 1;
-  f = fopen ("/proc/mounts", "r");
-  if (f == NULL)
-    return 0;
-  while (getline (&buf, &len, f) >= 0)
-    {
-      char *p = strchr (buf, ' ');
-      if (p == NULL)
-        break;
-      p = strchr (p + 1, ' ');
-      if (p == NULL)
-        break;
-      if (strncmp (p + 1, "selinuxfs ", 10) == 0)
-        {
-          free (buf);
-          fclose (f);
-          return 1;
+    if (statfs("/selinux", &sfs) >= 0 && (unsigned int)sfs.f_type == 0xf97cff8cU)
+        return 1;
+    f = fopen("/proc/mounts", "r");
+    if (f == NULL)
+        return 0;
+    while (getline(&buf, &len, f) >= 0) {
+        char* p = strchr(buf, ' ');
+        if (p == NULL)
+            break;
+        p = strchr(p + 1, ' ');
+        if (p == NULL)
+            break;
+        if (strncmp(p + 1, "selinuxfs ", 10) == 0) {
+            free(buf);
+            fclose(f);
+            return 1;
         }
     }
-  free (buf);
-  fclose (f);
-  return 0;
+    free(buf);
+    fclose(f);
+    return 0;
 }
 
-#define is_selinux_enabled() (selinux_enabled >= 0 ? selinux_enabled \
-			      : (selinux_enabled = selinux_enabled_check ()))
+#define is_selinux_enabled() (selinux_enabled >= 0 ? selinux_enabled : (selinux_enabled = selinux_enabled_check()))
 
 #else
 
@@ -178,36 +173,33 @@ selinux_enabled_check (void)
 
 static int emutramp_enabled = -1;
 
-static int
-emutramp_enabled_check (void)
+static int emutramp_enabled_check(void)
 {
-  char *buf = NULL;
-  size_t len = 0;
-  FILE *f;
-  int ret;
-  f = fopen ("/proc/self/status", "r");
-  if (f == NULL)
-    return 0;
-  ret = 0;
+    char* buf = NULL;
+    size_t len = 0;
+    FILE* f;
+    int ret;
+    f = fopen("/proc/self/status", "r");
+    if (f == NULL)
+        return 0;
+    ret = 0;
 
-  while (getline (&buf, &len, f) != -1)
-    if (!strncmp (buf, "PaX:", 4))
-      {
-        char emutramp;
-        if (sscanf (buf, "%*s %*c%c", &emutramp) == 1)
-          ret = (emutramp == 'E');
-        break;
-      }
-  free (buf);
-  fclose (f);
-  return ret;
+    while (getline(&buf, &len, f) != -1)
+        if (!strncmp(buf, "PaX:", 4)) {
+            char emutramp;
+            if (sscanf(buf, "%*s %*c%c", &emutramp) == 1)
+                ret = (emutramp == 'E');
+            break;
+        }
+    free(buf);
+    fclose(f);
+    return ret;
 }
 
-#define is_emutramp_enabled() (emutramp_enabled >= 0 ? emutramp_enabled \
-                               : (emutramp_enabled = emutramp_enabled_check ()))
+#define is_emutramp_enabled() (emutramp_enabled >= 0 ? emutramp_enabled : (emutramp_enabled = emutramp_enabled_check()))
 #endif /* FFI_MMAP_EXEC_EMUTRAMP_PAX */
 
-#elif defined (__CYGWIN__) || defined(__INTERIX)
+#elif defined(__CYGWIN__) || defined(__INTERIX)
 
 #include <sys/mman.h>
 
@@ -221,27 +213,28 @@ emutramp_enabled_check (void)
 #endif /* FFI_MMAP_EXEC_EMUTRAMP_PAX */
 
 /* Declare all functions defined in dlmalloc.c as static.  */
-static void *dlmalloc(size_t);
+static void* dlmalloc(size_t);
 static void dlfree(void*);
-static void *dlcalloc(size_t, size_t) MAYBE_UNUSED;
-static void *dlrealloc(void *, size_t) MAYBE_UNUSED;
-static void *dlmemalign(size_t, size_t) MAYBE_UNUSED;
-static void *dlvalloc(size_t) MAYBE_UNUSED;
+static void* dlcalloc(size_t, size_t) MAYBE_UNUSED;
+static void* dlrealloc(void*, size_t) MAYBE_UNUSED;
+static void* dlmemalign(size_t, size_t) MAYBE_UNUSED;
+static void* dlvalloc(size_t) MAYBE_UNUSED;
 static int dlmallopt(int, int) MAYBE_UNUSED;
 static size_t dlmalloc_footprint(void) MAYBE_UNUSED;
 static size_t dlmalloc_max_footprint(void) MAYBE_UNUSED;
 static void** dlindependent_calloc(size_t, size_t, void**) MAYBE_UNUSED;
 static void** dlindependent_comalloc(size_t, size_t*, void**) MAYBE_UNUSED;
-static void *dlpvalloc(size_t) MAYBE_UNUSED;
+static void* dlpvalloc(size_t) MAYBE_UNUSED;
 static int dlmalloc_trim(size_t) MAYBE_UNUSED;
 static size_t dlmalloc_usable_size(void*) MAYBE_UNUSED;
 static void dlmalloc_stats(void) MAYBE_UNUSED;
 
-#if !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || defined(__INTERIX)
+#if !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined(__CYGWIN__) || defined(__INTERIX)
 /* Use these for mmap and munmap within dlmalloc.c.  */
-static void *dlmmap(void *, size_t, int, int, int, off_t);
-static int dlmunmap(void *, size_t);
-#endif /* !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || defined(__INTERIX) */
+static void* dlmmap(void*, size_t, int, int, int, off_t);
+static int dlmunmap(void*, size_t);
+#endif /* !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || \
+          defined(__INTERIX) */
 
 #define mmap dlmmap
 #define munmap dlmunmap
@@ -251,7 +244,7 @@ static int dlmunmap(void *, size_t);
 #undef mmap
 #undef munmap
 
-#if !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || defined(__INTERIX)
+#if !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined(__CYGWIN__) || defined(__INTERIX)
 
 /* A mutex used to synchronize access to *exec* variables in this file.  */
 static pthread_mutex_t open_temp_exec_file_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -264,73 +257,70 @@ static int execfd = -1;
 static size_t execsize = 0;
 
 /* Open a temporary file name, and immediately unlink it.  */
-static int
-open_temp_exec_file_name (char *name, int flags)
+static int open_temp_exec_file_name(char* name, int flags)
 {
-  int fd;
+    int fd;
 
 #ifdef HAVE_MKOSTEMP
-  fd = mkostemp (name, flags);
+    fd = mkostemp(name, flags);
 #else
-  fd = mkstemp (name);
+    fd = mkstemp(name);
 #endif
 
-  if (fd != -1)
-    unlink (name);
+    if (fd != -1)
+        unlink(name);
 
-  return fd;
+    return fd;
 }
 
 /* Open a temporary file in the named directory.  */
-static int
-open_temp_exec_file_dir (const char *dir)
+static int open_temp_exec_file_dir(const char* dir)
 {
-  static const char suffix[] = "/ffiXXXXXX";
-  int lendir, flags;
-  char *tempname;
+    static const char suffix[] = "/ffiXXXXXX";
+    int lendir, flags;
+    char* tempname;
 #ifdef O_TMPFILE
-  int fd;
+    int fd;
 #endif
 
 #ifdef O_CLOEXEC
-  flags = O_CLOEXEC;
+    flags = O_CLOEXEC;
 #else
-  flags = 0;
+    flags = 0;
 #endif
 
 #ifdef O_TMPFILE
-  fd = open (dir, flags | O_RDWR | O_EXCL | O_TMPFILE, 0700);
-  /* If the running system does not support the O_TMPFILE flag then retry without it. */
-  if (fd != -1 || (errno != EINVAL && errno != EISDIR && errno != EOPNOTSUPP)) {
-    return fd;
-  } else {
-    errno = 0;
-  }
+    fd = open(dir, flags | O_RDWR | O_EXCL | O_TMPFILE, 0700);
+    /* If the running system does not support the O_TMPFILE flag then retry without it. */
+    if (fd != -1 || (errno != EINVAL && errno != EISDIR && errno != EOPNOTSUPP)) {
+        return fd;
+    } else {
+        errno = 0;
+    }
 #endif
 
-  lendir = strlen (dir);
-  tempname = __builtin_alloca (lendir + sizeof (suffix));
+    lendir = strlen(dir);
+    tempname = __builtin_alloca(lendir + sizeof(suffix));
 
-  if (!tempname)
-    return -1;
+    if (!tempname)
+        return -1;
 
-  memcpy (tempname, dir, lendir);
-  memcpy (tempname + lendir, suffix, sizeof (suffix));
+    memcpy(tempname, dir, lendir);
+    memcpy(tempname + lendir, suffix, sizeof(suffix));
 
-  return open_temp_exec_file_name (tempname, flags);
+    return open_temp_exec_file_name(tempname, flags);
 }
 
 /* Open a temporary file in the directory in the named environment
    variable.  */
-static int
-open_temp_exec_file_env (const char *envvar)
+static int open_temp_exec_file_env(const char* envvar)
 {
-  const char *value = getenv (envvar);
+    const char* value = getenv(envvar);
 
-  if (!value)
-    return -1;
+    if (!value)
+        return -1;
 
-  return open_temp_exec_file_dir (value);
+    return open_temp_exec_file_dir(value);
 }
 
 #ifdef HAVE_MNTENT
@@ -338,66 +328,60 @@ open_temp_exec_file_env (const char *envvar)
    listed in the mounts file.  Subsequent calls with the same mounts
    keep searching for mount points in the same file.  Providing NULL
    as the mounts file closes the file.  */
-static int
-open_temp_exec_file_mnt (const char *mounts)
+static int open_temp_exec_file_mnt(const char* mounts)
 {
-  static const char *last_mounts;
-  static FILE *last_mntent;
+    static const char* last_mounts;
+    static FILE* last_mntent;
 
-  if (mounts != last_mounts)
-    {
-      if (last_mntent)
-	endmntent (last_mntent);
+    if (mounts != last_mounts) {
+        if (last_mntent)
+            endmntent(last_mntent);
 
-      last_mounts = mounts;
+        last_mounts = mounts;
 
-      if (mounts)
-	last_mntent = setmntent (mounts, "r");
-      else
-	last_mntent = NULL;
+        if (mounts)
+            last_mntent = setmntent(mounts, "r");
+        else
+            last_mntent = NULL;
     }
 
-  if (!last_mntent)
-    return -1;
+    if (!last_mntent)
+        return -1;
 
-  for (;;)
-    {
-      int fd;
-      struct mntent mnt;
-      char buf[MAXPATHLEN * 3];
+    for (;;) {
+        int fd;
+        struct mntent mnt;
+        char buf[MAXPATHLEN * 3];
 
-      if (getmntent_r (last_mntent, &mnt, buf, sizeof (buf)) == NULL)
-	return -1;
+        if (getmntent_r(last_mntent, &mnt, buf, sizeof(buf)) == NULL)
+            return -1;
 
-      if (hasmntopt (&mnt, "ro")
-	  || hasmntopt (&mnt, "noexec")
-	  || access (mnt.mnt_dir, W_OK))
-	continue;
+        if (hasmntopt(&mnt, "ro") || hasmntopt(&mnt, "noexec") || access(mnt.mnt_dir, W_OK))
+            continue;
 
-      fd = open_temp_exec_file_dir (mnt.mnt_dir);
+        fd = open_temp_exec_file_dir(mnt.mnt_dir);
 
-      if (fd != -1)
-	return fd;
+        if (fd != -1)
+            return fd;
     }
 }
 #endif /* HAVE_MNTENT */
 
 /* Instructions to look for a location to hold a temporary file that
    can be mapped in for execution.  */
-static struct
-{
-  int (*func)(const char *);
-  const char *arg;
-  int repeat;
+static struct {
+    int (*func)(const char*);
+    const char* arg;
+    int repeat;
 } open_temp_exec_file_opts[] = {
-  { open_temp_exec_file_env, "TMPDIR", 0 },
-  { open_temp_exec_file_dir, "/tmp", 0 },
-  { open_temp_exec_file_dir, "/var/tmp", 0 },
-  { open_temp_exec_file_dir, "/dev/shm", 0 },
-  { open_temp_exec_file_env, "HOME", 0 },
+    { open_temp_exec_file_env, "TMPDIR", 0 },
+    { open_temp_exec_file_dir, "/tmp", 0 },
+    { open_temp_exec_file_dir, "/var/tmp", 0 },
+    { open_temp_exec_file_dir, "/dev/shm", 0 },
+    { open_temp_exec_file_env, "HOME", 0 },
 #ifdef HAVE_MNTENT
-  { open_temp_exec_file_mnt, "/etc/mtab", 1 },
-  { open_temp_exec_file_mnt, "/proc/mounts", 1 },
+    { open_temp_exec_file_mnt, "/etc/mtab", 1 },
+    { open_temp_exec_file_mnt, "/proc/mounts", 1 },
 #endif /* HAVE_MNTENT */
 };
 
@@ -407,46 +391,37 @@ static int open_temp_exec_file_opts_idx = 0;
 /* Reset a current multi-call func, then advances to the next entry.
    If we're at the last, go back to the first and return nonzero,
    otherwise return zero.  */
-static int
-open_temp_exec_file_opts_next (void)
+static int open_temp_exec_file_opts_next(void)
 {
-  if (open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat)
-    open_temp_exec_file_opts[open_temp_exec_file_opts_idx].func (NULL);
+    if (open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat)
+        open_temp_exec_file_opts[open_temp_exec_file_opts_idx].func(NULL);
 
-  open_temp_exec_file_opts_idx++;
-  if (open_temp_exec_file_opts_idx
-      == (sizeof (open_temp_exec_file_opts)
-	  / sizeof (*open_temp_exec_file_opts)))
-    {
-      open_temp_exec_file_opts_idx = 0;
-      return 1;
+    open_temp_exec_file_opts_idx++;
+    if (open_temp_exec_file_opts_idx == (sizeof(open_temp_exec_file_opts) / sizeof(*open_temp_exec_file_opts))) {
+        open_temp_exec_file_opts_idx = 0;
+        return 1;
     }
 
-  return 0;
+    return 0;
 }
 
 /* Return a file descriptor of a temporary zero-sized file in a
    writable and executable filesystem.  */
-static int
-open_temp_exec_file (void)
+static int open_temp_exec_file(void)
 {
-  int fd;
+    int fd;
 
-  do
-    {
-      fd = open_temp_exec_file_opts[open_temp_exec_file_opts_idx].func
-	(open_temp_exec_file_opts[open_temp_exec_file_opts_idx].arg);
+    do {
+        fd = open_temp_exec_file_opts[open_temp_exec_file_opts_idx].func(
+            open_temp_exec_file_opts[open_temp_exec_file_opts_idx].arg);
 
-      if (!open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat
-	  || fd == -1)
-	{
-	  if (open_temp_exec_file_opts_next ())
-	    break;
-	}
-    }
-  while (fd == -1);
+        if (!open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat || fd == -1) {
+            if (open_temp_exec_file_opts_next())
+                break;
+        }
+    } while (fd == -1);
 
-  return fd;
+    return fd;
 }
 
 /* Map in a chunk of memory from the temporary exec file into separate
@@ -454,235 +429,216 @@ open_temp_exec_file (void)
    executable.  Returns the address of the writable portion, after
    storing an offset to the corresponding executable portion at the
    last word of the requested chunk.  */
-static void *
-dlmmap_locked (void *start, size_t length, int prot, int flags, off_t offset)
+static void* dlmmap_locked(void* start, size_t length, int prot, int flags, off_t offset)
 {
-  void *ptr;
+    void* ptr;
 
-  if (execfd == -1)
-    {
-      open_temp_exec_file_opts_idx = 0;
+    if (execfd == -1) {
+        open_temp_exec_file_opts_idx = 0;
     retry_open:
-      execfd = open_temp_exec_file ();
-      if (execfd == -1)
-	return MFAIL;
+        execfd = open_temp_exec_file();
+        if (execfd == -1)
+            return MFAIL;
     }
 
-  offset = execsize;
+    offset = execsize;
 
-  if (ftruncate (execfd, offset + length))
-    return MFAIL;
+    if (ftruncate(execfd, offset + length))
+        return MFAIL;
 
-  flags &= ~(MAP_PRIVATE | MAP_ANONYMOUS);
-  flags |= MAP_SHARED;
+    flags &= ~(MAP_PRIVATE | MAP_ANONYMOUS);
+    flags |= MAP_SHARED;
 
-  ptr = mmap (NULL, length, (prot & ~PROT_WRITE) | PROT_EXEC,
-	      flags, execfd, offset);
-  if (ptr == MFAIL)
-    {
-      if (!offset)
-	{
-	  close (execfd);
-	  goto retry_open;
-	}
-      ftruncate (execfd, offset);
-      return MFAIL;
-    }
-  else if (!offset
-	   && open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat)
-    open_temp_exec_file_opts_next ();
+    ptr = mmap(NULL, length, (prot & ~PROT_WRITE) | PROT_EXEC, flags, execfd, offset);
+    if (ptr == MFAIL) {
+        if (!offset) {
+            close(execfd);
+            goto retry_open;
+        }
+        ftruncate(execfd, offset);
+        return MFAIL;
+    } else if (!offset && open_temp_exec_file_opts[open_temp_exec_file_opts_idx].repeat)
+        open_temp_exec_file_opts_next();
 
-  start = mmap (start, length, prot, flags, execfd, offset);
+    start = mmap(start, length, prot, flags, execfd, offset);
 
-  if (start == MFAIL)
-    {
-      munmap (ptr, length);
-      ftruncate (execfd, offset);
-      return start;
+    if (start == MFAIL) {
+        munmap(ptr, length);
+        ftruncate(execfd, offset);
+        return start;
     }
 
-  mmap_exec_offset ((char *)start, length) = (char*)ptr - (char*)start;
+    mmap_exec_offset((char*)start, length) = (char*)ptr - (char*)start;
 
-  execsize += length;
+    execsize += length;
 
-  return start;
+    return start;
 }
 
 /* Map in a writable and executable chunk of memory if possible.
    Failing that, fall back to dlmmap_locked.  */
-static void *
-dlmmap (void *start, size_t length, int prot,
-	int flags, int fd, off_t offset)
+static void* dlmmap(void* start, size_t length, int prot, int flags, int fd, off_t offset)
 {
-  void *ptr;
+    void* ptr;
 
-  assert (start == NULL && length % malloc_getpagesize == 0
-	  && prot == (PROT_READ | PROT_WRITE)
-	  && flags == (MAP_PRIVATE | MAP_ANONYMOUS)
-	  && fd == -1 && offset == 0);
+    assert(start == NULL && length % malloc_getpagesize == 0 && prot == (PROT_READ | PROT_WRITE)
+        && flags == (MAP_PRIVATE | MAP_ANONYMOUS) && fd == -1 && offset == 0);
 
 #if FFI_CLOSURE_TEST
-  printf ("mapping in %zi\n", length);
+    printf("mapping in %zi\n", length);
 #endif
 
-  if (execfd == -1 && is_emutramp_enabled ())
-    {
-      ptr = mmap (start, length, prot & ~PROT_EXEC, flags, fd, offset);
-      return ptr;
+    if (execfd == -1 && is_emutramp_enabled()) {
+        ptr = mmap(start, length, prot & ~PROT_EXEC, flags, fd, offset);
+        return ptr;
     }
 
-  if (execfd == -1 && !is_selinux_enabled ())
-    {
-      ptr = mmap (start, length, prot | PROT_EXEC, flags, fd, offset);
+    if (execfd == -1 && !is_selinux_enabled()) {
+        ptr = mmap(start, length, prot | PROT_EXEC, flags, fd, offset);
 
-      if (ptr != MFAIL || (errno != EPERM && errno != EACCES))
-	/* Cool, no need to mess with separate segments.  */
-	return ptr;
+        if (ptr != MFAIL || (errno != EPERM && errno != EACCES))
+            /* Cool, no need to mess with separate segments.  */
+            return ptr;
 
-      /* If MREMAP_DUP is ever introduced and implemented, try mmap
-	 with ((prot & ~PROT_WRITE) | PROT_EXEC) and mremap with
-	 MREMAP_DUP and prot at this point.  */
+        /* If MREMAP_DUP is ever introduced and implemented, try mmap
+           with ((prot & ~PROT_WRITE) | PROT_EXEC) and mremap with
+           MREMAP_DUP and prot at this point.  */
     }
 
-  if (execsize == 0 || execfd == -1)
-    {
-      pthread_mutex_lock (&open_temp_exec_file_mutex);
-      ptr = dlmmap_locked (start, length, prot, flags, offset);
-      pthread_mutex_unlock (&open_temp_exec_file_mutex);
+    if (execsize == 0 || execfd == -1) {
+        pthread_mutex_lock(&open_temp_exec_file_mutex);
+        ptr = dlmmap_locked(start, length, prot, flags, offset);
+        pthread_mutex_unlock(&open_temp_exec_file_mutex);
 
-      return ptr;
+        return ptr;
     }
 
-  return dlmmap_locked (start, length, prot, flags, offset);
+    return dlmmap_locked(start, length, prot, flags, offset);
 }
 
 /* Release memory at the given address, as well as the corresponding
    executable page if it's separate.  */
-static int
-dlmunmap (void *start, size_t length)
+static int dlmunmap(void* start, size_t length)
 {
-  /* We don't bother decreasing execsize or truncating the file, since
-     we can't quite tell whether we're unmapping the end of the file.
-     We don't expect frequent deallocation anyway.  If we did, we
-     could locate pages in the file by writing to the pages being
-     deallocated and checking that the file contents change.
-     Yuck.  */
-  msegmentptr seg = segment_holding (gm, start);
-  void *code;
+    /* We don't bother decreasing execsize or truncating the file, since
+       we can't quite tell whether we're unmapping the end of the file.
+       We don't expect frequent deallocation anyway.  If we did, we
+       could locate pages in the file by writing to the pages being
+       deallocated and checking that the file contents change.
+       Yuck.  */
+    msegmentptr seg = segment_holding(gm, start);
+    void* code;
 
 #if FFI_CLOSURE_TEST
-  printf ("unmapping %zi\n", length);
+    printf("unmapping %zi\n", length);
 #endif
 
-  if (seg && (code = add_segment_exec_offset (start, seg)) != start)
-    {
-      int ret = munmap (code, length);
-      if (ret)
-	return ret;
+    if (seg && (code = add_segment_exec_offset(start, seg)) != start) {
+        int ret = munmap(code, length);
+        if (ret)
+            return ret;
     }
 
-  return munmap (start, length);
+    return munmap(start, length);
 }
 
 #if FFI_CLOSURE_FREE_CODE
 /* Return segment holding given code address.  */
-static msegmentptr
-segment_holding_code (mstate m, char* addr)
+static msegmentptr segment_holding_code(mstate m, char* addr)
 {
-  msegmentptr sp = &m->seg;
-  for (;;) {
-    if (addr >= add_segment_exec_offset (sp->base, sp)
-	&& addr < add_segment_exec_offset (sp->base, sp) + sp->size)
-      return sp;
-    if ((sp = sp->next) == 0)
-      return 0;
-  }
+    msegmentptr sp = &m->seg;
+    for (;;) {
+        if (addr >= add_segment_exec_offset(sp->base, sp) && addr < add_segment_exec_offset(sp->base, sp) + sp->size)
+            return sp;
+        if ((sp = sp->next) == 0)
+            return 0;
+    }
 }
 #endif
 
-#endif /* !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || defined(__INTERIX) */
+#endif /* !(defined(X86_WIN32) || defined(X86_WIN64) || defined(__OS2__)) || defined (__CYGWIN__) || \
+          defined(__INTERIX) */
 
 /* Allocate a chunk of memory with the given size.  Returns a pointer
    to the writable address, and sets *CODE to the executable
    corresponding virtual address.  */
-void *
-ffi_closure_alloc (size_t size, void **code)
+void* ffi_closure_alloc(size_t size, void** code)
 {
-  void *ptr;
+    void* ptr;
 
-  if (!code)
-    return NULL;
+    if (!code)
+        return NULL;
 
-  ptr = dlmalloc (size);
+    ptr = dlmalloc(size);
 
-  if (ptr)
-    {
-      msegmentptr seg = segment_holding (gm, ptr);
+    if (ptr) {
+        msegmentptr seg = segment_holding(gm, ptr);
 
-      *code = add_segment_exec_offset (ptr, seg);
+        *code = add_segment_exec_offset(ptr, seg);
     }
 
-  return ptr;
+    return ptr;
 }
 
 /* Release a chunk of memory allocated with ffi_closure_alloc.  If
    FFI_CLOSURE_FREE_CODE is nonzero, the given address can be the
    writable or the executable address given.  Otherwise, only the
    writable address can be provided here.  */
-void
-ffi_closure_free (void *ptr)
+void ffi_closure_free(void* ptr)
 {
 #if FFI_CLOSURE_FREE_CODE
-  msegmentptr seg = segment_holding_code (gm, ptr);
+    msegmentptr seg = segment_holding_code(gm, ptr);
 
-  if (seg)
-    ptr = sub_segment_exec_offset (ptr, seg);
+    if (seg)
+        ptr = sub_segment_exec_offset(ptr, seg);
 #endif
 
-  dlfree (ptr);
+    dlfree(ptr);
 }
-
 
 #if FFI_CLOSURE_TEST
 /* Do some internal sanity testing to make sure allocation and
    deallocation of pages are working as intended.  */
-int main ()
+int main()
 {
-  void *p[3];
-#define GET(idx, len) do { p[idx] = dlmalloc (len); printf ("allocated %zi for p[%i]\n", (len), (idx)); } while (0)
-#define PUT(idx) do { printf ("freeing p[%i]\n", (idx)); dlfree (p[idx]); } while (0)
-  GET (0, malloc_getpagesize / 2);
-  GET (1, 2 * malloc_getpagesize - 64 * sizeof (void*));
-  PUT (1);
-  GET (1, 2 * malloc_getpagesize);
-  GET (2, malloc_getpagesize / 2);
-  PUT (1);
-  PUT (0);
-  PUT (2);
-  return 0;
+    void* p[3];
+#define GET(idx, len)                                      \
+    do {                                                   \
+        p[idx] = dlmalloc(len);                            \
+        printf("allocated %zi for p[%i]\n", (len), (idx)); \
+    } while (0)
+#define PUT(idx)                          \
+    do {                                  \
+        printf("freeing p[%i]\n", (idx)); \
+        dlfree(p[idx]);                   \
+    } while (0)
+    GET(0, malloc_getpagesize / 2);
+    GET(1, 2 * malloc_getpagesize - 64 * sizeof(void*));
+    PUT(1);
+    GET(1, 2 * malloc_getpagesize);
+    GET(2, malloc_getpagesize / 2);
+    PUT(1);
+    PUT(0);
+    PUT(2);
+    return 0;
 }
 #endif /* FFI_CLOSURE_TEST */
-# else /* ! FFI_MMAP_EXEC_WRIT */
+#else /* ! FFI_MMAP_EXEC_WRIT */
 
 /* On many systems, memory returned by malloc is writable and
    executable, so just use it.  */
 
 #include <stdlib.h>
 
-void *
-ffi_closure_alloc (size_t size, void **code)
+void* ffi_closure_alloc(size_t size, void** code)
 {
-  if (!code)
-    return NULL;
+    if (!code)
+        return NULL;
 
-  return *code = malloc (size);
+    return *code = malloc(size);
 }
 
-void
-ffi_closure_free (void *ptr)
-{
-  free (ptr);
-}
+void ffi_closure_free(void* ptr) { free(ptr); }
 
-# endif /* ! FFI_MMAP_EXEC_WRIT */
+#endif /* ! FFI_MMAP_EXEC_WRIT */
 #endif /* FFI_CLOSURES */

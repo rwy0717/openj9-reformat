@@ -34,47 +34,47 @@
 #include "il/symbol/ResolvedMethodSymbol.hpp"
 #include "il/symbol/StaticSymbol.hpp"
 
-uint8_t *TR::ARMRecompilationSnippet::emitSnippetBody()
-   {
-   /*
-   Snippet will look like:
-   bl    TR_ARMcountingRecompileMethod
-   dd    jittedBodyInfo
-   dd    code start location
-   */
+uint8_t* TR::ARMRecompilationSnippet::emitSnippetBody()
+{
+    /*
+    Snippet will look like:
+    bl    TR_ARMcountingRecompileMethod
+    dd    jittedBodyInfo
+    dd    code start location
+    */
 
-   uint8_t             *buffer = cg()->getBinaryBufferCursor();
-   TR::SymbolReference  *countingRecompMethodSymRef = cg()->symRefTab()->findOrCreateRuntimeHelper(TR_ARMcountingRecompileMethod, false, false, false);
+    uint8_t* buffer = cg()->getBinaryBufferCursor();
+    TR::SymbolReference* countingRecompMethodSymRef
+        = cg()->symRefTab()->findOrCreateRuntimeHelper(TR_ARMcountingRecompileMethod, false, false, false);
 
-   getSnippetLabel()->setCodeLocation(buffer);
+    getSnippetLabel()->setCodeLocation(buffer);
 
-   *(int32_t *)buffer = encodeHelperBranchAndLink(countingRecompMethodSymRef, buffer, getNode(), cg());  // BL resolve
-   buffer += 4;
+    *(int32_t*)buffer = encodeHelperBranchAndLink(countingRecompMethodSymRef, buffer, getNode(), cg()); // BL resolve
+    buffer += 4;
 
-   *(int32_t *)buffer = (int32_t)(intptrj_t)cg()->comp()->getRecompilationInfo()->getJittedBodyInfo();
-   buffer += 4;
+    *(int32_t*)buffer = (int32_t)(intptrj_t)cg()->comp()->getRecompilationInfo()->getJittedBodyInfo();
+    buffer += 4;
 
-   *(int32_t *)buffer = ((int32_t)(intptrj_t)cg()->getCodeStart());
-   buffer += 4;
+    *(int32_t*)buffer = ((int32_t)(intptrj_t)cg()->getCodeStart());
+    buffer += 4;
 
-   return buffer;
-   }
+    return buffer;
+}
 
-uint32_t TR::ARMRecompilationSnippet::getLength(int32_t estimatedSnippetStart)
-   {
-   return  12;
-   }
+uint32_t TR::ARMRecompilationSnippet::getLength(int32_t estimatedSnippetStart) { return 12; }
 /*
 uint8_t *TR::ARMEDORecompilationSnippet::emitSnippetBody()
    {
    uint8_t             *buffer = cg()->getBinaryBufferCursor();
-   TR::SymbolReference  *induceRecompilationSymRef = cg()->symRefTab()->findOrCreateRuntimeHelper(TR_ARMinduceRecompilation, false, false, false);
-   intptrj_t startPC = (intptrj_t)((uint8_t*)cg()->getCodeStart());
+   TR::SymbolReference  *induceRecompilationSymRef =
+cg()->symRefTab()->findOrCreateRuntimeHelper(TR_ARMinduceRecompilation, false, false, false); intptrj_t startPC =
+(intptrj_t)((uint8_t*)cg()->getCodeStart());
 
    getSnippetLabel()->setCodeLocation(buffer);
 
    TR_ARMRegisterDependencyConditions *deps = _doneLabel->getInstruction()->getDependencyConditions();
-   TR_ARMRealRegister *startPCReg  = getARMMachine(cg())->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
+   TR_ARMRealRegister *startPCReg  =
+getARMMachine(cg())->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
 
    TR_ARMOpCode opcode;
 
@@ -144,9 +144,9 @@ uint8_t *TR::ARMEDORecompilationSnippet::emitSnippetBody()
    intptrj_t distance = (intptrj_t)induceRecompilationSymRef->getMethodAddress() - (intptrj_t)buffer;
    if (!(distance>=BRANCH_BACKWARD_LIMIT && distance<=BRANCH_FORWARD_LIMIT))
       {
-      distance = fej9->indexedTrampolineLookup(induceRecompilationSymRef->getReferenceNumber(), (void *)buffer) - (intptrj_t)buffer;
-      TR_ASSERT(distance>=BRANCH_BACKWARD_LIMIT && distance<=BRANCH_FORWARD_LIMIT,
-             "CodeCache is more than 32MB.\n");
+      distance = fej9->indexedTrampolineLookup(induceRecompilationSymRef->getReferenceNumber(), (void *)buffer) -
+(intptrj_t)buffer; TR_ASSERT(distance>=BRANCH_BACKWARD_LIMIT && distance<=BRANCH_FORWARD_LIMIT, "CodeCache is more than
+32MB.\n");
       }
 
    // b distance

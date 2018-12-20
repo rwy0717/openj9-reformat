@@ -28,8 +28,12 @@
  */
 #ifndef TR_J9_COMPILATIONBASE_CONNECTOR
 #define TR_J9_COMPILATIONBASE_CONNECTOR
-namespace J9 { class Compilation; }
-namespace J9 { typedef J9::Compilation CompilationConnector; }
+namespace J9 {
+class Compilation;
+}
+namespace J9 {
+typedef J9::Compilation CompilationConnector;
+}
 #endif
 
 #include "compile/OMRCompilation.hpp"
@@ -56,7 +60,9 @@ class TR_ExternalValueProfileInfo;
 class TR_J9VM;
 class TR_AccessedProfileInfo;
 class TR_RelocationRuntime;
-namespace TR { class IlGenRequest; }
+namespace TR {
+class IlGenRequest;
+}
 
 #define COMPILATION_AOT_HAS_INVOKEHANDLE -9
 #define COMPILATION_RESERVE_RESOLVED_TRAMPOLINE_FATAL_ERROR -10
@@ -71,327 +77,316 @@ namespace TR { class IlGenRequest; }
 #define COMPILATION_RESERVE_NTRAMPOLINES_ERROR_INBINARYENCODING -19
 #define COMPILATION_AOT_RELOCATION_FAILED -20
 
+namespace J9 {
 
+class OMR_EXTENSIBLE Compilation : public OMR::CompilationConnector {
+    friend class ::TR_DebugExt;
 
-namespace J9
-{
+public:
+    TR_ALLOC(TR_Memory::Compilation)
 
-class OMR_EXTENSIBLE Compilation : public OMR::CompilationConnector
-   {
-   friend class ::TR_DebugExt;
+    Compilation(int32_t compThreadId, J9VMThread* j9VMThread, TR_FrontEnd*, TR_ResolvedMethod*, TR::IlGenRequest&,
+        TR::Options&, TR::Region& heapMemoryRegion, TR_Memory*, TR_OptimizationPlan* optimizationPlan,
+        TR_RelocationRuntime* reloRuntime);
 
-   public:
+    ~Compilation();
 
-   TR_ALLOC(TR_Memory::Compilation)
+    TR_J9VMBase* fej9();
+    TR_J9VM* fej9vm();
 
-   Compilation(
-         int32_t compThreadId,
-         J9VMThread *j9VMThread,
-         TR_FrontEnd *,
-         TR_ResolvedMethod *,
-         TR::IlGenRequest &,
-         TR::Options &,
-         TR::Region &heapMemoryRegion,
-         TR_Memory *,
-         TR_OptimizationPlan *optimizationPlan,
-         TR_RelocationRuntime *reloRuntime);
+    static void allocateCompYieldStatsMatrix();
 
-   ~Compilation();
+    static TR_Stats** _compYieldStatsMatrix;
 
-   TR_J9VMBase *fej9();
-   TR_J9VM *fej9vm();
+    void updateCompYieldStatistics(TR_CallingContext callingContext);
 
-   static void allocateCompYieldStatsMatrix();
+    bool getUpdateCompYieldStats() { return _updateCompYieldStats; }
 
-   static TR_Stats **_compYieldStatsMatrix;
+    void printCompYieldStats();
 
-   void updateCompYieldStatistics(TR_CallingContext callingContext);
+    uint64_t getMaxYieldInterval() { return _maxYieldInterval; }
 
-   bool getUpdateCompYieldStats() { return _updateCompYieldStats; }
+    static const char* getContextName(TR_CallingContext context);
 
-   void printCompYieldStats();
+    static void printCompYieldStatsMatrix();
 
-   uint64_t getMaxYieldInterval() { return _maxYieldInterval; }
+    static void printEntryName(int32_t, int32_t);
 
-   static const char * getContextName(TR_CallingContext context);
+    bool getNeedsClassLookahead() { return _needsClassLookahead; }
 
-   static void printCompYieldStatsMatrix();
+    void setNeedsClassLookahead(bool b) { _needsClassLookahead = b; }
 
-   static void printEntryName(int32_t, int32_t);
+    bool hasBlockFrequencyInfo();
 
-   bool getNeedsClassLookahead() {return _needsClassLookahead;}
+    bool isShortRunningMethod(int32_t callerIndex);
 
-   void setNeedsClassLookahead(bool b) {_needsClassLookahead = b;}
+    int32_t getDltBcIndex() { return (uint32_t)_dltBcIndex; }
+    void setDltBcIndex(int32_t ix) { _dltBcIndex = ix; }
 
-   bool hasBlockFrequencyInfo();
+    int32_t* getDltSlotDescription() { return _dltSlotDescription; }
+    void setDltSlotDescription(int32_t* ds) { _dltSlotDescription = ds; }
 
-   bool isShortRunningMethod(int32_t callerIndex);
+    void* getReservedDataCache() { return _reservedDataCache; }
+    void setReservedDataCache(void* dataCache) { _reservedDataCache = dataCache; }
 
-   int32_t getDltBcIndex() { return (uint32_t)_dltBcIndex;}
-   void setDltBcIndex(int32_t ix) { _dltBcIndex=ix;}
+    uint32_t getTotalNeededDataCacheSpace() { return _totalNeededDataCacheSpace; }
+    void incrementTotalNeededDataCacheSpace(uint32_t size) { _totalNeededDataCacheSpace += size; }
 
-   int32_t *getDltSlotDescription() { return _dltSlotDescription;}
-   void setDltSlotDescription(int32_t *ds) { _dltSlotDescription = ds;}
+    void* getAotMethodDataStart() const { return _aotMethodDataStart; }
+    void setAotMethodDataStart(void* p) { _aotMethodDataStart = p; }
 
-   void *getReservedDataCache() { return _reservedDataCache; }
-   void setReservedDataCache(void *dataCache) { _reservedDataCache = dataCache; }
+    TR::Node* findNullChkInfo(TR::Node* node);
 
-   uint32_t getTotalNeededDataCacheSpace() { return _totalNeededDataCacheSpace; }
-   void incrementTotalNeededDataCacheSpace(uint32_t size) { _totalNeededDataCacheSpace += size; }
+    bool isAlignStackMaps() { return TR::Compiler->target.cpu.isARM(); }
 
-   void * getAotMethodDataStart() const { return _aotMethodDataStart; }
-   void setAotMethodDataStart(void *p) { _aotMethodDataStart = p; }
+    void changeOptLevel(TR_Hotness);
 
-   TR::Node *findNullChkInfo(TR::Node *node);
+    // For replay
+    void* getCurMethodMetadata() { return _curMethodMetadata; }
+    void setCurMethodMetadata(void* m) { _curMethodMetadata = m; }
 
-   bool isAlignStackMaps() { return TR::Compiler->target.cpu.isARM(); }
+    void setGetImplInlineable(bool b) { _getImplInlineable = b; }
+    bool getGetImplInlineable() { return _getImplInlineable; }
 
-   void changeOptLevel(TR_Hotness);
+    // for converters
+    bool canTransformConverterMethod(TR::RecognizedMethod method);
+    bool isConverterMethod(TR::RecognizedMethod method);
 
-   // For replay
-   void *getCurMethodMetadata() {return _curMethodMetadata;}
-   void setCurMethodMetadata(void *m) {_curMethodMetadata = m;}
+    bool useCompressedPointers();
+    bool useAnchors();
 
-   void setGetImplInlineable(bool b) { _getImplInlineable = b; }
-   bool getGetImplInlineable() { return _getImplInlineable; }
+    bool isRecompilationEnabled();
 
-   //for converters
-   bool canTransformConverterMethod(TR::RecognizedMethod method);
-   bool isConverterMethod(TR::RecognizedMethod method);
+    bool isJProfilingCompilation();
 
-   bool useCompressedPointers();
-   bool useAnchors();
+    bool pendingPushLivenessDuringIlgen();
 
-   bool isRecompilationEnabled();
+    TR::list<TR_ExternalValueProfileInfo*>& getExternalVPInfos() { return _externalVPInfoList; }
 
-   bool isJProfilingCompilation();
+    TR_ValueProfileInfoManager* getValueProfileInfoManager() { return _vpInfoManager; }
+    void setValueProfileInfoManager(TR_ValueProfileInfoManager* mgr) { _vpInfoManager = mgr; }
 
-   bool pendingPushLivenessDuringIlgen();
+    TR_BranchProfileInfoManager* getBranchProfileInfoManager() { return _bpInfoManager; }
+    void setBranchProfileInfoManager(TR_BranchProfileInfoManager* mgr) { _bpInfoManager = mgr; }
 
-   TR::list<TR_ExternalValueProfileInfo*> &getExternalVPInfos() { return _externalVPInfoList; }
+    TR::list<TR_MethodBranchProfileInfo*>& getMethodBranchInfos() { return _methodBranchInfoList; }
 
-   TR_ValueProfileInfoManager *getValueProfileInfoManager()             { return _vpInfoManager;}
-   void setValueProfileInfoManager(TR_ValueProfileInfoManager * mgr)    { _vpInfoManager = mgr; }
-
-   TR_BranchProfileInfoManager *getBranchProfileInfoManager()           { return _bpInfoManager;}
-   void setBranchProfileInfoManager(TR_BranchProfileInfoManager * mgr)  { _bpInfoManager = mgr; }
-
-   TR::list<TR_MethodBranchProfileInfo*> &getMethodBranchInfos() { return _methodBranchInfoList; }
-
-   // See if the allocation of an object of the class can be inlined.
-   bool canAllocateInlineClass(TR_OpaqueClassBlock *clazz);
-
-   // See if it is OK to remove an allocation node to e.g. merge it with others
-   // or allocate it locally on a stack frame.
-   // If so, return the allocation size. Otherwise return 0.
-   // The second argument is the returned class information.
-   //
-   int32_t canAllocateInlineOnStack(TR::Node* node, TR_OpaqueClassBlock* &classInfo);
-   int32_t canAllocateInline(TR::Node* node, TR_OpaqueClassBlock* &classInfo);
-
-   TR::KnownObjectTable *getOrCreateKnownObjectTable();
-   void freeKnownObjectTable();
-
-   bool compileRelocatableCode();
-
-   int32_t maxInternalPointers();
-
-   bool compilationShouldBeInterrupted(TR_CallingContext);
-
-   /* Heuristic Region APIs
-    *
-    * Heuristic Regions denotes regions where decisions
-    * within the region do not need to be remembered. In relocatable compiles,
-    * when the compiler requests some information via front end query,
-    * it's possible that the front end might walk a data structure,
-    * looking at several different possible answers before finally deciding
-    * on one. For a relocatable compile, only the final answer is important.
-    * Thus, a heuristic region is used to ignore all of the intermediate
-    * steps in determining the final answer.
-    */
-   void enterHeuristicRegion();
-   void exitHeuristicRegion();
-
-   /* Used to ensure that a implementer chosen for inlining is valid under
-    * AOT.
-    */
-   bool validateTargetToBeInlined(TR_ResolvedMethod *implementer);
-
-   void reportILGeneratorPhase();
-   void reportAnalysisPhase(uint8_t id);
-   void reportOptimizationPhase(OMR::Optimizations);
-   void reportOptimizationPhaseForSnap(OMR::Optimizations);
-
-   CompilationPhase saveCompilationPhase();
-   void restoreCompilationPhase(CompilationPhase phase);
-
-   /**
-    * \brief
-    *    Answers whether the fact that a method has not been executed yet implies
-    *    that the method is cold.
-    *
-    * \return
-    *    true if the fact that a method has not been executed implies it is cold;
-    *    false otherwise
-    */
-   bool notYetRunMeansCold();
-
-   // --------------------------------------------------------------------------
-   // Hardware profiling
-   //
-   bool HWProfileDone() { return _doneHWProfile;}
-   void setHWProfileDone(bool val) {_doneHWProfile = val;}
-
-   void addHWPInstruction(TR::Instruction *instruction,
-                          TR_HWPInstructionInfo::type instructionType,
-                          void *data = NULL);
-   void addHWPCallInstruction(TR::Instruction *instruction, bool indirectCall = false, TR::Instruction *prev = NULL);
-   void addHWPReturnInstruction(TR::Instruction *instruction);
-   void addHWPValueProfileInstruction(TR::Instruction *instruction);
-   void addHWPBCMap(TR_HWPBytecodePCToIAMap map) { _hwpBCMap.add(map); }
-   TR_Array<TR_HWPInstructionInfo> *getHWPInstructions() { return &_hwpInstructions; }
-   TR_Array<TR_HWPBytecodePCToIAMap> *getHWPBCMap() { return &_hwpBCMap; }
-
-   bool verifyCompressedRefsAnchors(bool anchorize);
-   void verifyCompressedRefsAnchors();
-
-   void verifyCompressedRefsAnchors(TR::Node *parent, TR::Node *node,
-                                    TR::TreeTop *tt, vcount_t visitCount);
-   void verifyCompressedRefsAnchors(TR::Node *parent, TR::Node *node,
-                                    TR::TreeTop *tt, vcount_t visitCount,
-                                    TR::list<TR_Pair<TR::Node, TR::TreeTop> *> &nodesList);
-
-   // CodeGenerator?
-   TR::list<TR_AOTGuardSite*> *getAOTGuardPatchSites() { return _aotGuardPatchSites; }
-   TR_AOTGuardSite *addAOTNOPSite();
-
-   TR::list<TR_VirtualGuardSite*> *getSideEffectGuardPatchSites() { return &_sideEffectGuardPatchSites; }
-   TR_VirtualGuardSite *addSideEffectNOPSite();
-
-   TR_CHTable *getCHTable() const { return _transientCHTable; }
-
-   // Inliner
-   bool isGeneratedReflectionMethod(TR_ResolvedMethod *method);
-
-   // cache J9 VM pointers
-   TR_OpaqueClassBlock *getObjectClassPointer() { return _ObjectClassPointer; }
-   TR_OpaqueClassBlock *getRunnableClassPointer() { return _RunnableClassPointer; }
-   TR_OpaqueClassBlock *getStringClassPointer() { return _StringClassPointer; }
-   TR_OpaqueClassBlock *getSystemClassPointer() { return _SystemClassPointer; }
-   TR_OpaqueClassBlock *getReferenceClassPointer() { return _ReferenceClassPointer; }
-   TR_OpaqueClassBlock *getJITHelpersClassPointer() { return _JITHelpersClassPointer; }
-   TR_OpaqueClassBlock *getClassClassPointer(bool isVettedForAOT = false);
-
-   // Monitors
-   TR_Array<List<TR::RegisterMappedSymbol> * > & getMonitorAutos() { return _monitorAutos; }
-   void addMonitorAuto(TR::RegisterMappedSymbol *, int32_t callerIndex);
-   void addAsMonitorAuto(TR::SymbolReference* symRef, bool dontAddIfDLT);
-   TR::list<TR::SymbolReference*> * getMonitorAutoSymRefsInCompiledMethod() { return &_monitorAutoSymRefsInCompiledMethod; }
-
-   // OSR Guard Redefinition Classes
-   void addClassForOSRRedefinition(TR_OpaqueClassBlock *clazz);
-   TR_Array<TR_OpaqueClassBlock*> *getClassesForOSRRedefinition() { return &_classForOSRRedefinition; }
-
-   void addClassForStaticFinalFieldModification(TR_OpaqueClassBlock *clazz);
-   TR_Array<TR_OpaqueClassBlock*> *getClassesForStaticFinalFieldModification() { return &_classForStaticFinalFieldModification; }
-
-   TR::list<TR::AOTClassInfo*>* _aotClassInfo;
-
-   J9VMThread *j9VMThread() { return _j9VMThread; }
-
-   // cache profile information
-   TR_AccessedProfileInfo *getProfileInfo() { return _profileInfo; }
-
-   // Flag to test whether early stages of JProfiling ran
-   void setSkippedJProfilingBlock(bool b = true) { _skippedJProfilingBlock = b; }
-   bool getSkippedJProfilingBlock() { return _skippedJProfilingBlock; }
-
-   //
-   bool supportsQuadOptimization();
-
-   TR_RelocationRuntime *reloRuntime() { return _reloRuntime; }
-
-   TR::SymbolValidationManager *getSymbolValidationManager() { return _symbolValidationManager; }
+    // See if the allocation of an object of the class can be inlined.
+    bool canAllocateInlineClass(TR_OpaqueClassBlock* clazz);
+
+    // See if it is OK to remove an allocation node to e.g. merge it with others
+    // or allocate it locally on a stack frame.
+    // If so, return the allocation size. Otherwise return 0.
+    // The second argument is the returned class information.
+    //
+    int32_t canAllocateInlineOnStack(TR::Node* node, TR_OpaqueClassBlock*& classInfo);
+    int32_t canAllocateInline(TR::Node* node, TR_OpaqueClassBlock*& classInfo);
+
+    TR::KnownObjectTable* getOrCreateKnownObjectTable();
+    void freeKnownObjectTable();
+
+    bool compileRelocatableCode();
+
+    int32_t maxInternalPointers();
+
+    bool compilationShouldBeInterrupted(TR_CallingContext);
+
+    /* Heuristic Region APIs
+     *
+     * Heuristic Regions denotes regions where decisions
+     * within the region do not need to be remembered. In relocatable compiles,
+     * when the compiler requests some information via front end query,
+     * it's possible that the front end might walk a data structure,
+     * looking at several different possible answers before finally deciding
+     * on one. For a relocatable compile, only the final answer is important.
+     * Thus, a heuristic region is used to ignore all of the intermediate
+     * steps in determining the final answer.
+     */
+    void enterHeuristicRegion();
+    void exitHeuristicRegion();
+
+    /* Used to ensure that a implementer chosen for inlining is valid under
+     * AOT.
+     */
+    bool validateTargetToBeInlined(TR_ResolvedMethod* implementer);
+
+    void reportILGeneratorPhase();
+    void reportAnalysisPhase(uint8_t id);
+    void reportOptimizationPhase(OMR::Optimizations);
+    void reportOptimizationPhaseForSnap(OMR::Optimizations);
+
+    CompilationPhase saveCompilationPhase();
+    void restoreCompilationPhase(CompilationPhase phase);
+
+    /**
+     * \brief
+     *    Answers whether the fact that a method has not been executed yet implies
+     *    that the method is cold.
+     *
+     * \return
+     *    true if the fact that a method has not been executed implies it is cold;
+     *    false otherwise
+     */
+    bool notYetRunMeansCold();
+
+    // --------------------------------------------------------------------------
+    // Hardware profiling
+    //
+    bool HWProfileDone() { return _doneHWProfile; }
+    void setHWProfileDone(bool val) { _doneHWProfile = val; }
+
+    void addHWPInstruction(
+        TR::Instruction* instruction, TR_HWPInstructionInfo::type instructionType, void* data = NULL);
+    void addHWPCallInstruction(TR::Instruction* instruction, bool indirectCall = false, TR::Instruction* prev = NULL);
+    void addHWPReturnInstruction(TR::Instruction* instruction);
+    void addHWPValueProfileInstruction(TR::Instruction* instruction);
+    void addHWPBCMap(TR_HWPBytecodePCToIAMap map) { _hwpBCMap.add(map); }
+    TR_Array<TR_HWPInstructionInfo>* getHWPInstructions() { return &_hwpInstructions; }
+    TR_Array<TR_HWPBytecodePCToIAMap>* getHWPBCMap() { return &_hwpBCMap; }
+
+    bool verifyCompressedRefsAnchors(bool anchorize);
+    void verifyCompressedRefsAnchors();
+
+    void verifyCompressedRefsAnchors(TR::Node* parent, TR::Node* node, TR::TreeTop* tt, vcount_t visitCount);
+    void verifyCompressedRefsAnchors(TR::Node* parent, TR::Node* node, TR::TreeTop* tt, vcount_t visitCount,
+        TR::list<TR_Pair<TR::Node, TR::TreeTop>*>& nodesList);
+
+    // CodeGenerator?
+    TR::list<TR_AOTGuardSite*>* getAOTGuardPatchSites() { return _aotGuardPatchSites; }
+    TR_AOTGuardSite* addAOTNOPSite();
+
+    TR::list<TR_VirtualGuardSite*>* getSideEffectGuardPatchSites() { return &_sideEffectGuardPatchSites; }
+    TR_VirtualGuardSite* addSideEffectNOPSite();
+
+    TR_CHTable* getCHTable() const { return _transientCHTable; }
+
+    // Inliner
+    bool isGeneratedReflectionMethod(TR_ResolvedMethod* method);
+
+    // cache J9 VM pointers
+    TR_OpaqueClassBlock* getObjectClassPointer() { return _ObjectClassPointer; }
+    TR_OpaqueClassBlock* getRunnableClassPointer() { return _RunnableClassPointer; }
+    TR_OpaqueClassBlock* getStringClassPointer() { return _StringClassPointer; }
+    TR_OpaqueClassBlock* getSystemClassPointer() { return _SystemClassPointer; }
+    TR_OpaqueClassBlock* getReferenceClassPointer() { return _ReferenceClassPointer; }
+    TR_OpaqueClassBlock* getJITHelpersClassPointer() { return _JITHelpersClassPointer; }
+    TR_OpaqueClassBlock* getClassClassPointer(bool isVettedForAOT = false);
+
+    // Monitors
+    TR_Array<List<TR::RegisterMappedSymbol>*>& getMonitorAutos() { return _monitorAutos; }
+    void addMonitorAuto(TR::RegisterMappedSymbol*, int32_t callerIndex);
+    void addAsMonitorAuto(TR::SymbolReference* symRef, bool dontAddIfDLT);
+    TR::list<TR::SymbolReference*>* getMonitorAutoSymRefsInCompiledMethod()
+    {
+        return &_monitorAutoSymRefsInCompiledMethod;
+    }
+
+    // OSR Guard Redefinition Classes
+    void addClassForOSRRedefinition(TR_OpaqueClassBlock* clazz);
+    TR_Array<TR_OpaqueClassBlock*>* getClassesForOSRRedefinition() { return &_classForOSRRedefinition; }
+
+    void addClassForStaticFinalFieldModification(TR_OpaqueClassBlock* clazz);
+    TR_Array<TR_OpaqueClassBlock*>* getClassesForStaticFinalFieldModification()
+    {
+        return &_classForStaticFinalFieldModification;
+    }
+
+    TR::list<TR::AOTClassInfo*>* _aotClassInfo;
+
+    J9VMThread* j9VMThread() { return _j9VMThread; }
+
+    // cache profile information
+    TR_AccessedProfileInfo* getProfileInfo() { return _profileInfo; }
+
+    // Flag to test whether early stages of JProfiling ran
+    void setSkippedJProfilingBlock(bool b = true) { _skippedJProfilingBlock = b; }
+    bool getSkippedJProfilingBlock() { return _skippedJProfilingBlock; }
+
+    //
+    bool supportsQuadOptimization();
+
+    TR_RelocationRuntime* reloRuntime() { return _reloRuntime; }
+
+    TR::SymbolValidationManager* getSymbolValidationManager() { return _symbolValidationManager; }
 
 private:
+    J9VMThread* _j9VMThread;
 
-   J9VMThread *_j9VMThread;
+    bool _doneHWProfile;
+    TR_Array<TR_HWPInstructionInfo> _hwpInstructions;
+    TR_Array<TR_HWPBytecodePCToIAMap> _hwpBCMap;
 
-   bool _doneHWProfile;
-   TR_Array<TR_HWPInstructionInfo>    _hwpInstructions;
-   TR_Array<TR_HWPBytecodePCToIAMap>  _hwpBCMap;
+    bool _updateCompYieldStats;
 
-   bool _updateCompYieldStats;
+    uint64_t _hiresTimeForPreviousCallingContext;
 
-   uint64_t _hiresTimeForPreviousCallingContext;
+    TR_CallingContext _previousCallingContext;
 
-   TR_CallingContext _previousCallingContext;
+    uint64_t _maxYieldInterval;
 
-   uint64_t _maxYieldInterval;
+    TR_CallingContext _sourceContextForMaxYieldInterval;
 
-   TR_CallingContext _sourceContextForMaxYieldInterval;
+    TR_CallingContext _destinationContextForMaxYieldInterval;
 
-   TR_CallingContext _destinationContextForMaxYieldInterval;
+    static uint64_t _maxYieldIntervalS;
 
-   static uint64_t _maxYieldIntervalS;
+    static TR_CallingContext _sourceContextForMaxYieldIntervalS;
 
-   static TR_CallingContext _sourceContextForMaxYieldIntervalS;
+    static TR_CallingContext _destinationContextForMaxYieldIntervalS;
 
-   static TR_CallingContext _destinationContextForMaxYieldIntervalS;
+    bool _needsClassLookahead;
 
-   bool _needsClassLookahead;
+    uint16_t _dltBcIndex;
 
-   uint16_t _dltBcIndex;
+    int32_t* _dltSlotDescription;
 
-   int32_t * _dltSlotDescription;
+    void* _reservedDataCache;
 
-   void * _reservedDataCache;
+    uint32_t _totalNeededDataCacheSpace;
 
-   uint32_t _totalNeededDataCacheSpace;
+    void* _aotMethodDataStart; // used at relocation time
 
-   void * _aotMethodDataStart; // used at relocation time
+    void* _curMethodMetadata;
 
-   void * _curMethodMetadata;
+    bool _getImplInlineable;
 
-   bool _getImplInlineable;
+    TR_ValueProfileInfoManager* _vpInfoManager;
 
-   TR_ValueProfileInfoManager *_vpInfoManager;
+    TR_BranchProfileInfoManager* _bpInfoManager;
 
-   TR_BranchProfileInfoManager *_bpInfoManager;
+    TR::list<TR_MethodBranchProfileInfo*> _methodBranchInfoList;
+    TR::list<TR_ExternalValueProfileInfo*> _externalVPInfoList;
+    TR::list<TR_AOTGuardSite*>* _aotGuardPatchSites;
+    TR::list<TR_VirtualGuardSite*> _sideEffectGuardPatchSites;
 
-   TR::list<TR_MethodBranchProfileInfo*> _methodBranchInfoList;
-   TR::list<TR_ExternalValueProfileInfo*> _externalVPInfoList;
-   TR::list<TR_AOTGuardSite*>*         _aotGuardPatchSites;
-   TR::list<TR_VirtualGuardSite*>     _sideEffectGuardPatchSites;
+    // cache VM pointers
+    TR_OpaqueClassBlock* _ObjectClassPointer;
+    TR_OpaqueClassBlock* _RunnableClassPointer;
+    TR_OpaqueClassBlock* _StringClassPointer;
+    TR_OpaqueClassBlock* _SystemClassPointer;
+    TR_OpaqueClassBlock* _ReferenceClassPointer;
+    TR_OpaqueClassBlock* _JITHelpersClassPointer;
 
-   // cache VM pointers
-   TR_OpaqueClassBlock               *_ObjectClassPointer;
-   TR_OpaqueClassBlock               *_RunnableClassPointer;
-   TR_OpaqueClassBlock               *_StringClassPointer;
-   TR_OpaqueClassBlock               *_SystemClassPointer;
-   TR_OpaqueClassBlock               *_ReferenceClassPointer;
-   TR_OpaqueClassBlock               *_JITHelpersClassPointer;
+    TR_OpaqueClassBlock* _aotClassClassPointer;
+    bool _aotClassClassPointerInitialized;
 
-   TR_OpaqueClassBlock               *_aotClassClassPointer;
-   bool                               _aotClassClassPointerInitialized;
+    TR_Array<List<TR::RegisterMappedSymbol>*> _monitorAutos;
+    TR::list<TR::SymbolReference*> _monitorAutoSymRefsInCompiledMethod;
 
-   TR_Array<List<TR::RegisterMappedSymbol> *> _monitorAutos;
-   TR::list<TR::SymbolReference*>             _monitorAutoSymRefsInCompiledMethod;
+    TR_Array<TR_OpaqueClassBlock*> _classForOSRRedefinition;
+    // Classes that have their static final fields folded and need assumptions
+    TR_Array<TR_OpaqueClassBlock*> _classForStaticFinalFieldModification;
 
-   TR_Array<TR_OpaqueClassBlock*>       _classForOSRRedefinition;
-   // Classes that have their static final fields folded and need assumptions
-   TR_Array<TR_OpaqueClassBlock*>       _classForStaticFinalFieldModification;
+    // cache profile information
+    TR_AccessedProfileInfo* _profileInfo;
 
-   // cache profile information
-   TR_AccessedProfileInfo *_profileInfo;
+    bool _skippedJProfilingBlock;
 
-   bool _skippedJProfilingBlock;
+    TR_RelocationRuntime* _reloRuntime;
 
-   TR_RelocationRuntime *_reloRuntime;
+    TR::SymbolValidationManager* _symbolValidationManager;
+};
 
-   TR::SymbolValidationManager *_symbolValidationManager;
-   };
-
-}
+} // namespace J9
 
 #endif

@@ -27,90 +27,87 @@
 #include "jvmti_test.h"
 #include "j9.h"
 
+static jvmtiExtensionFunction getJ9vmThread = NULL;
+static agentEnv* env;
 
-static jvmtiExtensionFunction getJ9vmThread  = NULL;
-static agentEnv * env;
+jboolean JNICALL Java_com_ibm_jvmti_tests_getJ9vmThread_gjvmt001_validateGJVMT001(JNIEnv* jni_env, jclass clazz)
+{
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getJ9vmThread_gjvmt001_validateGJVMT001(JNIEnv * jni_env, jclass clazz){
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err = JVMTI_ERROR_NONE;
+    J9VMThread* j9vmthread_ptr;
+    jthread thread_ptr = NULL;
+    jboolean rc = JNI_FALSE;
 
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err = JVMTI_ERROR_NONE;
-	J9VMThread *j9vmthread_ptr;
-	jthread thread_ptr = NULL;
-	jboolean rc = JNI_FALSE;
+    if (NULL == getJ9vmThread) {
+        fprintf(stderr, "gjvmt001: getJ9vmThread is NULL");
+        return JNI_FALSE;
+    }
 
-	if (NULL == getJ9vmThread)	{
-		fprintf(stderr,"gjvmt001: getJ9vmThread is NULL");
-		return JNI_FALSE;
-	}
+    fprintf(stderr, "Validating getj9vmThread works with good parameter\n");
+    thread_ptr = getCurrentThread(jni_env);
+    err = getJ9vmThread(jvmti_env, thread_ptr, &j9vmthread_ptr);
+    if (JVMTI_ERROR_NONE == err) {
+        j9object_t threadObject = *((j9object_t*)thread_ptr);
 
-	fprintf(stderr, "Validating getj9vmThread works with good parameter\n");
-	thread_ptr = getCurrentThread(jni_env);
-	err = getJ9vmThread(jvmti_env, thread_ptr, &j9vmthread_ptr);
-	if ( JVMTI_ERROR_NONE == err ) {
-		j9object_t threadObject = *((j9object_t*) thread_ptr);
+        if (j9vmthread_ptr->threadObject == threadObject) {
+            fprintf(stderr, "\tgetJ9vmThread successfully returned good J9VMThread %p\n", j9vmthread_ptr);
+            rc = JNI_TRUE;
+        } else {
+            fprintf(stderr, "\tgetJ9vmThread fails to returned good J9VMThread %p\n", j9vmthread_ptr);
+            rc = JNI_FALSE;
+        }
+    }
 
-		if (j9vmthread_ptr->threadObject == threadObject) {
-			fprintf(stderr, "\tgetJ9vmThread successfully returned good J9VMThread %p\n", j9vmthread_ptr);
-			rc = JNI_TRUE;
-		} else {
-			fprintf(stderr, "\tgetJ9vmThread fails to returned good J9VMThread %p\n", j9vmthread_ptr);
-			rc = JNI_FALSE;
-		}
-	}
+    fprintf(stderr, "Validating getj9vmThread fails with NULL jthread\n");
+    err = getJ9vmThread(jvmti_env, NULL, &j9vmthread_ptr);
+    if (JVMTI_ERROR_NONE != err) {
+        fprintf(stderr, "\tgetJ9vmThread successfully detected NULL pointer\n");
+        rc = JNI_TRUE;
+    }
 
-	fprintf(stderr, "Validating getj9vmThread fails with NULL jthread\n");
-	err = getJ9vmThread(jvmti_env, NULL, &j9vmthread_ptr);
-	if ( JVMTI_ERROR_NONE != err )	{
-		fprintf(stderr, "\tgetJ9vmThread successfully detected NULL pointer\n");
-		rc = JNI_TRUE;
-	}
+    fprintf(stderr, "Validating getj9vmThread works with NULL return parameter\n");
+    err = getJ9vmThread(jvmti_env, thread_ptr, NULL);
+    if (JVMTI_ERROR_NONE != err) {
+        fprintf(stderr, "\tgetJ9vmThread successfully detected NULL return parameter\n");
+        rc = JNI_TRUE;
+    }
 
-	fprintf(stderr, "Validating getj9vmThread works with NULL return parameter\n");
-	err = getJ9vmThread(jvmti_env, thread_ptr, NULL);
-	if ( JVMTI_ERROR_NONE != err )	{
-		fprintf(stderr, "\tgetJ9vmThread successfully detected NULL return parameter\n");
-		rc = JNI_TRUE;
-	}
-
-
-	return rc;
+    return rc;
 }
 
-jint JNICALL
-gjvmt001(agentEnv * agent_env, char * args){
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiError err;
-	jint extensionCount;
-	jvmtiExtensionFunctionInfo *extensionFunctions;
-	int i;
+jint JNICALL gjvmt001(agentEnv* agent_env, char* args)
+{
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    jint extensionCount;
+    jvmtiExtensionFunctionInfo* extensionFunctions;
+    int i;
 
+    env = agent_env;
 
-	env = agent_env;
+    err = (*jvmti_env)->GetExtensionFunctions(jvmti_env, &extensionCount, &extensionFunctions);
+    if (JVMTI_ERROR_NONE != err) {
+        error(env, err, "Failed GetExtensionFunctions");
+        return JNI_ERR;
+    }
 
-	err = (*jvmti_env)->GetExtensionFunctions(jvmti_env, &extensionCount, &extensionFunctions);
-	if ( JVMTI_ERROR_NONE != err ) {
-		error(env, err, "Failed GetExtensionFunctions");
-		return JNI_ERR;
-	}
+    for (i = 0; i < extensionCount; i++) {
+        if (0 == strcmp(extensionFunctions[i].id, COM_IBM_GET_J9VMTHREAD)) {
+            getJ9vmThread = extensionFunctions[i].func;
+        }
+    }
 
-	for (i = 0; i < extensionCount; i++) {
-		if (0 == strcmp(extensionFunctions[i].id, COM_IBM_GET_J9VMTHREAD)) {
-			getJ9vmThread = extensionFunctions[i].func;
-		}
-	}
+    err = (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)extensionFunctions);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to Deallocate extension functions");
+        return FALSE;
+    }
 
-	err = (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)extensionFunctions);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to Deallocate extension functions");
-		return FALSE;
-	}
+    if (getJ9vmThread == NULL) {
+        error(env, JVMTI_ERROR_NOT_FOUND, "getJ9vmThread extension functions were not found");
+        return FALSE;
+    }
 
-	if (getJ9vmThread == NULL) {
-		error(env, JVMTI_ERROR_NOT_FOUND, "getJ9vmThread extension functions were not found");
-		return FALSE;
-	}
-
-	return JNI_OK;
+    return JNI_OK;
 }

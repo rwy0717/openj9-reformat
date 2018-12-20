@@ -24,44 +24,41 @@
 #include "jclglob.h"
 #include "ut_j9jcl.h"
 
-jobject JNICALL
-Java_java_lang_J9VMInternals_newInstance(JNIEnv *env, jclass clazz, jobject instantiationClass, jobject constructorClass)
+jobject JNICALL Java_java_lang_J9VMInternals_newInstance(
+    JNIEnv* env, jclass clazz, jobject instantiationClass, jobject constructorClass)
 {
-	jmethodID mid = (* env) -> GetMethodID(env, constructorClass, "<init>", "()V");
+    jmethodID mid = (*env)->GetMethodID(env, constructorClass, "<init>", "()V");
 
-	if (mid == 0) {
-		/* Cant newInstance,No empty constructor... */
-		return (jobject)0;
-	} else {
-		jobject obj;
-		/* Instantiate an object of a given class and construct it using the constructor from the other class.
-		 *
-		 * Do not use NewObject to avoid -Xcheck:jni reporting an error (constructor class != allocation class).
-		*/
-		obj = (* env) -> AllocObject(env, instantiationClass);
-		if (obj != NULL) {
-			(* env) -> CallVoidMethod(env, obj, mid);
-		}
-		return obj;
-	}
+    if (mid == 0) {
+        /* Cant newInstance,No empty constructor... */
+        return (jobject)0;
+    } else {
+        jobject obj;
+        /* Instantiate an object of a given class and construct it using the constructor from the other class.
+         *
+         * Do not use NewObject to avoid -Xcheck:jni reporting an error (constructor class != allocation class).
+         */
+        obj = (*env)->AllocObject(env, instantiationClass);
+        if (obj != NULL) {
+            (*env)->CallVoidMethod(env, obj, mid);
+        }
+        return obj;
+    }
 }
 
-void JNICALL
-Java_java_lang_J9VMInternals_dumpString(JNIEnv * env, jclass clazz, jstring str)
+void JNICALL Java_java_lang_J9VMInternals_dumpString(JNIEnv* env, jclass clazz, jstring str)
 {
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	if (str == NULL) {
-		j9tty_printf(PORTLIB, "null");
-	} else {
-		/* Note: GetStringUTFChars nul-terminates the resulting chars, even though the spec does not say so */
-		const char * utfChars = (const char *) (*env)->GetStringUTFChars(env, str, NULL);
+    if (str == NULL) {
+        j9tty_printf(PORTLIB, "null");
+    } else {
+        /* Note: GetStringUTFChars nul-terminates the resulting chars, even though the spec does not say so */
+        const char* utfChars = (const char*)(*env)->GetStringUTFChars(env, str, NULL);
 
-		if (utfChars != NULL) {
-			j9tty_printf(PORTLIB, "%s", utfChars);
-			(*env)->ReleaseStringUTFChars(env, str, utfChars);
-		}
-	}
+        if (utfChars != NULL) {
+            j9tty_printf(PORTLIB, "%s", utfChars);
+            (*env)->ReleaseStringUTFChars(env, str, utfChars);
+        }
+    }
 }
-
-

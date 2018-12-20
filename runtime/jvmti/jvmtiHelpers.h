@@ -39,5 +39,4 @@
 #include "omrlinkedlist.h"
 #include "jvmti_internal.h"
 
-#endif			/* jvmtiHelpers_h */
-
+#endif /* jvmtiHelpers_h */

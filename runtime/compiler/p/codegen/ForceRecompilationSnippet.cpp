@@ -41,167 +41,163 @@
 #include "p/codegen/PPCInstruction.hpp"
 #include "p/codegen/PPCRecompilation.hpp"
 
-uint8_t *TR::PPCForceRecompilationSnippet::emitSnippetBody()
-   {
-   TR_J9VMBase *fej9 = (TR_J9VMBase *)(cg()->fe());
-   uint8_t             *buffer = cg()->getBinaryBufferCursor();
-   TR::SymbolReference  *induceRecompilationSymRef = cg()->symRefTab()->findOrCreateRuntimeHelper(TR_PPCinduceRecompilation, false, false, false);
-   intptrj_t startPC = (intptrj_t)((uint8_t*)cg()->getCodeStart());
+uint8_t* TR::PPCForceRecompilationSnippet::emitSnippetBody()
+{
+    TR_J9VMBase* fej9 = (TR_J9VMBase*)(cg()->fe());
+    uint8_t* buffer = cg()->getBinaryBufferCursor();
+    TR::SymbolReference* induceRecompilationSymRef
+        = cg()->symRefTab()->findOrCreateRuntimeHelper(TR_PPCinduceRecompilation, false, false, false);
+    intptrj_t startPC = (intptrj_t)((uint8_t*)cg()->getCodeStart());
 
-   getSnippetLabel()->setCodeLocation(buffer);
+    getSnippetLabel()->setCodeLocation(buffer);
 
-   TR::RegisterDependencyConditions *deps = _doneLabel->getInstruction()->getDependencyConditions();
-   TR::RealRegister *startPCReg  = cg()->machine()->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
+    TR::RegisterDependencyConditions* deps = _doneLabel->getInstruction()->getDependencyConditions();
+    TR::RealRegister* startPCReg
+        = cg()->machine()->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
 
-   TR::InstOpCode opcode;
+    TR::InstOpCode opcode;
 
-   if (TR::Compiler->target.is64Bit())
-      {
-      // put jit entry point address in startPCReg
-      uint32_t hhval, hlval, lhval, llval;
-      hhval = startPC >> 48 & 0xffff;
-      hlval = (startPC >>32) & 0xffff;
-      lhval = (startPC >>16) & 0xffff;
-      llval = startPC & 0xffff;
+    if (TR::Compiler->target.is64Bit()) {
+        // put jit entry point address in startPCReg
+        uint32_t hhval, hlval, lhval, llval;
+        hhval = startPC >> 48 & 0xffff;
+        hlval = (startPC >> 32) & 0xffff;
+        lhval = (startPC >> 16) & 0xffff;
+        llval = startPC & 0xffff;
 
-      opcode.setOpCodeValue(TR::InstOpCode::lis);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRS((uint32_t *)buffer);
-      *(uint32_t *)buffer |= hhval;
-      buffer += PPC_INSTRUCTION_LENGTH;
+        opcode.setOpCodeValue(TR::InstOpCode::lis);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRS((uint32_t*)buffer);
+        *(uint32_t*)buffer |= hhval;
+        buffer += PPC_INSTRUCTION_LENGTH;
 
-      opcode.setOpCodeValue(TR::InstOpCode::ori);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRT((uint32_t *)buffer);
-      startPCReg->setRegisterFieldRA((uint32_t *)buffer);
-      *(uint32_t *)buffer |= hlval;
-      buffer += PPC_INSTRUCTION_LENGTH;
+        opcode.setOpCodeValue(TR::InstOpCode::ori);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRT((uint32_t*)buffer);
+        startPCReg->setRegisterFieldRA((uint32_t*)buffer);
+        *(uint32_t*)buffer |= hlval;
+        buffer += PPC_INSTRUCTION_LENGTH;
 
-      opcode.setOpCodeValue(TR::InstOpCode::rldicr);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRA((uint32_t *)buffer);
-      startPCReg->setRegisterFieldRS((uint32_t *)buffer);
-      // SH = 32;
-      *(uint32_t *)buffer |= ((32 & 0x1f) << 11) | ((32 & 0x20) >> 4);
-      // ME = 32
-      *(uint32_t *)buffer |= 0x3e << 5;
-      buffer += PPC_INSTRUCTION_LENGTH;
+        opcode.setOpCodeValue(TR::InstOpCode::rldicr);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRA((uint32_t*)buffer);
+        startPCReg->setRegisterFieldRS((uint32_t*)buffer);
+        // SH = 32;
+        *(uint32_t*)buffer |= ((32 & 0x1f) << 11) | ((32 & 0x20) >> 4);
+        // ME = 32
+        *(uint32_t*)buffer |= 0x3e << 5;
+        buffer += PPC_INSTRUCTION_LENGTH;
 
-      opcode.setOpCodeValue(TR::InstOpCode::oris);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRA((uint32_t *)buffer);
-      startPCReg->setRegisterFieldRS((uint32_t *)buffer);
-      *(uint32_t *)buffer |= lhval;
-      buffer += PPC_INSTRUCTION_LENGTH;
+        opcode.setOpCodeValue(TR::InstOpCode::oris);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRA((uint32_t*)buffer);
+        startPCReg->setRegisterFieldRS((uint32_t*)buffer);
+        *(uint32_t*)buffer |= lhval;
+        buffer += PPC_INSTRUCTION_LENGTH;
 
-      opcode.setOpCodeValue(TR::InstOpCode::ori);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRA((uint32_t *)buffer);
-      startPCReg->setRegisterFieldRS((uint32_t *)buffer);
-      *(uint32_t *)buffer |= llval;
-      buffer += PPC_INSTRUCTION_LENGTH;
-      }
-   else
-      {
-      // put jit entry point address in startPCReg
-      opcode.setOpCodeValue(TR::InstOpCode::lis);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRS((uint32_t *)buffer);
-      *(uint32_t *)buffer |= (uint32_t) (startPC >> 16 & 0xffff);
-      buffer += PPC_INSTRUCTION_LENGTH;
+        opcode.setOpCodeValue(TR::InstOpCode::ori);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRA((uint32_t*)buffer);
+        startPCReg->setRegisterFieldRS((uint32_t*)buffer);
+        *(uint32_t*)buffer |= llval;
+        buffer += PPC_INSTRUCTION_LENGTH;
+    } else {
+        // put jit entry point address in startPCReg
+        opcode.setOpCodeValue(TR::InstOpCode::lis);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRS((uint32_t*)buffer);
+        *(uint32_t*)buffer |= (uint32_t)(startPC >> 16 & 0xffff);
+        buffer += PPC_INSTRUCTION_LENGTH;
 
-      opcode.setOpCodeValue(TR::InstOpCode::ori);
-      buffer = opcode.copyBinaryToBuffer(buffer);
-      startPCReg->setRegisterFieldRT((uint32_t *)buffer);
-      startPCReg->setRegisterFieldRA((uint32_t *)buffer);
-      *(uint32_t *)buffer |= (uint32_t) (startPC & 0xffff);
-      buffer += PPC_INSTRUCTION_LENGTH;
-      }
+        opcode.setOpCodeValue(TR::InstOpCode::ori);
+        buffer = opcode.copyBinaryToBuffer(buffer);
+        startPCReg->setRegisterFieldRT((uint32_t*)buffer);
+        startPCReg->setRegisterFieldRA((uint32_t*)buffer);
+        *(uint32_t*)buffer |= (uint32_t)(startPC & 0xffff);
+        buffer += PPC_INSTRUCTION_LENGTH;
+    }
 
-   intptrj_t distance = (intptrj_t)induceRecompilationSymRef->getMethodAddress() - (intptrj_t)buffer;
-   if (!(distance>=BRANCH_BACKWARD_LIMIT && distance<=BRANCH_FORWARD_LIMIT))
-      {
-      distance = fej9->indexedTrampolineLookup(induceRecompilationSymRef->getReferenceNumber(), (void *)buffer) - (intptrj_t)buffer;
-      TR_ASSERT(distance>=BRANCH_BACKWARD_LIMIT && distance<=BRANCH_FORWARD_LIMIT,
-             "CodeCache is more than 32MB.\n");
-      }
+    intptrj_t distance = (intptrj_t)induceRecompilationSymRef->getMethodAddress() - (intptrj_t)buffer;
+    if (!(distance >= BRANCH_BACKWARD_LIMIT && distance <= BRANCH_FORWARD_LIMIT)) {
+        distance = fej9->indexedTrampolineLookup(induceRecompilationSymRef->getReferenceNumber(), (void*)buffer)
+            - (intptrj_t)buffer;
+        TR_ASSERT(
+            distance >= BRANCH_BACKWARD_LIMIT && distance <= BRANCH_FORWARD_LIMIT, "CodeCache is more than 32MB.\n");
+    }
 
-   // b distance
-   *(int32_t *)buffer = 0x48000000 | (distance & 0x03ffffff);
+    // b distance
+    *(int32_t*)buffer = 0x48000000 | (distance & 0x03ffffff);
 
-   cg()->addExternalRelocation(new (cg()->trHeapMemory()) TR::ExternalRelocation(buffer,(uint8_t *)induceRecompilationSymRef,TR_HelperAddress, cg()),
-                          __FILE__,
-                          __LINE__,
-                          getNode());
+    cg()->addExternalRelocation(new (cg()->trHeapMemory()) TR::ExternalRelocation(
+                                    buffer, (uint8_t*)induceRecompilationSymRef, TR_HelperAddress, cg()),
+        __FILE__, __LINE__, getNode());
 
-   buffer += PPC_INSTRUCTION_LENGTH;
+    buffer += PPC_INSTRUCTION_LENGTH;
 
-   return buffer;
-   }
+    return buffer;
+}
 
-void
-TR_Debug::print(TR::FILE *pOutFile, TR::PPCForceRecompilationSnippet * snippet)
-   {
-   uint8_t   *cursor = snippet->getSnippetLabel()->getCodeLocation();
+void TR_Debug::print(TR::FILE* pOutFile, TR::PPCForceRecompilationSnippet* snippet)
+{
+    uint8_t* cursor = snippet->getSnippetLabel()->getCodeLocation();
 
-   TR::RegisterDependencyConditions *deps = snippet->getDoneLabel()->getInstruction()->getDependencyConditions();
-   TR::RealRegister *startPCReg  = _cg->machine()->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
+    TR::RegisterDependencyConditions* deps = snippet->getDoneLabel()->getInstruction()->getDependencyConditions();
+    TR::RealRegister* startPCReg
+        = _cg->machine()->getRealRegister(deps->getPostConditions()->getRegisterDependency(0)->getRealRegister());
 
-   printSnippetLabel(pOutFile, snippet->getSnippetLabel(), cursor, "EDO Recompilation Snippet");
+    printSnippetLabel(pOutFile, snippet->getSnippetLabel(), cursor, "EDO Recompilation Snippet");
 
-   int32_t value;
+    int32_t value;
 
-   if (TR::Compiler->target.is64Bit())
-      {
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "lis \t%s, 0x%p\t; Load jit entry point address", getName(startPCReg),value );
-      cursor += 4;
+    if (TR::Compiler->target.is64Bit()) {
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "lis \t%s, 0x%p\t; Load jit entry point address", getName(startPCReg), value);
+        cursor += 4;
 
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
-      cursor += 4;
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
+        cursor += 4;
 
-      printPrefix(pOutFile, NULL, cursor, 4);
-      trfprintf(pOutFile, "rldicr \t%s, %s, 32, 31\t;", getName(startPCReg), getName(startPCReg));
-      cursor += 4;
+        printPrefix(pOutFile, NULL, cursor, 4);
+        trfprintf(pOutFile, "rldicr \t%s, %s, 32, 31\t;", getName(startPCReg), getName(startPCReg));
+        cursor += 4;
 
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "oris \t%s, %s, 0x%p\t;", getName(startPCReg),getName(startPCReg), value );
-      cursor += 4;
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "oris \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
+        cursor += 4;
 
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
-      cursor += 4;
-      }
-   else
-      {
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "lis \t%s, 0x%p\t; Load jit entry point address", getName(startPCReg),value );
-      cursor += 4;
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
+        cursor += 4;
+    } else {
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "lis \t%s, 0x%p\t; Load jit entry point address", getName(startPCReg), value);
+        cursor += 4;
 
-      printPrefix(pOutFile, NULL, cursor, 4);
-      value = *((int32_t *) cursor) & 0x0ffff;
-      trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
-      cursor += 4;
-      }
+        printPrefix(pOutFile, NULL, cursor, 4);
+        value = *((int32_t*)cursor) & 0x0ffff;
+        trfprintf(pOutFile, "ori \t%s, %s, 0x%p\t;", getName(startPCReg), getName(startPCReg), value);
+        cursor += 4;
+    }
 
-   char    *info = "";
-   if (isBranchToTrampoline(_cg->getSymRef(TR_PPCinduceRecompilation), cursor, value))
-      info = " Through trampoline";
+    char* info = "";
+    if (isBranchToTrampoline(_cg->getSymRef(TR_PPCinduceRecompilation), cursor, value))
+        info = " Through trampoline";
 
-   printPrefix(pOutFile, NULL, cursor, 4);
-   value = *((int32_t *) cursor) & 0x03fffffc;
-   value = (value << 6) >> 6;   // sign extend
-   trfprintf(pOutFile, "b \t" POINTER_PRINTF_FORMAT "\t; %s%s", (intptrj_t)cursor + value, getName(_cg->getSymRef(TR_PPCinduceRecompilation)), info);
-   cursor += 4;
-   }
+    printPrefix(pOutFile, NULL, cursor, 4);
+    value = *((int32_t*)cursor) & 0x03fffffc;
+    value = (value << 6) >> 6; // sign extend
+    trfprintf(pOutFile, "b \t" POINTER_PRINTF_FORMAT "\t; %s%s", (intptrj_t)cursor + value,
+        getName(_cg->getSymRef(TR_PPCinduceRecompilation)), info);
+    cursor += 4;
+}
 
 uint32_t TR::PPCForceRecompilationSnippet::getLength(int32_t estimatedSnippetStart)
-   {
-   return(TR::Compiler->target.is64Bit() ? 6*PPC_INSTRUCTION_LENGTH : 3*PPC_INSTRUCTION_LENGTH);
-   }
+{
+    return (TR::Compiler->target.is64Bit() ? 6 * PPC_INSTRUCTION_LENGTH : 3 * PPC_INSTRUCTION_LENGTH);
+}

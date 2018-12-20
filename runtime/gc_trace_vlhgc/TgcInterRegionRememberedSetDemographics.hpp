@@ -31,8 +31,7 @@
 
 struct J9HashTable;
 
-bool tgcInterRegionRememberedSetDemographicsInitialize(J9JavaVM *javaVM);
-void tgcInterRegionRememberedSetDemographicsTearDown(J9JavaVM *javaVM);
-
+bool tgcInterRegionRememberedSetDemographicsInitialize(J9JavaVM* javaVM);
+void tgcInterRegionRememberedSetDemographicsTearDown(J9JavaVM* javaVM);
 
 #endif /* TGCINTERREGIONREMEMBEREDSETDEMOGRAPHICS_HPP_ */

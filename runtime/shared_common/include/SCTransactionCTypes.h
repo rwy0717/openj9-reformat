@@ -26,20 +26,20 @@
 #include "j9.h"
 
 typedef struct J9RomClassRequirements {
-	U_32 romClassSizeFullSize;
-	U_32 romClassMinimalSize;
-	U_32 lineNumberTableSize;
-	U_32 localVariableTableSize;
+    U_32 romClassSizeFullSize;
+    U_32 romClassMinimalSize;
+    U_32 lineNumberTableSize;
+    U_32 localVariableTableSize;
 } J9RomClassRequirements;
 
 #define J9SC_ROMCLASS_PIECES_USED_FULL_SIZE 0x1
 #define J9SC_ROMCLASS_PIECES_DEBUG_DATA_OUT_OF_LINE 0x2
 
 typedef struct J9SharedRomClassPieces {
-	void *romClass;
-	void *lineNumberTable;
-	void *localVariableTable;
-	U_32 flags;
+    void* romClass;
+    void* lineNumberTable;
+    void* localVariableTable;
+    U_32 flags;
 } J9SharedRomClassPieces;
 
 #endif /* J9SC_TRANSACTION_CTYPES_H_INCLUDED */

@@ -35,14 +35,9 @@
 #include <arch/abi.h>
 
 typedef uint_reg_t ffi_arg;
-typedef int_reg_t  ffi_sarg;
+typedef int_reg_t ffi_sarg;
 
-typedef enum ffi_abi {
-  FFI_FIRST_ABI = 0,
-  FFI_UNIX,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_UNIX
-} ffi_abi;
+typedef enum ffi_abi { FFI_FIRST_ABI = 0, FFI_UNIX, FFI_LAST_ABI, FFI_DEFAULT_ABI = FFI_UNIX } ffi_abi;
 #endif
 
 /* ---- Definitions for closures ----------------------------------------- */
@@ -50,15 +45,15 @@ typedef enum ffi_abi {
 
 #ifdef __tilegx__
 /* We always pass 8-byte values, even in -m32 mode. */
-# define FFI_SIZEOF_ARG 8
-# ifdef __LP64__
-#  define FFI_TRAMPOLINE_SIZE (8 * 5)  /* 5 bundles */
-# else
-#  define FFI_TRAMPOLINE_SIZE (8 * 3)  /* 3 bundles */
-# endif
+#define FFI_SIZEOF_ARG 8
+#ifdef __LP64__
+#define FFI_TRAMPOLINE_SIZE (8 * 5) /* 5 bundles */
 #else
-# define FFI_SIZEOF_ARG 4
-# define FFI_TRAMPOLINE_SIZE 8 /* 1 bundle */
+#define FFI_TRAMPOLINE_SIZE (8 * 3) /* 3 bundles */
+#endif
+#else
+#define FFI_SIZEOF_ARG 4
+#define FFI_TRAMPOLINE_SIZE 8 /* 1 bundle */
 #endif
 #define FFI_NATIVE_RAW_API 0
 

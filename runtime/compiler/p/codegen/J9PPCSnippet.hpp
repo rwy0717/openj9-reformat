@@ -29,259 +29,211 @@
 #include "env/IO.hpp"
 #include "j9cfg.h"
 
-#define LOCK_INC_DEC_VALUE                                OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT
-#define LOCK_THREAD_PTR_MASK                              (~OBJECT_HEADER_LOCK_BITS_MASK)
-#define LOCK_THREAD_PTR_AND_UPPER_COUNT_BIT_MASK          (LOCK_THREAD_PTR_MASK | OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
-#define LOCK_FIRST_RECURSION_BIT_NUMBER	          leadingZeroes(OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT)
-#define LOCK_LAST_RECURSION_BIT_NUMBER	          leadingZeroes(OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
-#define LOCK_OWNING_NON_INFLATED_COMPLEMENT               (OBJECT_HEADER_LOCK_BITS_MASK & ~OBJECT_HEADER_LOCK_INFLATED)
-#define LOCK_RESERVATION_BIT                              OBJECT_HEADER_LOCK_RESERVED
-#define LOCK_RES_PRIMITIVE_ENTER_MASK                     (OBJECT_HEADER_LOCK_RECURSION_MASK | OBJECT_HEADER_LOCK_FLC)
-#define LOCK_RES_PRIMITIVE_EXIT_MASK                      (OBJECT_HEADER_LOCK_BITS_MASK & ~OBJECT_HEADER_LOCK_RECURSION_MASK)
-#define LOCK_RES_NON_PRIMITIVE_ENTER_MASK                 (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
-#define LOCK_RES_NON_PRIMITIVE_EXIT_MASK                  (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT)
-#define LOCK_RES_OWNING_COMPLEMENT                        (OBJECT_HEADER_LOCK_RECURSION_MASK | OBJECT_HEADER_LOCK_FLC)
-#define LOCK_RES_PRESERVE_ENTER_COMPLEMENT                (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
-#define LOCK_RES_CONTENDED_VALUE                          (OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT|OBJECT_HEADER_LOCK_RESERVED|OBJECT_HEADER_LOCK_FLC)
+#define LOCK_INC_DEC_VALUE OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT
+#define LOCK_THREAD_PTR_MASK (~OBJECT_HEADER_LOCK_BITS_MASK)
+#define LOCK_THREAD_PTR_AND_UPPER_COUNT_BIT_MASK (LOCK_THREAD_PTR_MASK | OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
+#define LOCK_FIRST_RECURSION_BIT_NUMBER leadingZeroes(OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT)
+#define LOCK_LAST_RECURSION_BIT_NUMBER leadingZeroes(OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
+#define LOCK_OWNING_NON_INFLATED_COMPLEMENT (OBJECT_HEADER_LOCK_BITS_MASK & ~OBJECT_HEADER_LOCK_INFLATED)
+#define LOCK_RESERVATION_BIT OBJECT_HEADER_LOCK_RESERVED
+#define LOCK_RES_PRIMITIVE_ENTER_MASK (OBJECT_HEADER_LOCK_RECURSION_MASK | OBJECT_HEADER_LOCK_FLC)
+#define LOCK_RES_PRIMITIVE_EXIT_MASK (OBJECT_HEADER_LOCK_BITS_MASK & ~OBJECT_HEADER_LOCK_RECURSION_MASK)
+#define LOCK_RES_NON_PRIMITIVE_ENTER_MASK (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
+#define LOCK_RES_NON_PRIMITIVE_EXIT_MASK (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT)
+#define LOCK_RES_OWNING_COMPLEMENT (OBJECT_HEADER_LOCK_RECURSION_MASK | OBJECT_HEADER_LOCK_FLC)
+#define LOCK_RES_PRESERVE_ENTER_COMPLEMENT (OBJECT_HEADER_LOCK_RECURSION_MASK & ~OBJECT_HEADER_LOCK_LAST_RECURSION_BIT)
+#define LOCK_RES_CONTENDED_VALUE \
+    (OBJECT_HEADER_LOCK_FIRST_RECURSION_BIT | OBJECT_HEADER_LOCK_RESERVED | OBJECT_HEADER_LOCK_FLC)
 
 namespace TR {
 
-class PPCMonitorEnterSnippet : public TR::PPCHelperCallSnippet
-   {
-   TR::LabelSymbol *_incLabel;
-   int32_t         _lwOffset;
-   bool            _isReservationPreserving;
-   TR::Register     *_objectClassReg;
+class PPCMonitorEnterSnippet : public TR::PPCHelperCallSnippet {
+    TR::LabelSymbol* _incLabel;
+    int32_t _lwOffset;
+    bool _isReservationPreserving;
+    TR::Register* _objectClassReg;
 
-   public:
+public:
+    PPCMonitorEnterSnippet(TR::CodeGenerator* codeGen, TR::Node* monitorNode, int32_t lwOffset, bool isPreserving,
+        TR::LabelSymbol* incLabel, TR::LabelSymbol* callLabel, TR::LabelSymbol* restartLabel,
+        TR::Register* objectClassReg);
 
-   PPCMonitorEnterSnippet(TR::CodeGenerator   *codeGen,
-                          TR::Node            *monitorNode,
-                          int32_t            lwOffset,
-                          bool               isPreserving,
-                          TR::LabelSymbol      *incLabel,
-                          TR::LabelSymbol      *callLabel,
-                          TR::LabelSymbol      *restartLabel,
-                          TR::Register        *objectClassReg);
+    virtual Kind getKind() { return IsMonitorEnter; }
 
-   virtual Kind getKind() { return IsMonitorEnter; }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE*, TR_Debug*);
+    virtual int32_t setEstimatedCodeLocation(int32_t p);
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE *, TR_Debug *);
-   virtual int32_t setEstimatedCodeLocation(int32_t p);
+    TR::LabelSymbol* getIncLabel() { return _incLabel; };
+    int32_t getLockWordOffset() { return _lwOffset; }
+    bool isReservationPreserving() { return _isReservationPreserving; }
 
-   TR::LabelSymbol * getIncLabel() { return _incLabel; };
-   int32_t getLockWordOffset() { return _lwOffset; }
-   bool isReservationPreserving() { return _isReservationPreserving; }
+    // This is here so that _objectClassReg's real reg can be retrieved for log printing.
+    // Can be removed if that reg is exposed by a getter or something.
+    // (Need to change the corresponding TR_Debug::print method to use it.)
+    friend class TR_Debug;
+};
 
-   // This is here so that _objectClassReg's real reg can be retrieved for log printing.
-   // Can be removed if that reg is exposed by a getter or something.
-   // (Need to change the corresponding TR_Debug::print method to use it.)
-   friend class TR_Debug;
-   };
+class PPCMonitorExitSnippet : public TR::PPCHelperCallSnippet {
+    TR::LabelSymbol* _decLabel;
+    TR::LabelSymbol* _restoreAndCallLabel;
+    int32_t _lwOffset;
+    bool _isReservationPreserving;
+    bool _isReadOnly;
+    TR::Register* _objectClassReg;
 
-class PPCMonitorExitSnippet : public TR::PPCHelperCallSnippet
-   {
-   TR::LabelSymbol *_decLabel;
-   TR::LabelSymbol *_restoreAndCallLabel;
-   int32_t        _lwOffset;
-   bool           _isReservationPreserving;
-   bool           _isReadOnly;
-   TR::Register    *_objectClassReg;
+public:
+    PPCMonitorExitSnippet(TR::CodeGenerator* codeGen, TR::Node* monitorNode, int32_t lwOffset, bool flag,
+        bool isPreserving, TR::LabelSymbol* decLabel, TR::LabelSymbol* restoreAndCallLabel, TR::LabelSymbol* callLabel,
+        TR::LabelSymbol* restartLabel, TR::Register* objectClassReg);
 
-   public:
+    virtual Kind getKind() { return IsMonitorExit; }
 
-   PPCMonitorExitSnippet(TR::CodeGenerator   *codeGen,
-                         TR::Node            *monitorNode,
-                         int32_t            lwOffset,
-                         bool               flag,
-                         bool               isPreserving,
-                         TR::LabelSymbol      *decLabel,
-                         TR::LabelSymbol      *restoreAndCallLabel,
-                         TR::LabelSymbol      *callLabel,
-                         TR::LabelSymbol      *restartLabel,
-                         TR::Register        *objectClassReg);
+    virtual uint8_t* emitSnippetBody();
 
-   virtual Kind getKind() { return IsMonitorExit; }
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE*, TR_Debug*);
+    virtual int32_t setEstimatedCodeLocation(int32_t p);
 
-   virtual uint8_t *emitSnippetBody();
+    TR::LabelSymbol* getDecLabel() { return _decLabel; }
+    TR::LabelSymbol* getRestoreAndCallLabel() { return _restoreAndCallLabel; }
+    int32_t getLockWordOffset() { return _lwOffset; }
+    bool isReservationPreserving() { return _isReservationPreserving; }
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE *, TR_Debug *);
-   virtual int32_t setEstimatedCodeLocation(int32_t p);
+    // This is here so that _objectClassReg's real reg can be retrieved for log printing.
+    // Can be removed if that reg is exposed by a getter or something.
+    // (Need to change the corresponding TR_Debug::print method to use it.)
+    friend class TR_Debug;
+};
 
-   TR::LabelSymbol * getDecLabel() { return _decLabel; }
-   TR::LabelSymbol * getRestoreAndCallLabel() { return _restoreAndCallLabel; }
-   int32_t          getLockWordOffset() { return _lwOffset; }
-   bool             isReservationPreserving() { return _isReservationPreserving; }
+class PPCLockReservationEnterSnippet : public TR::PPCHelperCallSnippet {
+    TR::LabelSymbol* _startLabel;
+    int32_t _lwOffset;
+    TR::Register* _objectClassReg;
 
-   // This is here so that _objectClassReg's real reg can be retrieved for log printing.
-   // Can be removed if that reg is exposed by a getter or something.
-   // (Need to change the corresponding TR_Debug::print method to use it.)
-   friend class TR_Debug;
-   };
+public:
+    PPCLockReservationEnterSnippet(TR::CodeGenerator* cg, TR::Node* monitorNode, int32_t lwOffset,
+        TR::LabelSymbol* startLabel, TR::LabelSymbol* enterCallLabel, TR::LabelSymbol* restartLabel,
+        TR::Register* objectClassReg);
 
-class PPCLockReservationEnterSnippet : public TR::PPCHelperCallSnippet
-   {
-   TR::LabelSymbol *_startLabel;
-   int32_t         _lwOffset;
-   TR::Register    *_objectClassReg;
+    virtual Kind getKind() { return IsLockReservationEnter; }
 
-   public:
+    virtual uint8_t* emitSnippetBody();
 
-   PPCLockReservationEnterSnippet(TR::CodeGenerator   *cg,
-                                  TR::Node            *monitorNode,
-                                  int32_t            lwOffset,
-                                  TR::LabelSymbol      *startLabel,
-                                  TR::LabelSymbol      *enterCallLabel,
-                                  TR::LabelSymbol      *restartLabel,
-                                  TR::Register        *objectClassReg);
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE*, TR_Debug*);
+    virtual int32_t setEstimatedCodeLocation(int32_t p);
 
-   virtual Kind getKind() { return IsLockReservationEnter; }
+    TR::LabelSymbol* getStartLabel() { return _startLabel; };
+    int32_t getLockWordOffset() { return _lwOffset; }
+};
 
-   virtual uint8_t *emitSnippetBody();
+class PPCLockReservationExitSnippet : public TR::PPCHelperCallSnippet {
+    TR::LabelSymbol* _startLabel;
+    int32_t _lwOffset;
+    TR::Register* _objectClassReg;
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE *, TR_Debug*);
-   virtual int32_t setEstimatedCodeLocation(int32_t p);
+public:
+    PPCLockReservationExitSnippet(TR::CodeGenerator* codeGen, TR::Node* monitorNode, int32_t lwOffset,
+        TR::LabelSymbol* startLabel, TR::LabelSymbol* exitCallLabel, TR::LabelSymbol* restartLabel,
+        TR::Register* objectClassReg);
 
-   TR::LabelSymbol * getStartLabel() { return _startLabel; };
-   int32_t getLockWordOffset() { return _lwOffset; }
-   };
+    virtual Kind getKind() { return IsLockReservationExit; }
 
-class PPCLockReservationExitSnippet : public TR::PPCHelperCallSnippet
-   {
-   TR::LabelSymbol *_startLabel;
-   int32_t        _lwOffset;
-   TR::Register    *_objectClassReg;
+    virtual uint8_t* emitSnippetBody();
 
-   public:
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE*, TR_Debug*);
 
-   PPCLockReservationExitSnippet(TR::CodeGenerator   *codeGen,
-                                 TR::Node            *monitorNode,
-                                 int32_t            lwOffset,
-                                 TR::LabelSymbol      *startLabel,
-                                 TR::LabelSymbol      *exitCallLabel,
-                                 TR::LabelSymbol      *restartLabel,
-                                 TR::Register        *objectClassReg);
+    virtual int32_t setEstimatedCodeLocation(int32_t p);
 
-   virtual Kind getKind() { return IsLockReservationExit; }
+    TR::LabelSymbol* getStartLabel() { return _startLabel; }
+    int32_t getLockWordOffset() { return _lwOffset; }
+};
 
-   virtual uint8_t *emitSnippetBody();
+class PPCReadMonitorSnippet : public TR::PPCHelperCallSnippet {
+    TR::SymbolReference* _monitorEnterHelper;
+    TR::LabelSymbol* _recurCheckLabel;
+    TR::InstOpCode::Mnemonic _loadOpCode;
+    int32_t _loadOffset;
+    TR::Register* _objectClassReg;
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE *, TR_Debug*);
+public:
+    PPCReadMonitorSnippet(TR::CodeGenerator* codeGen, TR::Node* monitorEnterNode, TR::Node* monitorExitNode,
+        TR::LabelSymbol* recurCheckLabel, TR::LabelSymbol* monExitCallLabel, TR::LabelSymbol* restartLabel,
+        TR::InstOpCode::Mnemonic loadOpCode, int32_t loadOffset, TR::Register* objectClassReg);
 
-   virtual int32_t setEstimatedCodeLocation(int32_t p);
+    virtual Kind getKind() { return IsReadMonitor; }
 
-   TR::LabelSymbol * getStartLabel() { return _startLabel; }
-   int32_t          getLockWordOffset() { return _lwOffset; }
-   };
+    virtual uint8_t* emitSnippetBody();
 
-class PPCReadMonitorSnippet : public TR::PPCHelperCallSnippet
-   {
-   TR::SymbolReference *_monitorEnterHelper;
-   TR::LabelSymbol      *_recurCheckLabel;
-   TR::InstOpCode::Mnemonic       _loadOpCode;
-   int32_t             _loadOffset;
-   TR::Register        *_objectClassReg;
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual void print(TR::FILE*, TR_Debug*);
 
-   public:
+    virtual int32_t setEstimatedCodeLocation(int32_t p);
 
-   PPCReadMonitorSnippet(TR::CodeGenerator   *codeGen,
-                         TR::Node            *monitorEnterNode,
-                         TR::Node            *monitorExitNode,
-                         TR::LabelSymbol      *recurCheckLabel,
-                         TR::LabelSymbol      *monExitCallLabel,
-                         TR::LabelSymbol      *restartLabel,
-                         TR::InstOpCode::Mnemonic      loadOpCode,
-                         int32_t            loadOffset,
-                         TR::Register        *objectClassReg);
+    TR::SymbolReference* getMonitorEnterHelper() { return _monitorEnterHelper; };
 
-   virtual Kind getKind() { return IsReadMonitor; }
+    TR::LabelSymbol* getRecurCheckLabel() { return _recurCheckLabel; };
 
-   virtual uint8_t *emitSnippetBody();
+    TR::InstOpCode::Mnemonic getLoadOpCode() { return _loadOpCode; }
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   virtual void print(TR::FILE *, TR_Debug*);
+    int32_t getLoadOffset() { return _loadOffset; }
+};
 
-   virtual int32_t setEstimatedCodeLocation(int32_t p);
+class PPCHeapAllocSnippet : public TR::Snippet {
+    TR::LabelSymbol* _restartLabel;
+    TR::SymbolReference* _destination;
+    bool _insertType;
 
-   TR::SymbolReference *getMonitorEnterHelper() { return _monitorEnterHelper; };
+public:
+    PPCHeapAllocSnippet(TR::CodeGenerator* codeGen, TR::Node* node, TR::LabelSymbol* callLabel,
+        TR::SymbolReference* destination, TR::LabelSymbol* restartLabel, bool insertType = false);
 
-   TR::LabelSymbol *getRecurCheckLabel() { return _recurCheckLabel; };
+    virtual Kind getKind() { return IsHeapAlloc; }
+    virtual void print(TR::FILE*, TR_Debug*);
 
-   TR::InstOpCode::Mnemonic getLoadOpCode() { return _loadOpCode; }
+    virtual uint8_t* emitSnippetBody();
 
-   int32_t getLoadOffset() { return _loadOffset; }
-   };
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
 
-class PPCHeapAllocSnippet : public TR::Snippet
-   {
-   TR::LabelSymbol      *_restartLabel;
-   TR::SymbolReference *_destination;
-   bool               _insertType;
+    TR::LabelSymbol* getRestartLabel() { return _restartLabel; }
+    TR::SymbolReference* getDestination() { return _destination; }
+    bool getInsertType() { return _insertType; }
+};
 
-   public:
+class PPCAllocPrefetchSnippet : public TR::Snippet {
 
-   PPCHeapAllocSnippet(TR::CodeGenerator   *codeGen,
-                       TR::Node            *node,
-                       TR::LabelSymbol      *callLabel,
-                       TR::SymbolReference *destination,
-                       TR::LabelSymbol      *restartLabel,
-                       bool               insertType=false);
+public:
+    PPCAllocPrefetchSnippet(TR::CodeGenerator* codeGen, TR::Node* node, TR::LabelSymbol* callLabel);
 
-   virtual Kind getKind() { return IsHeapAlloc; }
-   virtual void print(TR::FILE *, TR_Debug*);
+    virtual Kind getKind() { return IsAllocPrefetch; }
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint8_t* emitSnippetBody();
+    virtual void print(TR::FILE*, TR_Debug*);
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   TR::LabelSymbol      *getRestartLabel() { return _restartLabel; }
-   TR::SymbolReference *getDestination() {return _destination;}
-   bool                getInsertType() {return _insertType;}
-   };
+class PPCNonZeroAllocPrefetchSnippet : public TR::Snippet {
 
-class PPCAllocPrefetchSnippet : public TR::Snippet
-   {
+public:
+    PPCNonZeroAllocPrefetchSnippet(TR::CodeGenerator* codeGen, TR::Node* node, TR::LabelSymbol* callLabel);
 
-   public:
+    virtual Kind getKind() { return IsNonZeroAllocPrefetch; }
 
-   PPCAllocPrefetchSnippet(TR::CodeGenerator   *codeGen,
-                           TR::Node            *node,
-                           TR::LabelSymbol      *callLabel);
+    virtual uint8_t* emitSnippetBody();
+    virtual void print(TR::FILE*, TR_Debug*);
 
-   virtual Kind getKind() { return IsAllocPrefetch; }
-
-   virtual uint8_t *emitSnippetBody();
-   virtual void print(TR::FILE *, TR_Debug*);
-
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
-
-class PPCNonZeroAllocPrefetchSnippet : public TR::Snippet
-   {
-
-   public:
-
-   PPCNonZeroAllocPrefetchSnippet(TR::CodeGenerator   *codeGen,
-                                  TR::Node            *node,
-                                  TR::LabelSymbol      *callLabel);
-
-   virtual Kind getKind() { return IsNonZeroAllocPrefetch; }
-
-   virtual uint8_t *emitSnippetBody();
-   virtual void print(TR::FILE *, TR_Debug*);
-
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
 uint32_t getCCPreLoadedCodeSize();
-void createCCPreLoadedCode(uint8_t *CCPreLoadedCodeBase, uint8_t *CCPreLoadedCodeTop, void **CCPreLoadedCodeTable, TR::CodeGenerator *cg);
+void createCCPreLoadedCode(
+    uint8_t* CCPreLoadedCodeBase, uint8_t* CCPreLoadedCodeTop, void** CCPreLoadedCodeTable, TR::CodeGenerator* cg);
 
-}
+} // namespace TR
 
 #endif // J9PPCSNIPPET_INCL

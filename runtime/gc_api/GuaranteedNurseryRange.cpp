@@ -36,7 +36,7 @@ extern "C" {
  *
  * If there is no nursery, or no part of its range can be guaranteed, start and end are both set to NULL.
  *
- * If the guaranteed nursery range extends to the bottom of the address range, start will be NULL and end 
+ * If the guaranteed nursery range extends to the bottom of the address range, start will be NULL and end
  * will be the highest nursery address.
  *
  * If the guaranteed nursery range extends to the top of the address range, start will be the lowest nursery
@@ -54,19 +54,17 @@ extern "C" {
  * @param[in] javaVM the J9JavaVM* instance
  * @param[out] start the start address is returned in this pointer
  * @param[out] end the end address is returned in this pointer
- * 
+ *
  * @note this function is used by the JIT for barrier ommission optimizations
  */
-void
-j9mm_get_guaranteed_nursery_range(J9JavaVM* javaVM, void** start, void** end)
+void j9mm_get_guaranteed_nursery_range(J9JavaVM* javaVM, void** start, void** end)
 {
-#if defined (J9VM_GC_GENERATIONAL)
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM->omrVM);
-	extensions->getGuaranteedNurseryRange(start, end);
+#if defined(J9VM_GC_GENERATIONAL)
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM->omrVM);
+    extensions->getGuaranteedNurseryRange(start, end);
 #else /* J9VM_GC_GENERATIONAL */
-	*start = NULL;
-	*end = NULL;
+    *start = NULL;
+    *end = NULL;
 #endif /* J9VM_GC_GENERATIONAL */
 }
-
 }

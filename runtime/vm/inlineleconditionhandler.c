@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "leconditionhandler.h"
 #include "j9.h"
 #include "j9protos.h"
@@ -28,15 +27,13 @@
 #include "atoe.h"
 #include "j9port.h"
 
-
-
 #if 0
 #define J9SIGNAL_DEBUG
 #endif
 
 #if defined(J9VM_PORT_ZOS_CEEHDLRSUPPORT)
 
-void j9vm_inline_le_condition_handler (_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBACK *newfc);
+void j9vm_inline_le_condition_handler(_FEEDBACK* fc, _INT4* token, _INT4* leResult, _FEEDBACK* newfc);
 _ENTRY globalLeConditionHandlerENTRY = { (_POINTER)&j9vm_inline_le_condition_handler, NULL };
 
 /**
@@ -48,17 +45,21 @@ _ENTRY globalLeConditionHandlerENTRY = { (_POINTER)&j9vm_inline_le_condition_han
  * so the protected function's signature must be known at compile time. But, in this case the protected function
  * is a Java native, who's signature we of course don't know at compile time.
  *
- * j9vm_inline_le_condition_handler uses j9port_control to obtain a function pointer to the handler, j9vm_le_condition_handler,
- * which j9sig_protect_ceehdlr registers (using CEEHDLR) on calls to the port library's sig_protect function.
+ * j9vm_inline_le_condition_handler uses j9port_control to obtain a function pointer to the handler,
+ * j9vm_le_condition_handler, which j9sig_protect_ceehdlr registers (using CEEHDLR) on calls to the port library's
+ * sig_protect function.
  *
- * j9vm_inline_le_condition_handler then creates and provides the J9ZOSLEConditionHandlerRecord expected by the port library's
- * 	j9vm_le_condition_handler and calls j9vm_le_condition_handler directly
+ * j9vm_inline_le_condition_handler then creates and provides the J9ZOSLEConditionHandlerRecord expected by the port
+ * library's j9vm_le_condition_handler and calls j9vm_le_condition_handler directly
  *
  * @param[in]	_FEEDBACK *fc 		condition token representing the condition for which this handler was invoked
- * 										- forwarded to the j9vm_le_condition_handler.
- * @param[in]	_INT4 *token 		points to a J9VMThread*. Needed to obtain the portlibrary and by the the J9ZOSLEConditionHandlerRecord.
+ * 										- forwarded to the
+ * j9vm_le_condition_handler.
+ * @param[in]	_INT4 *token 		points to a J9VMThread*. Needed to obtain the portlibrary and by the the
+ * J9ZOSLEConditionHandlerRecord.
  * @param[out]	_INT4 *leResult		tells the OS what to do when the condition handler returns.
- * 										- forwarded to the j9vm_le_condition_handler
+ * 										- forwarded to the
+ * j9vm_le_condition_handler
  * @param[out]	_FEEDBACK *newfc	forwarded to the j9vm_le_condition_handler
  *
  * @see J9VMPlatformDependentZOS390#enterSEH:vmThreadWrapper:
@@ -66,44 +67,45 @@ _ENTRY globalLeConditionHandlerENTRY = { (_POINTER)&j9vm_inline_le_condition_han
  * @see j9signal_ceehdlr.c#j9vm_le_condition_handler()
  * @see j9signal_ceehdlr.c#j9sig_protect_ceehdlr()
  */
-void
-j9vm_inline_le_condition_handler (_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBACK *newfc)
+void j9vm_inline_le_condition_handler(_FEEDBACK* fc, _INT4* token, _INT4* leResult, _FEEDBACK* newfc)
 {
 
- 	struct J9ZOSLEConditionHandlerRecord thisRecord;
-	J9VMThread* vmThread = (J9VMThread *) *token;
-	PORT_ACCESS_FROM_VMC(vmThread);
-	void (*portLibraryInternalLEConditionHandler)(_FEEDBACK *fc, _INT4 *token, _INT4 *leResult, _FEEDBACK *newfc);
-	_INT4 portLibLEHandler_token;
+    struct J9ZOSLEConditionHandlerRecord thisRecord;
+    J9VMThread* vmThread = (J9VMThread*)*token;
+    PORT_ACCESS_FROM_VMC(vmThread);
+    void (*portLibraryInternalLEConditionHandler)(_FEEDBACK * fc, _INT4 * token, _INT4 * leResult, _FEEDBACK * newfc);
+    _INT4 portLibLEHandler_token;
 
 #if defined(J9SIGNAL_DEBUG)
-	printf("j9vm_inline_le_condition_handler, fc->tok_msgno: %i, fc->tok_facid: %s, fc->tok_sev: %i\n", fc->tok_msgno, e2a_func(fc->tok_facid, 3), fc->tok_sev);fflush(NULL);
+    printf("j9vm_inline_le_condition_handler, fc->tok_msgno: %i, fc->tok_facid: %s, fc->tok_sev: %i\n", fc->tok_msgno,
+        e2a_func(fc->tok_facid, 3), fc->tok_sev);
+    fflush(NULL);
 #endif
 
-	memset(&thisRecord, 0, sizeof(J9ZOSLEConditionHandlerRecord));
+    memset(&thisRecord, 0, sizeof(J9ZOSLEConditionHandlerRecord));
 
-	/* Fake up the J9ZOSLEConditionHandlerRecord as if j9sig_protect_ceehdlr() had created it */
-	thisRecord.portLibrary = PORTLIB;
-	thisRecord.handler = structuredSignalHandler;
-	thisRecord.handler_arg = vmThread;
-	thisRecord.flags = J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION;
+    /* Fake up the J9ZOSLEConditionHandlerRecord as if j9sig_protect_ceehdlr() had created it */
+    thisRecord.portLibrary = PORTLIB;
+    thisRecord.handler = structuredSignalHandler;
+    thisRecord.handler_arg = vmThread;
+    thisRecord.flags = J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION;
 
-	portLibLEHandler_token = (_INT4)&thisRecord;
+    portLibLEHandler_token = (_INT4)&thisRecord;
 
-	/* peek into the port library implementation */
-	if (j9port_control("SIG_INTERNAL_HANDLER", (UDATA)&portLibraryInternalLEConditionHandler)) {
-		/* This will only happen if the portlibrary's support for LE condition handling either wasn't enabled at runtime
-		 * or was overidden after the fact. In either case, percolate */
+    /* peek into the port library implementation */
+    if (j9port_control("SIG_INTERNAL_HANDLER", (UDATA)&portLibraryInternalLEConditionHandler)) {
+        /* This will only happen if the portlibrary's support for LE condition handling either wasn't enabled at runtime
+         * or was overidden after the fact. In either case, percolate */
 #if defined(J9SIGNAL_DEBUG)
-		printf("\t *** j9port_control failed *** \n");
+        printf("\t *** j9port_control failed *** \n");
 #endif
-		*leResult = 20;
-		return;
-	}
+        *leResult = 20;
+        return;
+    }
 
-	portLibraryInternalLEConditionHandler(fc, &portLibLEHandler_token, leResult, newfc);
+    portLibraryInternalLEConditionHandler(fc, &portLibLEHandler_token, leResult, newfc);
 
-	return;
+    return;
 }
 
 #endif /* J9VM_PORT_ZOS_CEEHDLRSUPPORT */

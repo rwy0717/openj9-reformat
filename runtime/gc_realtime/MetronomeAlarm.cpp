@@ -67,74 +67,70 @@
 #include <signal.h>
 #endif /* defined(LINUX) && !defined(J9ZTPF) */
 
-MM_HRTAlarm *
-MM_HRTAlarm::newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface)
+MM_HRTAlarm* MM_HRTAlarm::newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface)
 {
-	MM_HRTAlarm * alarm;
-	
-	alarm = (MM_HRTAlarm *)env->getForge()->allocate(sizeof(MM_HRTAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (alarm) {
-		new(alarm) MM_HRTAlarm(osInterface);
-	}
-	return alarm;
+    MM_HRTAlarm* alarm;
+
+    alarm
+        = (MM_HRTAlarm*)env->getForge()->allocate(sizeof(MM_HRTAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (alarm) {
+        new (alarm) MM_HRTAlarm(osInterface);
+    }
+    return alarm;
 }
 
-MM_RTCAlarm *
-MM_RTCAlarm::newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface)
+MM_RTCAlarm* MM_RTCAlarm::newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface)
 {
-	MM_RTCAlarm * alarm;
-	
-	alarm = (MM_RTCAlarm *)env->getForge()->allocate(sizeof(MM_RTCAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (alarm) {
-		new(alarm) MM_RTCAlarm(osInterface);
-	}
-	return alarm;
+    MM_RTCAlarm* alarm;
+
+    alarm
+        = (MM_RTCAlarm*)env->getForge()->allocate(sizeof(MM_RTCAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (alarm) {
+        new (alarm) MM_RTCAlarm(osInterface);
+    }
+    return alarm;
 }
 
-MM_ITAlarm *
-MM_ITAlarm::newInstance(MM_EnvironmentBase *env, MM_OSInterface* osInterface)
+MM_ITAlarm* MM_ITAlarm::newInstance(MM_EnvironmentBase* env, MM_OSInterface* osInterface)
 {
-	MM_ITAlarm * alarm;
-	
-	alarm = (MM_ITAlarm *)env->getForge()->allocate(sizeof(MM_ITAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (alarm) {
-		new(alarm) MM_ITAlarm(osInterface);
-	}
-	return alarm;
+    MM_ITAlarm* alarm;
+
+    alarm = (MM_ITAlarm*)env->getForge()->allocate(sizeof(MM_ITAlarm), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (alarm) {
+        new (alarm) MM_ITAlarm(osInterface);
+    }
+    return alarm;
 }
 
 /**
  * MM_Alarm::newInstance - create a new alarm suitable for the system.
  */
-MM_Alarm*
-MM_Alarm::factory(MM_EnvironmentBase *env, MM_OSInterface* osInterface)
+MM_Alarm* MM_Alarm::factory(MM_EnvironmentBase* env, MM_OSInterface* osInterface)
 {
-	MM_Alarm *alarm = NULL;
-	
-	if (osInterface->hiresTimerAvailable()) {
-		alarm = MM_HRTAlarm::newInstance(env, osInterface);
-	} else if (osInterface->itTimerAvailable()) {
-		alarm = MM_ITAlarm::newInstance(env, osInterface);
-	}
-	return alarm;
-}
+    MM_Alarm* alarm = NULL;
 
+    if (osInterface->hiresTimerAvailable()) {
+        alarm = MM_HRTAlarm::newInstance(env, osInterface);
+    } else if (osInterface->itTimerAvailable()) {
+        alarm = MM_ITAlarm::newInstance(env, osInterface);
+    }
+    return alarm;
+}
 
 /**
  * initialize
- * Initialize the High Resolution Timer for use by Metronome. 
+ * Initialize the High Resolution Timer for use by Metronome.
  * @return true if the high resolution timer was successfully initialized, false
  *  otherwise
  */
-bool
-MM_HRTAlarm::initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread)
+bool MM_HRTAlarm::initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread)
 {
-	return alarmThread->startThread(env);
+    return alarmThread->startThread(env);
 }
 
 /**
  * initialize
- * Initialize the Linux real-time clock for use by Metronome. On 
+ * Initialize the Linux real-time clock for use by Metronome. On
  * non-Linux OS's, it is an error to be working with RTCAlarm's
  * This code has OS-specific code in it, but it will disappear in time
  * when we have HRT Alarm's running everywhere...
@@ -142,64 +138,62 @@ MM_HRTAlarm::initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmT
  *  otherwise
  */
 
-bool
-MM_RTCAlarm::initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread)
+bool MM_RTCAlarm::initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread)
 {
 #if defined(LINUX) && !defined(J9ZTPF)
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	RTCfd = open("/dev/rtc", O_RDONLY);
-	if (RTCfd == -1) {
-		if (_osInterface->_extensions->verbose >= 2) {
-			j9tty_printf(PORTLIB, "Unable to open /dev/rtc\n");
-		}
-		goto error;
-	}
-	if ((ioctl(RTCfd, RTC_IRQP_SET, _osInterface->_extensions->RTC_Frequency) == -1)) {
-		if (_osInterface->_extensions->verbose >= 2) {
-			j9tty_printf(PORTLIB, "Unable to set IRQP for /dev/rtc\n");
-		}
-		goto error;
-	}
-	if (ioctl(RTCfd, RTC_IRQP_READ, &_osInterface->_extensions->RTC_Frequency)) {
-		if (_osInterface->_extensions->verbose >= 2) {
-			j9tty_printf(PORTLIB, "Unable to read IRQP for /dev/rtc\n");
-		}
-		goto error;			
-	}
-	if (ioctl(RTCfd, RTC_PIE_ON, 0) == -1) {
-		if (_osInterface->_extensions->verbose >= 2) {
-			j9tty_printf(PORTLIB, "Unable to enable PIE for /dev/rtc\n");
-		}
-		goto error;
-	}
+    RTCfd = open("/dev/rtc", O_RDONLY);
+    if (RTCfd == -1) {
+        if (_osInterface->_extensions->verbose >= 2) {
+            j9tty_printf(PORTLIB, "Unable to open /dev/rtc\n");
+        }
+        goto error;
+    }
+    if ((ioctl(RTCfd, RTC_IRQP_SET, _osInterface->_extensions->RTC_Frequency) == -1)) {
+        if (_osInterface->_extensions->verbose >= 2) {
+            j9tty_printf(PORTLIB, "Unable to set IRQP for /dev/rtc\n");
+        }
+        goto error;
+    }
+    if (ioctl(RTCfd, RTC_IRQP_READ, &_osInterface->_extensions->RTC_Frequency)) {
+        if (_osInterface->_extensions->verbose >= 2) {
+            j9tty_printf(PORTLIB, "Unable to read IRQP for /dev/rtc\n");
+        }
+        goto error;
+    }
+    if (ioctl(RTCfd, RTC_PIE_ON, 0) == -1) {
+        if (_osInterface->_extensions->verbose >= 2) {
+            j9tty_printf(PORTLIB, "Unable to enable PIE for /dev/rtc\n");
+        }
+        goto error;
+    }
 
-	return alarmThread->startThread(env);
+    return alarmThread->startThread(env);
 
 error:
-	if (_osInterface->_extensions->verbose >= 1) {
-		j9tty_printf(PORTLIB, "Unable to use /dev/rtc for time-based scheduling\n");
-	}
-	return false;	
-#else	
-	return false;
+    if (_osInterface->_extensions->verbose >= 1) {
+        j9tty_printf(PORTLIB, "Unable to use /dev/rtc for time-based scheduling\n");
+    }
+    return false;
+#else
+    return false;
 #endif /* defined(LINUX) && !defined(J9ZTPF) */
 }
 
-void MM_ITAlarm::alarm_handler(MM_MetronomeAlarmThread *alarmThread) {
-	MM_Scheduler *sched = alarmThread->getScheduler();
-	sched->_osInterface->maskSignals();
-	omrthread_resume(alarmThread->_thread);	
+void MM_ITAlarm::alarm_handler(MM_MetronomeAlarmThread* alarmThread)
+{
+    MM_Scheduler* sched = alarmThread->getScheduler();
+    sched->_osInterface->maskSignals();
+    omrthread_resume(alarmThread->_thread);
 }
 
 #if defined(WIN32)
-static void CALLBACK
-itAlarmThunk(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+static void CALLBACK itAlarmThunk(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	MM_ITAlarm::alarm_handler((MM_MetronomeAlarmThread *)dwUser);
+    MM_ITAlarm::alarm_handler((MM_MetronomeAlarmThread*)dwUser);
 }
 #endif /*WIN32*/
-
 
 /**
  * Initialize the interval timer alarm. This timer is not
@@ -209,109 +203,100 @@ itAlarmThunk(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PT
  * @return true if the real-time clock was successfully initialized, false
  *  otherwise
  */
-bool
-MM_ITAlarm::initialize(MM_EnvironmentBase *env, MM_MetronomeAlarmThread* alarmThread)
+bool MM_ITAlarm::initialize(MM_EnvironmentBase* env, MM_MetronomeAlarmThread* alarmThread)
 {
-	if (!alarmThread->startThread(env)) {
-		return false;
-	}
-	
-#if defined(WIN32)
-	TIMECAPS tc;
-	if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
-		return false;
-	}
-	UINT uDesiredPeriod = (UINT)(_osInterface->_extensions->itPeriodMicro / 1000);
-	UINT uPeriod = (uDesiredPeriod < tc.wPeriodMin) ? tc.wPeriodMin : uDesiredPeriod;
-	UINT uDelay = uPeriod;
-	if (timeBeginPeriod(uPeriod) != TIMERR_NOERROR) {
-		/* Error beginning higher frequency period  */
-		return false;
-	}
-	_uTimerId = (UINT)timeSetEvent(uDelay, uPeriod, itAlarmThunk, (DWORD_PTR)alarmThread, TIME_PERIODIC);
-	if (_uTimerId == 0) {
-		/* Error creating timer */
-		timeEndPeriod(uPeriod);
-		return false;
-	}
+    if (!alarmThread->startThread(env)) {
+        return false;
+    }
 
-	return true;
+#if defined(WIN32)
+    TIMECAPS tc;
+    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
+        return false;
+    }
+    UINT uDesiredPeriod = (UINT)(_osInterface->_extensions->itPeriodMicro / 1000);
+    UINT uPeriod = (uDesiredPeriod < tc.wPeriodMin) ? tc.wPeriodMin : uDesiredPeriod;
+    UINT uDelay = uPeriod;
+    if (timeBeginPeriod(uPeriod) != TIMERR_NOERROR) {
+        /* Error beginning higher frequency period  */
+        return false;
+    }
+    _uTimerId = (UINT)timeSetEvent(uDelay, uPeriod, itAlarmThunk, (DWORD_PTR)alarmThread, TIME_PERIODIC);
+    if (_uTimerId == 0) {
+        /* Error creating timer */
+        timeEndPeriod(uPeriod);
+        return false;
+    }
+
+    return true;
 #else
-	/* write code if we want this path on other platforms */
-	return false;
+    /* write code if we want this path on other platforms */
+    return false;
 #endif /* WIN32 */
 }
 
-void
-MM_RTCAlarm::sleep()
+void MM_RTCAlarm::sleep()
 {
 #if defined(LINUX) && !defined(J9ZTPF)
-	UDATA data;
-	ssize_t readAmount = read(RTCfd, &data, sizeof(data));
-	if (readAmount == -1) {
-		perror("blocking read failed");
-	}
+    UDATA data;
+    ssize_t readAmount = read(RTCfd, &data, sizeof(data));
+    if (readAmount == -1) {
+        perror("blocking read failed");
+    }
 #endif /* defined(LINUX) && !defined(J9ZTPF) */
 }
 
-void
-MM_HRTAlarm::sleep()
+void MM_HRTAlarm::sleep() { omrthread_nanosleep(_osInterface->_extensions->hrtPeriodMicro * 1000); }
+
+void MM_ITAlarm::sleep() { omrthread_suspend(); }
+
+void MM_RTCAlarm::describe(J9PortLibrary* port, char* buffer, I_32 bufferSize)
 {
-	omrthread_nanosleep(_osInterface->_extensions->hrtPeriodMicro * 1000);
+    PORT_ACCESS_FROM_PORT(port);
+    j9str_printf(PORTLIB, buffer, bufferSize, "RTC  (Period = %.2f us Frequency = %d Hz)",
+        1.0 / _osInterface->_extensions->RTC_Frequency, _osInterface->_extensions->RTC_Frequency);
 }
 
-void
-MM_ITAlarm::sleep()
+void MM_HRTAlarm::describe(J9PortLibrary* port, char* buffer, I_32 bufferSize)
 {
-	omrthread_suspend();
+    PORT_ACCESS_FROM_PORT(port);
+    j9str_printf(PORTLIB, buffer, bufferSize, "High Resolution Timer (Period = %d us)",
+        _osInterface->_extensions->hrtPeriodMicro);
 }
 
-void MM_RTCAlarm::describe(J9PortLibrary* port, char *buffer, I_32 bufferSize) {
-	PORT_ACCESS_FROM_PORT(port);
- 	j9str_printf(PORTLIB, buffer, bufferSize, "RTC  (Period = %.2f us Frequency = %d Hz)", 1.0/_osInterface->_extensions->RTC_Frequency, _osInterface->_extensions->RTC_Frequency);
-}
-
-void MM_HRTAlarm::describe(J9PortLibrary* port, char *buffer, I_32 bufferSize) {
-	PORT_ACCESS_FROM_PORT(port);
-	 j9str_printf(PORTLIB, buffer, bufferSize, "High Resolution Timer (Period = %d us)", _osInterface->_extensions->hrtPeriodMicro);
-}
-
-void MM_ITAlarm::describe(J9PortLibrary* port, char *buffer, I_32 bufferSize) {
-	PORT_ACCESS_FROM_PORT(port);
-	j9str_printf(PORTLIB, buffer, bufferSize, "Interval Timer (Period = %d us)", _osInterface->_extensions->itPeriodMicro);
+void MM_ITAlarm::describe(J9PortLibrary* port, char* buffer, I_32 bufferSize)
+{
+    PORT_ACCESS_FROM_PORT(port);
+    j9str_printf(
+        PORTLIB, buffer, bufferSize, "Interval Timer (Period = %d us)", _osInterface->_extensions->itPeriodMicro);
 }
 
 /**
  * kill
  * teardown the environment and free up storage associated with the object
  */
-void
-MM_Alarm::kill(MM_EnvironmentBase *env)
+void MM_Alarm::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
 /**
  * tearDown
  */
-void
-MM_Alarm::tearDown(MM_EnvironmentBase *env)
-{
-}
+void MM_Alarm::tearDown(MM_EnvironmentBase* env) {}
 
 /**
  * tearDown
  */
-void
-MM_ITAlarm::tearDown(MM_EnvironmentBase *env)
+void MM_ITAlarm::tearDown(MM_EnvironmentBase* env)
 {
 #if defined(WIN32)
-	if (_uTimerId != 0) {
-		UINT uPeriod = (UINT)(_osInterface->_extensions->itPeriodMicro / 1000);
-		timeKillEvent(_uTimerId);
-		timeEndPeriod(uPeriod);
-	}
+    if (_uTimerId != 0) {
+        UINT uPeriod = (UINT)(_osInterface->_extensions->itPeriodMicro / 1000);
+        timeKillEvent(_uTimerId);
+        timeEndPeriod(uPeriod);
+    }
 #endif
-	MM_Alarm::tearDown(env);
+    MM_Alarm::tearDown(env);
 }

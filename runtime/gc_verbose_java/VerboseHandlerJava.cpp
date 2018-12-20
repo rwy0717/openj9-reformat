@@ -34,51 +34,52 @@
 #include "GCExtensions.hpp"
 #include "FinalizeListManager.hpp"
 
-void
-MM_VerboseHandlerJava::outputFinalizableInfo(MM_VerboseManager *manager, MM_EnvironmentBase *env, UDATA indent)
+void MM_VerboseHandlerJava::outputFinalizableInfo(MM_VerboseManager* manager, MM_EnvironmentBase* env, UDATA indent)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	GC_FinalizeListManager *finalizeListManager = extensions->finalizeListManager;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    GC_FinalizeListManager* finalizeListManager = extensions->finalizeListManager;
 
-	UDATA systemCount = finalizeListManager->getSystemCount();
-	UDATA defaultCount = finalizeListManager->getDefaultCount();
-	UDATA referenceCount = finalizeListManager->getReferenceCount();
-	UDATA classloaderCount = finalizeListManager->getClassloaderCount();
+    UDATA systemCount = finalizeListManager->getSystemCount();
+    UDATA defaultCount = finalizeListManager->getDefaultCount();
+    UDATA referenceCount = finalizeListManager->getReferenceCount();
+    UDATA classloaderCount = finalizeListManager->getClassloaderCount();
 
-	if((0 != systemCount) || (0 != defaultCount) || (0 != referenceCount) || (0 != classloaderCount)) {
-		manager->getWriterChain()->formatAndOutput(env, indent, "<pending-finalizers system=\"%zu\" default=\"%zu\" reference=\"%zu\" classloader=\"%zu\" />", systemCount, defaultCount, referenceCount, classloaderCount);
-	}
+    if ((0 != systemCount) || (0 != defaultCount) || (0 != referenceCount) || (0 != classloaderCount)) {
+        manager->getWriterChain()->formatAndOutput(env, indent,
+            "<pending-finalizers system=\"%zu\" default=\"%zu\" reference=\"%zu\" classloader=\"%zu\" />", systemCount,
+            defaultCount, referenceCount, classloaderCount);
+    }
 }
 
-bool
-MM_VerboseHandlerJava::getThreadName(char *buf, UDATA bufLen, OMR_VMThread *omrThread)
+bool MM_VerboseHandlerJava::getThreadName(char* buf, UDATA bufLen, OMR_VMThread* omrThread)
 {
-	PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)omrThread->_language_vmthread)->javaVM);
-	char* threadName = getOMRVMThreadName(omrThread);
-	UDATA threadNameLength = strlen(threadName);
-	UDATA escapeConsumed = escapeXMLString(OMRPORT_FROM_J9PORT(PORTLIB), buf, bufLen, threadName, strlen(threadName));
-	bool consumedEntireString = (escapeConsumed >= threadNameLength);
-	releaseOMRVMThreadName(omrThread);
-	return consumedEntireString;
+    PORT_ACCESS_FROM_JAVAVM(((J9VMThread*)omrThread->_language_vmthread)->javaVM);
+    char* threadName = getOMRVMThreadName(omrThread);
+    UDATA threadNameLength = strlen(threadName);
+    UDATA escapeConsumed = escapeXMLString(OMRPORT_FROM_J9PORT(PORTLIB), buf, bufLen, threadName, strlen(threadName));
+    bool consumedEntireString = (escapeConsumed >= threadNameLength);
+    releaseOMRVMThreadName(omrThread);
+    return consumedEntireString;
 }
 
-void
-MM_VerboseHandlerJava::writeVmArgs(MM_VerboseManager *manager, MM_EnvironmentBase* env, J9JavaVM *vm)
+void MM_VerboseHandlerJava::writeVmArgs(MM_VerboseManager* manager, MM_EnvironmentBase* env, J9JavaVM* vm)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	JavaVMInitArgs* vmArgs = vm->vmArgsArray->actualVMArgs;
-	MM_VerboseWriterChain* writer = manager->getWriterChain();
-	writer->formatAndOutput(env, 1, "<vmargs>");
-	for (jint i = 0; i < vmArgs->nOptions; ++i) {
-		char escapedXMLString[128];
-		UDATA optLen = strlen(vmArgs->options[i].optionString);
-		UDATA escapeConsumed = escapeXMLString(OMRPORT_FROM_J9PORT(PORTLIB), escapedXMLString, sizeof(escapedXMLString), vmArgs->options[i].optionString, optLen);
-		const char* dots = (escapeConsumed < optLen) ? "..." : "";
-		if (NULL == vmArgs->options[i].extraInfo) {
-			writer->formatAndOutput(env, 2, "<vmarg name=\"%s%s\" />", escapedXMLString, dots);
-		} else {
-			writer->formatAndOutput(env, 2, "<vmarg name=\"%s%s\" value=\"%p\" />", escapedXMLString, dots, vmArgs->options[i].extraInfo);
-		}
-	}
-	writer->formatAndOutput(env, 1, "</vmargs>");
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    JavaVMInitArgs* vmArgs = vm->vmArgsArray->actualVMArgs;
+    MM_VerboseWriterChain* writer = manager->getWriterChain();
+    writer->formatAndOutput(env, 1, "<vmargs>");
+    for (jint i = 0; i < vmArgs->nOptions; ++i) {
+        char escapedXMLString[128];
+        UDATA optLen = strlen(vmArgs->options[i].optionString);
+        UDATA escapeConsumed = escapeXMLString(OMRPORT_FROM_J9PORT(PORTLIB), escapedXMLString, sizeof(escapedXMLString),
+            vmArgs->options[i].optionString, optLen);
+        const char* dots = (escapeConsumed < optLen) ? "..." : "";
+        if (NULL == vmArgs->options[i].extraInfo) {
+            writer->formatAndOutput(env, 2, "<vmarg name=\"%s%s\" />", escapedXMLString, dots);
+        } else {
+            writer->formatAndOutput(
+                env, 2, "<vmarg name=\"%s%s\" value=\"%p\" />", escapedXMLString, dots, vmArgs->options[i].extraInfo);
+        }
+    }
+    writer->formatAndOutput(env, 1, "</vmargs>");
 }

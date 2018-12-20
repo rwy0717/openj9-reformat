@@ -23,11 +23,11 @@
 #ifndef UNCOMMON_BCDCHK_ADDRESS_NODE
 #define UNCOMMON_BCDCHK_ADDRESS_NODE
 
-#include "codegen/CodeGenerator.hpp"  // for CodeGenerator
-#include "compile/Compilation.hpp"    // for Compilation
-#include "env/TRMemory.hpp"           // for TR_Memory, etc
-#include "il/Node.hpp"                // for vcount_t
-#include "infra/List.hpp"             // for List
+#include "codegen/CodeGenerator.hpp" // for CodeGenerator
+#include "compile/Compilation.hpp" // for Compilation
+#include "env/TRMemory.hpp" // for TR_Memory, etc
+#include "il/Node.hpp" // for vcount_t
+#include "infra/List.hpp" // for List
 
 /**
  * \brief The Uncommon BCDCHK Address Node codegen phase is designed to cope with incorrect OOL PD copy problem
@@ -58,31 +58,30 @@
  * only one that can cause exceptions. For example, pdshlOverflow can be evaluated to SRP which can cause HW
  * decimal overflow exception.
  *
- * We make a function call in the out-of-line section to the original DAA API function to handle exceptions in the mainline.
- * To achive this, we make use of the addressNode and the callParam-x nodes attached to the BCDCHK node.
- * In OOL section evaluation, we make a callNode with callParam 1-n attached to it; after the call, the correct pdOpNode
+ * We make a function call in the out-of-line section to the original DAA API function to handle exceptions in the
+ * mainline. To achive this, we make use of the addressNode and the callParam-x nodes attached to the BCDCHK node. In
+ * OOL section evaluation, we make a callNode with callParam 1-n attached to it; after the call, the correct pdOpNode
  * results need to be copied from the addressNode location to the pdOpNode storage reference. This copying makes
- * sure its following pdstorei (usually right after the BCDCHK node) is copying the correct content; and is only done correctly
- * if the BCDCHK's addressNode and pdstorei's addressNode are uncommoned (decoupled).
+ * sure its following pdstorei (usually right after the BCDCHK node) is copying the correct content; and is only done
+ * correctly if the BCDCHK's addressNode and pdstorei's addressNode are uncommoned (decoupled).
  *
  *
-*/
-class UncommonBCDCHKAddressNode
-   {
-   public:
-   TR_ALLOC(TR_Memory::CodeGenerator)
-   UncommonBCDCHKAddressNode(TR::CodeGenerator* cg): cg(cg)
-   {
-   _comp = cg->comp();
-   }
+ */
+class UncommonBCDCHKAddressNode {
+public:
+    TR_ALLOC(TR_Memory::CodeGenerator)
+    UncommonBCDCHKAddressNode(TR::CodeGenerator* cg)
+        : cg(cg)
+    {
+        _comp = cg->comp();
+    }
 
-   void perform();
+    void perform();
 
-   private:
-
-   TR::CodeGenerator * cg;
-   TR::Compilation *_comp;
-   TR::Compilation *comp() { return _comp; }
-   };
+private:
+    TR::CodeGenerator* cg;
+    TR::Compilation* _comp;
+    TR::Compilation* comp() { return _comp; }
+};
 
 #endif

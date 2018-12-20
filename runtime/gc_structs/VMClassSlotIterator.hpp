@@ -37,20 +37,16 @@
  * Iterate over all slots in VM known classes that contain object references.
  * @ingroup GC_Structs
  */
-class GC_VMClassSlotIterator
-{
-	J9Class **_scanPtr;
-	J9Class **_endPtr;
+class GC_VMClassSlotIterator {
+    J9Class** _scanPtr;
+    J9Class** _endPtr;
 
 public:
-	GC_VMClassSlotIterator(J9JavaVM *javaVM) :
-		_scanPtr( &javaVM->voidReflectClass ),
-		_endPtr( &javaVM->longArrayClass + 1 )
-	{};
+    GC_VMClassSlotIterator(J9JavaVM* javaVM)
+        : _scanPtr(&javaVM->voidReflectClass)
+        , _endPtr(&javaVM->longArrayClass + 1) {};
 
-	J9Class **nextSlot();
-
+    J9Class** nextSlot();
 };
 
 #endif /* VMCLASSSLOTITERATOR_HPP_ */
-

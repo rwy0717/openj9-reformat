@@ -29,41 +29,43 @@
 #ifndef TRJ9_CODEGENERATORBASE_CONNECTOR
 #define TRJ9_CODEGENERATORBASE_CONNECTOR
 
-namespace J9 { namespace X86 { namespace i386 { class CodeGenerator; } } }
-namespace J9 { typedef J9::X86::i386::CodeGenerator CodeGeneratorConnector; }
+namespace J9 {
+namespace X86 {
+namespace i386 {
+class CodeGenerator;
+}
+} // namespace X86
+} // namespace J9
+namespace J9 {
+typedef J9::X86::i386::CodeGenerator CodeGeneratorConnector;
+}
 
 #else
 #error J9::X86::i386::CodeGenerator expected to be a primary connector, but a J9 connector is already defined
 #endif
 
-
 #include "x/codegen/J9CodeGenerator.hpp"
 
-namespace J9
-{
+namespace J9 {
 
-namespace X86
-{
+namespace X86 {
 
-namespace i386
-{
+namespace i386 {
 
-class OMR_EXTENSIBLE CodeGenerator : public J9::X86::CodeGenerator
-   {
-   public:
+class OMR_EXTENSIBLE CodeGenerator : public J9::X86::CodeGenerator {
+public:
+    CodeGenerator()
+        : J9::X86::CodeGenerator()
+    {}
 
-   CodeGenerator() :
-      J9::X86::CodeGenerator() {}
+    TR::Linkage* createLinkage(TR_LinkageConventions lc);
 
-   TR::Linkage *createLinkage(TR_LinkageConventions lc);
+    void lowerTreesPreTreeTopVisit(TR::TreeTop* tt, vcount_t visitCount);
+    void lowerTreesPostTreeTopVisit(TR::TreeTop* tt, vcount_t visitCount);
 
-   void lowerTreesPreTreeTopVisit(TR::TreeTop *tt, vcount_t visitCount);
-   void lowerTreesPostTreeTopVisit(TR::TreeTop *tt, vcount_t visitCount);
-
-   void lowerTreesPreChildrenVisit(TR::Node * parent, TR::TreeTop * treeTop, vcount_t visitCount);
-   void lowerTreesPostChildrenVisit(TR::Node * parent, TR::TreeTop * treeTop, vcount_t visitCount);
-
-   };
+    void lowerTreesPreChildrenVisit(TR::Node* parent, TR::TreeTop* treeTop, vcount_t visitCount);
+    void lowerTreesPostChildrenVisit(TR::Node* parent, TR::TreeTop* treeTop, vcount_t visitCount);
+};
 
 } // namespace i386
 

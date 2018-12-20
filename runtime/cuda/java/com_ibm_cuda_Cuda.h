@@ -12,56 +12,49 @@ extern "C" {
  * Method:    allocatePinnedBuffer
  * Signature: (J)J
  */
-jlong JNICALL Java_com_ibm_cuda_Cuda_allocatePinnedBuffer
-  (JNIEnv *, jclass, jlong);
+jlong JNICALL Java_com_ibm_cuda_Cuda_allocatePinnedBuffer(JNIEnv*, jclass, jlong);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    getDeviceCount
  * Signature: ()I
  */
-jint JNICALL Java_com_ibm_cuda_Cuda_getDeviceCount
-  (JNIEnv *, jclass);
+jint JNICALL Java_com_ibm_cuda_Cuda_getDeviceCount(JNIEnv*, jclass);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    getDriverVersion
  * Signature: ()I
  */
-jint JNICALL Java_com_ibm_cuda_Cuda_getDriverVersion
-  (JNIEnv *, jclass);
+jint JNICALL Java_com_ibm_cuda_Cuda_getDriverVersion(JNIEnv*, jclass);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    getErrorMessage
  * Signature: (I)Ljava/lang/String;
  */
-jstring JNICALL Java_com_ibm_cuda_Cuda_getErrorMessage
-  (JNIEnv *, jclass, jint);
+jstring JNICALL Java_com_ibm_cuda_Cuda_getErrorMessage(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    getRuntimeVersion
  * Signature: ()I
  */
-jint JNICALL Java_com_ibm_cuda_Cuda_getRuntimeVersion
-  (JNIEnv *, jclass);
+jint JNICALL Java_com_ibm_cuda_Cuda_getRuntimeVersion(JNIEnv*, jclass);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    initialize
  * Signature: (Ljava/lang/Class;Ljava/lang/reflect/Method;)I
  */
-jint JNICALL Java_com_ibm_cuda_Cuda_initialize
-  (JNIEnv *, jclass, jclass, jobject);
+jint JNICALL Java_com_ibm_cuda_Cuda_initialize(JNIEnv*, jclass, jclass, jobject);
 
 /*
  * Class:     com_ibm_cuda_Cuda
  * Method:    wrapDirectBuffer
  * Signature: (JJ)Ljava/nio/ByteBuffer;
  */
-jobject JNICALL Java_com_ibm_cuda_Cuda_wrapDirectBuffer
-  (JNIEnv *, jclass, jlong, jlong);
+jobject JNICALL Java_com_ibm_cuda_Cuda_wrapDirectBuffer(JNIEnv*, jclass, jlong, jlong);
 
 #ifdef __cplusplus
 }

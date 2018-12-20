@@ -23,145 +23,127 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * _agentEnv;
+static agentEnv* _agentEnv;
 
 #define MAX_TAGS 1024
 
-static int  queuedTagNextFree; 
+static int queuedTagNextFree;
 static jlong queuedTagList[MAX_TAGS];
-static int  setTagNextFree;
+static int setTagNextFree;
 static jlong setTagList[MAX_TAGS];
 
-void 
-tagManager_initialize(agentEnv * env)
+void tagManager_initialize(agentEnv* env)
 {
-	_agentEnv = env;
-	
-	setTagNextFree = 0;
-	queuedTagNextFree = 0;
-	
-	memset(&queuedTagList, 0x00, sizeof(jlong) * MAX_TAGS);
-	memset(&setTagList, 0x00, sizeof(jlong) * MAX_TAGS);
+    _agentEnv = env;
+
+    setTagNextFree = 0;
+    queuedTagNextFree = 0;
+
+    memset(&queuedTagList, 0x00, sizeof(jlong) * MAX_TAGS);
+    memset(&setTagList, 0x00, sizeof(jlong) * MAX_TAGS);
 }
 
+void queueTag(jlong tag) { queuedTagList[queuedTagNextFree++] = tag; }
 
-void
-queueTag(jlong tag)
+int isQueued(jlong tag)
 {
-	queuedTagList[queuedTagNextFree++] = tag;
+    int i = 0;
+
+    for (i = 0; i < queuedTagNextFree; i++) {
+
+        if (queuedTagList[i] == tag) {
+            /*printf("%llx -> %llx \n", tag,queuedTagList[i] );*/
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
-
-int
-isQueued(jlong tag)
+jboolean JNICALL Java_com_ibm_jvmti_tests_followReferences_TagManager_isTagQueued(
+    JNIEnv* jni_env, jclass klass, jlong tag)
 {
-	int i = 0;
-	
-	for (i = 0; i < queuedTagNextFree; i++) {
-		
-		if (queuedTagList[i] == tag) {
-			/*printf("%llx -> %llx \n", tag,queuedTagList[i] );*/
-			return 1;
-		}
-	}
-	
-	return 0;
+    return isQueued(tag) ? JNI_TRUE : JNI_FALSE;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_followReferences_TagManager_isTagQueued(JNIEnv * jni_env, jclass klass, jlong tag)
+jboolean JNICALL Java_com_ibm_jvmti_tests_followReferences_TagManager_checkTags(JNIEnv* jni_env, jclass klass)
 {
-	return isQueued(tag) ? JNI_TRUE : JNI_FALSE;
+    int i, j;
+    jboolean err = JNI_TRUE;
+    jlong origSetTagList[MAX_TAGS];
+
+    memcpy(origSetTagList, setTagList, sizeof(jlong) * MAX_TAGS);
+
+    for (i = 0; i < setTagNextFree; i++) {
+        for (j = 0; j < queuedTagNextFree; j++) {
+            if (origSetTagList[i] == queuedTagList[j]) {
+                origSetTagList[j] = 0L;
+            }
+        }
+    }
+
+    for (j = 0; j < setTagNextFree; j++) {
+        if (origSetTagList[j] != 0L) {
+            error(_agentEnv, JVMTI_ERROR_INTERNAL, "Received no callback for Tag [%x]", origSetTagList[j]);
+            err = JNI_FALSE;
+        }
+    }
+
+    return err;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_followReferences_TagManager_checkTags(JNIEnv * jni_env, jclass klass)
+jboolean JNICALL Java_com_ibm_jvmti_tests_followReferences_TagManager_setTag(
+    JNIEnv* jni_env, jclass klass, jobject obj, jlong tag, jint flag)
 {
-	int i, j;
-	jboolean err = JNI_TRUE; 
-	jlong origSetTagList[MAX_TAGS];
-		
-	memcpy(origSetTagList, setTagList, sizeof(jlong) * MAX_TAGS);
-	
-	for (i = 0; i < setTagNextFree; i++) {
-		for (j = 0; j < queuedTagNextFree; j++) {
-			if (origSetTagList[i] == queuedTagList[j]) {
-				origSetTagList[j] = 0L;	
-			}
-		}
-	}
-	
-	for (j = 0; j < setTagNextFree; j++) {
-		if (origSetTagList[j] != 0L) {
-			error(_agentEnv, JVMTI_ERROR_INTERNAL, "Received no callback for Tag [%x]", origSetTagList[j]);
-			err = JNI_FALSE;
-		}			
-	}
+    jvmtiError err;
+    JVMTI_ACCESS_FROM_AGENT(_agentEnv);
 
-	return err;
-}
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_followReferences_TagManager_setTag(JNIEnv * jni_env, jclass klass, jobject obj, jlong tag, jint flag)
-{
-	jvmtiError err;
-	JVMTI_ACCESS_FROM_AGENT(_agentEnv);
-	
     err = (*jvmti_env)->SetTag(jvmti_env, obj, tag);
-	if (err != JVMTI_ERROR_NONE) {
-		error(_agentEnv, err, "TagManager SetTag failed for tag %p", tag);
-		return JNI_FALSE;
-	}
-	
-	setTagList[setTagNextFree++] = tag;
-	 
-	return JNI_TRUE;
+    if (err != JVMTI_ERROR_NONE) {
+        error(_agentEnv, err, "TagManager SetTag failed for tag %p", tag);
+        return JNI_FALSE;
+    }
+
+    setTagList[setTagNextFree++] = tag;
+
+    return JNI_TRUE;
 }
 
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_followReferences_TagManager_clearTags(JNIEnv * jni_env, jclass klass, jint flags)
+jboolean JNICALL Java_com_ibm_jvmti_tests_followReferences_TagManager_clearTags(
+    JNIEnv* jni_env, jclass klass, jint flags)
 {
-	int i;
-	jvmtiError err;
-	JVMTI_ACCESS_FROM_AGENT(_agentEnv);
-	jlong tags[MAX_TAGS];
-	jint tag_count = setTagNextFree - 1;
-	jint count_ptr = 0;
-	jobject * object_result_ptr;
-	jlong * tag_result_ptr;
+    int i;
+    jvmtiError err;
+    JVMTI_ACCESS_FROM_AGENT(_agentEnv);
+    jlong tags[MAX_TAGS];
+    jint tag_count = setTagNextFree - 1;
+    jint count_ptr = 0;
+    jobject* object_result_ptr;
+    jlong* tag_result_ptr;
 
-	if (setTagNextFree == 0) {
-		return JNI_TRUE;	
-	}
-	
-	for (i = 0; i < tag_count; i++) {
-		tags[i] = setTagList[i];
-	}
-	
-	err = (*jvmti_env)->GetObjectsWithTags(jvmti_env,
-			tag_count,
-			tags,
-			&count_ptr,
-			&object_result_ptr,
-			&tag_result_ptr);
-	if (err != JVMTI_ERROR_NONE) {
-		error(_agentEnv, err, "TagManager GetObjectsWithTags failed");
-		return JNI_FALSE;
-	} 
-	
-	for (i = 0; i < count_ptr; i++) {
-	    err = (*jvmti_env)->SetTag(jvmti_env, object_result_ptr[i], 0L);
-		if (err != JVMTI_ERROR_NONE) {
-			error(_agentEnv, err, "TagManager SetTag failed for tag %p", tag_result_ptr[i]);
-			return JNI_FALSE;
-		}		
-	}
-	
-	tagManager_initialize(_agentEnv);
-	
-	return JNI_TRUE;
+    if (setTagNextFree == 0) {
+        return JNI_TRUE;
+    }
+
+    for (i = 0; i < tag_count; i++) {
+        tags[i] = setTagList[i];
+    }
+
+    err = (*jvmti_env)->GetObjectsWithTags(jvmti_env, tag_count, tags, &count_ptr, &object_result_ptr, &tag_result_ptr);
+    if (err != JVMTI_ERROR_NONE) {
+        error(_agentEnv, err, "TagManager GetObjectsWithTags failed");
+        return JNI_FALSE;
+    }
+
+    for (i = 0; i < count_ptr; i++) {
+        err = (*jvmti_env)->SetTag(jvmti_env, object_result_ptr[i], 0L);
+        if (err != JVMTI_ERROR_NONE) {
+            error(_agentEnv, err, "TagManager SetTag failed for tag %p", tag_result_ptr[i]);
+            return JNI_FALSE;
+        }
+    }
+
+    tagManager_initialize(_agentEnv);
+
+    return JNI_TRUE;
 }

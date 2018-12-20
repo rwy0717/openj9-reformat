@@ -23,8 +23,7 @@
 #if !defined(OPENCACHEHELPER_H_INCLUDED)
 #define OPENCACHEHELPER_H_INCLUDED
 
-extern "C"
-{
+extern "C" {
 #include "shrinit.h"
 }
 #include "SCTestCommon.h"
@@ -37,63 +36,49 @@ typedef char* BlockPtr;
 class OpenCacheHelper {
 
 protected:
-	BlockPtr cacheMemory, cacheAllocated;
-	SH_OSCache *oscache;
-	UDATA osPageSize;
-	bool doSegmentProtect;
-	J9JavaVM* vm;
-	const char *cacheName;
-	char *cacheDir;
-	bool inMemoryCache;
-	I_32 cacheType;
+    BlockPtr cacheMemory, cacheAllocated;
+    SH_OSCache* oscache;
+    UDATA osPageSize;
+    bool doSegmentProtect;
+    J9JavaVM* vm;
+    const char* cacheName;
+    char* cacheDir;
+    bool inMemoryCache;
+    I_32 cacheType;
 
 public:
-	J9SharedClassPreinitConfig *piConfig, *origPiConfig;
-	J9SharedClassConfig *sharedClassConfig, *origSharedClassConfig;
-	SH_CacheMap *cacheMap;
+    J9SharedClassPreinitConfig *piConfig, *origPiConfig;
+    J9SharedClassConfig *sharedClassConfig, *origSharedClassConfig;
+    SH_CacheMap* cacheMap;
 
-	IDATA openTestCache(I_32 cacheType, I_32 cacheSize, const char *cacheName,
-			bool inMemoryCache, BlockPtr cacheBuffer,
-			char *cacheDir = NULL, const char *cacheDirPermStr = NULL,
-			U_64 extraRunTimeFlag = 0,
-			U_64 unsetTheseRunTimeFlag = (J9SHR_RUNTIMEFLAG_ENABLE_MPROTECT | J9SHR_RUNTIMEFLAG_ENABLE_MPROTECT_RW),
-			IDATA unitTest = UnitTest::NO_TEST,
-			UDATA extraVerboseFlag = J9SHR_VERBOSEFLAG_ENABLE_VERBOSE_DEFAULT,
-			const char * testName="openTestCache",
-			bool startupWillFail=false,
-			bool doCleanupOnFail=true,
-			J9SharedClassPreinitConfig* cacheDetails=0,
-			J9SharedClassConfig* sharedclassconfig=0);
-	IDATA closeTestCache(bool freeCache);
-	IDATA addDummyROMClass(const char *romClassName, U_32 dummyROMClassSize = 4096);
-	void setRomClassName(J9ROMClass * rc, const char * name);
-	OpenCacheHelper(J9JavaVM* vm)
-	{
-		doSegmentProtect = false;
-		osPageSize=0;
-		oscache=NULL;
-		piConfig=NULL;
-		origPiConfig=NULL; 
-		sharedClassConfig=NULL; 
-		origSharedClassConfig=NULL; 
-		cacheMap=NULL;
-		cacheAllocated = NULL;
-		cacheMemory=NULL;
-		this->vm = vm;
-		origSharedClassConfig = NULL;
-	}	
-	~OpenCacheHelper()
-	{
-	}
-	void setOscache(SH_OSCache * osc) {
-		oscache = osc;
-	}
-	void setOsPageSize(UDATA pagesize) {
-		osPageSize = pagesize;
-	}
-	void setDoSegmentProtect(bool value) {
-		doSegmentProtect = value;
-	}
+    IDATA openTestCache(I_32 cacheType, I_32 cacheSize, const char* cacheName, bool inMemoryCache, BlockPtr cacheBuffer,
+        char* cacheDir = NULL, const char* cacheDirPermStr = NULL, U_64 extraRunTimeFlag = 0,
+        U_64 unsetTheseRunTimeFlag = (J9SHR_RUNTIMEFLAG_ENABLE_MPROTECT | J9SHR_RUNTIMEFLAG_ENABLE_MPROTECT_RW),
+        IDATA unitTest = UnitTest::NO_TEST, UDATA extraVerboseFlag = J9SHR_VERBOSEFLAG_ENABLE_VERBOSE_DEFAULT,
+        const char* testName = "openTestCache", bool startupWillFail = false, bool doCleanupOnFail = true,
+        J9SharedClassPreinitConfig* cacheDetails = 0, J9SharedClassConfig* sharedclassconfig = 0);
+    IDATA closeTestCache(bool freeCache);
+    IDATA addDummyROMClass(const char* romClassName, U_32 dummyROMClassSize = 4096);
+    void setRomClassName(J9ROMClass* rc, const char* name);
+    OpenCacheHelper(J9JavaVM* vm)
+    {
+        doSegmentProtect = false;
+        osPageSize = 0;
+        oscache = NULL;
+        piConfig = NULL;
+        origPiConfig = NULL;
+        sharedClassConfig = NULL;
+        origSharedClassConfig = NULL;
+        cacheMap = NULL;
+        cacheAllocated = NULL;
+        cacheMemory = NULL;
+        this->vm = vm;
+        origSharedClassConfig = NULL;
+    }
+    ~OpenCacheHelper() {}
+    void setOscache(SH_OSCache* osc) { oscache = osc; }
+    void setOsPageSize(UDATA pagesize) { osPageSize = pagesize; }
+    void setDoSegmentProtect(bool value) { doSegmentProtect = value; }
 };
 
 #endif /* !defined(OPENCACHEHELPER_H_INCLUDED) */

@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Modron_Standard
@@ -29,7 +28,6 @@
 
 #if !defined(INCREMENTALCARDTABLE_HPP_)
 #define INCREMENTALCARDTABLE_HPP_
-
 
 #include "j9.h"
 #include "j9cfg.h"
@@ -44,28 +42,29 @@ class MM_EnvironmentBase;
  * is first card in range and top card is card immediately AFTER the end of the range.
  * @ingroup GC_Modron_Standard
  */
-class MM_IncrementalCardTable : public MM_CardTable 
-{
+class MM_IncrementalCardTable : public MM_CardTable {
 public:
 protected:
 private:
-	UDATA _cardTableSize;	/**< The size, in bytes, of the card table (cached since it is dangerous to try to derive it during shutdown) */
+    UDATA _cardTableSize; /**< The size, in bytes, of the card table (cached since it is dangerous to try to derive it
+                             during shutdown) */
 
 public:
-	static MM_IncrementalCardTable *newInstance(MM_EnvironmentBase *env, MM_Heap *heap);
+    static MM_IncrementalCardTable* newInstance(MM_EnvironmentBase* env, MM_Heap* heap);
+
 protected:
-	bool initialize(MM_EnvironmentBase *env, MM_Heap *heap);
-	virtual void tearDown(MM_EnvironmentBase *env);
-	
-	/**
-	 * Create a CardTable object.
-	 */
-	MM_IncrementalCardTable()
-		: MM_CardTable()
-		, _cardTableSize(0)
-	{
-		_typeId = __FUNCTION__;
-	}
+    bool initialize(MM_EnvironmentBase* env, MM_Heap* heap);
+    virtual void tearDown(MM_EnvironmentBase* env);
+
+    /**
+     * Create a CardTable object.
+     */
+    MM_IncrementalCardTable()
+        : MM_CardTable()
+        , _cardTableSize(0)
+    {
+        _typeId = __FUNCTION__;
+    }
 
 private:
 };

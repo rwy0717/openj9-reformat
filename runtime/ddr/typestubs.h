@@ -22,10 +22,10 @@
 #ifndef TYPESTUBS_H
 #define TYPESTUBS_H
 
-//typedefs required to allow the pre-processed VM source to parse.
+// typedefs required to allow the pre-processed VM source to parse.
 //
-//For the purposes of the parser, we don't need the typedefs to be correct. We just need
-//the name defined.
+// For the purposes of the parser, we don't need the typedefs to be correct. We just need
+// the name defined.
 
 #define __inline__ inline
 #define inline
@@ -64,63 +64,63 @@ typedef int cpu_set_t;
 
 #define INT_MAX (size_t)(-1)
 
-extern void * va_start(va_list, void*);
+extern void* va_start(va_list, void*);
 extern void va_end(va_list);
 
-extern void * memset (void *, int, size_t);
-extern void * memcpy (void *,void *,size_t);
-extern int memcmp (void *, const void *, size_t);
+extern void* memset(void*, int, size_t);
+extern void* memcpy(void*, void*, size_t);
+extern int memcmp(void*, const void*, size_t);
 extern int abs(int);
-extern int strcmp(char *, char *);
-extern int strncmp(const char *s1, const char *s2, size_t n);
+extern int strcmp(char*, char*);
+extern int strncmp(const char* s1, const char* s2, size_t n);
 
 #if defined(J9ZTPF)
 struct sockaddr_in {
-	int foo;
+    int foo;
 };
 #else /* defined(J9ZTPF) */
 struct sockaddr_storage {
-	int foo;
+    int foo;
 };
 #endif /* defined(J9ZTPF) */
 
 struct timeval {
-	int foo;
+    int foo;
 };
 
 struct linger {
-	int foo;
+    int foo;
 };
 
 struct ipv6_mreq {
-	int foo;
+    int foo;
 };
 
 struct ip_mreq {
-	int foo;
+    int foo;
 };
 
 struct in6_addr {
-	int foo;
+    int foo;
 };
 
 struct in_addr {
-	int foo;
+    int foo;
 };
 
 typedef int SOCKADDR_IN6;
 
 struct hostent {
-	int foo;
+    int foo;
 };
 
 struct sigaction {
-	int foo;
+    int foo;
 };
 
 void pthread_mutex_lock(void*);
 void pthread_mutex_unlock(void*);
-void __cs1(void*,void*,void*);
-void __csg(void*,void*,void*);
+void __cs1(void*, void*, void*);
+void __csg(void*, void*, void*);
 
 #endif

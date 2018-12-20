@@ -35,40 +35,42 @@
  * @param env the JNIEnv
  * @param clazz the class on which the static method was invoked
  * @param processName a string used to describe this process
- * @return the number of nodes with computational resources 
+ * @return the number of nodes with computational resources
  */
-jint JNICALL
-Java_com_ibm_j9_numa_NumaTest_getUsableNodeCount(JNIEnv* env, jclass clazz, jstring processName)
+jint JNICALL Java_com_ibm_j9_numa_NumaTest_getUsableNodeCount(JNIEnv* env, jclass clazz, jstring processName)
 {
-	J9VMThread* vmThread = (J9VMThread*)env;
-	JavaVM* javaVM = (JavaVM*)vmThread->javaVM;
-	PORT_ACCESS_FROM_VMC(vmThread);
-	J9ThreadEnv* threadEnv;
-	J9MemoryNodeDetail details[64];
-	UDATA detailCount = sizeof(details) / sizeof(details[0]);
-	IDATA port_rc = 0;
-	UDATA usableNodes = 0;
-	const char * description = (*env)->GetStringUTFChars(env, processName, NULL);
+    J9VMThread* vmThread = (J9VMThread*)env;
+    JavaVM* javaVM = (JavaVM*)vmThread->javaVM;
+    PORT_ACCESS_FROM_VMC(vmThread);
+    J9ThreadEnv* threadEnv;
+    J9MemoryNodeDetail details[64];
+    UDATA detailCount = sizeof(details) / sizeof(details[0]);
+    IDATA port_rc = 0;
+    UDATA usableNodes = 0;
+    const char* description = (*env)->GetStringUTFChars(env, processName, NULL);
 
-	(*javaVM)->GetEnv(javaVM, (void**)&threadEnv, J9THREAD_VERSION_1_1);
+    (*javaVM)->GetEnv(javaVM, (void**)&threadEnv, J9THREAD_VERSION_1_1);
 
-	port_rc = j9vmem_numa_get_node_details(details, &detailCount);
-	if (0 == port_rc) {
-		UDATA i = 0;
-		j9tty_printf(PORTLIB, "%s: j9vmem_numa_get_node_details() = %zi; %zu nodes\n", description, port_rc, detailCount);
-		for (i = 0; i < detailCount; i++) {
-			j9tty_printf(PORTLIB, "%s: node[%zu].computationalResourcesAvailable = %zu\n", description, details[i].j9NodeNumber, details[i].computationalResourcesAvailable);
-			if (0 < details[i].computationalResourcesAvailable) {
-				usableNodes += 1;
-			}
-		}
-	} else {
-		j9tty_printf(PORTLIB, "j9vmem_numa_get_node_details() not supported on this machine\n");
-	}
-	
-	j9tty_printf(PORTLIB, "%s: omrthread_get_priority() = %zu\n", description, threadEnv->get_priority(threadEnv->self()));
+    port_rc = j9vmem_numa_get_node_details(details, &detailCount);
+    if (0 == port_rc) {
+        UDATA i = 0;
+        j9tty_printf(
+            PORTLIB, "%s: j9vmem_numa_get_node_details() = %zi; %zu nodes\n", description, port_rc, detailCount);
+        for (i = 0; i < detailCount; i++) {
+            j9tty_printf(PORTLIB, "%s: node[%zu].computationalResourcesAvailable = %zu\n", description,
+                details[i].j9NodeNumber, details[i].computationalResourcesAvailable);
+            if (0 < details[i].computationalResourcesAvailable) {
+                usableNodes += 1;
+            }
+        }
+    } else {
+        j9tty_printf(PORTLIB, "j9vmem_numa_get_node_details() not supported on this machine\n");
+    }
 
-	(*env)->ReleaseStringUTFChars(env, processName, description);
-	
-	return (jint)usableNodes;	
+    j9tty_printf(
+        PORTLIB, "%s: omrthread_get_priority() = %zu\n", description, threadEnv->get_priority(threadEnv->self()));
+
+    (*env)->ReleaseStringUTFChars(env, processName, description);
+
+    return (jint)usableNodes;
 }

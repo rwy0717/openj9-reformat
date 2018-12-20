@@ -34,35 +34,32 @@
 
 #define NUM_MANAGERS 6
 
-class SH_Managers
-{
+class SH_Managers {
 public:
-	class ManagerWalkState
-	{
-	public :
-		J9VMThread* currentThread;
-		UDATA limitState;
-		UDATA index;
-	};
+    class ManagerWalkState {
+    public:
+        J9VMThread* currentThread;
+        UDATA limitState;
+        UDATA index;
+    };
 
-	static SH_Managers* newInstance(J9JavaVM* vm, SH_Managers* memForConstructor);
-	static UDATA getRequiredConstrBytes();
+    static SH_Managers* newInstance(J9JavaVM* vm, SH_Managers* memForConstructor);
+    static UDATA getRequiredConstrBytes();
 
-	SH_Manager* getManager(UDATA index);
-	SH_Manager* addManager(SH_Manager* manager);
-	SH_Manager* startDo(J9VMThread* vmthread, UDATA limitState, ManagerWalkState* walkState);
-	SH_Manager* nextDo(ManagerWalkState* walkState);
-	SH_Manager* getManagerForDataType(UDATA dataType);
-
+    SH_Manager* getManager(UDATA index);
+    SH_Manager* addManager(SH_Manager* manager);
+    SH_Manager* startDo(J9VMThread* vmthread, UDATA limitState, ManagerWalkState* walkState);
+    SH_Manager* nextDo(ManagerWalkState* walkState);
+    SH_Manager* getManagerForDataType(UDATA dataType);
 
 protected:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
 private:
-	SH_Manager* _initializedManagers[NUM_MANAGERS];
-	UDATA _initializedManagersCntr;
+    SH_Manager* _initializedManagers[NUM_MANAGERS];
+    UDATA _initializedManagersCntr;
 
-	void initialize();
+    void initialize();
 };
 
 #endif /* !defined(MANAGERS_HPP_INCLUDED) */

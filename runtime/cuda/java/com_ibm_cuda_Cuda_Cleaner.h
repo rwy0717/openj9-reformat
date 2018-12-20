@@ -12,8 +12,7 @@ extern "C" {
  * Method:    releasePinnedBuffer
  * Signature: (J)V
  */
-void JNICALL Java_com_ibm_cuda_Cuda_00024Cleaner_releasePinnedBuffer
-  (JNIEnv *, jclass, jlong);
+void JNICALL Java_com_ibm_cuda_Cuda_00024Cleaner_releasePinnedBuffer(JNIEnv*, jclass, jlong);
 
 #ifdef __cplusplus
 }

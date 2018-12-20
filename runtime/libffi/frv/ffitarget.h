@@ -35,15 +35,10 @@
 /* ---- System specific configurations ----------------------------------- */
 
 #ifndef LIBFFI_ASM
-typedef unsigned long          ffi_arg;
-typedef signed long            ffi_sarg;
+typedef unsigned long ffi_arg;
+typedef signed long ffi_sarg;
 
-typedef enum ffi_abi {
-  FFI_FIRST_ABI = 0,
-  FFI_EABI,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_EABI
-} ffi_abi;
+typedef enum ffi_abi { FFI_FIRST_ABI = 0, FFI_EABI, FFI_LAST_ABI, FFI_DEFAULT_ABI = FFI_EABI } ffi_abi;
 #endif
 
 /* ---- Definitions for closures ----------------------------------------- */
@@ -53,10 +48,10 @@ typedef enum ffi_abi {
 
 #ifdef __FRV_FDPIC__
 /* Trampolines are 8 4-byte instructions long.  */
-#define FFI_TRAMPOLINE_SIZE (8*4)
+#define FFI_TRAMPOLINE_SIZE (8 * 4)
 #else
 /* Trampolines are 5 4-byte instructions long.  */
-#define FFI_TRAMPOLINE_SIZE (5*4)
+#define FFI_TRAMPOLINE_SIZE (5 * 4)
 #endif
 
 #endif

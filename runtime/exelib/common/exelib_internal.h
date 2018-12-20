@@ -24,13 +24,13 @@
 #define exelib_internal_h
 
 /**
-* @file exelib_internal.h
-* @brief Internal prototypes used within the EXELIB module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the EXELIB module.
-*
-*/
+ * @file exelib_internal.h
+ * @brief Internal prototypes used within the EXELIB module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the EXELIB module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,12 +44,12 @@ extern "C" {
 /* ---------------- libmain.c ---------------- */
 
 /**
-* @brief
-* @param *arg
-* @return UDATA
-*/
-UDATA 
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
+ * @brief
+ * @param *arg
+ * @return UDATA
+ */
+UDATA
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 #ifdef __cplusplus
 }

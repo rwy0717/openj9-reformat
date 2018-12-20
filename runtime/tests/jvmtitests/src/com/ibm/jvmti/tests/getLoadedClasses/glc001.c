@@ -25,38 +25,36 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-jint JNICALL
-glc001(agentEnv * agent_env, char * args)
+jint JNICALL glc001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env;
+    env = agent_env;
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getLoadedClasses_glc001_check(JNIEnv *jni_env, jclass cls)
+jboolean JNICALL Java_com_ibm_jvmti_tests_getLoadedClasses_glc001_check(JNIEnv* jni_env, jclass cls)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-    jint        classCount = 0;
-	jclass    * pClass;
-    jvmtiError  err;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jint classCount = 0;
+    jclass* pClass;
+    jvmtiError err;
 
-	err = (*jvmti_env)->GetLoadedClasses(jvmti_env, &classCount, &pClass);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "GetLoadedClasses() failed");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->GetLoadedClasses(jvmti_env, &classCount, &pClass);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "GetLoadedClasses() failed");
+        return JNI_FALSE;
+    }
 
-	if (classCount == 0) {
-		error(env, err, "GetLoadedClasses() for a class failed");
-		return JNI_FALSE;
-	}
+    if (classCount == 0) {
+        error(env, err, "GetLoadedClasses() for a class failed");
+        return JNI_FALSE;
+    }
 
-	printf("\tclassCount=%d\n", classCount);
+    printf("\tclassCount=%d\n", classCount);
 
     return JNI_TRUE;
 }

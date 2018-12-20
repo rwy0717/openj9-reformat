@@ -23,66 +23,57 @@
 #include "jvmti_test.h"
 #include <string.h>
 
+static agentEnv* env;
 
-static agentEnv * env;
- 
-static void JNICALL
-cbSingleStep(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method, jlocation location)
+static void JNICALL cbSingleStep(
+    jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method, jlocation location)
+{}
+
+jint JNICALL decomp001(agentEnv* _env, char* args)
 {
+    JVMTI_ACCESS_FROM_AGENT(_env);
+    jvmtiError err;
+    jvmtiEventCallbacks callbacks;
+    jvmtiCapabilities capabilities;
 
+    env = _env;
+
+    if (!ensureVersion(env, JVMTI_VERSION_1_1)) {
+        return JNI_ERR;
+    }
+
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_generate_single_step_events = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
+
+    memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
+    callbacks.SingleStep = cbSingleStep;
+    err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to set callback for SingleStep events");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-
-jint JNICALL
-decomp001(agentEnv * _env, char * args)
+jboolean JNICALL Java_com_ibm_jvmti_tests_decompResolveFrame_ResolveFrameClassloader_checkFrame(
+    JNIEnv* jni_env, jclass cls)
 {
-	JVMTI_ACCESS_FROM_AGENT(_env);
-	jvmtiError err;                	
-	jvmtiEventCallbacks callbacks;
-	jvmtiCapabilities capabilities;                
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
 
-	env = _env;
+    printf("In Java_com_ibm_jvmti_tests_decompResolveFrame_DecompResolveMethodClassloader_checkFrame\n");
 
-	if (!ensureVersion(env, JVMTI_VERSION_1_1)) {
-		return JNI_ERR;
-	}   
-    
+    err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_SINGLE_STEP, NULL);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Enable SetEventNotificationMode single step failed");
+        return JNI_FALSE;
+    }
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_generate_single_step_events = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}	
-	
-	memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
-	callbacks.SingleStep = cbSingleStep;
-	err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to set callback for SingleStep events");
-		return JNI_ERR;
-	}	
-
-	return JNI_OK;
+    return JNI_FALSE;
 }
-
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_decompResolveFrame_ResolveFrameClassloader_checkFrame(JNIEnv *jni_env, jclass cls)
-{
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err;                	
-
-	printf("In Java_com_ibm_jvmti_tests_decompResolveFrame_DecompResolveMethodClassloader_checkFrame\n");
-
-	err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_SINGLE_STEP, NULL);
-	if ( err != JVMTI_ERROR_NONE ) {
-		error(env, err, "Enable SetEventNotificationMode single step failed");
-		return JNI_FALSE;
-	}
-
-	return JNI_FALSE;
-}
-

@@ -26,7 +26,6 @@
 #include "j9comp.h"
 #include "jni.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,14 +33,13 @@ extern "C" {
 /* ---------------- gc_hooktests.c ---------------- */
 
 /**
-* @brief
-* @param *jvm
-* @param options
-* @param *reserved
-* @return jint
-*/
-jint JNICALL 
-JVM_OnLoad( JavaVM *jvm, char* options, void *reserved );
+ * @brief
+ * @param *jvm
+ * @param options
+ * @param *reserved
+ * @return jint
+ */
+jint JNICALL JVM_OnLoad(JavaVM* jvm, char* options, void* reserved);
 
 #ifdef __cplusplus
 }

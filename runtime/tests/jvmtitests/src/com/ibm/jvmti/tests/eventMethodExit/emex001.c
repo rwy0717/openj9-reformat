@@ -24,95 +24,90 @@
 #include "jvmti_test.h"
 #include "ibmjvmti.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-static void JNICALL cbMethodExit(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method, jboolean was_popped_by_exception, jvalue return_value);
+static void JNICALL cbMethodExit(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method,
+    jboolean was_popped_by_exception, jvalue return_value);
 
 static jint javaMethodEntryCount = 0;
 static jint nativeMethodEntryCount = 0;
 
-jint JNICALL
-emex001(agentEnv * agent_env, char * args)
+jint JNICALL emex001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiEventCallbacks callbacks;
-	jvmtiCapabilities capabilities;
-	jvmtiError err;
-                              
-	env = agent_env;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiEventCallbacks callbacks;
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_generate_method_exit_events = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}	
-	
-	memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
-	callbacks.MethodExit = cbMethodExit;
-	err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to set callback for MethodExit events");
-		return JNI_ERR;
-	}					
-	
-	err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_METHOD_EXIT, NULL);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to enable MethodExit event");
-		return JNI_ERR;
-	} 
-	
-	return JNI_OK;
-}
+    env = agent_env;
 
-static void JNICALL
-cbMethodExit(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method, jboolean was_popped_by_exception, jvalue return_value)
-{
-	jvmtiError err;
-	char *name_ptr, *signature_ptr, *generic_ptr;
-				
-	err = (*jvmti_env)->GetMethodName(jvmti_env, method, &name_ptr, &signature_ptr, &generic_ptr);
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_generate_method_exit_events = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "Failed to GetMethodName");
-		return;	
-    }       
-    
-	if (!strcmp(name_ptr, "sampleJavaMethod") && !strcmp(signature_ptr, "(I)I")) {
-    	javaMethodEntryCount++;	
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
     }
-	
-	if (!strcmp(name_ptr, "sampleNativeMethod") && !strcmp(signature_ptr, "(I)I")) {
-    	nativeMethodEntryCount++;	
+
+    memset(&callbacks, 0, sizeof(jvmtiEventCallbacks));
+    callbacks.MethodExit = cbMethodExit;
+    err = (*jvmti_env)->SetEventCallbacks(jvmti_env, &callbacks, sizeof(jvmtiEventCallbacks));
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to set callback for MethodExit events");
+        return JNI_ERR;
     }
-		
-	return;	
+
+    err = (*jvmti_env)->SetEventNotificationMode(jvmti_env, JVMTI_ENABLE, JVMTI_EVENT_METHOD_EXIT, NULL);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to enable MethodExit event");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-
-jint JNICALL
-Java_com_ibm_jvmti_tests_eventMethodExit_emex001_sampleNativeMethod(JNIEnv *jni_env, jclass cls, jint foo)
+static void JNICALL cbMethodExit(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread, jmethodID method,
+    jboolean was_popped_by_exception, jvalue return_value)
 {
-	return 100 + foo;
+    jvmtiError err;
+    char *name_ptr, *signature_ptr, *generic_ptr;
+
+    err = (*jvmti_env)->GetMethodName(jvmti_env, method, &name_ptr, &signature_ptr, &generic_ptr);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to GetMethodName");
+        return;
+    }
+
+    if (!strcmp(name_ptr, "sampleJavaMethod") && !strcmp(signature_ptr, "(I)I")) {
+        javaMethodEntryCount++;
+    }
+
+    if (!strcmp(name_ptr, "sampleNativeMethod") && !strcmp(signature_ptr, "(I)I")) {
+        nativeMethodEntryCount++;
+    }
+
+    return;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_eventMethodExit_emex001_checkJavaMethodExit(JNIEnv *jni_env, jclass cls)
+jint JNICALL Java_com_ibm_jvmti_tests_eventMethodExit_emex001_sampleNativeMethod(JNIEnv* jni_env, jclass cls, jint foo)
 {
-	if (javaMethodEntryCount > 0) {
-		return JNI_TRUE;
-	}
-	
-	return JNI_FALSE;
+    return 100 + foo;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_eventMethodExit_emex001_checkNativeMethodExit(JNIEnv *jni_env, jclass cls)
+jboolean JNICALL Java_com_ibm_jvmti_tests_eventMethodExit_emex001_checkJavaMethodExit(JNIEnv* jni_env, jclass cls)
 {
-	if (nativeMethodEntryCount > 0) {
-		return JNI_TRUE;
-	}
-	
-	return JNI_FALSE;
+    if (javaMethodEntryCount > 0) {
+        return JNI_TRUE;
+    }
+
+    return JNI_FALSE;
 }
 
+jboolean JNICALL Java_com_ibm_jvmti_tests_eventMethodExit_emex001_checkNativeMethodExit(JNIEnv* jni_env, jclass cls)
+{
+    if (nativeMethodEntryCount > 0) {
+        return JNI_TRUE;
+    }
+
+    return JNI_FALSE;
+}

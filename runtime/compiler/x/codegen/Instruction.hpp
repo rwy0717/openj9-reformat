@@ -25,66 +25,63 @@
 
 #include "codegen/J9Instruction.hpp"
 
-namespace TR
-{
+namespace TR {
 class Instruction;
 
-class OMR_EXTENSIBLE Instruction : public J9::InstructionConnector
-   {
-   public:
+class OMR_EXTENSIBLE Instruction : public J9::InstructionConnector {
+public:
+    // TODO: need to fix the TR::InstOpCode initialization once TR::InstOpCode class is done
 
-   // TODO: need to fix the TR::InstOpCode initialization once TR::InstOpCode class is done
+    /*
+     * Generic constructors
+     */
+    inline Instruction(TR::Node* node, TR_X86OpCodes op, TR::CodeGenerator* cg);
 
-   /*
-    * Generic constructors
-    */
-   inline Instruction(TR::Node *node, TR_X86OpCodes op, TR::CodeGenerator *cg);
+    inline Instruction(TR_X86OpCodes op, TR::Instruction* precedingInstruction, TR::CodeGenerator* cg);
 
-   inline Instruction(TR_X86OpCodes op, TR::Instruction *precedingInstruction, TR::CodeGenerator *cg);
+    /*
+     * X86 specific constructors, need to call initializer to perform proper construction
+     */
+    inline Instruction(TR::RegisterDependencyConditions* cond, TR::Node* node, TR_X86OpCodes op, TR::CodeGenerator* cg);
 
+    inline Instruction(TR::RegisterDependencyConditions* cond, TR_X86OpCodes op, TR::Instruction* precedingInstruction,
+        TR::CodeGenerator* cg);
+};
 
-   /*
-    * X86 specific constructors, need to call initializer to perform proper construction
-    */
-   inline Instruction(TR::RegisterDependencyConditions *cond, TR::Node *node, TR_X86OpCodes op, TR::CodeGenerator *cg);
-
-   inline Instruction(TR::RegisterDependencyConditions *cond, TR_X86OpCodes op, TR::Instruction *precedingInstruction, TR::CodeGenerator *cg);
-
-   };
-
-}
+} // namespace TR
 
 #include "codegen/J9Instruction_inlines.hpp"
 
-TR::Instruction::Instruction(TR::Node *node, TR_X86OpCodes op, TR::CodeGenerator *cg) :
-   J9::InstructionConnector(cg, TR::InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->initialize();
-   }
+TR::Instruction::Instruction(TR::Node* node, TR_X86OpCodes op, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, TR::InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->initialize();
+}
 
-TR::Instruction::Instruction(TR_X86OpCodes op, TR::Instruction *precedingInstruction, TR::CodeGenerator *cg) :
-   J9::InstructionConnector(cg, precedingInstruction, TR::InstOpCode::BAD)
-   {
-   self()->setOpCodeValue(op);
-   self()->initialize();
-   }
+TR::Instruction::Instruction(TR_X86OpCodes op, TR::Instruction* precedingInstruction, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, precedingInstruction, TR::InstOpCode::BAD)
+{
+    self()->setOpCodeValue(op);
+    self()->initialize();
+}
 
-TR::Instruction::Instruction(TR::RegisterDependencyConditions *cond, TR::Node *node, TR_X86OpCodes op, TR::CodeGenerator *cg) :
-   J9::InstructionConnector(cg, TR::InstOpCode::BAD, node)
-   {
-   self()->setOpCodeValue(op);
-   self()->setDependencyConditions(cond);
-   self()->initialize(cg, cond, op, true);
-   }
+TR::Instruction::Instruction(
+    TR::RegisterDependencyConditions* cond, TR::Node* node, TR_X86OpCodes op, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, TR::InstOpCode::BAD, node)
+{
+    self()->setOpCodeValue(op);
+    self()->setDependencyConditions(cond);
+    self()->initialize(cg, cond, op, true);
+}
 
-TR::Instruction::Instruction(TR::RegisterDependencyConditions *cond, TR_X86OpCodes op, TR::Instruction *precedingInstruction, TR::CodeGenerator *cg) :
-   J9::InstructionConnector(cg, precedingInstruction, TR::InstOpCode::BAD)
-   {
-   self()->setOpCodeValue(op);
-   self()->setDependencyConditions(cond);
-   self()->initialize(cg, cond, op);
-   }
-
+TR::Instruction::Instruction(TR::RegisterDependencyConditions* cond, TR_X86OpCodes op,
+    TR::Instruction* precedingInstruction, TR::CodeGenerator* cg)
+    : J9::InstructionConnector(cg, precedingInstruction, TR::InstOpCode::BAD)
+{
+    self()->setOpCodeValue(op);
+    self()->setDependencyConditions(cond);
+    self()->initialize(cg, cond, op);
+}
 
 #endif

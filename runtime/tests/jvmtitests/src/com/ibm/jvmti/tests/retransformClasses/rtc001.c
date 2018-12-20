@@ -23,40 +23,38 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-
-jint JNICALL
-rtc001(agentEnv * agent_env, char * args)
+jint JNICALL rtc001(agentEnv* agent_env, char* args)
 {
-	jvmtiError err;
-	jvmtiCapabilities capabilities;
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err;
+    jvmtiCapabilities capabilities;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_retransform_classes = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to AddCapabilities");
-		return JNI_ERR;
-	}
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_retransform_classes = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to AddCapabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_retransformClasses_rtc001_retransformClass(JNIEnv * jni_env, jclass klass, jclass originalClass)
+jboolean JNICALL Java_com_ibm_jvmti_tests_retransformClasses_rtc001_retransformClass(
+    JNIEnv* jni_env, jclass klass, jclass originalClass)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
 
     err = (*jvmti_env)->RetransformClasses(jvmti_env, 1, &originalClass);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "RetransformClasses failed");
-    	return JNI_FALSE;
+        error(env, err, "RetransformClasses failed");
+        return JNI_FALSE;
     }
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 }

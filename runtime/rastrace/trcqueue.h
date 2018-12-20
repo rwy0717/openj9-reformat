@@ -31,53 +31,53 @@ extern "C" {
 #define CLEANING_MSG_FLAG ((qMessage*)(uintptr_t)0x1)
 
 typedef struct message {
-	volatile int32_t			 subscriptions;
-	volatile int32_t			 pauseCount;
-	volatile int32_t			 referenceCount;
-	struct message *volatile next;
-	struct message			*nextSecondary;
-	void					*data;
+    volatile int32_t subscriptions;
+    volatile int32_t pauseCount;
+    volatile int32_t referenceCount;
+    struct message* volatile next;
+    struct message* nextSecondary;
+    void* data;
 } qMessage;
 
 typedef struct queue {
-	volatile int32_t			 subscriptions;
-	volatile int32_t		 alive;
-	struct message *volatile head;
-	struct message *volatile tail;
-	struct subscription		*subscribers;
-	struct UtEventSem		*alarm;
-	omrthread_monitor_t volatile	 lock;
-	int32_t					 allocd;
-	struct message *volatile referenceQueue;
-	volatile uint32_t			 pause;
+    volatile int32_t subscriptions;
+    volatile int32_t alive;
+    struct message* volatile head;
+    struct message* volatile tail;
+    struct subscription* subscribers;
+    struct UtEventSem* alarm;
+    omrthread_monitor_t volatile lock;
+    int32_t allocd;
+    struct message* volatile referenceQueue;
+    volatile uint32_t pause;
 } qQueue;
 
 typedef struct subscription {
-	struct message *volatile current;
-	struct message *volatile last;
-	volatile int32_t		 valid;
-	struct message			*stop;
-	struct subscription		*prev;
-	struct subscription		*next;
-	struct queue			*queue;
-	int32_t					 currentLocked;
-	int32_t					 allocd;
-	int32_t					 savedReference;
+    struct message* volatile current;
+    struct message* volatile last;
+    volatile int32_t valid;
+    struct message* stop;
+    struct subscription* prev;
+    struct subscription* next;
+    struct queue* queue;
+    int32_t currentLocked;
+    int32_t allocd;
+    int32_t savedReference;
 } qSubscription;
 
-omr_error_t createQueue(qQueue **queue);
-void destroyQueue(qQueue *queue);
+omr_error_t createQueue(qQueue** queue);
+void destroyQueue(qQueue* queue);
 
-omr_error_t subscribe(qQueue *queue, qSubscription **subscription, qMessage *start, qMessage *stop);
-omr_error_t unsubscribe(qSubscription *sub);
+omr_error_t subscribe(qQueue* queue, qSubscription** subscription, qMessage* start, qMessage* stop);
+omr_error_t unsubscribe(qSubscription* sub);
 
-int32_t publishMessage(qQueue *queue, qMessage *msg);
-qMessage * acquireNextMessage(qSubscription *sub);
-void releaseCurrentMessage(qSubscription *sub);
-void notifySubscribers(qQueue *queue);
+int32_t publishMessage(qQueue* queue, qMessage* msg);
+qMessage* acquireNextMessage(qSubscription* sub);
+void releaseCurrentMessage(qSubscription* sub);
+void notifySubscribers(qQueue* queue);
 
-void pauseDequeueAtMessage(qMessage *msg);
-void resumeDequeueAtMessage(qMessage *msg);
+void pauseDequeueAtMessage(qMessage* msg);
+void resumeDequeueAtMessage(qMessage* msg);
 
 #if defined(__cplusplus)
 } /* extern "C" */

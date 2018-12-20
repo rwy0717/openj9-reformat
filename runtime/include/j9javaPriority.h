@@ -23,15 +23,13 @@
 #ifndef j9javaPriority_h
 #define j9javaPriority_h
 
-
 #include "j9.h"
 
 /*
- * These macros represent priorities as assigned to java.lang.Thread 
+ * These macros represent priorities as assigned to java.lang.Thread
  */
 #define JAVA_PRIORITY_MIN 1
 #define JAVA_PRIORITY_NORMAL 5
 #define JAVA_PRIORITY_MAX 10
 
-
-#endif     /* j9javaPriority_h */
+#endif /* j9javaPriority_h */

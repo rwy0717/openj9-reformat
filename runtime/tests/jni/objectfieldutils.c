@@ -20,10 +20,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 #include "j9.h"
-jint JNICALL
-Java_org_openj9_test_contendedfields_FieldUtilities_getObjectAlignmentInBytes(JNIEnv *env, jclass cls)
+jint JNICALL Java_org_openj9_test_contendedfields_FieldUtilities_getObjectAlignmentInBytes(JNIEnv* env, jclass cls)
 {
-	J9JavaVM* javaVM = ((J9VMThread*) env)->javaVM;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
 
-	return (jint) javaVM->objectAlignmentInBytes;
+    return (jint)javaVM->objectAlignmentInBytes;
 }

@@ -28,7 +28,6 @@
 #include "env/jittypes.h"
 #include "env/VMJ9.h"
 
-
 // AOTClassInfo is a structure used to record assumptions on classes made by the
 // current compilation.  There are two types of validations: ones based on a
 // constant pool entry, and ones that are not (could be recognized method where
@@ -42,42 +41,34 @@
 // First class of validation has _cpIndex >= 0, second class has _cpIndex == -1
 //
 
-namespace TR
-{
+namespace TR {
 
-class AOTClassInfo
-   {
-   public:
+class AOTClassInfo {
+public:
+    TR_ALLOC(TR_Memory::AOTClassInfo)
 
-   TR_ALLOC(TR_Memory::AOTClassInfo)
+    AOTClassInfo(TR_FrontEnd* fe, TR_OpaqueClassBlock* clazz, void* classChain, TR_OpaqueMethodBlock* method,
+        uint32_t cpIndex, TR_ExternalRelocationTargetKind reloKind)
+        : _clazz(clazz)
+        , _classChain(classChain)
+        , _method(method)
+        , _constantPool((void*)((TR_J9VMBase*)fe)->getConstantPoolFromMethod(method))
+        , _cpIndex(cpIndex)
+        , _reloKind(reloKind)
+    {}
 
-   AOTClassInfo(
-         TR_FrontEnd *fe,
-         TR_OpaqueClassBlock *clazz,
-         void *classChain,
-         TR_OpaqueMethodBlock *method,
-         uint32_t cpIndex,
-         TR_ExternalRelocationTargetKind
-         reloKind) :
-      _clazz(clazz),
-      _classChain(classChain),
-      _method(method),
-      _constantPool((void *) ((TR_J9VMBase *)fe)->getConstantPoolFromMethod(method)),
-      _cpIndex(cpIndex),
-      _reloKind(reloKind)
-      {}
+    TR_ExternalRelocationTargetKind
+        _reloKind; // identifies validation needed (instance field, static field, class, arbitrary class)
 
-   TR_ExternalRelocationTargetKind _reloKind;   // identifies validation needed (instance field, static field, class, arbitrary class)
+    TR_OpaqueMethodBlock* _method; // inlined method owning the cp entry or to which assumption is attached
+                                   // _method must be compiled method or some method in the inlined site table
+    void* _constantPool; // constant pool owning the cp entry, initialized based on _method
 
-   TR_OpaqueMethodBlock *_method;               // inlined method owning the cp entry or to which assumption is attached
-                                                // _method must be compiled method or some method in the inlined site table
-   void *_constantPool;                         // constant pool owning the cp entry, initialized based on _method
+    uint32_t _cpIndex; // cpindex identifying the cp entry if known otherwise -1
+    TR_OpaqueClassBlock* _clazz; // class on which assumption is formed
+    void* _classChain; // class chain for clazz: captures the assumption
+                       // == NULL for TR_ValidateStaticField validations
+};
 
-   uint32_t _cpIndex;                           // cpindex identifying the cp entry if known otherwise -1
-   TR_OpaqueClassBlock *_clazz;                 // class on which assumption is formed
-   void *_classChain;                           // class chain for clazz: captures the assumption
-                                                // == NULL for TR_ValidateStaticField validations
-   };
-
-}
+} // namespace TR
 #endif

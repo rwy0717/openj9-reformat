@@ -42,125 +42,127 @@
 
 #include "AllocationContextRealtime.hpp"
 
-MM_AllocationContextRealtime *
-MM_AllocationContextRealtime::newInstance(MM_EnvironmentBase *env, MM_GlobalAllocationManagerSegregated *gam, MM_RegionPoolSegregated *regionPool)
+MM_AllocationContextRealtime* MM_AllocationContextRealtime::newInstance(
+    MM_EnvironmentBase* env, MM_GlobalAllocationManagerSegregated* gam, MM_RegionPoolSegregated* regionPool)
 {
-	MM_AllocationContextRealtime *allocCtxt = (MM_AllocationContextRealtime *)env->getForge()->allocate(sizeof(MM_AllocationContextRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (allocCtxt) {
-		new(allocCtxt) MM_AllocationContextRealtime(env, gam, regionPool);
-		if (!allocCtxt->initialize(env)) {
-			allocCtxt->kill(env);
-			allocCtxt = NULL;
-		}
-	}
-	return allocCtxt;
+    MM_AllocationContextRealtime* allocCtxt = (MM_AllocationContextRealtime*)env->getForge()->allocate(
+        sizeof(MM_AllocationContextRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (allocCtxt) {
+        new (allocCtxt) MM_AllocationContextRealtime(env, gam, regionPool);
+        if (!allocCtxt->initialize(env)) {
+            allocCtxt->kill(env);
+            allocCtxt = NULL;
+        }
+    }
+    return allocCtxt;
 }
 
-bool
-MM_AllocationContextRealtime::initialize(MM_EnvironmentBase *env)
+bool MM_AllocationContextRealtime::initialize(MM_EnvironmentBase* env)
 {
-	if (!MM_AllocationContextSegregated::initialize(env)) {
-		return false;
-	}
+    if (!MM_AllocationContextSegregated::initialize(env)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-void
-MM_AllocationContextRealtime::tearDown(MM_EnvironmentBase *env)
+void MM_AllocationContextRealtime::tearDown(MM_EnvironmentBase* env) { MM_AllocationContextSegregated::tearDown(env); }
+
+void MM_AllocationContextRealtime::signalSmallRegionDepleted(MM_EnvironmentBase* env, UDATA sizeClass)
 {
-	MM_AllocationContextSegregated::tearDown(env);
+    /* If we do not have a region yet, try to trigger a GC */
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    MM_Scheduler* sched = (MM_Scheduler*)ext->dispatcher;
+    sched->checkStartGC((MM_EnvironmentRealtime*)env);
 }
 
-void
-MM_AllocationContextRealtime::signalSmallRegionDepleted(MM_EnvironmentBase *env, UDATA sizeClass)
+bool MM_AllocationContextRealtime::trySweepAndAllocateRegionFromSmallSizeClass(
+    MM_EnvironmentBase* env, UDATA sizeClass, UDATA* sweepCount, U_64* sweepStartTime)
 {
-	/* If we do not have a region yet, try to trigger a GC */
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	MM_Scheduler *sched = (MM_Scheduler *)ext->dispatcher;
-	sched->checkStartGC((MM_EnvironmentRealtime *) env);
-}
-
-bool
-MM_AllocationContextRealtime::trySweepAndAllocateRegionFromSmallSizeClass(MM_EnvironmentBase *env, UDATA sizeClass, UDATA *sweepCount, U_64 *sweepStartTime)
-{
-	bool result = false;
+    bool result = false;
 
 #if defined(J9VM_GC_REALTIME)
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	MM_RealtimeGC *realtimeGC = ext->realtimeGC;
-	MM_SizeClasses *sizeClasses = MM_GCExtensions::getExtensions(env)->defaultSizeClasses;
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    MM_RealtimeGC* realtimeGC = ext->realtimeGC;
+    MM_SizeClasses* sizeClasses = MM_GCExtensions::getExtensions(env)->defaultSizeClasses;
 
-	UDATA nonDeterministicSweepCount = *sweepCount;
-	U_64 nonDeterministicSweepStartTime = *sweepStartTime;
+    UDATA nonDeterministicSweepCount = *sweepCount;
+    U_64 nonDeterministicSweepStartTime = *sweepStartTime;
 
-	/* Do not attempt this optimization while sweeping arraylets (at least not while the region may contain a spine). */
-	if (realtimeGC->shouldPerformNonDeterministicSweep()) {
-		PORT_ACCESS_FROM_ENVIRONMENT(env);
-		/* Heuristic (or better, extrapolation): if occupancy is very high, do not retry too many times to sweep.
-		 * Still, try at least once no matter how high the occupancy is (even if sharp 1.0), to jump over a local walls (short series of full regions).
-		 * The heuristic assumes that the sweep list is (roughly) ordered by occupancy (low occupancy at front).
-		 */
-		if (nonDeterministicSweepCount <= (sizeClasses->getNumCells(sizeClass) * (1 - _regionPool->getOccupancy(sizeClass)))) {
+    /* Do not attempt this optimization while sweeping arraylets (at least not while the region may contain a spine). */
+    if (realtimeGC->shouldPerformNonDeterministicSweep()) {
+        PORT_ACCESS_FROM_ENVIRONMENT(env);
+        /* Heuristic (or better, extrapolation): if occupancy is very high, do not retry too many times to sweep.
+         * Still, try at least once no matter how high the occupancy is (even if sharp 1.0), to jump over a local walls
+         * (short series of full regions). The heuristic assumes that the sweep list is (roughly) ordered by occupancy
+         * (low occupancy at front).
+         */
+        if (nonDeterministicSweepCount
+            <= (sizeClasses->getNumCells(sizeClass) * (1 - _regionPool->getOccupancy(sizeClass)))) {
 
-			if (nonDeterministicSweepCount == 0) {
-				nonDeterministicSweepStartTime = j9time_hires_clock();
-			}
+            if (nonDeterministicSweepCount == 0) {
+                nonDeterministicSweepStartTime = j9time_hires_clock();
+            }
 
-			MM_HeapRegionDescriptorSegregated *region = _regionPool->sweepAndAllocateRegionFromSmallSizeClass(env, sizeClass);
-			if (region != NULL) {
-				/* Count each non determinist sweep */
-				MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepCount += 1;
-				nonDeterministicSweepCount++;
-				/* Find the longest streak (both as count of sweeps and time spent) of consecutive sweeps for one alloc */
-				if (nonDeterministicSweepCount > MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepConsecutive) {
-					MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepConsecutive = nonDeterministicSweepCount;
-				}
-				U_64 deltaTime = j9time_hires_delta(nonDeterministicSweepStartTime, j9time_hires_clock(), J9PORT_TIME_DELTA_IN_MICROSECONDS);
-				if (deltaTime > MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepDelay) {
-					MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepDelay = deltaTime;
-				}
-				MM_AtomicOperations::storeSync();
-				_smallRegions[sizeClass] = region;
-				/* Don't update bytesAllocated because unswept regions are still considered to be in use */
-				result = true;
-			}
-		}
-	}
+            MM_HeapRegionDescriptorSegregated* region
+                = _regionPool->sweepAndAllocateRegionFromSmallSizeClass(env, sizeClass);
+            if (region != NULL) {
+                /* Count each non determinist sweep */
+                MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepCount += 1;
+                nonDeterministicSweepCount++;
+                /* Find the longest streak (both as count of sweeps and time spent) of consecutive sweeps for one alloc
+                 */
+                if (nonDeterministicSweepCount > MM_GCExtensions::getExtensions(env)
+                                                     ->globalGCStats.metronomeStats.nonDeterministicSweepConsecutive) {
+                    MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepConsecutive
+                        = nonDeterministicSweepCount;
+                }
+                U_64 deltaTime = j9time_hires_delta(
+                    nonDeterministicSweepStartTime, j9time_hires_clock(), J9PORT_TIME_DELTA_IN_MICROSECONDS);
+                if (deltaTime
+                    > MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepDelay) {
+                    MM_GCExtensions::getExtensions(env)->globalGCStats.metronomeStats.nonDeterministicSweepDelay
+                        = deltaTime;
+                }
+                MM_AtomicOperations::storeSync();
+                _smallRegions[sizeClass] = region;
+                /* Don't update bytesAllocated because unswept regions are still considered to be in use */
+                result = true;
+            }
+        }
+    }
 #endif
 
-	return result;
+    return result;
 }
 
-UDATA *
-MM_AllocationContextRealtime::allocateLarge(MM_EnvironmentBase *env, UDATA sizeInBytesRequired)
+UDATA* MM_AllocationContextRealtime::allocateLarge(MM_EnvironmentBase* env, UDATA sizeInBytesRequired)
 {
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	MM_Scheduler *sched = (MM_Scheduler *)ext->dispatcher;
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    MM_Scheduler* sched = (MM_Scheduler*)ext->dispatcher;
 
-	/* See if we should start a GC */
-	sched->checkStartGC((MM_EnvironmentRealtime *) env);
+    /* See if we should start a GC */
+    sched->checkStartGC((MM_EnvironmentRealtime*)env);
 
-	/* Call parent to try to get a large object region */
-	UDATA *result =  MM_AllocationContextSegregated::allocateLarge(env, sizeInBytesRequired);
-//TODO SATB extract into a method
-	if ((NULL != result) && (GC_MARK == ((MM_EnvironmentRealtime *) env)->getAllocationColor())) {
-		ext->realtimeGC->getMarkingScheme()->mark((omrobjectptr_t)result);
-	}
+    /* Call parent to try to get a large object region */
+    UDATA* result = MM_AllocationContextSegregated::allocateLarge(env, sizeInBytesRequired);
+    // TODO SATB extract into a method
+    if ((NULL != result) && (GC_MARK == ((MM_EnvironmentRealtime*)env)->getAllocationColor())) {
+        ext->realtimeGC->getMarkingScheme()->mark((omrobjectptr_t)result);
+    }
 
-	return result;
+    return result;
 }
 
-bool
-MM_AllocationContextRealtime::shouldPreMarkSmallCells(MM_EnvironmentBase *env)
+bool MM_AllocationContextRealtime::shouldPreMarkSmallCells(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *ext = MM_GCExtensions::getExtensions(env);
-	bool result = false;
+    MM_GCExtensions* ext = MM_GCExtensions::getExtensions(env);
+    bool result = false;
 
-	if (NULL != ext->realtimeGC) {
-		MM_EnvironmentRealtime *envRT = (MM_EnvironmentRealtime *) env;
-		result = (GC_MARK == envRT->getAllocationColor());
-	}
+    if (NULL != ext->realtimeGC) {
+        MM_EnvironmentRealtime* envRT = (MM_EnvironmentRealtime*)env;
+        result = (GC_MARK == envRT->getAllocationColor());
+    }
 
-	return result;
+    return result;
 }

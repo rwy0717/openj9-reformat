@@ -35,30 +35,29 @@
 /**
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventMetronomeOutOfMemory : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeOutOfMemory : public MM_VerboseEvent {
 private:
-	void *_memorySpace;
-	char _memorySpaceString[64];
-	I_64 _timeInMilliSeconds;
-	
-	void initialize(MM_OutOfMemoryEvent *event);
-	
-public:	
-	static MM_VerboseEvent *newInstance(MM_OutOfMemoryEvent *event, J9HookInterface** hookInterface);
+    void* _memorySpace;
+    char _memorySpaceString[64];
+    I_64 _timeInMilliSeconds;
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    void initialize(MM_OutOfMemoryEvent* event);
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return true; }
-	MMINLINE virtual bool endsEventChain(void) { return true; }
-	
-	virtual bool isAtomic() { return true; }
-	
-	MM_VerboseEventMetronomeOutOfMemory(MM_OutOfMemoryEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_memorySpace(event->memorySpace)
-	{}
+public:
+    static MM_VerboseEvent* newInstance(MM_OutOfMemoryEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine(void) { return true; }
+    MMINLINE virtual bool endsEventChain(void) { return true; }
+
+    virtual bool isAtomic() { return true; }
+
+    MM_VerboseEventMetronomeOutOfMemory(MM_OutOfMemoryEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _memorySpace(event->memorySpace)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

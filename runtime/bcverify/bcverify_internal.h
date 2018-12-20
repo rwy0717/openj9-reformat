@@ -24,13 +24,13 @@
 #define bcverify_internal_h
 
 /**
-* @file bcverify_internal.h
-* @brief Internal prototypes used within the BCVERIFY module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the BCVERIFY module.
-*
-*/
+ * @file bcverify_internal.h
+ * @brief Internal prototypes used within the BCVERIFY module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the BCVERIFY module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -50,12 +50,11 @@ extern "C" {
  * @param errorTempData - extra data used for non-compatible type issue
  * @param currentPC - current pc value
  */
-void
-storeVerifyErrorData (J9BytecodeVerificationData * verifyData, I_16 errorDetailCode, U_32 errorCurrentFramePosition, UDATA errorTargetType, UDATA errorTempData, IDATA currentPC);
+void storeVerifyErrorData(J9BytecodeVerificationData* verifyData, I_16 errorDetailCode, U_32 errorCurrentFramePosition,
+    UDATA errorTargetType, UDATA errorTempData, IDATA currentPC);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* bcverify_internal_h */
-

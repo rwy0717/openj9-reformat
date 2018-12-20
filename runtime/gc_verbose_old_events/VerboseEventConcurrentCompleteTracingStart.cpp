@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventConcurrentCompleteTracingStart.hpp"
 
 /**
@@ -28,16 +28,17 @@
  * @param event Pointer to a structure containing the data passed over the hookInterface
  * @ingroup GC_verbose_events methodGroup
  */
-MM_VerboseEvent *
-MM_VerboseEventConcurrentCompleteTracingStart::newInstance(MM_ConcurrentCompleteTracingStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventConcurrentCompleteTracingStart::newInstance(
+    MM_ConcurrentCompleteTracingStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventConcurrentCompleteTracingStart *eventObject;
-	
-	eventObject = (MM_VerboseEventConcurrentCompleteTracingStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventConcurrentCompleteTracingStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventConcurrentCompleteTracingStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventConcurrentCompleteTracingStart* eventObject;
+
+    eventObject = (MM_VerboseEventConcurrentCompleteTracingStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventConcurrentCompleteTracingStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventConcurrentCompleteTracingStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -46,17 +47,11 @@ MM_VerboseEventConcurrentCompleteTracingStart::newInstance(MM_ConcurrentComplete
  * When an address is returned it populates itself with the data.
  * @ingroup GC_verbose_events methodGroup
  */
-void
-MM_VerboseEventConcurrentCompleteTracingStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventConcurrentCompleteTracingStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  * @ingroup GC_verbose_events methodGroup
  */
-void
-MM_VerboseEventConcurrentCompleteTracingStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventConcurrentCompleteTracingStart::formattedOutput(MM_VerboseOutputAgent* agent) {}

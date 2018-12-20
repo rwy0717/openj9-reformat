@@ -24,13 +24,13 @@
 #define algorithm_test_api_h
 
 /**
-* @file algorithm_test_api.h
-* @brief Public API for the ALGORITHM_TEST module.
-*
-* This file contains public function prototypes and
-* type definitions for the ALGORITHM_TEST module.
-*
-*/
+ * @file algorithm_test_api.h
+ * @brief Public API for the ALGORITHM_TEST module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the ALGORITHM_TEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* algorithm_test_api_h */
-

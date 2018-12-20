@@ -27,8 +27,8 @@ typedef struct J9ClassLoadingConstraint {
     U_8* name;
     UDATA nameLength;
     struct J9Class* clazz;
-    struct J9ClassLoadingConstraint *linkNext;
-    struct J9ClassLoadingConstraint *linkPrevious;
+    struct J9ClassLoadingConstraint* linkNext;
+    struct J9ClassLoadingConstraint* linkPrevious;
     UDATA freeName;
 } J9ClassLoadingConstraint;
 

@@ -34,26 +34,25 @@ class MM_ParallelSweepChunkArray;
 
 /**
  * Support for sectioning the heap into chunks useable by sweep (and compact).
- * 
+ *
  * @ingroup GC_Modron_Standard
  */
-class MM_SweepHeapSectioningVLHGC : public MM_SweepHeapSectioning
-{
+class MM_SweepHeapSectioningVLHGC : public MM_SweepHeapSectioning {
 private:
 protected:
-	virtual UDATA estimateTotalChunkCount(MM_EnvironmentBase *env);
-	virtual UDATA calculateActualChunkNumbers() const;
+    virtual UDATA estimateTotalChunkCount(MM_EnvironmentBase* env);
+    virtual UDATA calculateActualChunkNumbers() const;
 
 public:
-	static MM_SweepHeapSectioningVLHGC *newInstance(MM_EnvironmentBase *env);
+    static MM_SweepHeapSectioningVLHGC* newInstance(MM_EnvironmentBase* env);
 
-	virtual UDATA reassignChunks(MM_EnvironmentBase *env);
+    virtual UDATA reassignChunks(MM_EnvironmentBase* env);
 
-	MM_SweepHeapSectioningVLHGC(MM_EnvironmentBase *env)
-		: MM_SweepHeapSectioning(env)
-	{
-		_typeId = __FUNCTION__;
-	}
+    MM_SweepHeapSectioningVLHGC(MM_EnvironmentBase* env)
+        : MM_SweepHeapSectioning(env)
+    {
+        _typeId = __FUNCTION__;
+    }
 };
 
 #endif /* SWEEPSCHEMESECTIONINGSEGMENTEDVLHGC_HPP_ */

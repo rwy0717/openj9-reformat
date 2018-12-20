@@ -36,25 +36,23 @@
  * Stores the data relating to the percolation of a garbage collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventPercolateCollect : public MM_VerboseEvent
-{
+class MM_VerboseEventPercolateCollect : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_reason; /**< reason for percolation */
-	
-public:
-	static MM_VerboseEvent *newInstance(MM_PercolateCollectEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-	
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    /* Passed Data */
+    UDATA _reason; /**< reason for percolation */
 
-	MM_VerboseEventPercolateCollect(MM_PercolateCollectEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_reason(event->reason)
-	{};
+public:
+    static MM_VerboseEvent* newInstance(MM_PercolateCollectEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventPercolateCollect(MM_PercolateCollectEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _reason(event->reason) {};
 };
 
 #endif /* J9VM_GC_MODRON_SCAVENGER */

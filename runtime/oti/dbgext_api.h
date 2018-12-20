@@ -24,13 +24,13 @@
 #define dbgext_api_h
 
 /**
-* @file dbgext_api.h
-* @brief Public API for the DBGEXT module.
-*
-* This file contains public function prototypes and
-* type definitions for the DBGEXT module.
-*
-*/
+ * @file dbgext_api.h
+ * @brief Public API for the DBGEXT module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the DBGEXT module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -40,17 +40,14 @@
 extern "C" {
 #endif
 
-
 /* ---------------- trdbgext.c ---------------- */
 
 /**
-* @brief
-* @param *args
-* @return void
-*/
-void 
-dbgext_trprint(const char *args);
-
+ * @brief
+ * @param *args
+ * @return void
+ */
+void dbgext_trprint(const char* args);
 
 /* -- Note:  the methods below are not implemented by the dbgext module but are required to be implemented by modules
  * which want to link in dbgext so they are listed here as they form part of the public API.
@@ -59,46 +56,41 @@ dbgext_trprint(const char *args);
  */
 
 /**
-* @brief
-* @param pattern
-* @param patternLength
-* @param patternAlignment
-* @param startSearchFrom
-* @param bytesSearched
-* @return void*
-*/
-void*
-dbgFindPattern(U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom, UDATA* bytesSearched);
-
-
-/**
-* @brief
-* @param args
-* @return UDATA
-*/
-UDATA 
-dbgGetExpression (const char* args);
-
+ * @brief
+ * @param pattern
+ * @param patternLength
+ * @param patternAlignment
+ * @param startSearchFrom
+ * @param bytesSearched
+ * @return void*
+ */
+void* dbgFindPattern(
+    U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom, UDATA* bytesSearched);
 
 /**
-* @brief
-* @param address
-* @param *structure
-* @param size
-* @param *bytesRead
-* @return void
-*/
-void 
-dbgReadMemory (UDATA address, void *structure, UDATA size, UDATA *bytesRead);
-
+ * @brief
+ * @param args
+ * @return UDATA
+ */
+UDATA
+dbgGetExpression(const char* args);
 
 /**
-* @brief
-* @param message
-* @return void
-*/
-void 
-dbgWriteString (const char* message);
+ * @brief
+ * @param address
+ * @param *structure
+ * @param size
+ * @param *bytesRead
+ * @return void
+ */
+void dbgReadMemory(UDATA address, void* structure, UDATA size, UDATA* bytesRead);
+
+/**
+ * @brief
+ * @param message
+ * @return void
+ */
+void dbgWriteString(const char* message);
 
 /* /--Note end */
 
@@ -107,4 +99,3 @@ dbgWriteString (const char* message);
 #endif
 
 #endif /* dbgext_api_h */
-

@@ -28,49 +28,57 @@
  */
 #ifndef J9_KNOWN_OBJECT_TABLE_CONNECTOR
 #define J9_KNOWN_OBJECT_TABLE_CONNECTOR
-namespace J9 { class KnownObjectTable; }
-namespace J9 { typedef J9::KnownObjectTable KnownObjectTableConnector; }
+namespace J9 {
+class KnownObjectTable;
+}
+namespace J9 {
+typedef J9::KnownObjectTable KnownObjectTableConnector;
+}
 #endif
 
 #include "env/OMRKnownObjectTable.hpp"
 #include "infra/Annotations.hpp"
 #include "infra/Array.hpp"
 #include "infra/BitVector.hpp"
-namespace J9 { class Compilation; }
-namespace TR { class Compilation; }
+namespace J9 {
+class Compilation;
+}
+namespace TR {
+class Compilation;
+}
 class TR_J9VMBase;
-namespace J9 { class ObjectModel; }
+namespace J9 {
+class ObjectModel;
+}
 class TR_DebugExt;
 class TR_VMFieldsInfo;
 class TR_BitVector;
 
-namespace J9
-{
+namespace J9 {
 
-class OMR_EXTENSIBLE KnownObjectTable : public OMR::KnownObjectTableConnector
-   {
-   friend class ::TR_J9VMBase;
-   friend class Compilation;
-   friend class ::TR_DebugExt;
-   TR_Array<uintptrj_t*> _references;
+class OMR_EXTENSIBLE KnownObjectTable : public OMR::KnownObjectTableConnector {
+    friend class ::TR_J9VMBase;
+    friend class Compilation;
+    friend class ::TR_DebugExt;
+    TR_Array<uintptrj_t*> _references;
 
 public:
-   TR_ALLOC(TR_Memory::FrontEnd);
+    TR_ALLOC(TR_Memory::FrontEnd);
 
-   KnownObjectTable(TR::Compilation *comp);
+    KnownObjectTable(TR::Compilation* comp);
 
-   virtual Index getEndIndex();
-   virtual Index getIndex(uintptrj_t objectPointer);
-   virtual uintptrj_t *getPointerLocation(Index index);
-   virtual bool isNull(Index index);
+    virtual Index getEndIndex();
+    virtual Index getIndex(uintptrj_t objectPointer);
+    virtual uintptrj_t* getPointerLocation(Index index);
+    virtual bool isNull(Index index);
 
-   virtual void dumpTo(TR::FILE *file, TR::Compilation *comp);
+    virtual void dumpTo(TR::FILE* file, TR::Compilation* comp);
 
 private:
+    void dumpObjectTo(TR::FILE* file, Index i, const char* fieldName, const char* sep, TR::Compilation* comp,
+        TR_BitVector& visited, TR_VMFieldsInfo** fieldsInfoByIndex, int32_t depth);
+};
 
-   void dumpObjectTo(TR::FILE *file, Index i, const char *fieldName, const char *sep,  TR::Compilation *comp, TR_BitVector &visited, TR_VMFieldsInfo **fieldsInfoByIndex, int32_t depth);
-   };
-
-}
+} // namespace J9
 
 #endif

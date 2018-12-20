@@ -29,13 +29,9 @@
  * it in the object file.
  */
 #define DdrDebugLink(prefix, type) \
-	extern "C" size_t \
-	DdrLinkName(prefix, __LINE__)(type *pointer) \
-	{ \
-		return sizeof(*pointer); \
-	}
+    extern "C" size_t DdrLinkName(prefix, __LINE__)(type * pointer) { return sizeof(*pointer); }
 /* helper macros to trigger expansion of __LINE__ */
 #define DdrLinkName(prefix, line) DdrLinkName_(prefix, line)
-#define DdrLinkName_(prefix, line) prefix ## ddr_link_ ## line
+#define DdrLinkName_(prefix, line) prefix##ddr_link_##line
 
 #endif /* DDRHELP_H_ */

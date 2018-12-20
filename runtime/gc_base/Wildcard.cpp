@@ -27,57 +27,51 @@
 
 #include "GCExtensions.hpp"
 
-MM_Wildcard::MM_Wildcard(U_32 matchFlag, const char* needle, UDATA needleLength, char* pattern) 
-	: MM_BaseNonVirtual()
-	, _next(NULL)
-	, _matchFlag(matchFlag)
-	, _needle(needle)
-	, _needleLength(needleLength)
-	, _pattern(pattern)
+MM_Wildcard::MM_Wildcard(U_32 matchFlag, const char* needle, UDATA needleLength, char* pattern)
+    : MM_BaseNonVirtual()
+    , _next(NULL)
+    , _matchFlag(matchFlag)
+    , _needle(needle)
+    , _needleLength(needleLength)
+    , _pattern(pattern)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_Wildcard *
-MM_Wildcard::newInstance(MM_GCExtensions *extensions, U_32 matchFlag, const char* needle, UDATA needleLength, char* pattern)
+MM_Wildcard* MM_Wildcard::newInstance(
+    MM_GCExtensions* extensions, U_32 matchFlag, const char* needle, UDATA needleLength, char* pattern)
 {
-	MM_Wildcard *wildcard = (MM_Wildcard*)extensions->getForge()->allocate(sizeof(MM_Wildcard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != wildcard) {
-		new(wildcard) MM_Wildcard(matchFlag, needle, needleLength, pattern);
-		if(!wildcard->initialize(extensions)) {
-			wildcard->kill(extensions);
-			return NULL;
-		}
-	} else {
-		OMRPORT_ACCESS_FROM_OMRVM(extensions->getOmrVM());
-		omrmem_free_memory(pattern);
-	}
-	return wildcard;
+    MM_Wildcard* wildcard = (MM_Wildcard*)extensions->getForge()->allocate(
+        sizeof(MM_Wildcard), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != wildcard) {
+        new (wildcard) MM_Wildcard(matchFlag, needle, needleLength, pattern);
+        if (!wildcard->initialize(extensions)) {
+            wildcard->kill(extensions);
+            return NULL;
+        }
+    } else {
+        OMRPORT_ACCESS_FROM_OMRVM(extensions->getOmrVM());
+        omrmem_free_memory(pattern);
+    }
+    return wildcard;
 }
 
-void
-MM_Wildcard::kill(MM_GCExtensions *extensions)
+void MM_Wildcard::kill(MM_GCExtensions* extensions)
 {
-	tearDown(extensions);
-	extensions->getForge()->free(this);
+    tearDown(extensions);
+    extensions->getForge()->free(this);
 }
 
-bool
-MM_Wildcard::initialize(MM_GCExtensions *extensions)
+bool MM_Wildcard::initialize(MM_GCExtensions* extensions) { return true; }
+
+void MM_Wildcard::tearDown(MM_GCExtensions* extensions)
 {
-	return true;
+    OMRPORT_ACCESS_FROM_OMRVM(extensions->getOmrVM());
+    omrmem_free_memory(_pattern);
 }
 
-void
-MM_Wildcard::tearDown(MM_GCExtensions *extensions)
+bool MM_Wildcard::match(const char* haystack, UDATA haystackLength)
 {
-	OMRPORT_ACCESS_FROM_OMRVM(extensions->getOmrVM());
-	omrmem_free_memory(_pattern);
-}
-
-bool 
-MM_Wildcard::match(const char* haystack, UDATA haystackLength)
-{
-	IDATA rc = wildcardMatch(_matchFlag, _needle, _needleLength, haystack, haystackLength);
-	return rc != FALSE;
+    IDATA rc = wildcardMatch(_matchFlag, _needle, _needleLength, haystack, haystackLength);
+    return rc != FALSE;
 }

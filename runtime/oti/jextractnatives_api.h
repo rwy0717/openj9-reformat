@@ -24,13 +24,13 @@
 #define jextractnatives_api_h
 
 /**
-* @file jextractnatives_api.h
-* @brief Public API for the JEXTRACTNATIVES module.
-*
-* This file contains public function prototypes and
-* type definitions for the JEXTRACTNATIVES module.
-*
-*/
+ * @file jextractnatives_api.h
+ * @brief Public API for the JEXTRACTNATIVES module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the JEXTRACTNATIVES module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -46,26 +46,24 @@ extern "C" {
 /* ---------------- jextractnatives.c ---------------- */
 
 /**
-* @brief
-* @param *env
-* @param obj
-* @param dumpObj
-* @param commandObject
-* @return void
-*/
-void JNICALL
-Java_com_ibm_jvm_j9_dump_extract_Main_doCommand(JNIEnv *env, jobject obj, jobject dumpObj, jstring commandObject);
-
+ * @brief
+ * @param *env
+ * @param obj
+ * @param dumpObj
+ * @param commandObject
+ * @return void
+ */
+void JNICALL Java_com_ibm_jvm_j9_dump_extract_Main_doCommand(
+    JNIEnv* env, jobject obj, jobject dumpObj, jstring commandObject);
 
 /**
-* @brief
-* @param *env
-* @param obj
-* @param dumpObj
-* @return jlong environment pointer
-*/
-jlong JNICALL
-Java_com_ibm_jvm_j9_dump_extract_Main_getEnvironmentPointer(JNIEnv * env, jobject obj, jobject dumpObj);
+ * @brief
+ * @param *env
+ * @param obj
+ * @param dumpObj
+ * @return jlong environment pointer
+ */
+jlong JNICALL Java_com_ibm_jvm_j9_dump_extract_Main_getEnvironmentPointer(JNIEnv* env, jobject obj, jobject dumpObj);
 
 #ifdef __cplusplus
 }

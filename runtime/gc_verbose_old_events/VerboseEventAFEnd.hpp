@@ -23,7 +23,7 @@
 
 #if !defined(EVENT_AF_END_HPP_)
 #define EVENT_AF_END_HPP_
-  
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -34,34 +34,33 @@
  * Stores the data relating to the end of an allocation failure.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventAFEnd : public MM_VerboseEventGCEnd
-{
+class MM_VerboseEventAFEnd : public MM_VerboseEventGCEnd {
 private:
-	/**
-	 * Passed Data 
-	 * @{
-	 */
-	U_64 _exclusiveAccessTime; /**< time taken to get exclusive access, passed as easy to get and saves iteration of event chain */
-	
-	/**
-	 * Consumed Data 
-	 * @{
-	 */
-	U_64 _AFStartTime; /**< timestamp of AF Start */
-	/** @} */
+    /**
+     * Passed Data
+     * @{
+     */
+    U_64 _exclusiveAccessTime; /**< time taken to get exclusive access, passed as easy to get and saves iteration of
+                                  event chain */
+
+    /**
+     * Consumed Data
+     * @{
+     */
+    U_64 _AFStartTime; /**< timestamp of AF Start */
+    /** @} */
 
 public:
+    static MM_VerboseEvent* newInstance(MM_AllocationFailureEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_AllocationFailureEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-			
-	MM_VerboseEventAFEnd(MM_AllocationFailureEndEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface),
-		_exclusiveAccessTime(event->exclusiveAccessTime),
-		_AFStartTime(0)
-	{}
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MM_VerboseEventAFEnd(MM_AllocationFailureEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface)
+        , _exclusiveAccessTime(event->exclusiveAccessTime)
+        , _AFStartTime(0)
+    {}
 };
 
 #endif /* EVENT_AF_END_HPP_ */

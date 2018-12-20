@@ -24,13 +24,13 @@
 #define cassume_api_h
 
 /**
-* @file cassume_api.h
-* @brief Public API for the CASSUME module.
-*
-* This file contains public function prototypes and
-* type definitions for the CASSUME module.
-*
-*/
+ * @file cassume_api.h
+ * @brief Public API for the CASSUME module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the CASSUME module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -42,47 +42,39 @@ extern "C" {
 /* ---------------- basesize.c ---------------- */
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-verifyJNISizes(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void verifyJNISizes(void);
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-verifyUDATASizes(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void verifyUDATASizes(void);
 
 /* ---------------- vatest.c ---------------- */
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void 
-verifyVAList(void);
-
+ * @brief
+ * @param void
+ * @return void
+ */
+void verifyVAList(void);
 
 /* ---------------- j9buildershadow.c ---------------- */
 
 /**
-* @brief
-* @param void
-* @return void
-*/
-void
-verifyBuilderStructures(void);
+ * @brief
+ * @param void
+ * @return void
+ */
+void verifyBuilderStructures(void);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* cassume_api_h */
-

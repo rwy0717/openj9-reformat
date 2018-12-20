@@ -32,11 +32,7 @@
  *
  * @return a VMInterface pointer
  */
-VMInterface* JNICALL 
-VMI_GetVMIFromJavaVM(JavaVM* vm)
-{
-	return (VMInterface*)&(((J9JavaVM*)vm)->vmInterface);
-}	
+VMInterface* JNICALL VMI_GetVMIFromJavaVM(JavaVM* vm) { return (VMInterface*)&(((J9JavaVM*)vm)->vmInterface); }
 
 /**
  * Extract the VM Interface from a JNIEnv
@@ -45,8 +41,7 @@ VMI_GetVMIFromJavaVM(JavaVM* vm)
  *
  * @return a VMInterface pointer
  */
-VMInterface* JNICALL 
-VMI_GetVMIFromJNIEnv(JNIEnv* env)
+VMInterface* JNICALL VMI_GetVMIFromJNIEnv(JNIEnv* env)
 {
-	return (VMInterface*)&(((J9VMThread*)env)->javaVM->vmInterface);
-}	
+    return (VMInterface*)&(((J9VMThread*)env)->javaVM->vmInterface);
+}

@@ -33,92 +33,90 @@
 #endif
 #include "monhelp.h"
 
-
 /* Verify if aObj is allocated on targetThread stack
  * Returns :
  * 1 : aObj is stack allocated
  * 0 : aObj is not stack allocated
  */
 UDATA
-isObjectStackAllocated(J9VMThread *targetThread, j9object_t aObj) {
-	J9JavaStack *stack = targetThread->stackObject;
+isObjectStackAllocated(J9VMThread* targetThread, j9object_t aObj)
+{
+    J9JavaStack* stack = targetThread->stackObject;
 
-	if (((UDATA)aObj > (UDATA)stack) && ((UDATA)aObj < (UDATA)(stack->end))) {
-		return 1;
-	}
+    if (((UDATA)aObj > (UDATA)stack) && ((UDATA)aObj < (UDATA)(stack->end))) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /*
  * Determine the owner of an object's monitor.
  * Return the owner, or NULL if unowned.
  * If pcount != NULL, return the entry count in pcount.
-*/
-J9VMThread * 
-getObjectMonitorOwner(J9JavaVM *vm, J9VMThread *vmThread, j9object_t object, UDATA *pcount)
+ */
+J9VMThread* getObjectMonitorOwner(J9JavaVM* vm, J9VMThread* vmThread, j9object_t object, UDATA* pcount)
 {
 
-	UDATA count = 0;
-	J9VMThread *owner = NULL;
-	j9objectmonitor_t lock;
+    UDATA count = 0;
+    J9VMThread* owner = NULL;
+    j9objectmonitor_t lock;
 #ifdef J9VM_THR_LOCK_NURSERY
-	J9ObjectMonitor *objectMonitor;
+    J9ObjectMonitor* objectMonitor;
 #endif
 
-	Trc_VMUtil_getObjectMonitorOwner_Entry(vm, object, pcount);
+    Trc_VMUtil_getObjectMonitorOwner_Entry(vm, object, pcount);
 
 #ifdef J9VM_THR_LOCK_NURSERY
-	if (!LN_HAS_LOCKWORD(vmThread,object)) {
-		objectMonitor = monitorTablePeek(vm, vmThread, object);
-		if (objectMonitor != NULL){
-			lock = objectMonitor->alternateLockword;
-		} else {
-			lock = 0;
-		}
-	} else {
-		lock = J9OBJECT_MONITOR(vmThread, object);
-	}
+    if (!LN_HAS_LOCKWORD(vmThread, object)) {
+        objectMonitor = monitorTablePeek(vm, vmThread, object);
+        if (objectMonitor != NULL) {
+            lock = objectMonitor->alternateLockword;
+        } else {
+            lock = 0;
+        }
+    } else {
+        lock = J9OBJECT_MONITOR(vmThread, object);
+    }
 #else
-	lock = J9OBJECT_MONITOR(vmThread, object);
+    lock = J9OBJECT_MONITOR(vmThread, object);
 #endif
 
-	if (J9_LOCK_IS_INFLATED(lock)) {
-		J9ThreadAbstractMonitor *monitor = getInflatedObjectMonitor(vm, vmThread, object, lock);
+    if (J9_LOCK_IS_INFLATED(lock)) {
+        J9ThreadAbstractMonitor* monitor = getInflatedObjectMonitor(vm, vmThread, object, lock);
 
-		/*
-		 * If the monitor is out-of-line and NULL, then it was never entered,
-		 * so it can't have an owner.
-		 */
+        /*
+         * If the monitor is out-of-line and NULL, then it was never entered,
+         * so it can't have an owner.
+         */
 
-		if (monitor) {
-			omrthread_t osOwner = monitor->owner;
-			if (osOwner) {
-				owner = getVMThreadFromOMRThread(vm, osOwner);
-				/* possible timing hole -- owner might exit monitor */
-				count = monitor->count;
-				if (count == 0) {
-					owner = NULL;
-				}
-			}
-		}
-	} else {
-		owner = J9_FLATLOCK_OWNER(lock);
-		if (owner) {
-			count = J9_FLATLOCK_COUNT(lock);	
-			if (count == 0) {
-				/* this can happen if the lock is reserved but unowned */
-				owner = NULL;
-			}
-		}
-	}
+        if (monitor) {
+            omrthread_t osOwner = monitor->owner;
+            if (osOwner) {
+                owner = getVMThreadFromOMRThread(vm, osOwner);
+                /* possible timing hole -- owner might exit monitor */
+                count = monitor->count;
+                if (count == 0) {
+                    owner = NULL;
+                }
+            }
+        }
+    } else {
+        owner = J9_FLATLOCK_OWNER(lock);
+        if (owner) {
+            count = J9_FLATLOCK_COUNT(lock);
+            if (count == 0) {
+                /* this can happen if the lock is reserved but unowned */
+                owner = NULL;
+            }
+        }
+    }
 
-	if (pcount) {
-		*pcount = count;
-	}
+    if (pcount) {
+        *pcount = count;
+    }
 
-	Trc_VMUtil_getObjectMonitorOwner_Exit2(object, owner, count);
+    Trc_VMUtil_getObjectMonitorOwner_Exit2(object, owner, count);
 
-	return owner;
+    return owner;
 }
-

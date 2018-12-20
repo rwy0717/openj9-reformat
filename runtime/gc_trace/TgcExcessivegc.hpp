@@ -33,9 +33,9 @@
  * Structure holding information relating to tgc tracing for excessive gc.
  */
 typedef struct TgcExcessiveGCExtensions {
-	UDATA unused;
+    UDATA unused;
 } TgcExcessiveGCExtensions;
 
-bool tgcExcessiveGCInitialize(J9JavaVM *javaVM);
+bool tgcExcessiveGCInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCEXCESSIVEGC_HPP_ */

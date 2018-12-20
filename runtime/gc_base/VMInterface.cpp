@@ -55,99 +55,90 @@
 /**
  * Return the hook interface for the Memory Manager
  */
-J9HookInterface** 
-GC_VMInterface::getHookInterface(MM_GCExtensions *extensions)
+J9HookInterface** GC_VMInterface::getHookInterface(MM_GCExtensions* extensions)
 {
-	return J9_HOOK_INTERFACE(extensions->hookInterface);
+    return J9_HOOK_INTERFACE(extensions->hookInterface);
 }
 
 /**
  * Acquire exclusive access to the class table.
  */
-void
-GC_VMInterface::lockClassTable(MM_GCExtensions *extensions)
+void GC_VMInterface::lockClassTable(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_enter(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classTableMutex);
+    omrthread_monitor_enter(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classTableMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Release exclusive access to the class table.
  */
-void
-GC_VMInterface::unlockClassTable(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockClassTable(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_exit(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classTableMutex);
-#endif /* J9VM_THR_PREEMPTIVE */ 	
+    omrthread_monitor_exit(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classTableMutex);
+#endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Acquire exclusive access to the class memory segment list.
  */
-void
-GC_VMInterface::lockClassMemorySegmentList(MM_GCExtensions *extensions)
+void GC_VMInterface::lockClassMemorySegmentList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_enter(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classMemorySegments->segmentMutex);
-#endif /* J9VM_THR_PREEMPTIVE */	
+    omrthread_monitor_enter(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classMemorySegments->segmentMutex);
+#endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Release exclusive access to the class memory segment list.
  */
-void
-GC_VMInterface::unlockClassMemorySegmentList(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockClassMemorySegmentList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_exit(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classMemorySegments->segmentMutex);
-#endif /* J9VM_THR_PREEMPTIVE */		
+    omrthread_monitor_exit(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classMemorySegments->segmentMutex);
+#endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
- * Acquire exclusive access to the class table and the class 
- * memory segment list. Acquiring this lock is sufficient to safely 
+ * Acquire exclusive access to the class table and the class
+ * memory segment list. Acquiring this lock is sufficient to safely
  * walk the class heap concurrently with other threads that have VM access.
  */
-void
-GC_VMInterface::lockClasses(MM_GCExtensions *extensions)
+void GC_VMInterface::lockClasses(MM_GCExtensions* extensions)
 {
-	/* Must lock and unlock in this specific order to avoid deadlock */
-	lockClassTable(extensions);
-	lockClassMemorySegmentList(extensions);	
+    /* Must lock and unlock in this specific order to avoid deadlock */
+    lockClassTable(extensions);
+    lockClassMemorySegmentList(extensions);
 }
 
 /**
  * Release exclusive access to class table and class memory segment list.
  */
-void
-GC_VMInterface::unlockClasses(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockClasses(MM_GCExtensions* extensions)
 {
-	/* Must lock and unlock in this specific order to avoid deadlock */
-	unlockClassMemorySegmentList(extensions);	
-	unlockClassTable(extensions);
+    /* Must lock and unlock in this specific order to avoid deadlock */
+    unlockClassMemorySegmentList(extensions);
+    unlockClassTable(extensions);
 }
 
 /**
  * Acquire exclusive access to JNI global references.
  */
-void
-GC_VMInterface::lockJNIGlobalReferences(MM_GCExtensions *extensions)
+void GC_VMInterface::lockJNIGlobalReferences(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_enter(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->jniFrameMutex);
+    omrthread_monitor_enter(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->jniFrameMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Release exclusive access to JNI global references.
  */
-void
-GC_VMInterface::unlockJNIGlobalReferences(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockJNIGlobalReferences(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_exit(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->jniFrameMutex);
+    omrthread_monitor_exit(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->jniFrameMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
@@ -156,66 +147,59 @@ GC_VMInterface::unlockJNIGlobalReferences(MM_GCExtensions *extensions)
  * @note The caller must not try to acquire exclusive VM access
  * while holding this lock.
  */
-void
-GC_VMInterface::lockVMThreadList(MM_GCExtensions *extensions)
+void GC_VMInterface::lockVMThreadList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_enter(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->vmThreadListMutex);
+    omrthread_monitor_enter(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->vmThreadListMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Release exclusive access to the VM thread list.
  */
-void
-GC_VMInterface::unlockVMThreadList(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockVMThreadList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_exit(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->vmThreadListMutex);
+    omrthread_monitor_exit(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->vmThreadListMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Acquire exclusive access to the finalize list.
  */
-void
-GC_VMInterface::lockFinalizeList(MM_GCExtensions *extensions)
+void GC_VMInterface::lockFinalizeList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE) && defined(J9VM_GC_FINALIZATION)
-	extensions->finalizeListManager->lock();
+    extensions->finalizeListManager->lock();
 #endif /* J9VM_THR_PREEMPTIVE && J9VM_GC_FINALIZATION */
 }
 
 /**
  * Release exclusive access to the finalize list.
  */
-void
-GC_VMInterface::unlockFinalizeList(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockFinalizeList(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE) && defined(J9VM_GC_FINALIZATION)
-	extensions->finalizeListManager->unlock();
+    extensions->finalizeListManager->unlock();
 #endif /* J9VM_THR_PREEMPTIVE && J9VM_GC_FINALIZATION */
 }
 
 /**
  * Acquire exclusive access to the class loader.
  */
-void
-GC_VMInterface::lockClassLoaders(MM_GCExtensions *extensions)
+void GC_VMInterface::lockClassLoaders(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_enter(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classLoaderBlocksMutex);
+    omrthread_monitor_enter(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classLoaderBlocksMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
 
 /**
  * Release exclusive access to the class loader.
  */
-void
-GC_VMInterface::unlockClassLoaders(MM_GCExtensions *extensions)
+void GC_VMInterface::unlockClassLoaders(MM_GCExtensions* extensions)
 {
 #if defined(J9VM_THR_PREEMPTIVE)
-	omrthread_monitor_exit(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->classLoaderBlocksMutex);
+    omrthread_monitor_exit(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->classLoaderBlocksMutex);
 #endif /* J9VM_THR_PREEMPTIVE */
 }
-

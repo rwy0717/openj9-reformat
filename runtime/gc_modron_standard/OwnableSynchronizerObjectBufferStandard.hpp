@@ -30,37 +30,34 @@
 #include "OwnableSynchronizerObjectBuffer.hpp"
 
 /**
- * A per-thread buffer of recently allocated objects of type or subtype of java.util.concurrent.locks.AbstractOwnableSynchronizer.
- * The buffer is periodically flushed to the global list. 
+ * A per-thread buffer of recently allocated objects of type or subtype of
+ * java.util.concurrent.locks.AbstractOwnableSynchronizer. The buffer is periodically flushed to the global list.
  */
-class MM_OwnableSynchronizerObjectBufferStandard : public MM_OwnableSynchronizerObjectBuffer
-{
+class MM_OwnableSynchronizerObjectBufferStandard : public MM_OwnableSynchronizerObjectBuffer {
 private:
-	UDATA _ownableSynchronizerObjectListIndex; /* current region list index */
+    UDATA _ownableSynchronizerObjectListIndex; /* current region list index */
 protected:
 public:
-	
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
-	
 public:
-	static MM_OwnableSynchronizerObjectBufferStandard *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush 
-	 */
-	MM_OwnableSynchronizerObjectBufferStandard(MM_GCExtensions *extensions, UDATA maxObjectCount);
+    static MM_OwnableSynchronizerObjectBufferStandard* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_OwnableSynchronizerObjectBufferStandard(MM_GCExtensions* extensions, UDATA maxObjectCount);
 };
 
 #endif /* OWNABLESYNCHRONIZEROBJECTBUFFERSTANDARD_HPP_ */

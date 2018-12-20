@@ -36,45 +36,44 @@ class BufferManager;
 class SRPKeyProducer;
 class ROMClassCreationContext;
 
-class SRPOffsetTable
-{
+class SRPOffsetTable {
 public:
-	SRPOffsetTable(SRPKeyProducer *srpKeyProducer, BufferManager *bufferManager, UDATA maxTag, ROMClassCreationContext *context);
-	~SRPOffsetTable();
+    SRPOffsetTable(
+        SRPKeyProducer* srpKeyProducer, BufferManager* bufferManager, UDATA maxTag, ROMClassCreationContext* context);
+    ~SRPOffsetTable();
 
-	bool isOK() { return OK == _buildResult; }
-	BuildResult getBuildResult() { return _buildResult; }
+    bool isOK() { return OK == _buildResult; }
+    BuildResult getBuildResult() { return _buildResult; }
 
-	void insert(UDATA key, UDATA offset, UDATA tag);
-	UDATA get(UDATA key);
-	J9SRP computeSRP(UDATA key, J9SRP *srpAddr);
-	J9WSRP computeWSRP(UDATA key, J9WSRP *wsrpAddr);
+    void insert(UDATA key, UDATA offset, UDATA tag);
+    UDATA get(UDATA key);
+    J9SRP computeSRP(UDATA key, J9SRP* srpAddr);
+    J9WSRP computeWSRP(UDATA key, J9WSRP* wsrpAddr);
 
-	bool isNotNull(UDATA key);
+    bool isNotNull(UDATA key);
 
-	bool isInterned(UDATA key);
-	void setInternedAt(UDATA key, U_8 *address);
+    bool isInterned(UDATA key);
+    void setInternedAt(UDATA key, U_8* address);
 
-	void setBaseAddressForTag(UDATA tag, U_8 *address);
-	U_8 *getBaseAddressForTag(UDATA tag);
+    void setBaseAddressForTag(UDATA tag, U_8* address);
+    U_8* getBaseAddressForTag(UDATA tag);
 
-	void clear();
+    void clear();
 
 private:
-	struct Entry
-	{
-		UDATA tag;
-		UDATA offset;
-		bool marked;
-		bool interned;
-	};
+    struct Entry {
+        UDATA tag;
+        UDATA offset;
+        bool marked;
+        bool interned;
+    };
 
-	UDATA _maxKey;
-	UDATA _maxTag;
-	Entry *_table;
-	U_8 **_baseAddresses;
-	BufferManager *_bufferManager;
-	BuildResult _buildResult;
+    UDATA _maxKey;
+    UDATA _maxTag;
+    Entry* _table;
+    U_8** _baseAddresses;
+    BufferManager* _bufferManager;
+    BuildResult _buildResult;
 };
 
 #endif /* SRPOFFSETTABLE_HPP_ */

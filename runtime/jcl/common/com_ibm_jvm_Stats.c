@@ -40,69 +40,69 @@
  * variables in the class Stats.java
  */
 
-void JNICALL
-Java_com_ibm_jvm_Stats_getStats(JNIEnv *env, jobject obj)
+void JNICALL Java_com_ibm_jvm_Stats_getStats(JNIEnv* env, jobject obj)
 {
-	/* System and Heap statistics */
-	jlong used = 0;
-	jlong committed = 0;
-	jlong max = 0;
-	jlong softmx = 0;
-	jlong free = 0;
-	jlong tot = 0;
+    /* System and Heap statistics */
+    jlong used = 0;
+    jlong committed = 0;
+    jlong max = 0;
+    jlong softmx = 0;
+    jlong free = 0;
+    jlong tot = 0;
     jdouble sysLoadAvg = -1.0;
     jlong cpuTime = 0;
 
-	/* Access to the current jvm */
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
+    /* Access to the current jvm */
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
 
-	/* Port lib access */
-	PORT_ACCESS_FROM_ENV(env);
-	J9PortSysInfoLoadData loadData;
-	IDATA sysInfoResult;
+    /* Port lib access */
+    PORT_ACCESS_FROM_ENV(env);
+    J9PortSysInfoLoadData loadData;
+    IDATA sysInfoResult;
 
-	/* Class and method ID used to set our variables */
-	jclass setFieldsClass = NULL;
-	jmethodID methodID = NULL;
+    /* Class and method ID used to set our variables */
+    jclass setFieldsClass = NULL;
+    jmethodID methodID = NULL;
 
-	/* Calculation of java heap properties */
-	committed = javaVM->memoryManagerFunctions->j9gc_heap_total_memory(javaVM);
-	used = committed - javaVM->memoryManagerFunctions->j9gc_heap_free_memory(javaVM);
-	max = (jlong) javaVM->managementData->maximumHeapSize;
+    /* Calculation of java heap properties */
+    committed = javaVM->memoryManagerFunctions->j9gc_heap_total_memory(javaVM);
+    used = committed - javaVM->memoryManagerFunctions->j9gc_heap_free_memory(javaVM);
+    max = (jlong)javaVM->managementData->maximumHeapSize;
 
-	/* Calculation of softmx */
-	softmx = javaVM->memoryManagerFunctions->j9gc_get_softmx( javaVM );
+    /* Calculation of softmx */
+    softmx = javaVM->memoryManagerFunctions->j9gc_get_softmx(javaVM);
 
-	/* if no softmx has been set, report -Xmx instead as it is the current max heap size */
-	if (0 == softmx) {
-		softmx = max;
-	}
+    /* if no softmx has been set, report -Xmx instead as it is the current max heap size */
+    if (0 == softmx) {
+        softmx = max;
+    }
 
-	/* Calculation of free physical memory from existing function in mgmtosext.c*/
-	free = Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getFreePhysicalMemorySizeImpl(env, obj);
+    /* Calculation of free physical memory from existing function in mgmtosext.c*/
+    free = Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getFreePhysicalMemorySizeImpl(
+        env, obj);
 
-	/* Calculation of total physical memory from port lib api */
-	tot = (jlong) j9sysinfo_get_physical_memory();
+    /* Calculation of total physical memory from port lib api */
+    tot = (jlong)j9sysinfo_get_physical_memory();
 
-	/* Calculation of system load average */
-	sysInfoResult = j9sysinfo_get_load_average(&loadData);
-	if (0 == sysInfoResult) {
-		sysLoadAvg = (jdouble) loadData.oneMinuteAverage;
-	}
+    /* Calculation of system load average */
+    sysInfoResult = j9sysinfo_get_load_average(&loadData);
+    if (0 == sysInfoResult) {
+        sysLoadAvg = (jdouble)loadData.oneMinuteAverage;
+    }
 
-	/* Calculation of cpu time from existing function in mgmtosext.c*/
-	cpuTime = Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessCpuTimeImpl(env, obj);
+    /* Calculation of cpu time from existing function in mgmtosext.c*/
+    cpuTime = Java_com_ibm_lang_management_internal_ExtendedOperatingSystemMXBeanImpl_getProcessCpuTimeImpl(env, obj);
 
-	/* Set the statistics by calling the java setFields function */
-	setFieldsClass = (*env)->GetObjectClass(env, obj);
-	methodID = JCL_CACHE_GET(env, MID_com_ibm_jvm_Stats_setFields);
-	if (NULL == methodID) {
-		methodID = (*env)->GetMethodID(env, setFieldsClass, "setFields", "(JJJJJDJJ)V");
-		JCL_CACHE_SET(env, MID_com_ibm_jvm_Stats_setFields, methodID);
-	}
+    /* Set the statistics by calling the java setFields function */
+    setFieldsClass = (*env)->GetObjectClass(env, obj);
+    methodID = JCL_CACHE_GET(env, MID_com_ibm_jvm_Stats_setFields);
+    if (NULL == methodID) {
+        methodID = (*env)->GetMethodID(env, setFieldsClass, "setFields", "(JJJJJDJJ)V");
+        JCL_CACHE_SET(env, MID_com_ibm_jvm_Stats_setFields, methodID);
+    }
 
-	/* Call method only if there's no exception pending (prevent crash on C side) */
-	if (!((*env)->ExceptionCheck(env))) {
-		(*env)->CallVoidMethod(env, obj, methodID, committed, used, max, free, tot, sysLoadAvg, cpuTime, softmx);
-	}
+    /* Call method only if there's no exception pending (prevent crash on C side) */
+    if (!((*env)->ExceptionCheck(env))) {
+        (*env)->CallVoidMethod(env, obj, methodID, committed, used, max, free, tot, sysLoadAvg, cpuTime, softmx);
+    }
 }

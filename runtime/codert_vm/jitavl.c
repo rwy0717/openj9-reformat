@@ -25,54 +25,47 @@
 #include "jitavl.h"
 #include "jithash.h"
 
+void avl_jit_artifact_free_all(J9JavaVM* javaVM, J9AVLTree* tree)
+{
+    PORT_ACCESS_FROM_PORT(javaVM->portLibrary);
 
-void avl_jit_artifact_free_all(J9JavaVM *javaVM, J9AVLTree *tree) {
-	PORT_ACCESS_FROM_PORT(javaVM->portLibrary);
-
-	avl_jit_artifact_free_node(PORTLIB, (J9JITHashTable *)tree->rootNode);
-	j9mem_free_memory(tree);
+    avl_jit_artifact_free_node(PORTLIB, (J9JITHashTable*)tree->rootNode);
+    j9mem_free_memory(tree);
 }
 
+void avl_jit_artifact_free_node(J9PortLibrary* portLib, J9JITHashTable* nodeToDelete)
+{
+    PORT_ACCESS_FROM_PORT(portLib);
 
-void avl_jit_artifact_free_node(J9PortLibrary *portLib, J9JITHashTable *nodeToDelete) {
-	PORT_ACCESS_FROM_PORT(portLib);
+    if (!nodeToDelete) {
+        return;
+    }
 
-	if (!nodeToDelete) {
-		return;
-	}
+    avl_jit_artifact_free_node(portLib, (J9JITHashTable*)J9JITHASHTABLE_LEFTCHILD(nodeToDelete));
+    avl_jit_artifact_free_node(portLib, (J9JITHashTable*)J9JITHASHTABLE_RIGHTCHILD(nodeToDelete));
 
-	avl_jit_artifact_free_node(portLib, (J9JITHashTable *)J9JITHASHTABLE_LEFTCHILD(nodeToDelete));
-	avl_jit_artifact_free_node(portLib, (J9JITHashTable *)J9JITHASHTABLE_RIGHTCHILD(nodeToDelete));
-
-	if ( !(nodeToDelete->flags & JIT_HASH_IN_DATA_CACHE)) {
-		hash_jit_free(portLib, nodeToDelete);
-	}
+    if (!(nodeToDelete->flags & JIT_HASH_IN_DATA_CACHE)) {
+        hash_jit_free(portLib, nodeToDelete);
+    }
 }
 
-
-
-IDATA avl_jit_artifact_insertionCompare(J9AVLTree *tree, J9JITHashTable *insertNode, J9JITHashTable *walkNode) {
-	if (walkNode->start > insertNode->start) {
-		return 1;
-	} else if (walkNode->start < insertNode->start) {
-		return -1;
-	}
-	return 0;
+IDATA avl_jit_artifact_insertionCompare(J9AVLTree* tree, J9JITHashTable* insertNode, J9JITHashTable* walkNode)
+{
+    if (walkNode->start > insertNode->start) {
+        return 1;
+    } else if (walkNode->start < insertNode->start) {
+        return -1;
+    }
+    return 0;
 }
 
+IDATA avl_jit_artifact_searchCompare(J9AVLTree* tree, UDATA searchValue, J9JITHashTable* walkNode)
+{
+    if (searchValue >= walkNode->end)
+        return -1;
 
+    if (searchValue < walkNode->start)
+        return 1;
 
-
-IDATA avl_jit_artifact_searchCompare(J9AVLTree *tree, UDATA searchValue, J9JITHashTable *walkNode) {
-	if (searchValue >= walkNode->end)
-		return -1;
-
-	if (searchValue < walkNode->start)
-		return 1;
-	
-	return 0;
+    return 0;
 }
-
-
-
-

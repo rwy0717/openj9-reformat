@@ -29,38 +29,35 @@
 extern "C" {
 
 /* java.lang.ref.Reference: private native void reprocess(); */
-void JNICALL
-Java_java_lang_ref_Reference_reprocess(JNIEnv *env, jobject recv)
+void JNICALL Java_java_lang_ref_Reference_reprocess(JNIEnv* env, jobject recv)
 {
-	J9VMThread* currentThread = (J9VMThread*)env;
-	J9JavaVM* vm = currentThread->javaVM;
-	J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
-	J9MemoryManagerFunctions* mmFuncs = vm->memoryManagerFunctions;
-	vmFuncs->internalEnterVMFromJNI(currentThread);
-	j9object_t receiverObject = J9_JNI_UNWRAP_REFERENCE(recv);
-	if (J9_GC_POLICY_METRONOME == vm->gcPolicy) {
-		/* Under metronome call getReferent, which will mark the referent if a GC is in progress. */
-		mmFuncs->j9gc_objaccess_referenceGet(currentThread, receiverObject);
-	} else {
-		/* Reprocess this object if a concurrent GC is in progress */
-		mmFuncs->J9WriteBarrierBatchStore(currentThread, receiverObject);
-	}
-	vmFuncs->internalExitVMToJNI(currentThread);
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+    J9MemoryManagerFunctions* mmFuncs = vm->memoryManagerFunctions;
+    vmFuncs->internalEnterVMFromJNI(currentThread);
+    j9object_t receiverObject = J9_JNI_UNWRAP_REFERENCE(recv);
+    if (J9_GC_POLICY_METRONOME == vm->gcPolicy) {
+        /* Under metronome call getReferent, which will mark the referent if a GC is in progress. */
+        mmFuncs->j9gc_objaccess_referenceGet(currentThread, receiverObject);
+    } else {
+        /* Reprocess this object if a concurrent GC is in progress */
+        mmFuncs->J9WriteBarrierBatchStore(currentThread, receiverObject);
+    }
+    vmFuncs->internalExitVMToJNI(currentThread);
 }
 
 /* java.lang.ref.Reference: static private native boolean waitForReferenceProcessingImpl(); */
-jboolean JNICALL
-Java_java_lang_ref_Reference_waitForReferenceProcessingImpl(JNIEnv *env, jclass recv)
+jboolean JNICALL Java_java_lang_ref_Reference_waitForReferenceProcessingImpl(JNIEnv* env, jclass recv)
 {
-	jboolean result = JNI_FALSE;
+    jboolean result = JNI_FALSE;
 #if defined(J9VM_GC_FINALIZATION)
-	J9JavaVM *vm = ((J9VMThread*)env)->javaVM;
-	J9MemoryManagerFunctions *mmFuncs = vm->memoryManagerFunctions;
-	if (0 != mmFuncs->j9gc_wait_for_reference_processing(vm)) {
-		result = JNI_TRUE;
-	}
+    J9JavaVM* vm = ((J9VMThread*)env)->javaVM;
+    J9MemoryManagerFunctions* mmFuncs = vm->memoryManagerFunctions;
+    if (0 != mmFuncs->j9gc_wait_for_reference_processing(vm)) {
+        result = JNI_TRUE;
+    }
 #endif
-	return result;
+    return result;
 }
-
 }

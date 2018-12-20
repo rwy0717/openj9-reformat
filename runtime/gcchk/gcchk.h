@@ -33,12 +33,11 @@
 extern "C" {
 #endif
 
-jint JNICALL JVM_OnUnload(JavaVM * jvm, void *reserved0);
-jint JNICALL JVM_OnLoad(JavaVM * jvm, char *options, void *reserved0);
+jint JNICALL JVM_OnUnload(JavaVM* jvm, void* reserved0);
+jint JNICALL JVM_OnLoad(JavaVM* jvm, char* options, void* reserved0);
 
 #ifdef __cplusplus
 } /* extern "C" { */
 #endif
 
-#endif /* gcchk_h */  
-
+#endif /* gcchk_h */

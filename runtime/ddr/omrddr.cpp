@@ -33,13 +33,8 @@
 
 #define OMR_DdrDebugLink(type) DdrDebugLink(omr, type)
 
-OMR_DdrDebugLink(J9AbstractThread)
-OMR_DdrDebugLink(J9HashTable)
-OMR_DdrDebugLink(J9HashTableState)
-OMR_DdrDebugLink(OMR_TraceThread)
-OMR_DdrDebugLink(OMR_VMThread)
-OMR_DdrDebugLink(TR_InlinedCallSite)
-OMR_DdrDebugLink(UtThreadData)
+OMR_DdrDebugLink(J9AbstractThread) OMR_DdrDebugLink(J9HashTable) OMR_DdrDebugLink(J9HashTableState) OMR_DdrDebugLink(
+    OMR_TraceThread) OMR_DdrDebugLink(OMR_VMThread) OMR_DdrDebugLink(TR_InlinedCallSite) OMR_DdrDebugLink(UtThreadData)
 
 /* @ddr_namespace: map_to_type=CLimits */
 
@@ -62,12 +57,12 @@ OMR_DdrDebugLink(UtThreadData)
 
 /* unsupported host architectures */
 #if defined(TR_HOST_MIPS)
-# define host_MIPS 1
+#define host_MIPS 1
 #else
-# define host_MIPS 0
+#define host_MIPS 0
 #endif
 #if defined(TR_HOST_SH4)
-# define host_SH4 1
+#define host_SH4 1
 #else
-# define host_SH4 0
+#define host_SH4 0
 #endif

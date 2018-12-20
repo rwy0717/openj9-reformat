@@ -41,50 +41,43 @@
  * @param[in] name      an optional name for use in log messages
  * @param[in] options   an optional options pointer
  */
-void JNICALL
-Java_com_ibm_cuda_CudaLinker_add
-  (JNIEnv * env, jclass, jint deviceId, jlong linker, jint type, jbyteArray image, jstring name, jlong options)
+void JNICALL Java_com_ibm_cuda_CudaLinker_add(
+    JNIEnv* env, jclass, jint deviceId, jlong linker, jint type, jbyteArray image, jstring name, jlong options)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_linkerAdd_entry(thread, deviceId, (J9CudaLinker)linker, type, image, name, (J9CudaJitOptions *)options);
+    Trc_cuda_linkerAdd_entry(thread, deviceId, (J9CudaLinker)linker, type, image, name, (J9CudaJitOptions*)options);
 
-	int32_t error = J9CUDA_ERROR_OPERATING_SYSTEM;
-	jbyte * imageData = env->GetByteArrayElements(image, NULL);
-	const char * nameData = NULL;
+    int32_t error = J9CUDA_ERROR_OPERATING_SYSTEM;
+    jbyte* imageData = env->GetByteArrayElements(image, NULL);
+    const char* nameData = NULL;
 
-	if (NULL != name) {
-		nameData = env->GetStringUTFChars(name, NULL);
-	}
+    if (NULL != name) {
+        nameData = env->GetStringUTFChars(name, NULL);
+    }
 
-	if ((NULL == imageData) || ((NULL != name) && (NULL == nameData))) {
-		Trc_cuda_linkerAdd_fail(thread);
-	} else {
-		PORT_ACCESS_FROM_ENV(env);
+    if ((NULL == imageData) || ((NULL != name) && (NULL == nameData))) {
+        Trc_cuda_linkerAdd_fail(thread);
+    } else {
+        PORT_ACCESS_FROM_ENV(env);
 
-		error = j9cuda_linkerAddData(
-				(uint32_t)deviceId,
-				(J9CudaLinker)linker,
-				(J9CudaJitInputType)type,
-				imageData,
-				(uintptr_t)env->GetArrayLength(image),
-				nameData,
-				(J9CudaJitOptions *)options);
-	}
+        error = j9cuda_linkerAddData((uint32_t)deviceId, (J9CudaLinker)linker, (J9CudaJitInputType)type, imageData,
+            (uintptr_t)env->GetArrayLength(image), nameData, (J9CudaJitOptions*)options);
+    }
 
-	if (NULL != nameData) {
-		env->ReleaseStringUTFChars(name, nameData);
-	}
+    if (NULL != nameData) {
+        env->ReleaseStringUTFChars(name, nameData);
+    }
 
-	if (NULL != imageData) {
-		env->ReleaseByteArrayElements(image, imageData, JNI_ABORT);
-	}
+    if (NULL != imageData) {
+        env->ReleaseByteArrayElements(image, imageData, JNI_ABORT);
+    }
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_linkerAdd_exit(thread);
+    Trc_cuda_linkerAdd_exit(thread);
 }
 
 /**
@@ -100,39 +93,37 @@ Java_com_ibm_cuda_CudaLinker_add
  * @param[in] linker    the linker state pointer
  * @return the completed module ready for loading
  */
-jbyteArray JNICALL
-Java_com_ibm_cuda_CudaLinker_complete
-  (JNIEnv * env, jclass, jint deviceId, jlong linker)
+jbyteArray JNICALL Java_com_ibm_cuda_CudaLinker_complete(JNIEnv* env, jclass, jint deviceId, jlong linker)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_linkerComplete_entry(thread, deviceId, (J9CudaLinker)linker);
+    Trc_cuda_linkerComplete_entry(thread, deviceId, (J9CudaLinker)linker);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	void * data = NULL;
-	uintptr_t size = 0;
-	int32_t error = j9cuda_linkerComplete((uint32_t)deviceId, (J9CudaLinker)linker, &data, &size);
-	jbyteArray result = NULL;
+    void* data = NULL;
+    uintptr_t size = 0;
+    int32_t error = j9cuda_linkerComplete((uint32_t)deviceId, (J9CudaLinker)linker, &data, &size);
+    jbyteArray result = NULL;
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	} else {
-		result = env->NewByteArray((jsize)size);
+    if (0 != error) {
+        throwCudaException(env, error);
+    } else {
+        result = env->NewByteArray((jsize)size);
 
-		if (env->ExceptionCheck()) {
-			Trc_cuda_linkerComplete_exception(thread);
-			result = NULL;
-		} else if (NULL == result) {
-			Trc_cuda_linkerComplete_fail(thread);
-		} else {
-			env->SetByteArrayRegion(result, 0, (jsize)size, (jbyte *)data);
-		}
-	}
+        if (env->ExceptionCheck()) {
+            Trc_cuda_linkerComplete_exception(thread);
+            result = NULL;
+        } else if (NULL == result) {
+            Trc_cuda_linkerComplete_fail(thread);
+        } else {
+            env->SetByteArrayRegion(result, 0, (jsize)size, (jbyte*)data);
+        }
+    }
 
-	Trc_cuda_linkerComplete_exit(thread, result);
+    Trc_cuda_linkerComplete_exit(thread, result);
 
-	return result;
+    return result;
 }
 
 #endif /* OMR_OPT_CUDA */
@@ -150,28 +141,26 @@ Java_com_ibm_cuda_CudaLinker_complete
  * @param[in] options   an optional options pointer
  * @return the linker state pointer
  */
-jlong JNICALL
-Java_com_ibm_cuda_CudaLinker_create
-  (JNIEnv * env, jclass, jint deviceId, jlong options)
+jlong JNICALL Java_com_ibm_cuda_CudaLinker_create(JNIEnv* env, jclass, jint deviceId, jlong options)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_linkerCreate_entry(thread, deviceId, (J9CudaJitOptions *)options);
+    Trc_cuda_linkerCreate_entry(thread, deviceId, (J9CudaJitOptions*)options);
 
-	J9CudaLinker linker = NULL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    J9CudaLinker linker = NULL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_linkerCreate((uint32_t)deviceId, (J9CudaJitOptions *)options, &linker);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_linkerCreate((uint32_t)deviceId, (J9CudaJitOptions*)options, &linker);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_linkerCreate_exit(thread, linker);
+    Trc_cuda_linkerCreate_exit(thread, linker);
 
-	return (jlong)linker;
+    return (jlong)linker;
 }
 
 #ifdef OMR_OPT_CUDA
@@ -188,23 +177,21 @@ Java_com_ibm_cuda_CudaLinker_create
  * @param[in] deviceId  the device identifier
  * @param[in] linker    the linker state pointer
  */
-void JNICALL
-Java_com_ibm_cuda_CudaLinker_destroy
-  (JNIEnv * env, jclass, jint deviceId, jlong linker)
+void JNICALL Java_com_ibm_cuda_CudaLinker_destroy(JNIEnv* env, jclass, jint deviceId, jlong linker)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_linkerDestroy_entry(thread, deviceId, (J9CudaLinker)linker);
+    Trc_cuda_linkerDestroy_entry(thread, deviceId, (J9CudaLinker)linker);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_linkerDestroy((uint32_t)deviceId, (J9CudaLinker)linker);
+    int32_t error = j9cuda_linkerDestroy((uint32_t)deviceId, (J9CudaLinker)linker);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_linkerDestroy_exit(thread);
+    Trc_cuda_linkerDestroy_exit(thread);
 }
 
 #endif /* OMR_OPT_CUDA */

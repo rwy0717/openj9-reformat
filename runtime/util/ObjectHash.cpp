@@ -25,23 +25,15 @@
 
 extern "C" {
 
-
-I_32
-computeObjectAddressToHash(J9JavaVM *vm, j9object_t objectPointer)
+I_32 computeObjectAddressToHash(J9JavaVM* vm, j9object_t objectPointer)
 {
-	return VM_ObjectHash::inlineComputeObjectAddressToHash(vm, objectPointer);
+    return VM_ObjectHash::inlineComputeObjectAddressToHash(vm, objectPointer);
 }
 
-I_32
-convertValueToHash(J9JavaVM *vm, UDATA value)
-{
-	return VM_ObjectHash::inlineConvertValueToHash(vm, value);
-}
+I_32 convertValueToHash(J9JavaVM* vm, UDATA value) { return VM_ObjectHash::inlineConvertValueToHash(vm, value); }
 
-I_32
-objectHashCode(J9JavaVM *vm, j9object_t objectPointer)
+I_32 objectHashCode(J9JavaVM* vm, j9object_t objectPointer)
 {
-	return VM_ObjectHash::inlineObjectHashCode(vm, objectPointer);
+    return VM_ObjectHash::inlineObjectHashCode(vm, objectPointer);
 }
-
 }

@@ -23,6 +23,6 @@
 #if !defined(TGCLARGEALLOCATION_HPP_)
 #define TGCLARGEALLOCATION_HPP_
 
-bool tgcLargeAllocationInitialize(J9JavaVM *javaVM);
+bool tgcLargeAllocationInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCLARGEALLOCATION_HPP_ */

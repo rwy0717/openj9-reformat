@@ -25,154 +25,130 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
+static agentEnv* env;
 
-jint JNICALL
-gomsdi001(agentEnv * agent_env, char * args)
+jint JNICALL gomsdi001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);                                
-	jvmtiCapabilities capabilities;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_get_owned_monitor_stack_depth_info = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}				
-			
-	return JNI_OK;
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_get_owned_monitor_stack_depth_info = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_ThreadNDepth_verify(
-		JNIEnv *jni_env, 
-		jclass klass, 
-		jthread thread,		
-		jint expectedMonitorCount,
-		jint expectedDepth,
-		jobject monitorA) 
+jboolean JNICALL Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_ThreadNDepth_verify(
+    JNIEnv* jni_env, jclass klass, jthread thread, jint expectedMonitorCount, jint expectedDepth, jobject monitorA)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
     jvmtiError err;
     jint infoCount;
-    jvmtiMonitorStackDepthInfo *info;
-    
-    
+    jvmtiMonitorStackDepthInfo* info;
+
     err = (*jvmti_env)->GetOwnedMonitorStackDepthInfo(jvmti_env, thread, &infoCount, &info);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
+        error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
         return JNI_FALSE;
     }
-      
+
     err = JVMTI_ERROR_INTERNAL;
-    
+
     if (infoCount != expectedMonitorCount) {
-    	error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
+        error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
         return JNI_FALSE;
     }
-    
+
     if (info[0].stack_depth != expectedDepth) {
-    	error(env, err, "Incorrect stack depth owned monitor. Expected %d got [%d]", expectedDepth, info[0].stack_depth);
-        return JNI_FALSE;    	
+        error(
+            env, err, "Incorrect stack depth owned monitor. Expected %d got [%d]", expectedDepth, info[0].stack_depth);
+        return JNI_FALSE;
     }
-    
-    
+
     if ((*jni_env)->IsSameObject(jni_env, info[0].monitor, monitorA) != JNI_TRUE) {
-    	error(env, err, "The returned monitor object does not match the expected one");
-    	return JNI_FALSE;
+        error(env, err, "The returned monitor object does not match the expected one");
+        return JNI_FALSE;
     }
-    
+
     return JNI_TRUE;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_ThreadNDepth_verifyDeeper(
-		JNIEnv *jni_env, 
-		jclass klass, 
-		jthread thread,
-		jint expectedMonitorCount,
-		jint expectedDepthA,
-		jint expectedDepthB,
-		jobject monitorA,
-		jobject monitorB) 
+jboolean JNICALL Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_ThreadNDepth_verifyDeeper(JNIEnv* jni_env,
+    jclass klass, jthread thread, jint expectedMonitorCount, jint expectedDepthA, jint expectedDepthB, jobject monitorA,
+    jobject monitorB)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
     jvmtiError err;
     jint infoCount;
-    jvmtiMonitorStackDepthInfo *info;
-    
-    
+    jvmtiMonitorStackDepthInfo* info;
+
     err = (*jvmti_env)->GetOwnedMonitorStackDepthInfo(jvmti_env, thread, &infoCount, &info);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
+        error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
         return JNI_FALSE;
     }
-      
+
     if (infoCount != expectedMonitorCount) {
-    	error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
+        error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
         return JNI_FALSE;
     }
-    
+
     if (info[0].stack_depth != expectedDepthA) {
-    	error(env, err, "Incorrect stack depth owned monitorA. Expected %d got [%d]", expectedDepthA, info[0].stack_depth);
-        return JNI_FALSE;    	
+        error(env, err, "Incorrect stack depth owned monitorA. Expected %d got [%d]", expectedDepthA,
+            info[0].stack_depth);
+        return JNI_FALSE;
     }
 
     if (info[1].stack_depth != expectedDepthB) {
-    	error(env, err, "Incorrect stack depth owned monitorB. Expected %d got [%d]", expectedDepthB, info[1].stack_depth);
-        return JNI_FALSE;    	
+        error(env, err, "Incorrect stack depth owned monitorB. Expected %d got [%d]", expectedDepthB,
+            info[1].stack_depth);
+        return JNI_FALSE;
     }
-            
+
     if ((*jni_env)->IsSameObject(jni_env, info[1].monitor, monitorA) != JNI_TRUE) {
-    	error(env, err, "The returned monitor object does not match the expected one (monitorA)");
-    	return JNI_FALSE;
+        error(env, err, "The returned monitor object does not match the expected one (monitorA)");
+        return JNI_FALSE;
     }
-    
+
     if ((*jni_env)->IsSameObject(jni_env, info[0].monitor, monitorB) != JNI_TRUE) {
-    	error(env, err, "The returned monitor object does not match the expected one (monitorB)");
-    	return JNI_FALSE;
+        error(env, err, "The returned monitor object does not match the expected one (monitorB)");
+        return JNI_FALSE;
     }
-    
-    
+
     return JNI_TRUE;
 }
 
-
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_gomsdi001_nDepth(
-		JNIEnv *jni_env, 
-		jclass klass, 
-		jthread thread,
-		jint expectedMonitorCount,
-		jint expectedDepth) 
+jboolean JNICALL Java_com_ibm_jvmti_tests_getOwnedMonitorStackDepthInfo_gomsdi001_nDepth(
+    JNIEnv* jni_env, jclass klass, jthread thread, jint expectedMonitorCount, jint expectedDepth)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
     jvmtiError err;
     jint infoCount;
-    jvmtiMonitorStackDepthInfo *info;
-    
-    
+    jvmtiMonitorStackDepthInfo* info;
+
     err = (*jvmti_env)->GetOwnedMonitorStackDepthInfo(jvmti_env, thread, &infoCount, &info);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
+        error(env, err, "Failed to GetOwnedMonitorStackDepthInfo");
         return JNI_FALSE;
     }
 
     if (infoCount != expectedMonitorCount) {
-    	error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
+        error(env, err, "Incorrect count of owned monitors. Expected %d got [%d]", expectedMonitorCount, infoCount);
         return JNI_FALSE;
     }
-    
+
     if (info[0].stack_depth != expectedDepth) {
-    	error(env, err, "Incorrect stack depth owned monitor. Expected 2 got [%d]", info[0].stack_depth);
-        return JNI_FALSE;    	
+        error(env, err, "Incorrect stack depth owned monitor. Expected 2 got [%d]", info[0].stack_depth);
+        return JNI_FALSE;
     }
-        
+
     return JNI_TRUE;
 }

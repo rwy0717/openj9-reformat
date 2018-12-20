@@ -32,80 +32,75 @@
 #include "TgcExtensions.hpp"
 
 /**
- * Check for excessive GC. 
+ * Check for excessive GC.
  * Function called by a hook when the collector checks for excessive GC
- * 
+ *
  */
-static void
-tgcHookExcessiveGCCheckGCActivity(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookExcessiveGCCheckGCActivity(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_ExcessiveGCCheckGCActivityEvent* event = (MM_ExcessiveGCCheckGCActivityEvent *)eventData;
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(event->currentThread);
-	
-	tgcExtensions->printf("\texcessiveGC: gcid=\"%zu\" intimems=\"%llu.%03.3llu\" outtimems=\"%llu.%03.3llu\" percent=\"%2.2f\" averagepercent=\"%2.2f\" \n", 
-						event->gcCount,						
-						event->gcInTime / 1000, 
-						event->gcInTime % 1000,
-						event->gcOutTime / 1000, 
-						event->gcOutTime % 1000,
-						event->newGCPercent,
-						event->averageGCPercent);
+    MM_ExcessiveGCCheckGCActivityEvent* event = (MM_ExcessiveGCCheckGCActivityEvent*)eventData;
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(event->currentThread);
+
+    tgcExtensions->printf("\texcessiveGC: gcid=\"%zu\" intimems=\"%llu.%03.3llu\" outtimems=\"%llu.%03.3llu\" "
+                          "percent=\"%2.2f\" averagepercent=\"%2.2f\" \n",
+        event->gcCount, event->gcInTime / 1000, event->gcInTime % 1000, event->gcOutTime / 1000,
+        event->gcOutTime % 1000, event->newGCPercent, event->averageGCPercent);
 }
 
 /**
  * Excessive GC raised.
  * Function called by a hook when the collector raises excessive GC condition.
- * 
+ *
  */
-static void
-tgcHookExcessiveGCCheckFreeSpace(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookExcessiveGCCheckFreeSpace(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_ExcessiveGCCheckFreeSpaceEvent* event = (MM_ExcessiveGCCheckFreeSpaceEvent *)eventData;
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(event->currentThread);
-		
-	tgcExtensions->printf("\texcessiveGC: gcid=\"%zu\" percentreclaimed=\"%2.2f\" freedelta=\"%zu\" activesize=\"%zu\" currentsize=\"%zu\" maxiumumsize=\"%zu\" \n", 
-		event->gcCount, 
-		event->reclaimedPercent,
-		event->freeMemoryDelta, 
-		event->activeHeapSize, 
-		event->currentHeapSize, 
-		event->maximumHeapSize);
+    MM_ExcessiveGCCheckFreeSpaceEvent* event = (MM_ExcessiveGCCheckFreeSpaceEvent*)eventData;
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(event->currentThread);
+
+    tgcExtensions->printf("\texcessiveGC: gcid=\"%zu\" percentreclaimed=\"%2.2f\" freedelta=\"%zu\" activesize=\"%zu\" "
+                          "currentsize=\"%zu\" maxiumumsize=\"%zu\" \n",
+        event->gcCount, event->reclaimedPercent, event->freeMemoryDelta, event->activeHeapSize, event->currentHeapSize,
+        event->maximumHeapSize);
 }
 
 /**
  * Excessive GC raised.
  * Function called by a hook when the collector raises excessive GC condition.
- * 
+ *
  */
-static void
-tgcHookExcessiveGCRaised(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookExcessiveGCRaised(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_ExcessiveGCRaisedEvent* event = (MM_ExcessiveGCRaisedEvent *)eventData;
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions((J9VMThread*)(event->currentThread->_language_vmthread));
-	
-	tgcExtensions->printf("\texcessiveGC: gcid=\"%zu\" percentreclaimed=\"%2.2f\" minimum=\"%2.2f\" excessive gc raised \n", 
-					event->gcCount, 
-					event->reclaimedPercent, 
-					event->triggerPercent);
+    MM_ExcessiveGCRaisedEvent* event = (MM_ExcessiveGCRaisedEvent*)eventData;
+    MM_TgcExtensions* tgcExtensions
+        = MM_TgcExtensions::getExtensions((J9VMThread*)(event->currentThread->_language_vmthread));
+
+    tgcExtensions->printf(
+        "\texcessiveGC: gcid=\"%zu\" percentreclaimed=\"%2.2f\" minimum=\"%2.2f\" excessive gc raised \n",
+        event->gcCount, event->reclaimedPercent, event->triggerPercent);
 }
 
 /**
  * Initialize excessive tgc tracing.
  * Initializes the TgcExcessiveGCExtensions object associated with excessive GC  tgc tracing. Attaches hooks
- * to the appropriate functions handling events used by excessive GC tgc tracing. 
+ * to the appropriate functions handling events used by excessive GC tgc tracing.
  */
-bool
-tgcExcessiveGCInitialize(J9JavaVM *javaVM)
+bool tgcExcessiveGCInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
-	J9HookInterface** publicHooks = J9_HOOK_INTERFACE(extensions->hookInterface);
-	J9HookInterface** omrPublicHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*privateHooks)->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_EXCESSIVEGC_CHECK_GC_ACTIVITY, tgcHookExcessiveGCCheckGCActivity, OMR_GET_CALLSITE(), NULL);
-	(*privateHooks)->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_EXCESSIVEGC_CHECK_FREE_SPACE, tgcHookExcessiveGCCheckFreeSpace, OMR_GET_CALLSITE(), NULL);
-	(*publicHooks)->J9HookRegisterWithCallSite(omrPublicHooks, J9HOOK_MM_OMR_EXCESSIVEGC_RAISED, tgcHookExcessiveGCRaised, OMR_GET_CALLSITE(), NULL);
+    J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
+    J9HookInterface** publicHooks = J9_HOOK_INTERFACE(extensions->hookInterface);
+    J9HookInterface** omrPublicHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*privateHooks)
+        ->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_EXCESSIVEGC_CHECK_GC_ACTIVITY,
+            tgcHookExcessiveGCCheckGCActivity, OMR_GET_CALLSITE(), NULL);
+    (*privateHooks)
+        ->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_EXCESSIVEGC_CHECK_FREE_SPACE,
+            tgcHookExcessiveGCCheckFreeSpace, OMR_GET_CALLSITE(), NULL);
+    (*publicHooks)
+        ->J9HookRegisterWithCallSite(
+            omrPublicHooks, J9HOOK_MM_OMR_EXCESSIVEGC_RAISED, tgcHookExcessiveGCRaised, OMR_GET_CALLSITE(), NULL);
 
-	return result;
+    return result;
 }

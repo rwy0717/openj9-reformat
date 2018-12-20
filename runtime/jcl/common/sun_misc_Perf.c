@@ -29,107 +29,74 @@
  */
 
 /* public static native void registerNatives(); */
-void JNICALL
-Java_sun_misc_Perf_registerNatives(JNIEnv *env, jclass klass)
-{
-}
+void JNICALL Java_sun_misc_Perf_registerNatives(JNIEnv* env, jclass klass) {}
 
 /* private native ByteBuffer attach(String user, int lvmid, int mode) throws IllegalArgumentException, IOException; */
-jobject JNICALL
-Java_sun_misc_Perf_attach(JNIEnv *env, jobject perf, jstring user, jint lvmid, jint mode)
+jobject JNICALL Java_sun_misc_Perf_attach(JNIEnv* env, jobject perf, jstring user, jint lvmid, jint mode)
 {
-	return NULL;
+    return NULL;
 }
 
 /* private native void detach(java.nio.ByteBuffer); */
-jobject JNICALL
-Java_sun_misc_Perf_detach(JNIEnv * env, jobject perf, jobject byteBuffer)
-{
-	return NULL;
-}
+jobject JNICALL Java_sun_misc_Perf_detach(JNIEnv* env, jobject perf, jobject byteBuffer) { return NULL; }
 
 /* public native ByteBuffer createLong(String name, int variability, int units, long value); */
-jobject JNICALL
-Java_sun_misc_Perf_createLong(JNIEnv *env, jobject perf, jstring name, jint variability, jint units, jlong value)
+jobject JNICALL Java_sun_misc_Perf_createLong(
+    JNIEnv* env, jobject perf, jstring name, jint variability, jint units, jlong value)
 {
-	jclass klass;
-	jmethodID method;
-	jobject result = NULL;
+    jclass klass;
+    jmethodID method;
+    jobject result = NULL;
 
-	klass = (*env)->FindClass(env, "java/nio/ByteBuffer");
-	if (NULL != klass) {
-		method = (*env)->GetStaticMethodID(env, klass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;");
-		if (NULL != method) {
-			result = (*env)->CallStaticObjectMethod(env, klass, method, 8);
-		}
-	}
+    klass = (*env)->FindClass(env, "java/nio/ByteBuffer");
+    if (NULL != klass) {
+        method = (*env)->GetStaticMethodID(env, klass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;");
+        if (NULL != method) {
+            result = (*env)->CallStaticObjectMethod(env, klass, method, 8);
+        }
+    }
 
-	return result;
+    return result;
 }
 
 /* public native ByteBuffer createByteArray(String name, int variability, int units, byte[] value, int maxLength); */
-jobject JNICALL
-Java_sun_misc_Perf_createByteArray(JNIEnv *env, jobject perf, jstring name, jint variability, jint units, jarray value, jint maxLength)
+jobject JNICALL Java_sun_misc_Perf_createByteArray(
+    JNIEnv* env, jobject perf, jstring name, jint variability, jint units, jarray value, jint maxLength)
 {
-	return NULL;
+    return NULL;
 }
 
 /* public native long highResCounter(); */
-jlong JNICALL
-Java_sun_misc_Perf_highResCounter(JNIEnv *env, jobject perf)
+jlong JNICALL Java_sun_misc_Perf_highResCounter(JNIEnv* env, jobject perf)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	return j9time_hires_clock();
+    PORT_ACCESS_FROM_ENV(env);
+    return j9time_hires_clock();
 }
 
 /* public native long highResFrequency(); */
-jlong JNICALL
-Java_sun_misc_Perf_highResFrequency(JNIEnv *env, jobject perf)
+jlong JNICALL Java_sun_misc_Perf_highResFrequency(JNIEnv* env, jobject perf)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	return j9time_hires_frequency();
+    PORT_ACCESS_FROM_ENV(env);
+    return j9time_hires_frequency();
 }
 
-void
-registerJdkInternalPerfPerfNatives(JNIEnv *env, jclass clazz) {
-	/* clazz can't be null */
-	JNINativeMethod natives[] = {
-		{
-			(char*)"createLong",
-			(char*)"(Ljava/lang/String;IIJ)Ljava/nio/ByteBuffer;",
-			(void *)&Java_sun_misc_Perf_createLong
-		},
-		{
-			(char*)"createByteArray",
-			(char*)"(Ljava/lang/String;II[BI)Ljava/nio/ByteBuffer;",
-			(void *)&Java_sun_misc_Perf_createByteArray
-		},
-		{
-			(char*)"attach",
-			(char*)"(Ljava/lang/String;II)Ljava/nio/ByteBuffer;",
-			(void *)&Java_sun_misc_Perf_attach
-		},
-		{
-			(char*)"detach",
-			(char*)"(Ljava/nio/ByteBuffer;)V",
-			(void *)&Java_sun_misc_Perf_detach
-		},
-		{
-			(char*)"highResCounter",
-			(char*)"()J",
-			(void *)&Java_sun_misc_Perf_highResCounter
-		},
-		{
-			(char*)"highResFrequency",
-			(char*)"()J",
-			(void *)&Java_sun_misc_Perf_highResFrequency
-		},
-	};
-	(*env)->RegisterNatives(env, clazz, natives, sizeof(natives)/sizeof(JNINativeMethod));
+void registerJdkInternalPerfPerfNatives(JNIEnv* env, jclass clazz)
+{
+    /* clazz can't be null */
+    JNINativeMethod natives[] = {
+        { (char*)"createLong", (char*)"(Ljava/lang/String;IIJ)Ljava/nio/ByteBuffer;",
+            (void*)&Java_sun_misc_Perf_createLong },
+        { (char*)"createByteArray", (char*)"(Ljava/lang/String;II[BI)Ljava/nio/ByteBuffer;",
+            (void*)&Java_sun_misc_Perf_createByteArray },
+        { (char*)"attach", (char*)"(Ljava/lang/String;II)Ljava/nio/ByteBuffer;", (void*)&Java_sun_misc_Perf_attach },
+        { (char*)"detach", (char*)"(Ljava/nio/ByteBuffer;)V", (void*)&Java_sun_misc_Perf_detach },
+        { (char*)"highResCounter", (char*)"()J", (void*)&Java_sun_misc_Perf_highResCounter },
+        { (char*)"highResFrequency", (char*)"()J", (void*)&Java_sun_misc_Perf_highResFrequency },
+    };
+    (*env)->RegisterNatives(env, clazz, natives, sizeof(natives) / sizeof(JNINativeMethod));
 }
 
-void JNICALL
-Java_jdk_internal_perf_Perf_registerNatives(JNIEnv *env, jclass clazz)
+void JNICALL Java_jdk_internal_perf_Perf_registerNatives(JNIEnv* env, jclass clazz)
 {
-	registerJdkInternalPerfPerfNatives(env, clazz);
+    registerJdkInternalPerfPerfNatives(env, clazz);
 }

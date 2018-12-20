@@ -39,8 +39,7 @@
  *			If any J9VMThread has exclusive access, ensure no other thread has exclusive or vm access.
  */
 
-static void verifyJ9VMThread(J9JavaVM *vm, J9VMThread *thread);
-
+static void verifyJ9VMThread(J9JavaVM* vm, J9VMThread* thread);
 
 /**
  * Check VM thread sanity.
@@ -50,54 +49,53 @@ static void verifyJ9VMThread(J9JavaVM *vm, J9VMThread *thread);
  *
  * @param[in] J9JavaVM The Java VM to check. *
  */
-void
-checkJ9VMThreadSanity(J9JavaVM *vm)
+void checkJ9VMThreadSanity(J9JavaVM* vm)
 {
-	UDATA count = 0;
-	J9VMThread *mainThread;
-	J9VMThread *thread;
-	UDATA numberOfThreadsWithVMAccess = 0;
-	BOOLEAN exclusiveVMAccess = (J9_XACCESS_EXCLUSIVE == DBG_ARROW(vm, exclusiveAccessState));
-	VMCHECK_PORT_ACCESS_FROM_JAVAVM(vm);
+    UDATA count = 0;
+    J9VMThread* mainThread;
+    J9VMThread* thread;
+    UDATA numberOfThreadsWithVMAccess = 0;
+    BOOLEAN exclusiveVMAccess = (J9_XACCESS_EXCLUSIVE == DBG_ARROW(vm, exclusiveAccessState));
+    VMCHECK_PORT_ACCESS_FROM_JAVAVM(vm);
 
-	vmchkPrintf(vm, "  %s Checking threads>\n", VMCHECK_PREFIX);
+    vmchkPrintf(vm, "  %s Checking threads>\n", VMCHECK_PREFIX);
 
-	mainThread = (J9VMThread *)DBG_ARROW(vm, mainThread);
-	thread = mainThread;
-	do {
-		verifyJ9VMThread(vm, thread);
+    mainThread = (J9VMThread*)DBG_ARROW(vm, mainThread);
+    thread = mainThread;
+    do {
+        verifyJ9VMThread(vm, thread);
 
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-		if (!DBG_ARROW(thread, inNative))
+        if (!DBG_ARROW(thread, inNative))
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-		{
-			if (J9_PUBLIC_FLAGS_VM_ACCESS == (DBG_ARROW(thread, publicFlags) & J9_PUBLIC_FLAGS_VM_ACCESS)) {
-				numberOfThreadsWithVMAccess++;
-			}
-		}
+        {
+            if (J9_PUBLIC_FLAGS_VM_ACCESS == (DBG_ARROW(thread, publicFlags) & J9_PUBLIC_FLAGS_VM_ACCESS)) {
+                numberOfThreadsWithVMAccess++;
+            }
+        }
 
-		count++;
-		thread = (J9VMThread *)DBG_ARROW(thread, linkNext);
-	} while (thread != mainThread);
+        count++;
+        thread = (J9VMThread*)DBG_ARROW(thread, linkNext);
+    } while (thread != mainThread);
 
-	if (exclusiveVMAccess && (numberOfThreadsWithVMAccess > 1)) {
-		vmchkPrintf(vm, "%s - Error numberOfThreadsWithVMAccess (%d) > 1 with vm->exclusiveAccessState == J9_XACCESS_EXCLUSIVE>\n",
-			VMCHECK_FAILED, numberOfThreadsWithVMAccess);
-	}
+    if (exclusiveVMAccess && (numberOfThreadsWithVMAccess > 1)) {
+        vmchkPrintf(vm,
+            "%s - Error numberOfThreadsWithVMAccess (%d) > 1 with vm->exclusiveAccessState == J9_XACCESS_EXCLUSIVE>\n",
+            VMCHECK_FAILED, numberOfThreadsWithVMAccess);
+    }
 
-	vmchkPrintf(vm, "  %s Checking %d threads done>\n", VMCHECK_PREFIX, count);
+    vmchkPrintf(vm, "  %s Checking %d threads done>\n", VMCHECK_PREFIX, count);
 }
 
-static void
-verifyJ9VMThread(J9JavaVM *vm, J9VMThread *thread)
+static void verifyJ9VMThread(J9JavaVM* vm, J9VMThread* thread)
 {
-	J9JavaVM *threadJavaVM = (J9JavaVM *)DBG_ARROW(thread, javaVM);
+    J9JavaVM* threadJavaVM = (J9JavaVM*)DBG_ARROW(thread, javaVM);
 
-	if (vm != threadJavaVM) {
-		vmchkPrintf(vm, "%s - Error vm (0x%p) != thread->javaVM (0x%p) for thread=0x%p>\n",
-			VMCHECK_FAILED, vm, threadJavaVM, thread);
-	} else if (threadJavaVM != (J9JavaVM *)DBG_ARROW(threadJavaVM, javaVM)) {
-		vmchkPrintf(vm, "%s - Error thread->javaVM (0x%p) != thread->javaVM->javaVM (0x%p) for thread=0x%p>\n",
-			VMCHECK_FAILED, threadJavaVM, DBG_ARROW(threadJavaVM, javaVM), thread);
-	}
+    if (vm != threadJavaVM) {
+        vmchkPrintf(vm, "%s - Error vm (0x%p) != thread->javaVM (0x%p) for thread=0x%p>\n", VMCHECK_FAILED, vm,
+            threadJavaVM, thread);
+    } else if (threadJavaVM != (J9JavaVM*)DBG_ARROW(threadJavaVM, javaVM)) {
+        vmchkPrintf(vm, "%s - Error thread->javaVM (0x%p) != thread->javaVM->javaVM (0x%p) for thread=0x%p>\n",
+            VMCHECK_FAILED, threadJavaVM, DBG_ARROW(threadJavaVM, javaVM), thread);
+    }
 }

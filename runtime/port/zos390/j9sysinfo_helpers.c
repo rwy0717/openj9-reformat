@@ -37,66 +37,62 @@
 #include "ut_j9prt.h"
 
 /* Foward declarations. */
-static int32_t
-computeCpuTime(struct J9PortLibrary *portLibrary, int64_t *cpuTime);
+static int32_t computeCpuTime(struct J9PortLibrary* portLibrary, int64_t* cpuTime);
 
-static int32_t
-getProcessorSpeed(struct J9PortLibrary *portLibrary, int64_t *cpuSpeed);
+static int32_t getProcessorSpeed(struct J9PortLibrary* portLibrary, int64_t* cpuSpeed);
 
-intptr_t
-retrieveZGuestMemoryStats(struct J9PortLibrary *portLibrary, struct J9GuestMemoryUsage *gmUsage)
+intptr_t retrieveZGuestMemoryStats(struct J9PortLibrary* portLibrary, struct J9GuestMemoryUsage* gmUsage)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	J9RMCT * __ptr32 rmctp = ((J9PSA * __ptr32)0)->flccvt->cvtopctp;
-	J9RCE * __ptr32 rcep = ((J9PSA * __ptr32)0)->flccvt->cvtrcep;
-	J9PVT * __ptr32 pvtp = ((J9PSA * __ptr32)0)->flccvt->cvtpvtp;
-	J9RIT * __ptr32 ritp = pvtp->pvtritp;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    J9RMCT* __ptr32 rmctp = ((J9PSA * __ptr32)0)->flccvt->cvtopctp;
+    J9RCE* __ptr32 rcep = ((J9PSA * __ptr32)0)->flccvt->cvtrcep;
+    J9PVT* __ptr32 pvtp = ((J9PSA * __ptr32)0)->flccvt->cvtpvtp;
+    J9RIT* __ptr32 ritp = pvtp->pvtritp;
 
-	Trc_PRT_retrieveZGuestMemoryStats_Entered();
+    Trc_PRT_retrieveZGuestMemoryStats_Entered();
 
-	/* Total number of frames currently on all available frame queues. Also, each frame
-	 * is page sized.
-	 */
-	gmUsage->memUsed = ((uint64_t)(rcep->rcepool - rcep->rceafc) * J9BYTES_PER_PAGE);
+    /* Total number of frames currently on all available frame queues. Also, each frame
+     * is page sized.
+     */
+    gmUsage->memUsed = ((uint64_t)(rcep->rcepool - rcep->rceafc) * J9BYTES_PER_PAGE);
 
-	/* This is in bytes already - no conversion required. */
-	gmUsage->maxMemLimit = (uint64_t)ritp->rittos;
+    /* This is in bytes already - no conversion required. */
+    gmUsage->maxMemLimit = (uint64_t)ritp->rittos;
 
-	/* The timestamp when the above data was collected. */
-	gmUsage->timestamp = omrtime_nano_time() / NANOSECS_PER_USEC;
+    /* The timestamp when the above data was collected. */
+    gmUsage->timestamp = omrtime_nano_time() / NANOSECS_PER_USEC;
 
-	Trc_PRT_retrieveZGuestMemoryStats_Exit(0);
-	return 0;
+    Trc_PRT_retrieveZGuestMemoryStats_Exit(0);
+    return 0;
 }
 
-intptr_t
-retrieveZGuestProcessorStats(struct J9PortLibrary *portLibrary, struct J9GuestProcessorUsage *gpUsage)
+intptr_t retrieveZGuestProcessorStats(struct J9PortLibrary* portLibrary, struct J9GuestProcessorUsage* gpUsage)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	int32_t rc = 0;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    int32_t rc = 0;
 
-	Trc_PRT_retrieveZGuestProcessorStats_Entered();
+    Trc_PRT_retrieveZGuestProcessorStats_Entered();
 
-	/* This is not available on Z/OS yet. When available, populate the field. */
-	gpUsage->cpuEntitlement = -1;
+    /* This is not available on Z/OS yet. When available, populate the field. */
+    gpUsage->cpuEntitlement = -1;
 
-	/* Obtain CPU time and the CPU speed. */
-	rc = computeCpuTime(portLibrary, &gpUsage->cpuTime);
-	if (0 != rc) {
-		goto _leave_routine;
-	}
+    /* Obtain CPU time and the CPU speed. */
+    rc = computeCpuTime(portLibrary, &gpUsage->cpuTime);
+    if (0 != rc) {
+        goto _leave_routine;
+    }
 
-	rc = getProcessorSpeed(portLibrary, &gpUsage->hostCpuClockSpeed);
-	if (0 != rc) {
-		goto _leave_routine;
-	}
+    rc = getProcessorSpeed(portLibrary, &gpUsage->hostCpuClockSpeed);
+    if (0 != rc) {
+        goto _leave_routine;
+    }
 
-	/* The timestamp when the above data was collected. */
-	gpUsage->timestamp = omrtime_nano_time() / NANOSECS_PER_USEC;
+    /* The timestamp when the above data was collected. */
+    gpUsage->timestamp = omrtime_nano_time() / NANOSECS_PER_USEC;
 
 _leave_routine:
-	Trc_PRT_retrieveZGuestProcessorStats_Exit(rc);
-	return rc;
+    Trc_PRT_retrieveZGuestProcessorStats_Exit(rc);
+    return rc;
 }
 
 /**
@@ -107,97 +103,94 @@ _leave_routine:
  *
  * @return error code. 0, on success; negative value, in case of  an error.
  */
-static int32_t
-computeCpuTime(struct J9PortLibrary *portLibrary, int64_t *cpuTime)
+static int32_t computeCpuTime(struct J9PortLibrary* portLibrary, int64_t* cpuTime)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	int32_t anslen = 1048;
-	int32_t i = 0;
-	int32_t rc = 0;
-	size_t lpdatlen = 0;
-	uint64_t uncappedSu = 0;
-	uint64_t cappedSu = 0;
-	J9LPDat *lpdatp = NULL;
-	J9LPDatServiceTableEntry *entryP = NULL;
-	struct sysi *sysip = NULL;
-	struct sysi_entry *sysi_entryp = NULL;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    int32_t anslen = 1048;
+    int32_t i = 0;
+    int32_t rc = 0;
+    size_t lpdatlen = 0;
+    uint64_t uncappedSu = 0;
+    uint64_t cappedSu = 0;
+    J9LPDat* lpdatp = NULL;
+    J9LPDatServiceTableEntry* entryP = NULL;
+    struct sysi* sysip = NULL;
+    struct sysi_entry* sysi_entryp = NULL;
 
-	Trc_PRT_computeCpuTime_Entered();
+    Trc_PRT_computeCpuTime_Entered();
 
-	/* First things first: Query size of the LPDAT structure. */
-	lpdatlen = omrreq_lpdatlen();
-	if (lpdatlen < 0) {
-		/* The query failed!! */
-		Trc_PRT_computeCpuTime_unexpectedLPDataBuffSz(lpdatlen);
-		Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
-		return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
-	}
+    /* First things first: Query size of the LPDAT structure. */
+    lpdatlen = omrreq_lpdatlen();
+    if (lpdatlen < 0) {
+        /* The query failed!! */
+        Trc_PRT_computeCpuTime_unexpectedLPDataBuffSz(lpdatlen);
+        Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
+        return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
+    }
 
-	/* Using this length retrieved allocate buffer for an LDAP structure. */
-	lpdatp = (J9LPDat *)omrmem_allocate_memory(lpdatlen, OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (NULL == lpdatp) {
-		Trc_PRT_computeCpuTime_memAllocFailed();
-		Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED);
-		return J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED;
-	}
+    /* Using this length retrieved allocate buffer for an LDAP structure. */
+    lpdatp = (J9LPDat*)omrmem_allocate_memory(lpdatlen, OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (NULL == lpdatp) {
+        Trc_PRT_computeCpuTime_memAllocFailed();
+        Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED);
+        return J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED;
+    }
 
-	/* Initialize chunk of memory and set the length field in the structure. */
-	memset(lpdatp, 0, lpdatlen);
-	lpdatp->length = lpdatlen;
+    /* Initialize chunk of memory and set the length field in the structure. */
+    memset(lpdatp, 0, lpdatlen);
+    lpdatp->length = lpdatlen;
 
-	/* We now query for the LPAR Data to obtain the CPU service units. */
-	rc = omrreq_lpdat((char*)lpdatp);
-	if (0 != rc) {
-		omrmem_free_memory(lpdatp);
-		Trc_PRT_computeCpuTime_failedRetrievingLparData(rc);
-		Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
-		return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
-	}
+    /* We now query for the LPAR Data to obtain the CPU service units. */
+    rc = omrreq_lpdat((char*)lpdatp);
+    if (0 != rc) {
+        omrmem_free_memory(lpdatp);
+        Trc_PRT_computeCpuTime_failedRetrievingLparData(rc);
+        Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
+        return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
+    }
 
-	/* Sum up serivce units in capped and uncapped modes for all entries that are
-	 * present - by default, there being 48 entries, unless configured otherwise.
-	 */
-	for (i = 0; i < lpdatp->serviceTableEntries; i++) {
-		entryP = (J9LPDatServiceTableEntry*) ((char*) lpdatp +
-				lpdatp->serviceTableOffset +
-				(i * lpdatp->serviceTableEntryLength));
+    /* Sum up serivce units in capped and uncapped modes for all entries that are
+     * present - by default, there being 48 entries, unless configured otherwise.
+     */
+    for (i = 0; i < lpdatp->serviceTableEntries; i++) {
+        entryP = (J9LPDatServiceTableEntry*)((char*)lpdatp + lpdatp->serviceTableOffset
+            + (i * lpdatp->serviceTableEntryLength));
 
-		uncappedSu += entryP->serviceUncapped,
-		cappedSu += entryP->serviceCapped;
-	}
+        uncappedSu += entryP->serviceUncapped, cappedSu += entryP->serviceCapped;
+    }
 
-	/* On a capped partition, CPU time is sum of both, capped as well as uncapped service
-	 * units. For an uncapped partition, CPU time is just the uncapped service units.
-	 */
-	*cpuTime = J9LPAR_CAPPED(lpdatp) ? (uncappedSu + cappedSu) : uncappedSu;
+    /* On a capped partition, CPU time is sum of both, capped as well as uncapped service
+     * units. For an uncapped partition, CPU time is just the uncapped service units.
+     */
+    *cpuTime = J9LPAR_CAPPED(lpdatp) ? (uncappedSu + cappedSu) : uncappedSu;
 
-	sysip = (struct sysi *)omrmem_allocate_memory(anslen, OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (NULL == sysip) {
-		omrmem_free_memory(lpdatp);
-		Trc_PRT_computeCpuTime_memAllocFailed();
-		Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED);
-		return J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED;
-	}
+    sysip = (struct sysi*)omrmem_allocate_memory(anslen, OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (NULL == sysip) {
+        omrmem_free_memory(lpdatp);
+        Trc_PRT_computeCpuTime_memAllocFailed();
+        Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED);
+        return J9PORT_ERROR_HYPERVISOR_MEMORY_ALLOC_FAILED;
+    }
 
-	/* Query the Work Load Manager (WLM) statistics. */
-	rc = QueryMetrics(sysip, &anslen);
-	if (-1 == rc) {
-		rc = errno;
-		omrmem_free_memory(lpdatp);
-		omrmem_free_memory(sysip);
-		Trc_PRT_computeCpuTime_queryMetricsFailed(rc);
-		Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
-		return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
-	}
-	sysi_entryp = (struct sysi_entry*) ((char*)sysip + sysip->sysi_header_size);
+    /* Query the Work Load Manager (WLM) statistics. */
+    rc = QueryMetrics(sysip, &anslen);
+    if (-1 == rc) {
+        rc = errno;
+        omrmem_free_memory(lpdatp);
+        omrmem_free_memory(sysip);
+        Trc_PRT_computeCpuTime_queryMetricsFailed(rc);
+        Trc_PRT_computeCpuTime_Exit(J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED);
+        return J9PORT_ERROR_HYPERVISOR_LPDAT_QUERY_FAILED;
+    }
+    sysi_entryp = (struct sysi_entry*)((char*)sysip + sysip->sysi_header_size);
 
-	/* Convert the service units to microseconds. */
-	*cpuTime = (((float)*cpuTime) / (float)sysi_entryp->sysi_cpu_up) * J9PORT_TIME_US_PER_SEC;
+    /* Convert the service units to microseconds. */
+    *cpuTime = (((float)*cpuTime) / (float)sysi_entryp->sysi_cpu_up) * J9PORT_TIME_US_PER_SEC;
 
-	omrmem_free_memory(lpdatp);
-	omrmem_free_memory(sysip);
-	Trc_PRT_computeCpuTime_Exit(0);
-	return 0;
+    omrmem_free_memory(lpdatp);
+    omrmem_free_memory(sysip);
+    Trc_PRT_computeCpuTime_Exit(0);
+    return 0;
 }
 
 /**
@@ -209,20 +202,19 @@ computeCpuTime(struct J9PortLibrary *portLibrary, int64_t *cpuTime)
  *
  * @return      0 on success, negative value on failure
  */
-static int32_t
-getProcessorSpeed(struct J9PortLibrary *portLibrary, int64_t *cpuSpeed)
+static int32_t getProcessorSpeed(struct J9PortLibrary* portLibrary, int64_t* cpuSpeed)
 {
-	int32_t rc = 0;
-	struct qvs qvsInst;
+    int32_t rc = 0;
+    struct qvs qvsInst;
 
-	qvsInst.qvslen = sizeof(qvsInst);
-	rc = iwmqvs(&qvsInst);
-	if ((0 == rc) && (qvsInst.qvscecvalid)) {
-		*cpuSpeed = ((int64_t)qvsInst.qvsceccapacity);
-	} else {
-		rc = J9PORT_ERROR_HYPERVISOR_CLOCKSPEED_NOT_FOUND;
-		Trc_PRT_getProcessorSpeed_vsQueryFailed(rc);
-	}
+    qvsInst.qvslen = sizeof(qvsInst);
+    rc = iwmqvs(&qvsInst);
+    if ((0 == rc) && (qvsInst.qvscecvalid)) {
+        *cpuSpeed = ((int64_t)qvsInst.qvsceccapacity);
+    } else {
+        rc = J9PORT_ERROR_HYPERVISOR_CLOCKSPEED_NOT_FOUND;
+        Trc_PRT_getProcessorSpeed_vsQueryFailed(rc);
+    }
 
-	return rc;
+    return rc;
 }

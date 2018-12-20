@@ -24,13 +24,13 @@
 #define jextractnatives_internal_h
 
 /**
-* @file jextractnatives_internal.h
-* @brief Internal prototypes used within the JEXTRACTNATIVES module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the JEXTRACTNATIVES module.
-*
-*/
+ * @file jextractnatives_internal.h
+ * @brief Internal prototypes used within the JEXTRACTNATIVES module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the JEXTRACTNATIVES module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -40,11 +40,10 @@
 extern "C" {
 #endif
 
-void run_command( const char *cmd );
+void run_command(const char* cmd);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* jextractnatives_internal_h */
-

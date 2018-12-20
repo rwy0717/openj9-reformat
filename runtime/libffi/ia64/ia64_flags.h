@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------
    ia64_flags.h - Copyright (c) 2000 Hewlett Packard Company
-   
-   IA64/unix Foreign Function Interface 
+
+   IA64/unix Foreign Function Interface
 
    Original author: Hans Boehm, HP Labs
 
@@ -31,10 +31,10 @@
    and bits 8-31 will be the actual size of the type.  */
 
 /* Small structures containing N words in integer registers.  */
-#define FFI_IA64_TYPE_SMALL_STRUCT	(FFI_TYPE_LAST + 1)
+#define FFI_IA64_TYPE_SMALL_STRUCT (FFI_TYPE_LAST + 1)
 
 /* Homogeneous Floating Point Aggregates (HFAs) which are returned
    in FP registers.  */
-#define FFI_IA64_TYPE_HFA_FLOAT		(FFI_TYPE_LAST + 2)
-#define FFI_IA64_TYPE_HFA_DOUBLE	(FFI_TYPE_LAST + 3)
-#define FFI_IA64_TYPE_HFA_LDOUBLE	(FFI_TYPE_LAST + 4)
+#define FFI_IA64_TYPE_HFA_FLOAT (FFI_TYPE_LAST + 2)
+#define FFI_IA64_TYPE_HFA_DOUBLE (FFI_TYPE_LAST + 3)
+#define FFI_IA64_TYPE_HFA_LDOUBLE (FFI_TYPE_LAST + 4)

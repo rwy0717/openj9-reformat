@@ -28,34 +28,33 @@
  */
 #ifndef J9_VMMETHODENV_CONNECTOR
 #define J9_VMMETHODENV_CONNECTOR
-namespace J9 { class VMMethodEnv; }
-namespace J9 { typedef J9::VMMethodEnv VMMethodEnvConnector; }
+namespace J9 {
+class VMMethodEnv;
+}
+namespace J9 {
+typedef J9::VMMethodEnv VMMethodEnvConnector;
+}
 #endif
 
 #include "env/OMRVMMethodEnv.hpp"
 #include "infra/Annotations.hpp"
 #include "env/jittypes.h"
 
+namespace J9 {
 
-namespace J9
-{
-
-class OMR_EXTENSIBLE VMMethodEnv : public OMR::VMMethodEnvConnector
-   {
+class OMR_EXTENSIBLE VMMethodEnv : public OMR::VMMethodEnvConnector {
 public:
+    bool hasBackwardBranches(TR_OpaqueMethodBlock* method);
 
-   bool hasBackwardBranches(TR_OpaqueMethodBlock *method);
+    bool isCompiledMethod(TR_OpaqueMethodBlock* method);
 
-   bool isCompiledMethod(TR_OpaqueMethodBlock *method);
+    uintptr_t startPC(TR_OpaqueMethodBlock* method);
 
-   uintptr_t startPC(TR_OpaqueMethodBlock *method);
+    uintptr_t bytecodeStart(TR_OpaqueMethodBlock* method);
 
-   uintptr_t bytecodeStart(TR_OpaqueMethodBlock *method);
+    uint32_t bytecodeSize(TR_OpaqueMethodBlock* method);
+};
 
-   uint32_t bytecodeSize(TR_OpaqueMethodBlock *method);
-
-   };
-
-}
+} // namespace J9
 
 #endif

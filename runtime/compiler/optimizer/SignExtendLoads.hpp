@@ -23,71 +23,70 @@
 #ifndef SIGN_EXTEND_LOADS_INCL
 #define SIGN_EXTEND_LOADS_INCL
 
-#include "optimizer/Optimization.hpp"         // for Optimization
+#include "optimizer/Optimization.hpp" // for Optimization
 
-#include <stdint.h>                           // for int32_t
-#include "compile/Compilation.hpp"            // for Compilation
+#include <stdint.h> // for int32_t
+#include "compile/Compilation.hpp" // for Compilation
 #include "control/Options.hpp"
 #include "control/Options_inlines.hpp"
-#include "env/jittypes.h"                     // for uintptrj_t
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include "env/jittypes.h" // for uintptrj_t
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-namespace TR { class Node; }
-template <class T> class TR_ScratchList;
+namespace TR {
+class Node;
+}
+template <class T>
+class TR_ScratchList;
 
-class TR_SignExtendLoads : public TR::Optimization
-   {
-   public:
-   TR_SignExtendLoads(TR::OptimizationManager *manager)
-      : TR::Optimization(manager)
-      {
-      setTrace(comp()->getOption(TR_TraceSEL));
-      }
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_SignExtendLoads(manager);
-      }
+class TR_SignExtendLoads : public TR::Optimization {
+public:
+    TR_SignExtendLoads(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {
+        setTrace(comp()->getOption(TR_TraceSEL));
+    }
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_SignExtendLoads(manager);
+    }
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
 
-   private:
-   bool gatheri2lNodes(TR::Node* parent,TR::Node *node, TR_ScratchList<TR::Node> & i2lList,
-                       TR_ScratchList<TR::Node> & userI2lList,bool);
+private:
+    bool gatheri2lNodes(TR::Node* parent, TR::Node* node, TR_ScratchList<TR::Node>& i2lList,
+        TR_ScratchList<TR::Node>& userI2lList, bool);
 
-   friend struct HashTable;
+    friend struct HashTable;
 
-   // Hash table mapping of nodes to lists of refering nodes
-   //
-   struct HashTableEntry
-      {
-      HashTableEntry          *_next;
-      TR::Node                 *_node;
-      TR_ScratchList<TR::Node> *_referringList;
-      };
+    // Hash table mapping of nodes to lists of refering nodes
+    //
+    struct HashTableEntry {
+        HashTableEntry* _next;
+        TR::Node* _node;
+        TR_ScratchList<TR::Node>* _referringList;
+    };
 
-   struct HashTable
-      {
-      int32_t          _numBuckets;
-      HashTableEntry **_buckets;
-      };
+    struct HashTable {
+        int32_t _numBuckets;
+        HashTableEntry** _buckets;
+    };
 
-   int32_t nodeHashBucket(TR::Node *node)
-               {return ((uintptrj_t)node >> 2) % _sharedNodesHash._numBuckets;}
+    int32_t nodeHashBucket(TR::Node* node) { return ((uintptrj_t)node >> 2) % _sharedNodesHash._numBuckets; }
 
-   void    InitializeHashTable();
-   TR_ScratchList<TR::Node> * getListFromHash(TR::Node *node);
-   void    addListToHash(TR::Node *node,TR_ScratchList<TR::Node> *nodeList);
-   void    addNodeToHash(TR::Node *node,TR::Node *parent);
-   void    Propagatei2lNode(TR::Node *i2lNode,TR::Node *parent,int32_t childIndex,bool);
-   void    ProcessNodeList(TR_ScratchList<TR::Node> &list,bool isAddressCalc);
-   void    Insertl2iNode(TR::Node *targetNode);
-   bool    ConvertSubTreeToLong(TR::Node *parent,TR::Node *node,bool changeNode);
-   void    emptyHashTable();
-   void    Inserti2lNode(TR::Node *targetNode,TR::Node* newI2LNode);
-   void    ReplaceI2LNode(TR::Node *i2lNode,TR::Node *newNode);
+    void InitializeHashTable();
+    TR_ScratchList<TR::Node>* getListFromHash(TR::Node* node);
+    void addListToHash(TR::Node* node, TR_ScratchList<TR::Node>* nodeList);
+    void addNodeToHash(TR::Node* node, TR::Node* parent);
+    void Propagatei2lNode(TR::Node* i2lNode, TR::Node* parent, int32_t childIndex, bool);
+    void ProcessNodeList(TR_ScratchList<TR::Node>& list, bool isAddressCalc);
+    void Insertl2iNode(TR::Node* targetNode);
+    bool ConvertSubTreeToLong(TR::Node* parent, TR::Node* node, bool changeNode);
+    void emptyHashTable();
+    void Inserti2lNode(TR::Node* targetNode, TR::Node* newI2LNode);
+    void ReplaceI2LNode(TR::Node* i2lNode, TR::Node* newNode);
 
-   HashTable _sharedNodesHash;
-   };
-extern bool shouldEnableSEL(TR::Compilation *c);
+    HashTable _sharedNodesHash;
+};
+extern bool shouldEnableSEL(TR::Compilation* c);
 #endif

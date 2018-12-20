@@ -28,35 +28,38 @@
  */
 #ifndef J9_UNRESOLVEDDATASNIPPET_CONNECTOR
 #define J9_UNRESOLVEDDATASNIPPET_CONNECTOR
-namespace J9 { class UnresolvedDataSnippet; }
-namespace J9 { typedef J9::UnresolvedDataSnippet UnresolvedDataSnippetConnector; }
+namespace J9 {
+class UnresolvedDataSnippet;
+}
+namespace J9 {
+typedef J9::UnresolvedDataSnippet UnresolvedDataSnippetConnector;
+}
 #endif
 
 #include "codegen/OMRUnresolvedDataSnippet.hpp"
 
-#include <stdint.h>                         // for uint8_t, int32_t
+#include <stdint.h> // for uint8_t, int32_t
 
-namespace TR { class SymbolReference; }
-namespace TR { class CodeGenerator; }
-namespace TR { class Node; }
-
-namespace J9
-{
-
-class UnresolvedDataSnippet : public OMR::UnresolvedDataSnippetConnector
-   {
-   public:
-
-   UnresolvedDataSnippet(TR::CodeGenerator * cg,
-                         TR::Node * node,
-                         TR::SymbolReference * symRef,
-                         bool isStore,
-                         bool isGCSafePoint) :
-      OMR::UnresolvedDataSnippetConnector(cg, node, symRef, isStore, isGCSafePoint) { }
-
-   };
-
+namespace TR {
+class SymbolReference;
+}
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Node;
 }
 
-#endif
+namespace J9 {
 
+class UnresolvedDataSnippet : public OMR::UnresolvedDataSnippetConnector {
+public:
+    UnresolvedDataSnippet(
+        TR::CodeGenerator* cg, TR::Node* node, TR::SymbolReference* symRef, bool isStore, bool isGCSafePoint)
+        : OMR::UnresolvedDataSnippetConnector(cg, node, symRef, isStore, isGCSafePoint)
+    {}
+};
+
+} // namespace J9
+
+#endif

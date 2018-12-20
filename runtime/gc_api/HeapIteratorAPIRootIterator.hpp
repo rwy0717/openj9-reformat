@@ -25,29 +25,27 @@
 #include "HeapRootScanner.hpp"
 #include "HeapIteratorAPI.h"
 
-class HeapIteratorAPI_RootIterator : public MM_HeapRootScanner
-{
+class HeapIteratorAPI_RootIterator : public MM_HeapRootScanner {
 private:
-	rootIteratorCallBackFunc _func;
-	UDATA _flags;
-	void *_userData;
-	
+    rootIteratorCallBackFunc _func;
+    UDATA _flags;
+    void* _userData;
+
 public:
-	HeapIteratorAPI_RootIterator(J9JavaVM* javaVM, rootIteratorCallBackFunc callBackFunc, UDATA flags, void *userData ) :
-		MM_HeapRootScanner(javaVM),
-		_func(callBackFunc),
-		_flags(flags),
-		_userData(userData)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
-	void scanAllSlots();
-	
-	virtual void doSlot(J9Object** slotPtr);	
-	virtual void doClass(J9Class *clazz);
-	virtual void doObject(J9Object* slotPtr);
+    HeapIteratorAPI_RootIterator(J9JavaVM* javaVM, rootIteratorCallBackFunc callBackFunc, UDATA flags, void* userData)
+        : MM_HeapRootScanner(javaVM)
+        , _func(callBackFunc)
+        , _flags(flags)
+        , _userData(userData)
+    {
+        _typeId = __FUNCTION__;
+    }
+
+    void scanAllSlots();
+
+    virtual void doSlot(J9Object** slotPtr);
+    virtual void doClass(J9Class* clazz);
+    virtual void doObject(J9Object* slotPtr);
 };
 
 #endif /*HEAPITERATORAPIROOTITERATOR_HPP_*/
-

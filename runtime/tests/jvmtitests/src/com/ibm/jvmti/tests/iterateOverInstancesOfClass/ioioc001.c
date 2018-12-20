@@ -23,104 +23,91 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * _env;                                                    
+static agentEnv* _env;
 
-jint JNICALL
-ioioc001(agentEnv * env, char * args)
+jint JNICALL ioioc001(agentEnv* env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiCapabilities capabilities;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	_env = env;
+    _env = env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_tag_objects = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}		
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_tag_objects = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-
-#define JVMTI_TEST_IOIOC001_CLASS_TAG		0xc0fe
-#define JVMTI_TEST_IOIOC001_SUBCLASS_TAG	0xc0de
+#define JVMTI_TEST_IOIOC001_CLASS_TAG 0xc0fe
+#define JVMTI_TEST_IOIOC001_SUBCLASS_TAG 0xc0de
 
 typedef struct ioioc001_data {
-	int foundClass;
-	int foundSubClass;
+    int foundClass;
+    int foundSubClass;
 } ioioc001_data;
 
-
-
-static jvmtiIterationControl JNICALL
-heapObjectCallback(jlong class_tag, jlong size, jlong * tag_ptr, void * user_data)
+static jvmtiIterationControl JNICALL heapObjectCallback(jlong class_tag, jlong size, jlong* tag_ptr, void* user_data)
 {
-        ioioc001_data * data = (ioioc001_data *) user_data;
+    ioioc001_data* data = (ioioc001_data*)user_data;
 
-	if (*tag_ptr == JVMTI_TEST_IOIOC001_CLASS_TAG) {
-         	data->foundClass = 1;
-	}
- 
-	if (*tag_ptr == JVMTI_TEST_IOIOC001_SUBCLASS_TAG) {
-         	data->foundSubClass = 1;
-	}
- 
-	return JVMTI_ITERATION_CONTINUE;
+    if (*tag_ptr == JVMTI_TEST_IOIOC001_CLASS_TAG) {
+        data->foundClass = 1;
+    }
+
+    if (*tag_ptr == JVMTI_TEST_IOIOC001_SUBCLASS_TAG) {
+        data->foundSubClass = 1;
+    }
+
+    return JVMTI_ITERATION_CONTINUE;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_iterateOverInstancesOfClass_ioioc001_checkSubclasses(JNIEnv * jni_env,
-									      jclass clazz,
-									      jclass klass,
-									      jobject klassObject, 
-									      jobject subKlassObject, 
-									      jchar className, 
-									      jchar subClassName)
+jboolean JNICALL Java_com_ibm_jvmti_tests_iterateOverInstancesOfClass_ioioc001_checkSubclasses(JNIEnv* jni_env,
+    jclass clazz, jclass klass, jobject klassObject, jobject subKlassObject, jchar className, jchar subClassName)
 {
-	jvmtiError rc;
-	jvmtiEnv * jvmti_env = _env->jvmtiEnv;
-	ioioc001_data data;
+    jvmtiError rc;
+    jvmtiEnv* jvmti_env = _env->jvmtiEnv;
+    ioioc001_data data;
 
-	data.foundClass = 0;
-	data.foundSubClass = 0;
+    data.foundClass = 0;
+    data.foundSubClass = 0;
 
-	rc = (*jvmti_env)->SetTag(jvmti_env, klassObject, JVMTI_TEST_IOIOC001_CLASS_TAG);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(_env, rc, "Failed to SetTag [JVMTI_TEST_IOIOC001_CLASS_TAG]");
-		return JNI_FALSE;
-	}
+    rc = (*jvmti_env)->SetTag(jvmti_env, klassObject, JVMTI_TEST_IOIOC001_CLASS_TAG);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(_env, rc, "Failed to SetTag [JVMTI_TEST_IOIOC001_CLASS_TAG]");
+        return JNI_FALSE;
+    }
 
-	rc = (*jvmti_env)->SetTag(jvmti_env, subKlassObject, JVMTI_TEST_IOIOC001_SUBCLASS_TAG);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(_env, rc, "Failed to SetTag [JVMTI_TEST_IOIOC001_SUBCLASS_TAG]");
-		return JNI_FALSE;
-	}
+    rc = (*jvmti_env)->SetTag(jvmti_env, subKlassObject, JVMTI_TEST_IOIOC001_SUBCLASS_TAG);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(_env, rc, "Failed to SetTag [JVMTI_TEST_IOIOC001_SUBCLASS_TAG]");
+        return JNI_FALSE;
+    }
 
-	rc =  (*jvmti_env)->IterateOverInstancesOfClass(jvmti_env, klass, JVMTI_HEAP_OBJECT_EITHER, heapObjectCallback, &data);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(_env, rc, "Failed to jvmtiIterateOverInstancesOfClass");
-        	return JNI_FALSE;
-	}
+    rc = (*jvmti_env)
+             ->IterateOverInstancesOfClass(jvmti_env, klass, JVMTI_HEAP_OBJECT_EITHER, heapObjectCallback, &data);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(_env, rc, "Failed to jvmtiIterateOverInstancesOfClass");
+        return JNI_FALSE;
+    }
 
-	/* Did we find both the class and subclass? */
-	if (data.foundClass && data.foundSubClass) {
-        	return JNI_TRUE;
-	}
+    /* Did we find both the class and subclass? */
+    if (data.foundClass && data.foundSubClass) {
+        return JNI_TRUE;
+    }
 
-        if (data.foundClass == 0) {
-         	error(_env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOIOC001_CLASS_TAG not found");
-	}
- 
-	if (data.foundSubClass == 0) {
-         	error(_env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOIOC001_SUBCLASS_TAG not found");
-	}
- 
-	return JNI_FALSE;
+    if (data.foundClass == 0) {
+        error(_env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOIOC001_CLASS_TAG not found");
+    }
+
+    if (data.foundSubClass == 0) {
+        error(_env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOIOC001_SUBCLASS_TAG not found");
+    }
+
+    return JNI_FALSE;
 }
-
-

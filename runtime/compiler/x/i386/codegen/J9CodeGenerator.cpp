@@ -30,129 +30,105 @@
 #include "codegen/IA32JNILinkage.hpp"
 #include "il/Node_inlines.hpp"
 
-TR::Linkage *
-J9::X86::i386::CodeGenerator::createLinkage(TR_LinkageConventions lc)
-   {
-   TR::Linkage *linkage = NULL;
+TR::Linkage* J9::X86::i386::CodeGenerator::createLinkage(TR_LinkageConventions lc)
+{
+    TR::Linkage* linkage = NULL;
 
-   switch (lc)
-      {
-      case TR_CHelper:
-         linkage = new (self()->trHeapMemory()) TR::X86HelperLinkage(self());
-         break;
-      case TR_Helper:
-      case TR_Private:
-         {
-         TR::X86PrivateLinkage *p = NULL;
-         p = new (self()->trHeapMemory()) TR::IA32PrivateLinkage(self());
-         p->IPicParameters.roundedSizeOfSlot = 6+2+5+2+1;
-         p->IPicParameters.defaultNumberOfSlots = 2;
-         p->IPicParameters.defaultSlotAddress = -1;
-         p->VPicParameters.roundedSizeOfSlot = 6+2+5+2+1;
-         p->VPicParameters.defaultNumberOfSlots = 1;
-         p->VPicParameters.defaultSlotAddress = -1;
-         linkage = p;
-         }
-         break;
+    switch (lc) {
+    case TR_CHelper:
+        linkage = new (self()->trHeapMemory()) TR::X86HelperLinkage(self());
+        break;
+    case TR_Helper:
+    case TR_Private: {
+        TR::X86PrivateLinkage* p = NULL;
+        p = new (self()->trHeapMemory()) TR::IA32PrivateLinkage(self());
+        p->IPicParameters.roundedSizeOfSlot = 6 + 2 + 5 + 2 + 1;
+        p->IPicParameters.defaultNumberOfSlots = 2;
+        p->IPicParameters.defaultSlotAddress = -1;
+        p->VPicParameters.roundedSizeOfSlot = 6 + 2 + 5 + 2 + 1;
+        p->VPicParameters.defaultNumberOfSlots = 1;
+        p->VPicParameters.defaultSlotAddress = -1;
+        linkage = p;
+    } break;
 
-      case TR_J9JNILinkage:
-         if (TR::Compiler->target.isWindows() || TR::Compiler->target.isLinux())
-            {
+    case TR_J9JNILinkage:
+        if (TR::Compiler->target.isWindows() || TR::Compiler->target.isLinux()) {
             linkage = new (self()->trHeapMemory()) TR::IA32JNILinkage(self());
-            }
-         else
-            {
+        } else {
             TR_ASSERT(0, "linkage not supported: %d\n", lc);
             linkage = NULL;
-            }
-         break;
+        }
+        break;
 
-      case TR_System:
-         if (TR::Compiler->target.isWindows() || TR::Compiler->target.isLinux())
-            {
+    case TR_System:
+        if (TR::Compiler->target.isWindows() || TR::Compiler->target.isLinux()) {
             linkage = new (self()->trHeapMemory()) TR::IA32J9SystemLinkage(self());
-            }
-         else
-            {
+        } else {
             TR_ASSERT(0, "linkage not supported: %d\n", lc);
             linkage = NULL;
-            }
-         break;
+        }
+        break;
 
-      default :
-         TR_ASSERT(0, "\nTestarossa error: Illegal linkage convention %d\n", lc);
-      }
+    default:
+        TR_ASSERT(0, "\nTestarossa error: Illegal linkage convention %d\n", lc);
+    }
 
-   self()->setLinkage(lc, linkage);
-   return linkage;
-   }
+    self()->setLinkage(lc, linkage);
+    return linkage;
+}
 
+void J9::X86::i386::CodeGenerator::lowerTreesPreTreeTopVisit(TR::TreeTop* tt, vcount_t visitCount)
+{
+    J9::X86::CodeGenerator::lowerTreesPreTreeTopVisit(tt, visitCount);
 
-void
-J9::X86::i386::CodeGenerator::lowerTreesPreTreeTopVisit(TR::TreeTop *tt, vcount_t visitCount)
-   {
-   J9::X86::CodeGenerator::lowerTreesPreTreeTopVisit(tt, visitCount);
+    TR::Node* node = tt->getNode();
 
-   TR::Node *node = tt->getNode();
+    // On IA32 there are a reduced number of registers available on system
+    // linkage dispatch sequences, so some kinds of expressions can't be
+    // evaluated at that point.  We must extract them into their own treetops
+    // to satisfy the required register dependencies.
+    //
+    if (node->getOpCodeValue() == TR::treetop) {
+        TR::Node* child = node->getFirstChild();
 
-   // On IA32 there are a reduced number of registers available on system
-   // linkage dispatch sequences, so some kinds of expressions can't be
-   // evaluated at that point.  We must extract them into their own treetops
-   // to satisfy the required register dependencies.
-   //
-   if (node->getOpCodeValue() == TR::treetop)
-      {
-      TR::Node *child = node->getFirstChild();
+        if ((child->getOpCode().isCall() && child->getSymbol()->getMethodSymbol()
+                && (child->isPreparedForDirectJNI()
+                       || child->getSymbol()->getMethodSymbol()->isSystemLinkageDispatch()))) {
+            self()->setRemoveRegisterHogsInLowerTreesWalk();
+        }
+    }
+}
 
-      if ((child->getOpCode().isCall() && child->getSymbol()->getMethodSymbol() &&
-          (child->isPreparedForDirectJNI() ||
-           child->getSymbol()->getMethodSymbol()->isSystemLinkageDispatch())))
-         {
-         self()->setRemoveRegisterHogsInLowerTreesWalk();
-         }
-      }
+void J9::X86::i386::CodeGenerator::lowerTreesPostTreeTopVisit(TR::TreeTop* tt, vcount_t visitCount)
+{
+    J9::X86::CodeGenerator::lowerTreesPostTreeTopVisit(tt, visitCount);
 
-   }
+    TR::Node* node = tt->getNode();
 
+    // On IA32 there are a reduced number of registers available on system
+    // linkage dispatch sequences, so some kinds of expressions can't be
+    // evaluated at that point.  We must extract them into their own treetops
+    // to satisfy the required register dependencies.
+    //
+    if (node->getOpCodeValue() == TR::treetop) {
+        TR::Node* child = node->getFirstChild();
 
-void
-J9::X86::i386::CodeGenerator::lowerTreesPostTreeTopVisit(TR::TreeTop *tt, vcount_t visitCount)
-   {
-   J9::X86::CodeGenerator::lowerTreesPostTreeTopVisit(tt, visitCount);
+        if ((child->getOpCode().isCall() && child->getSymbol()->getMethodSymbol()
+                && (child->isPreparedForDirectJNI()
+                       || child->getSymbol()->getMethodSymbol()->isSystemLinkageDispatch()))) {
+            self()->resetRemoveRegisterHogsInLowerTreesWalk();
+        }
+    }
+}
 
-   TR::Node *node = tt->getNode();
+void J9::X86::i386::CodeGenerator::lowerTreesPreChildrenVisit(
+    TR::Node* parent, TR::TreeTop* treeTop, vcount_t visitCount)
+{
+    J9::X86::CodeGenerator::lowerTreesPreChildrenVisit(parent, treeTop, visitCount);
+}
 
-   // On IA32 there are a reduced number of registers available on system
-   // linkage dispatch sequences, so some kinds of expressions can't be
-   // evaluated at that point.  We must extract them into their own treetops
-   // to satisfy the required register dependencies.
-   //
-   if (node->getOpCodeValue() == TR::treetop)
-      {
-      TR::Node *child = node->getFirstChild();
-
-      if ((child->getOpCode().isCall() && child->getSymbol()->getMethodSymbol() &&
-          (child->isPreparedForDirectJNI() ||
-           child->getSymbol()->getMethodSymbol()->isSystemLinkageDispatch())))
-         {
-         self()->resetRemoveRegisterHogsInLowerTreesWalk();
-         }
-      }
-
-   }
-
-
-void
-J9::X86::i386::CodeGenerator::lowerTreesPreChildrenVisit(TR::Node * parent, TR::TreeTop * treeTop, vcount_t visitCount)
-   {
-   J9::X86::CodeGenerator::lowerTreesPreChildrenVisit(parent, treeTop, visitCount);
-
-   }
-
-
-void
-J9::X86::i386::CodeGenerator::lowerTreesPostChildrenVisit(TR::Node * parent, TR::TreeTop * treeTop, vcount_t visitCount)
-   {
-   J9::X86::CodeGenerator::lowerTreesPostChildrenVisit(parent, treeTop, visitCount);
-
-   }
+void J9::X86::i386::CodeGenerator::lowerTreesPostChildrenVisit(
+    TR::Node* parent, TR::TreeTop* treeTop, vcount_t visitCount)
+{
+    J9::X86::CodeGenerator::lowerTreesPostChildrenVisit(parent, treeTop, visitCount);
+}

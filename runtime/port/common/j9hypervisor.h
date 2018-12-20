@@ -32,17 +32,15 @@
 #include "j9port.h"
 
 /* MACROS for indicating the presence of Hypervisor */
-#define J9HYPERVISOR_PRESENT		1
-#define J9HYPERVISOR_NOT_PRESENT	0
-#define J9HYPERVISOR_NOT_INITIALIZED	-1
+#define J9HYPERVISOR_PRESENT 1
+#define J9HYPERVISOR_NOT_PRESENT 0
+#define J9HYPERVISOR_NOT_INITIALIZED -1
 
 /* MACRO for the IBM_JAVA_HYPERVISOR_SETTINGS environment variable */
 #define ENVVAR_IBM_JAVA_HYPERVISOR_SETTINGS "IBM_JAVA_HYPERVISOR_SETTINGS"
 
-intptr_t
-detect_hypervisor(struct J9PortLibrary *portLibrary);
+intptr_t detect_hypervisor(struct J9PortLibrary* portLibrary);
 
-intptr_t
-detect_hypervisor_from_env(struct J9PortLibrary *portLibrary);
+intptr_t detect_hypervisor_from_env(struct J9PortLibrary* portLibrary);
 
 #endif /* J9HYPERVISOR_COMMON_H_ */

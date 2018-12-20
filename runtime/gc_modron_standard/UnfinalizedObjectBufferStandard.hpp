@@ -31,36 +31,34 @@
 
 /**
  * A per-thread buffer of recently allocated unfinalized objects.
- * The buffer is periodically flushed to the global list. 
+ * The buffer is periodically flushed to the global list.
  */
-class MM_UnfinalizedObjectBufferStandard : public MM_UnfinalizedObjectBuffer
-{
+class MM_UnfinalizedObjectBufferStandard : public MM_UnfinalizedObjectBuffer {
 private:
-	UDATA _unfinalizedObjectListIndex;
+    UDATA _unfinalizedObjectListIndex;
+
 protected:
 public:
-	
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
-	
 public:
-	static MM_UnfinalizedObjectBufferStandard *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush 
-	 */
-	MM_UnfinalizedObjectBufferStandard(MM_GCExtensions *extensions, UDATA maxObjectCount);
+    static MM_UnfinalizedObjectBufferStandard* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_UnfinalizedObjectBufferStandard(MM_GCExtensions* extensions, UDATA maxObjectCount);
 };
 
 #endif /* UNFINALIZEDOBJECTBUFFERSTANDARD_HPP_ */

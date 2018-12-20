@@ -27,59 +27,56 @@
 #include <stdint.h>
 #include "env/FilePointerDecl.hpp"
 
-extern "C" { struct J9PortLibrary; }
-
-namespace TR
-{
-   struct FilePointer
-      {
-
-      FilePointer(::FILE *stream);
-
-      void initialize(J9PortLibrary *portLib, int32_t fileId, bool encrypt);
-      void initialize(::FILE *stream, bool encrypt);
-
-      int32_t write(J9PortLibrary *portLib, char *buf, int32_t length);
-
-      void close(J9PortLibrary *portLib);
-
-      void flush(J9PortLibrary *portLib);
-
-      union
-         {
-         int32_t _fileId;
-         ::FILE *_stream;
-         };
-
-      static FILE *Null()   { return &_null; }
-      static FILE *Stdin()  { return &_stdin; }
-      static FILE *Stdout() { return &_stdout; }
-      static FILE *Stderr() { return &_stderr; }
-
-      private:
-
-      static FILE _null;
-      static FILE _stdin;
-      static FILE _stdout;
-      static FILE _stderr;
-
-      void initialize(bool encrypt);
-      void swap();
-      uint8_t cipher(uint8_t c);
-      void encrypt(char *buf, int32_t len);
-
-      bool _useJ9IO;
-      bool _encrypt;
-      uint32_t _i, _j;
-      uint8_t _s[256];
-
-      /* used only for J9IO */
-      static const int32_t BUFFER_SIZE;
-      uint8_t *_buffer;
-      uint32_t  _pos;
-      };
-
+extern "C" {
+struct J9PortLibrary;
 }
 
+namespace TR {
+struct FilePointer {
+
+    FilePointer(::FILE* stream);
+
+    void initialize(J9PortLibrary* portLib, int32_t fileId, bool encrypt);
+    void initialize(::FILE* stream, bool encrypt);
+
+    int32_t write(J9PortLibrary* portLib, char* buf, int32_t length);
+
+    void close(J9PortLibrary* portLib);
+
+    void flush(J9PortLibrary* portLib);
+
+    union {
+        int32_t _fileId;
+        ::FILE* _stream;
+    };
+
+    static FILE* Null() { return &_null; }
+    static FILE* Stdin() { return &_stdin; }
+    static FILE* Stdout() { return &_stdout; }
+    static FILE* Stderr() { return &_stderr; }
+
+private:
+    static FILE _null;
+    static FILE _stdin;
+    static FILE _stdout;
+    static FILE _stderr;
+
+    void initialize(bool encrypt);
+    void swap();
+    uint8_t cipher(uint8_t c);
+    void encrypt(char* buf, int32_t len);
+
+    bool _useJ9IO;
+    bool _encrypt;
+    uint32_t _i, _j;
+    uint8_t _s[256];
+
+    /* used only for J9IO */
+    static const int32_t BUFFER_SIZE;
+    uint8_t* _buffer;
+    uint32_t _pos;
+};
+
+} // namespace TR
 
 #endif

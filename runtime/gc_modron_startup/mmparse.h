@@ -35,25 +35,25 @@ class MM_GCExtensions;
  * All GC Memory Parameters
  */
 typedef enum {
-	opt_Xmx = 0,
-	opt_Xmca,
-	opt_Xmco,
-	opt_Xmcrs,
-	opt_Xmn,
-	opt_Xmns,
-	opt_Xmnx,
-	opt_Xmo,
-	opt_Xmos,
-	opt_Xmox,
-	opt_Xms,
-	opt_Xmoi,
-	opt_Xmrx,
-	opt_Xmr,
-	opt_Xmdx,
-	opt_Xsoftmx,
-	opt_maxRAMPercent,
-	opt_initialRAMPercent,
-	opt_none
+    opt_Xmx = 0,
+    opt_Xmca,
+    opt_Xmco,
+    opt_Xmcrs,
+    opt_Xmn,
+    opt_Xmns,
+    opt_Xmnx,
+    opt_Xmo,
+    opt_Xmos,
+    opt_Xmox,
+    opt_Xms,
+    opt_Xmoi,
+    opt_Xmrx,
+    opt_Xmr,
+    opt_Xmdx,
+    opt_Xsoftmx,
+    opt_maxRAMPercent,
+    opt_initialRAMPercent,
+    opt_none
 } gcMemoryParameters;
 
 /* When displaying, maximum number of characters required, plus the "-" i.e. -Xmox */
@@ -61,42 +61,42 @@ typedef enum {
 
 /**
  * Manipulate GC memory parameters.
- * 
+ *
  * GC memory parameters can either be provided by the user, or calculated based
  * on a memoryParameter value stored in GCExtensions (Xmdx/Xmx/Xms).
  * This structure contains the information required to manipulate a non user provided value.
  * @ingroup GC_Modron_Startup
  */
 struct J9GcMemoryParameter {
-	UDATA MM_GCExtensions::*fieldOffset; 
-	gcMemoryParameters optionName;
-	UDATA valueMax;
-	UDATA valueMin;
-	UDATA MM_GCExtensions::*valueBaseOffset;
-	UDATA scaleNumerator;
-	UDATA scaleDenominator;
-	UDATA valueRound;
+    UDATA MM_GCExtensions::*fieldOffset;
+    gcMemoryParameters optionName;
+    UDATA valueMax;
+    UDATA valueMin;
+    UDATA MM_GCExtensions::*valueBaseOffset;
+    UDATA scaleNumerator;
+    UDATA scaleDenominator;
+    UDATA valueRound;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-	
-jint gcParseCommandLineAndInitializeWithValues(J9JavaVM *vm, IDATA *memoryParameters);
-bool gcParseTGCCommandLine(J9JavaVM *vm);
 
-jint gcParseXgcArguments(J9JavaVM *vm, char *optArg);
-jint gcParseXXgcArguments(J9JavaVM *vm, char *optArg);
-bool scan_udata_helper(J9JavaVM *javaVM, char **cursor, UDATA *value, const char *argName);
-bool scan_u32_helper(J9JavaVM *javaVM, char **cursor, U_32 *value, const char *argName);
-bool scan_u64_helper(J9JavaVM *javaVM, char **cursor, U_64 *value, const char *argName);
-bool scan_udata_memory_size_helper(J9JavaVM *javaVM, char **cursor, UDATA *value, const char *argName);
-bool scan_u64_memory_size_helper(J9JavaVM *javaVM, char **cursor, U_64 *value, const char *argName);
-bool scan_hex_helper(J9JavaVM *javaVM, char **cursor, UDATA *value, const char *argName);
-void gcParseXgcpolicy(MM_GCExtensions *extensions);
+jint gcParseCommandLineAndInitializeWithValues(J9JavaVM* vm, IDATA* memoryParameters);
+bool gcParseTGCCommandLine(J9JavaVM* vm);
+
+jint gcParseXgcArguments(J9JavaVM* vm, char* optArg);
+jint gcParseXXgcArguments(J9JavaVM* vm, char* optArg);
+bool scan_udata_helper(J9JavaVM* javaVM, char** cursor, UDATA* value, const char* argName);
+bool scan_u32_helper(J9JavaVM* javaVM, char** cursor, U_32* value, const char* argName);
+bool scan_u64_helper(J9JavaVM* javaVM, char** cursor, U_64* value, const char* argName);
+bool scan_udata_memory_size_helper(J9JavaVM* javaVM, char** cursor, UDATA* value, const char* argName);
+bool scan_u64_memory_size_helper(J9JavaVM* javaVM, char** cursor, U_64* value, const char* argName);
+bool scan_hex_helper(J9JavaVM* javaVM, char** cursor, UDATA* value, const char* argName);
+void gcParseXgcpolicy(MM_GCExtensions* extensions);
 
 #ifdef __cplusplus
 } /* extern "C" { */
 #endif
-	
+
 #endif /* MMPARSE_H_ */

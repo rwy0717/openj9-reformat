@@ -32,25 +32,23 @@
  * @return A char representing the value of /proc/sys/kernel/sched_compat_yield or
  * 		   a whitespace char (' ') if the file does not exist or an error occurred.
  */
-char
-j9util_sched_compat_yield_value(J9JavaVM *javaVM)
+char j9util_sched_compat_yield_value(J9JavaVM* javaVM)
 {
-	char value = ' ';
-	IDATA fd = -1;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
+    char value = ' ';
+    IDATA fd = -1;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	fd = j9file_open("/proc/sys/kernel/sched_compat_yield", EsOpenRead, 0);
-	if (fd != -1) {
-		char buf[3] = "\0\0\0";
-		IDATA bytesread = 0;
+    fd = j9file_open("/proc/sys/kernel/sched_compat_yield", EsOpenRead, 0);
+    if (fd != -1) {
+        char buf[3] = "\0\0\0";
+        IDATA bytesread = 0;
 
-		bytesread = j9file_read(fd, buf, 3);
-		if ((bytesread == 2) && (buf[1] == '\n')) {
-			value = buf[0];
-		}
-		j9file_close(fd);
-	}
+        bytesread = j9file_read(fd, buf, 3);
+        if ((bytesread == 2) && (buf[1] == '\n')) {
+            value = buf[0];
+        }
+        j9file_close(fd);
+    }
 
-	return value;
+    return value;
 }
-

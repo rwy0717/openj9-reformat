@@ -23,8 +23,8 @@
 #define JVMTI_TEST_FORCE_EARLY_RETURN_H_
 
 typedef struct testForceEarlyReturn_testTrigger {
-	        const char      *methodName;
-		        jvmtiParamTypes returnType;
+    const char* methodName;
+    jvmtiParamTypes returnType;
 } testForceEarlyReturn_testTrigger;
 
 #endif /* forceEarlyReturn.h */

@@ -34,25 +34,23 @@
 #include "GCExtensionsBase.hpp"
 #include "StaccatoGC.hpp"
 
-
-MM_Configuration *
-MM_ConfigurationStaccato::newInstance(MM_EnvironmentBase *env)
+MM_Configuration* MM_ConfigurationStaccato::newInstance(MM_EnvironmentBase* env)
 {
-	MM_ConfigurationStaccato *configuration;
-	
-	configuration = (MM_ConfigurationStaccato *) env->getForge()->allocate(sizeof(MM_ConfigurationStaccato), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if(NULL != configuration) {
-		new(configuration) MM_ConfigurationStaccato(env);
-		if(!configuration->initialize(env)) {
-			configuration->kill(env);
-			configuration = NULL;
-		}
-	}
-	return configuration;
+    MM_ConfigurationStaccato* configuration;
+
+    configuration = (MM_ConfigurationStaccato*)env->getForge()->allocate(
+        sizeof(MM_ConfigurationStaccato), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != configuration) {
+        new (configuration) MM_ConfigurationStaccato(env);
+        if (!configuration->initialize(env)) {
+            configuration->kill(env);
+            configuration = NULL;
+        }
+    }
+    return configuration;
 }
 
-MM_GlobalCollector *
-MM_ConfigurationStaccato::createGlobalCollector(MM_EnvironmentBase *env)
+MM_GlobalCollector* MM_ConfigurationStaccato::createGlobalCollector(MM_EnvironmentBase* env)
 {
-	return MM_StaccatoGC::newInstance(env);
+    return MM_StaccatoGC::newInstance(env);
 }

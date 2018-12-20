@@ -1,4 +1,4 @@
- 
+
 /*******************************************************************************
  * Copyright (c) 1991, 2014 IBM Corp. and others
  *
@@ -38,46 +38,43 @@ class MM_MemoryPool;
  * @todo Provide class documentation
  * @ingroup GC_Metronome
  */
-class MM_MemorySubSpaceMetronome : public MM_MemorySubSpaceSegregated
-{
+class MM_MemorySubSpaceMetronome : public MM_MemorySubSpaceSegregated {
 private:
-	/* TODO: this is temporary as a way to avoid dup code in MemorySubSpaceMetronome::allocate. 
-	 * We will specifically fix this allocate method in a separate design.
-	 */
-	void *allocateMixedObjectOrArraylet(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, AllocateType allocType);
-	void collectOnOOM(MM_EnvironmentBase *env, MM_GCCode gcCode, MM_AllocateDescription *allocDescription);
-	
+    /* TODO: this is temporary as a way to avoid dup code in MemorySubSpaceMetronome::allocate.
+     * We will specifically fix this allocate method in a separate design.
+     */
+    void* allocateMixedObjectOrArraylet(
+        MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription, AllocateType allocType);
+    void collectOnOOM(MM_EnvironmentBase* env, MM_GCCode gcCode, MM_AllocateDescription* allocDescription);
+
 protected:
-	bool initialize(MM_EnvironmentBase *env);
+    bool initialize(MM_EnvironmentBase* env);
 
 public:
-	static MM_MemorySubSpaceMetronome *newInstance(
-		MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena, MM_MemoryPool *memoryPool,
-		bool usesGlobalCollector, UDATA minimumSize, UDATA initialSize, UDATA maximumSize);
+    static MM_MemorySubSpaceMetronome* newInstance(MM_EnvironmentBase* env, MM_PhysicalSubArena* physicalSubArena,
+        MM_MemoryPool* memoryPool, bool usesGlobalCollector, UDATA minimumSize, UDATA initialSize, UDATA maximumSize);
 
-	virtual const char *getName() { return MEMORY_SUBSPACE_NAME_METRONOME; }
-	virtual const char *getDescription() { return MEMORY_SUBSPACE_DESCRIPTION_METRONOME; }
+    virtual const char* getName() { return MEMORY_SUBSPACE_NAME_METRONOME; }
+    virtual const char* getDescription() { return MEMORY_SUBSPACE_DESCRIPTION_METRONOME; }
 
-	virtual void systemGarbageCollect(MM_EnvironmentBase *env, U_32 gcCode);
-	virtual void *allocateObject(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+    virtual void systemGarbageCollect(MM_EnvironmentBase* env, U_32 gcCode);
+    virtual void* allocateObject(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription,
+        MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure);
 #if defined(J9VM_GC_ARRAYLETS)
-	virtual void *allocateArrayletLeaf(MM_EnvironmentBase *env, MM_AllocateDescription *allocDescription, MM_MemorySubSpace *baseSubSpace, MM_MemorySubSpace *previousSubSpace, bool shouldCollectOnFailure);
+    virtual void* allocateArrayletLeaf(MM_EnvironmentBase* env, MM_AllocateDescription* allocDescription,
+        MM_MemorySubSpace* baseSubSpace, MM_MemorySubSpace* previousSubSpace, bool shouldCollectOnFailure);
 #endif /* defined(J9VM_GC_ARRAYLETS) */
 
+    void yieldWhenRequested(MM_EnvironmentBase* env);
+    void collect(MM_EnvironmentBase* env, MM_GCCode gcCode);
 
- 	void yieldWhenRequested(MM_EnvironmentBase *env);
- 	void collect(MM_EnvironmentBase *env, MM_GCCode gcCode);
-
-	
-	MM_MemorySubSpaceMetronome(
-		MM_EnvironmentBase *env, MM_PhysicalSubArena *physicalSubArena, MM_MemoryPool *memoryPool,
-		bool usesGlobalCollector, UDATA minimumSize, UDATA initialSize, UDATA maximumSize
-	)
- 		: MM_MemorySubSpaceSegregated(env, physicalSubArena, memoryPool, usesGlobalCollector, minimumSize, initialSize, maximumSize)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_MemorySubSpaceMetronome(MM_EnvironmentBase* env, MM_PhysicalSubArena* physicalSubArena,
+        MM_MemoryPool* memoryPool, bool usesGlobalCollector, UDATA minimumSize, UDATA initialSize, UDATA maximumSize)
+        : MM_MemorySubSpaceSegregated(
+              env, physicalSubArena, memoryPool, usesGlobalCollector, minimumSize, initialSize, maximumSize)
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* MEMORYSUBSPACEMETRONOME_HPP_ */
-

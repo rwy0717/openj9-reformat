@@ -30,51 +30,47 @@
 #include "HeapRegionDescriptorRealtime.hpp"
 #include "OwnableSynchronizerObjectList.hpp"
 
-MM_OwnableSynchronizerObjectBufferRealtime::MM_OwnableSynchronizerObjectBufferRealtime(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_OwnableSynchronizerObjectBuffer(extensions, maxObjectCount)
-	,_ownableSynchronizerObjectListIndex(0)
+MM_OwnableSynchronizerObjectBufferRealtime::MM_OwnableSynchronizerObjectBufferRealtime(
+    MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_OwnableSynchronizerObjectBuffer(extensions, maxObjectCount)
+    , _ownableSynchronizerObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_OwnableSynchronizerObjectBufferRealtime *
-MM_OwnableSynchronizerObjectBufferRealtime::newInstance(MM_EnvironmentBase *env)
+MM_OwnableSynchronizerObjectBufferRealtime* MM_OwnableSynchronizerObjectBufferRealtime::newInstance(
+    MM_EnvironmentBase* env)
 {
-	MM_OwnableSynchronizerObjectBufferRealtime *ownableObjectBuffer = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_OwnableSynchronizerObjectBufferRealtime* ownableObjectBuffer = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	ownableObjectBuffer = (MM_OwnableSynchronizerObjectBufferRealtime *)env->getForge()->allocate(sizeof(MM_OwnableSynchronizerObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != ownableObjectBuffer) {
-		new(ownableObjectBuffer) MM_OwnableSynchronizerObjectBufferRealtime(extensions, extensions->objectListFragmentCount);
-		if (!ownableObjectBuffer->initialize(env)) {
-			ownableObjectBuffer->kill(env);
-			ownableObjectBuffer = NULL;
-		}
-	}
+    ownableObjectBuffer = (MM_OwnableSynchronizerObjectBufferRealtime*)env->getForge()->allocate(
+        sizeof(MM_OwnableSynchronizerObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != ownableObjectBuffer) {
+        new (ownableObjectBuffer)
+            MM_OwnableSynchronizerObjectBufferRealtime(extensions, extensions->objectListFragmentCount);
+        if (!ownableObjectBuffer->initialize(env)) {
+            ownableObjectBuffer->kill(env);
+            ownableObjectBuffer = NULL;
+        }
+    }
 
-	return ownableObjectBuffer;
+    return ownableObjectBuffer;
 }
 
-bool
-MM_OwnableSynchronizerObjectBufferRealtime::initialize(MM_EnvironmentBase *base)
-{
-	return true;
-}
+bool MM_OwnableSynchronizerObjectBufferRealtime::initialize(MM_EnvironmentBase* base) { return true; }
 
-void
-MM_OwnableSynchronizerObjectBufferRealtime::tearDown(MM_EnvironmentBase *base)
-{
+void MM_OwnableSynchronizerObjectBufferRealtime::tearDown(MM_EnvironmentBase* base) {}
 
-}
-
-void
-MM_OwnableSynchronizerObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
+void MM_OwnableSynchronizerObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	MM_OwnableSynchronizerObjectList *ownableSynchronizerObjectList = &extensions->ownableSynchronizerObjectLists[_ownableSynchronizerObjectListIndex];
-	ownableSynchronizerObjectList->addAll(env, _head, _tail);
-	_ownableSynchronizerObjectListIndex += 1;
-	if (MM_HeapRegionDescriptorRealtime::getOwnableSynchronizerObjectListCount(env) == _ownableSynchronizerObjectListIndex) {
-		_ownableSynchronizerObjectListIndex = 0;
-	}
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    MM_OwnableSynchronizerObjectList* ownableSynchronizerObjectList
+        = &extensions->ownableSynchronizerObjectLists[_ownableSynchronizerObjectListIndex];
+    ownableSynchronizerObjectList->addAll(env, _head, _tail);
+    _ownableSynchronizerObjectListIndex += 1;
+    if (MM_HeapRegionDescriptorRealtime::getOwnableSynchronizerObjectListCount(env)
+        == _ownableSynchronizerObjectListIndex) {
+        _ownableSynchronizerObjectListIndex = 0;
+    }
 }

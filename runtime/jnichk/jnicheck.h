@@ -27,5 +27,4 @@
 
 IDATA J9VMDllMain(J9JavaVM* vm, IDATA stage, void* reserved);
 
-#endif     /* jnicheck_h */
-
+#endif /* jnicheck_h */

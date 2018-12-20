@@ -42,33 +42,26 @@ class StringInternTable;
 class SRPKeyProducer;
 class SRPOffsetTable;
 
-class ROMClassStringInternManager
-{
+class ROMClassStringInternManager {
 public:
-	ROMClassStringInternManager(
-			ROMClassCreationContext *context,
-			StringInternTable *stringInternTable,
-			SRPOffsetTable *srpOffsetTable,
-			SRPKeyProducer *srpKeyProducer,
-			U_8 *baseAddress,
-			U_8 *endAddress,
-			bool isSharedROMClass,
-			bool hasStringTableLock);
+    ROMClassStringInternManager(ROMClassCreationContext* context, StringInternTable* stringInternTable,
+        SRPOffsetTable* srpOffsetTable, SRPKeyProducer* srpKeyProducer, U_8* baseAddress, U_8* endAddress,
+        bool isSharedROMClass, bool hasStringTableLock);
 
-	void visitUTF8(U_16 cpIndex, U_16 utf8Length, U_8 *utf8Data, SharedCacheRangeInfo sharedCacheSRPRangeInfo);
-	void internString(J9UTF8 *string);
-	bool isInterningEnabled() const { return _context->isInterningEnabled(); }
-	bool isSharedROMClass() const { return _isSharedROMClass; }
+    void visitUTF8(U_16 cpIndex, U_16 utf8Length, U_8* utf8Data, SharedCacheRangeInfo sharedCacheSRPRangeInfo);
+    void internString(J9UTF8* string);
+    bool isInterningEnabled() const { return _context->isInterningEnabled(); }
+    bool isSharedROMClass() const { return _isSharedROMClass; }
 
 private:
-	ROMClassCreationContext *_context;
-	StringInternTable *_stringInternTable;
-	SRPOffsetTable *_srpOffsetTable;
-	SRPKeyProducer *_srpKeyProducer;
-	IDATA _baseAddress;
-	IDATA _endAddress;
-	bool _hasStringTableLock;
-	bool _isSharedROMClass;
+    ROMClassCreationContext* _context;
+    StringInternTable* _stringInternTable;
+    SRPOffsetTable* _srpOffsetTable;
+    SRPKeyProducer* _srpKeyProducer;
+    IDATA _baseAddress;
+    IDATA _endAddress;
+    bool _hasStringTableLock;
+    bool _isSharedROMClass;
 };
 
 #endif /* ROMCLASSSTRINGINTERNMANAGER_HPP_ */

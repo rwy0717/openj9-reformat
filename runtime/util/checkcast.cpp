@@ -25,16 +25,15 @@
 extern "C" {
 
 IDATA
-instanceOfOrCheckCast(J9Class *instanceClass, J9Class *castClass)
+instanceOfOrCheckCast(J9Class* instanceClass, J9Class* castClass)
 {
-	return VM_VMHelpers::inlineCheckCast(instanceClass, castClass, true) ? TRUE : FALSE;
+    return VM_VMHelpers::inlineCheckCast(instanceClass, castClass, true) ? TRUE : FALSE;
 }
 
 IDATA
-instanceOfOrCheckCastNoCacheUpdate(J9Class *instanceClass, J9Class *castClass)
+instanceOfOrCheckCastNoCacheUpdate(J9Class* instanceClass, J9Class* castClass)
 {
-	return VM_VMHelpers::inlineCheckCast(instanceClass, castClass, false) ? TRUE : FALSE;
+    return VM_VMHelpers::inlineCheckCast(instanceClass, castClass, false) ? TRUE : FALSE;
 }
 
 } /* extern "C" */
-

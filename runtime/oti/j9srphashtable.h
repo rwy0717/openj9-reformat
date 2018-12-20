@@ -28,29 +28,27 @@
 extern "C" {
 #endif
 
-
 /* DO NOT DIRECTLY INCLUDE THIS FILE! */
 /* Include srphashtable_api.h instead */
-
 
 #include "j9comp.h"
 #include "j9port.h"
 #include "simplepool_api.h"
 
-
 struct J9SRPHashTable; /* Forward struct declaration */
 struct J9SRPHashTableInternal; /* Forward struct declaration */
-typedef UDATA (*J9SRPHashTableHashFn) (void *key, void *userData); /* Forward struct declaration */
-typedef UDATA (*J9SRPHashTableEqualFn) (void *existingEntry, void *key, void *userData); /* Forward struct declaration */
-typedef void (*J9SRPHashTablePrintFn) (J9PortLibrary *portLibrary, void *entry, void *userData); /* Forward struct declaration */
-typedef UDATA (*J9SRPHashTableDoFn) (void *entry, void *userData); /* Forward struct declaration */
+typedef UDATA (*J9SRPHashTableHashFn)(void* key, void* userData); /* Forward struct declaration */
+typedef UDATA (*J9SRPHashTableEqualFn)(void* existingEntry, void* key, void* userData); /* Forward struct declaration */
+typedef void (*J9SRPHashTablePrintFn)(
+    J9PortLibrary* portLibrary, void* entry, void* userData); /* Forward struct declaration */
+typedef UDATA (*J9SRPHashTableDoFn)(void* entry, void* userData); /* Forward struct declaration */
 typedef struct J9SRPHashTable {
     const char* tableName;
     struct J9SRPHashTableInternal* srpHashtableInternal;
-    UDATA  ( *hashFn)(void *key, void *userData) ;
-    UDATA  ( *hashEqualFn)(void *existingEntry, void *key, void *userData) ;
-    void  ( *printFn)(J9PortLibrary *portLibrary, void *key, void *userData) ;
-    struct J9PortLibrary * portLibrary;
+    UDATA (*hashFn)(void* key, void* userData);
+    UDATA (*hashEqualFn)(void* existingEntry, void* key, void* userData);
+    void (*printFn)(J9PortLibrary* portLibrary, void* key, void* userData);
+    struct J9PortLibrary* portLibrary;
     void* functionUserData;
     UDATA flags;
 } J9SRPHashTable;

@@ -34,29 +34,29 @@
  * Create an new instance of a MM_VerboseEventMetronomeSynchronousGCStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeSynchronousGCStart::newInstance(MM_MetronomeSynchronousGCStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeSynchronousGCStart::newInstance(
+    MM_MetronomeSynchronousGCStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeSynchronousGCStart *eventObject;
-	
-	eventObject = (MM_VerboseEventMetronomeSynchronousGCStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeSynchronousGCStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeSynchronousGCStart(event, hookInterface);
-		eventObject->initialize(event);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeSynchronousGCStart* eventObject;
+
+    eventObject = (MM_VerboseEventMetronomeSynchronousGCStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventMetronomeSynchronousGCStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeSynchronousGCStart(event, hookInterface);
+        eventObject->initialize(event);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventMetronomeSynchronousGCStart::initialize(MM_MetronomeSynchronousGCStartEvent *event)
+void MM_VerboseEventMetronomeSynchronousGCStart::initialize(MM_MetronomeSynchronousGCStartEvent* event)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(getThread());
-	
-	/* We remember the reason (explicit GC, syncGC on OOM...) and the time stamp of SyncGC start event.
-	 * It will be used later when SyncGC end even is reported */
-	_reason = (GCReason)event->reason;
-	_reasonParameter = event->reasonParameter;
-	omrstr_ftime(_timestamp, sizeof(_timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(getThread());
+
+    /* We remember the reason (explicit GC, syncGC on OOM...) and the time stamp of SyncGC start event.
+     * It will be used later when SyncGC end even is reported */
+    _reason = (GCReason)event->reason;
+    _reasonParameter = event->reasonParameter;
+    omrstr_ftime(_timestamp, sizeof(_timestamp), VERBOSEGC_DATE_FORMAT, omrtime_current_time_millis());
 }
 
 /**
@@ -64,19 +64,12 @@ MM_VerboseEventMetronomeSynchronousGCStart::initialize(MM_MetronomeSynchronousGC
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeSynchronousGCStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventMetronomeSynchronousGCStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeSynchronousGCStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
-
+void MM_VerboseEventMetronomeSynchronousGCStart::formattedOutput(MM_VerboseOutputAgent* agent) {}
 
 #endif /* J9VM_GC_REALTIME */

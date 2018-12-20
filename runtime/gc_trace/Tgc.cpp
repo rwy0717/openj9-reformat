@@ -73,413 +73,407 @@
 #endif /* J9VM_GC_MODRON_SCAVENGER */
 #include "TgcTerse.hpp"
 
-bool
-tgcInstantiateExtensions(J9JavaVM *javaVM)
+bool tgcInstantiateExtensions(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
-	
-	if(NULL == tgcExtensions) {
-		tgcExtensions = MM_TgcExtensions::newInstance(extensions);
-		if (NULL == tgcExtensions) {
-			return false;
-		}
-		extensions->tgcExtensions = tgcExtensions;
-	}
-	return true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
+
+    if (NULL == tgcExtensions) {
+        tgcExtensions = MM_TgcExtensions::newInstance(extensions);
+        if (NULL == tgcExtensions) {
+            return false;
+        }
+        extensions->tgcExtensions = tgcExtensions;
+    }
+    return true;
 }
 
 /**
  * Consume arguments found in the -Xtgc: (tgc_colon) arguement list.
  * @return true if parsing was successful, 0 otherwise.
  */
-bool
-tgcParseArgs(J9JavaVM *javaVM, char *optArg)
+bool tgcParseArgs(J9JavaVM* javaVM, char* optArg)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
 
-	/* TODO: how should we handle initialization error? */
-	char *scan_start = optArg;
-	char *scan_limit = optArg + strlen(optArg);
-	char *error_scan;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
-	
-	if(!tgcInstantiateExtensions(javaVM)) {
-		return false;
-	}
+    /* TODO: how should we handle initialization error? */
+    char* scan_start = optArg;
+    char* scan_limit = optArg + strlen(optArg);
+    char* error_scan;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
+    if (!tgcInstantiateExtensions(javaVM)) {
+        return false;
+    }
 
-	while (scan_start < scan_limit) {
-		/* ignore separators */
-		try_scan(&scan_start, ",");
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
 
-		error_scan = scan_start;
+    while (scan_start < scan_limit) {
+        /* ignore separators */
+        try_scan(&scan_start, ",");
 
-		if (try_scan(&scan_start, "file=")) {
-			char *filename = scan_to_delim(PORTLIB, &scan_start, ',');
-			if (NULL != filename) {
-				tgcExtensions->setOutputFile(filename);
-				j9mem_free_memory(filename);
-				continue;
-			}
-		}
-		
-		if (try_scan(&scan_start, "backtrace")) {
-			tgcExtensions->_backtraceRequested = true;
-			continue;
-		}
+        error_scan = scan_start;
 
-		if (try_scan(&scan_start, "compaction")) {
-			tgcExtensions->_compactionRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "file=")) {
+            char* filename = scan_to_delim(PORTLIB, &scan_start, ',');
+            if (NULL != filename) {
+                tgcExtensions->setOutputFile(filename);
+                j9mem_free_memory(filename);
+                continue;
+            }
+        }
 
-		if (try_scan(&scan_start, "concurrent")) {
-			tgcExtensions->_concurrentRequested = true;
-			continue;
-		}
-			
-		if (try_scan(&scan_start, "cardcleaning")) {
-			tgcExtensions->_cardCleaningRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "backtrace")) {
+            tgcExtensions->_backtraceRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "dump")) {
-			tgcExtensions->_dumpRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "compaction")) {
+            tgcExtensions->_compactionRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "exclusiveaccess")) {
-			tgcExtensions->_exclusiveAccessRequested = true;
-			continue;
-		}
-		
-		if (try_scan(&scan_start, "excessivegc")) {
-			tgcExtensions->_excessiveGCRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "concurrent")) {
+            tgcExtensions->_concurrentRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "freeListSummary")) {
-			tgcExtensions->_freeListSummaryRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "cardcleaning")) {
+            tgcExtensions->_cardCleaningRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "freeList")) {
-			tgcExtensions->_freeListRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "dump")) {
+            tgcExtensions->_dumpRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "heap")) {
-			tgcExtensions->_heapRequested = true;
-			continue;
-		}
-	
-		if (try_scan(&scan_start, "parallel")) {
-			tgcExtensions->_parallelRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "exclusiveaccess")) {
+            tgcExtensions->_exclusiveAccessRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "rootscantime")) {
-			tgcExtensions->_rootScannerRequested = true;
-			continue;
-		}
-		
-		if (try_scan(&scan_start, "rememberedSetCardList")) {
-			tgcExtensions->_interRegionRememberedSetRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "excessivegc")) {
+            tgcExtensions->_excessiveGCRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "rememberedSetDemographics")) {
-			tgcExtensions->_interRegionRememberedSetDemographicsRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "freeListSummary")) {
+            tgcExtensions->_freeListSummaryRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "numa")) {
-			tgcExtensions->_numaRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "freeList")) {
+            tgcExtensions->_freeListRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "allocationContext")) {
-			tgcExtensions->_allocationContextRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "heap")) {
+            tgcExtensions->_heapRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "intelligentCompact")) {
-			tgcExtensions->_intelligentCompactRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "parallel")) {
+            tgcExtensions->_parallelRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "dynamicCollectionSet")) {
-			tgcExtensions->_dynamicCollectionSetRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "rootscantime")) {
+            tgcExtensions->_rootScannerRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "projectedStats")) {
-			tgcExtensions->_projectedStatsRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "rememberedSetCardList")) {
+            tgcExtensions->_interRegionRememberedSetRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "writeOnceCompactTiming")) {
-			tgcExtensions->_writeOnceCompactTimingRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "rememberedSetDemographics")) {
+            tgcExtensions->_interRegionRememberedSetDemographicsRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "copyForward")) {
-			tgcExtensions->_copyForwardRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "numa")) {
+            tgcExtensions->_numaRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "interRegionReferences")) {
-			tgcExtensions->_interRegionReferencesRequested = true;
-			continue;
-		}
-		
-		if (try_scan(&scan_start, "scavengerSurvivalStats")) {
-			tgcExtensions->_scavengerSurvivalStatsRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "allocationContext")) {
+            tgcExtensions->_allocationContextRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "scavengerMemoryStats")) {
-			tgcExtensions->_scavengerMemoryStatsRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "intelligentCompact")) {
+            tgcExtensions->_intelligentCompactRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "scavenger")) {
-			tgcExtensions->_scavengerRequested = true;
-			tgcExtensions->_scavengerSurvivalStatsRequested = true;
-			tgcExtensions->_scavengerMemoryStatsRequested = true;
-			continue;
-		}
-		
-		if (try_scan(&scan_start, "terse")) {
-			tgcExtensions->_terseRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "dynamicCollectionSet")) {
+            tgcExtensions->_dynamicCollectionSetRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "allocation")) {
-			tgcExtensions->_allocationRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "projectedStats")) {
+            tgcExtensions->_projectedStatsRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "largeAllocationVerbose")) {
-			tgcExtensions->_largeAllocationVerboseRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "writeOnceCompactTiming")) {
+            tgcExtensions->_writeOnceCompactTimingRequested = true;
+            continue;
+        }
 
-		if (try_scan(&scan_start, "largeAllocation")) {
-			tgcExtensions->_largeAllocationRequested = true;
-			continue;
-		}
+        if (try_scan(&scan_start, "copyForward")) {
+            tgcExtensions->_copyForwardRequested = true;
+            continue;
+        }
 
-		/* Couldn't find a match for arguments */
-		scan_failed(PORTLIB, "GC", error_scan);
-		return false;
-	}
+        if (try_scan(&scan_start, "interRegionReferences")) {
+            tgcExtensions->_interRegionReferencesRequested = true;
+            continue;
+        }
 
-	return true;
+        if (try_scan(&scan_start, "scavengerSurvivalStats")) {
+            tgcExtensions->_scavengerSurvivalStatsRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "scavengerMemoryStats")) {
+            tgcExtensions->_scavengerMemoryStatsRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "scavenger")) {
+            tgcExtensions->_scavengerRequested = true;
+            tgcExtensions->_scavengerSurvivalStatsRequested = true;
+            tgcExtensions->_scavengerMemoryStatsRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "terse")) {
+            tgcExtensions->_terseRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "allocation")) {
+            tgcExtensions->_allocationRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "largeAllocationVerbose")) {
+            tgcExtensions->_largeAllocationVerboseRequested = true;
+            continue;
+        }
+
+        if (try_scan(&scan_start, "largeAllocation")) {
+            tgcExtensions->_largeAllocationRequested = true;
+            continue;
+        }
+
+        /* Couldn't find a match for arguments */
+        scan_failed(PORTLIB, "GC", error_scan);
+        return false;
+    }
+
+    return true;
 }
 
-bool
-tgcInitializeRequestedOptions(J9JavaVM *javaVM)
+bool tgcInitializeRequestedOptions(J9JavaVM* javaVM)
 {
-	bool result = true;
+    bool result = true;
 
 #if (defined(J9VM_GC_MODRON_STANDARD) || defined(J9VM_GC_VLHGC) || defined(J9VM_GC_SEGREGATED_HEAP))
 
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
 
-	/* StandardGC, VLHGC , and Segregated heap options*/
-	if (extensions->isStandardGC() || extensions->isVLHGC() || extensions->isSegregatedHeap()) {
-		if (tgcExtensions->_heapRequested) {
-			result = result && tgcHeapInitialize(javaVM);
-		}
+    /* StandardGC, VLHGC , and Segregated heap options*/
+    if (extensions->isStandardGC() || extensions->isVLHGC() || extensions->isSegregatedHeap()) {
+        if (tgcExtensions->_heapRequested) {
+            result = result && tgcHeapInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_rootScannerRequested) {
-			result = result && tgcRootScannerInitialize(javaVM);
-		}
-	}
+        if (tgcExtensions->_rootScannerRequested) {
+            result = result && tgcRootScannerInitialize(javaVM);
+        }
+    }
 
-	/* StandardGC and VLHGC both options*/
-	if (extensions->isStandardGC() || extensions->isVLHGC()) {
-		if (tgcExtensions->_backtraceRequested) {
-			result = result && tgcBacktraceInitialize(javaVM);
-		}
+    /* StandardGC and VLHGC both options*/
+    if (extensions->isStandardGC() || extensions->isVLHGC()) {
+        if (tgcExtensions->_backtraceRequested) {
+            result = result && tgcBacktraceInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_dumpRequested) {
-			result = result && tgcDumpInitialize(javaVM);
-		}
+        if (tgcExtensions->_dumpRequested) {
+            result = result && tgcDumpInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_exclusiveAccessRequested) {
-			result = result && tgcExclusiveAccessInitialize(javaVM);
-		}
+        if (tgcExtensions->_exclusiveAccessRequested) {
+            result = result && tgcExclusiveAccessInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_excessiveGCRequested) {
-			result = result && tgcExcessiveGCInitialize(javaVM);
-		}
+        if (tgcExtensions->_excessiveGCRequested) {
+            result = result && tgcExcessiveGCInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_freeListRequested) {
-			result = result && tgcFreeListInitialize(javaVM);
-		}
+        if (tgcExtensions->_freeListRequested) {
+            result = result && tgcFreeListInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_parallelRequested) {
-			result = result && tgcParallelInitialize(javaVM);
-		}
+        if (tgcExtensions->_parallelRequested) {
+            result = result && tgcParallelInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_terseRequested) {
-			result = result && tgcTerseInitialize(javaVM);
-		}
+        if (tgcExtensions->_terseRequested) {
+            result = result && tgcTerseInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_allocationRequested) {
-			result = result && tgcAllocationInitialize(javaVM);
-		}
-		
-		if (tgcExtensions->_largeAllocationVerboseRequested || tgcExtensions->_largeAllocationRequested) {
-			result = result && tgcLargeAllocationInitialize(javaVM);
-		}
+        if (tgcExtensions->_allocationRequested) {
+            result = result && tgcAllocationInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_numaRequested) { 
-			result = result && tgcNumaInitialize(javaVM);
-		}		
-	}
+        if (tgcExtensions->_largeAllocationVerboseRequested || tgcExtensions->_largeAllocationRequested) {
+            result = result && tgcLargeAllocationInitialize(javaVM);
+        }
 
-	/* StandardGC only options */
-	if (extensions->isStandardGC()) {
+        if (tgcExtensions->_numaRequested) {
+            result = result && tgcNumaInitialize(javaVM);
+        }
+    }
+
+    /* StandardGC only options */
+    if (extensions->isStandardGC()) {
 #if defined(J9VM_GC_MODRON_STANDARD)
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		if (tgcExtensions->_compactionRequested) {
-			result = result && tgcCompactionInitialize(javaVM);
-		}
+        if (tgcExtensions->_compactionRequested) {
+            result = result && tgcCompactionInitialize(javaVM);
+        }
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		if (tgcExtensions->_concurrentRequested) {
-			result = result && tgcConcurrentInitialize(javaVM);
-		}
+        if (tgcExtensions->_concurrentRequested) {
+            result = result && tgcConcurrentInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_cardCleaningRequested) {
-			result = result && tgcConcurrentCardCleaningInitialize(javaVM);
-		}
+        if (tgcExtensions->_cardCleaningRequested) {
+            result = result && tgcConcurrentCardCleaningInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_freeListSummaryRequested) {
-			result = result && tgcFreeListSummaryInitialize(javaVM);
-		}
+        if (tgcExtensions->_freeListSummaryRequested) {
+            result = result && tgcFreeListSummaryInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_scavengerSurvivalStatsRequested) {
-			result = result && tgcScavengerSurvivalStatsInitialize(javaVM);
-		}
-		
-		if (tgcExtensions->_scavengerMemoryStatsRequested) {
-			result = result && tgcScavengerMemoryStatsInitialize(javaVM);
-		}
+        if (tgcExtensions->_scavengerSurvivalStatsRequested) {
+            result = result && tgcScavengerSurvivalStatsInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_scavengerRequested) {
-			result = result && tgcScavengerInitialize(javaVM);
-		}
+        if (tgcExtensions->_scavengerMemoryStatsRequested) {
+            result = result && tgcScavengerMemoryStatsInitialize(javaVM);
+        }
+
+        if (tgcExtensions->_scavengerRequested) {
+            result = result && tgcScavengerInitialize(javaVM);
+        }
 #endif /* defined(J9VM_GC_MODRON_STANDARD) */
-	}
+    }
 
-	/* VLHGC only options */
-	if (extensions->isVLHGC()) {
+    /* VLHGC only options */
+    if (extensions->isVLHGC()) {
 #if defined(J9VM_GC_VLHGC)
-		if (tgcExtensions->_compactionRequested) {
-			result = result && tgcWriteOnceCompactionInitialize(javaVM);
-		}
+        if (tgcExtensions->_compactionRequested) {
+            result = result && tgcWriteOnceCompactionInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_cardCleaningRequested) {
-			result = result && tgcCardCleaningInitialize(javaVM);
-		}
+        if (tgcExtensions->_cardCleaningRequested) {
+            result = result && tgcCardCleaningInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_interRegionRememberedSetRequested) {
-			result = result && tgcInterRegionRememberedSetInitialize(javaVM);
-		}
+        if (tgcExtensions->_interRegionRememberedSetRequested) {
+            result = result && tgcInterRegionRememberedSetInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_interRegionRememberedSetDemographicsRequested) {
-			result = result && tgcInterRegionRememberedSetDemographicsInitialize(javaVM);
-		}
+        if (tgcExtensions->_interRegionRememberedSetDemographicsRequested) {
+            result = result && tgcInterRegionRememberedSetDemographicsInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_allocationContextRequested) {
-			result = result && tgcAllocationContextInitialize(javaVM);
-		}
+        if (tgcExtensions->_allocationContextRequested) {
+            result = result && tgcAllocationContextInitialize(javaVM);
+        }
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		if (tgcExtensions->_intelligentCompactRequested) {
-			result = result && tgcIntelligentCompactInitialize(javaVM);
-		}
+        if (tgcExtensions->_intelligentCompactRequested) {
+            result = result && tgcIntelligentCompactInitialize(javaVM);
+        }
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		if (tgcExtensions->_dynamicCollectionSetRequested) {
-			result = result && tgcDynamicCollectionSetInitialize(javaVM);
-		}
+        if (tgcExtensions->_dynamicCollectionSetRequested) {
+            result = result && tgcDynamicCollectionSetInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_projectedStatsRequested) {
-			result = result && tgcProjectedStatsInitialize(javaVM);
-		}
+        if (tgcExtensions->_projectedStatsRequested) {
+            result = result && tgcProjectedStatsInitialize(javaVM);
+        }
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		if (tgcExtensions->_writeOnceCompactTimingRequested) {
-			result = result && tgcWriteOnceCompactTimingInitialize(javaVM);
-		}
+        if (tgcExtensions->_writeOnceCompactTimingRequested) {
+            result = result && tgcWriteOnceCompactTimingInitialize(javaVM);
+        }
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		if (tgcExtensions->_copyForwardRequested) {
-			result = result && tgcCopyForwardInitialize(javaVM);
-		}
+        if (tgcExtensions->_copyForwardRequested) {
+            result = result && tgcCopyForwardInitialize(javaVM);
+        }
 
-		if (tgcExtensions->_interRegionReferencesRequested) {
-			result = result && tgcInterRegionReferencesInitialize(javaVM);
-		}
+        if (tgcExtensions->_interRegionReferencesRequested) {
+            result = result && tgcInterRegionReferencesInitialize(javaVM);
+        }
 
 #endif /* J9VM_GC_VLHGC */
-	}
-
+    }
 
 #endif /* defined(J9VM_GC_MODRON_STANDARD) || defined(J9VM_GC_VLHGC)  || defined(J9VM_GC_SEGREGATED_HEAP) */
 
-	return result;
+    return result;
 }
 
 /**
  * @todo Provide function documentation
  */
-void
-tgcTearDownExtensions(J9JavaVM *javaVM)
+void tgcTearDownExtensions(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
 
-	if (NULL != extensions->tgcExtensions) {
-		if (extensions->isVLHGC()) {
+    if (NULL != extensions->tgcExtensions) {
+        if (extensions->isVLHGC()) {
 #if defined(J9VM_GC_VLHGC)
-			tgcInterRegionRememberedSetTearDown(javaVM);
-			tgcInterRegionRememberedSetDemographicsTearDown(javaVM);
-			tgcDynamicCollectionSetTearDown(javaVM);
-			tgcInterRegionReferencesTearDown(javaVM);
+            tgcInterRegionRememberedSetTearDown(javaVM);
+            tgcInterRegionRememberedSetDemographicsTearDown(javaVM);
+            tgcDynamicCollectionSetTearDown(javaVM);
+            tgcInterRegionReferencesTearDown(javaVM);
 #endif /* J9VM_GC_VLHGC */
-		}
-		MM_TgcExtensions::getExtensions(extensions)->kill(extensions);
-		extensions->tgcExtensions = NULL;
-	}
+        }
+        MM_TgcExtensions::getExtensions(extensions)->kill(extensions);
+        extensions->tgcExtensions = NULL;
+    }
 }
 
 /**
  * @todo Provide function documentation
  */
-void
-tgcPrintClass(J9JavaVM *javaVM, J9Class* clazz)
+void tgcPrintClass(J9JavaVM* javaVM, J9Class* clazz)
 {
-	J9ROMClass* romClass;
-	J9UTF8* utf;
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(javaVM);
+    J9ROMClass* romClass;
+    J9UTF8* utf;
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(javaVM);
 
-	/* TODO: In Sov, if the class is char[], the string is printed instead of the class name */
-	romClass = clazz->romClass;
-	if(romClass->modifiers & J9_JAVA_CLASS_ARRAY) {
-		J9ArrayClass* arrayClass = (J9ArrayClass*) clazz;
-		UDATA arity = arrayClass->arity;
-		utf = J9ROMCLASS_CLASSNAME(arrayClass->leafComponentType->romClass);
+    /* TODO: In Sov, if the class is char[], the string is printed instead of the class name */
+    romClass = clazz->romClass;
+    if (romClass->modifiers & J9_JAVA_CLASS_ARRAY) {
+        J9ArrayClass* arrayClass = (J9ArrayClass*)clazz;
+        UDATA arity = arrayClass->arity;
+        utf = J9ROMCLASS_CLASSNAME(arrayClass->leafComponentType->romClass);
 
-		tgcExtensions->printf("%.*s", (UDATA)J9UTF8_LENGTH(utf), J9UTF8_DATA(utf));
-		while(arity--) {
-			tgcExtensions->printf("[]");
-		}
-	} else {
-		utf = J9ROMCLASS_CLASSNAME(romClass);
-		tgcExtensions->printf("%.*s", (UDATA)J9UTF8_LENGTH(utf), J9UTF8_DATA(utf));
-	}
-	return;
+        tgcExtensions->printf("%.*s", (UDATA)J9UTF8_LENGTH(utf), J9UTF8_DATA(utf));
+        while (arity--) {
+            tgcExtensions->printf("[]");
+        }
+    } else {
+        utf = J9ROMCLASS_CLASSNAME(romClass);
+        tgcExtensions->printf("%.*s", (UDATA)J9UTF8_LENGTH(utf), J9UTF8_DATA(utf));
+    }
+    return;
 }

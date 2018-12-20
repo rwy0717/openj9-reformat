@@ -36,32 +36,30 @@
  * @return the next slot containing an object reference
  * @return NULL if there are no more such slots
  */
-J9Class **
-GC_ClassArrayClassSlotIterator::nextSlot() 
+J9Class** GC_ClassArrayClassSlotIterator::nextSlot()
 {
-	J9Class **slotPtr;
+    J9Class** slotPtr;
 
-	switch(_state) {
-	case classArrayClassSlotIterator_state_arrayClass:
-		slotPtr = (J9Class **)&_iterateClazz->arrayClass;
-		if(!_isArrayClass) {
-			_state = classArrayClassSlotIterator_state_done;
-		} else {
-			_state += 1;
-		}
-		break;
-	case classArrayClassSlotIterator_state_componentType:
-		slotPtr = &((J9ArrayClass *)_iterateClazz)->componentType;
-		_state += 1;
-		break;
-	case classArrayClassSlotIterator_state_leafComponentType:
-		slotPtr = &((J9ArrayClass *)_iterateClazz)->leafComponentType;
-		_state += 1;
-		break;
-	default:
-		return NULL;
-		break;
-	}
-	return slotPtr;
+    switch (_state) {
+    case classArrayClassSlotIterator_state_arrayClass:
+        slotPtr = (J9Class**)&_iterateClazz->arrayClass;
+        if (!_isArrayClass) {
+            _state = classArrayClassSlotIterator_state_done;
+        } else {
+            _state += 1;
+        }
+        break;
+    case classArrayClassSlotIterator_state_componentType:
+        slotPtr = &((J9ArrayClass*)_iterateClazz)->componentType;
+        _state += 1;
+        break;
+    case classArrayClassSlotIterator_state_leafComponentType:
+        slotPtr = &((J9ArrayClass*)_iterateClazz)->leafComponentType;
+        _state += 1;
+        break;
+    default:
+        return NULL;
+        break;
+    }
+    return slotPtr;
 }
-

@@ -23,54 +23,43 @@
 #include "j9comp.h"
 #include "j9.h"
 
-void
-setCurrentException(J9VMThread *currentThread, UDATA exceptionNumber, UDATA *detailMessage)
+void setCurrentException(J9VMThread* currentThread, UDATA exceptionNumber, UDATA* detailMessage)
 {
-	/* NOTE: Stub function. */
+    /* NOTE: Stub function. */
 }
 
-void
-setCurrentExceptionUTF(J9VMThread * vmThread, UDATA exceptionNumber, const char * detailUTF)
+void setCurrentExceptionUTF(J9VMThread* vmThread, UDATA exceptionNumber, const char* detailUTF)
 {
-	/* NOTE: Stub function. */
+    /* NOTE: Stub function. */
 }
 
-struct J9Class *
-internalFindClassUTF8(J9VMThread *currentThread, U_8 *className, UDATA classNameLength, J9ClassLoader *classLoader, UDATA options)
+struct J9Class* internalFindClassUTF8(
+    J9VMThread* currentThread, U_8* className, UDATA classNameLength, J9ClassLoader* classLoader, UDATA options)
 {
-	/* NOTE: Stub function. */
-	return NULL;
+    /* NOTE: Stub function. */
+    return NULL;
 }
 
-J9VMThread *
-currentVMThread(J9JavaVM * vm)
+J9VMThread* currentVMThread(J9JavaVM* vm)
 {
-	/* NOTE: Stub function. */
-	return NULL;
+    /* NOTE: Stub function. */
+    return NULL;
 }
 
 UDATA
-initializeMonitorTable(J9VMThread *vmThread)
+initializeMonitorTable(J9VMThread* vmThread)
 {
-	/* NOTE: Stub function. */
-	return 0;
+    /* NOTE: Stub function. */
+    return 0;
 }
 
-void
-destroyMonitorTable(J9JavaVM* vm)
-{
-	/* NOTE: Stub function. */
-}
+void destroyMonitorTable(J9JavaVM* vm) { /* NOTE: Stub function. */ }
 
-void
-destroyOMRVMThread(J9JavaVM *vm, J9VMThread *vmThread)
-{
-	/* NOTE: Stub function. */
-}
+void destroyOMRVMThread(J9JavaVM* vm, J9VMThread* vmThread) { /* NOTE: Stub function. */ }
 
-char *
-illegalAccessMessage(J9VMThread *currentThread, IDATA badMemberModifier, J9Class *senderClass, J9Class *targetClass, IDATA errorType)
+char* illegalAccessMessage(
+    J9VMThread* currentThread, IDATA badMemberModifier, J9Class* senderClass, J9Class* targetClass, IDATA errorType)
 {
-	/* NOTE: Stub function. */
-	return NULL;
+    /* NOTE: Stub function. */
+    return NULL;
 }

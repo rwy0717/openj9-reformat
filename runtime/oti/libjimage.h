@@ -30,16 +30,14 @@
 typedef void JImageFile;
 typedef jlong JImageLocationRef;
 
-typedef JImageFile * (*libJImageOpenType)(const char *name, jint *error);
+typedef JImageFile* (*libJImageOpenType)(const char* name, jint* error);
 typedef void (*libJImageCloseType)(JImageFile* jimage);
-typedef JImageLocationRef(*libJImageFindResourceType)(JImageFile* jimage,
-        const char* module_name, const char* version, const char* name, jlong* size);
-typedef jlong(*libJImageGetResourceType)(JImageFile* jimage, JImageLocationRef location,
-        char* buffer, jlong size);
+typedef JImageLocationRef (*libJImageFindResourceType)(
+    JImageFile* jimage, const char* module_name, const char* version, const char* name, jlong* size);
+typedef jlong (*libJImageGetResourceType)(JImageFile* jimage, JImageLocationRef location, char* buffer, jlong size);
 typedef const char* (*libJImagePackageToModuleType)(JImageFile* jimage, const char* package_name);
 
 #define JIMAGE_VERSION_NUMBER "9.0"
-
 
 #define JIMAGE_MAX_PATH 4096
 

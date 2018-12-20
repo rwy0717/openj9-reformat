@@ -28,36 +28,36 @@
 
 class UnitTest {
 public:
-	enum {
-		NO_TEST = 0,
-		ATTACHED_DATA_TEST,
-		ATTACHED_DATA_UPDATE_COUNT_TEST,
-		ATTACHED_DATA_CORRUPT_COUNT_TEST,
-		BYTE_DATA_TEST,
-		COMPILED_METHOD_TEST,
-		COMPOSITE_CACHE_SIZES_TEST,
-		COMPOSITE_CACHE_TEST,
-		COMPOSITE_CACHE_TEST_SKIP_WRITE_COUNTER_UPDATE,
-		CORRUPT_CACHE_TEST,
-		SHAREDCACHE_API_TEST,
-		MINMAX_TEST,
-		PROTECT_NEW_ROMCLASS_DATA_TEST,
-		CACHE_FULL_TEST,
-		PROTECTA_SHARED_CACHE_DATA_TEST,
-		STARTUP_HINTS_TEST
-	};
+    enum {
+        NO_TEST = 0,
+        ATTACHED_DATA_TEST,
+        ATTACHED_DATA_UPDATE_COUNT_TEST,
+        ATTACHED_DATA_CORRUPT_COUNT_TEST,
+        BYTE_DATA_TEST,
+        COMPILED_METHOD_TEST,
+        COMPOSITE_CACHE_SIZES_TEST,
+        COMPOSITE_CACHE_TEST,
+        COMPOSITE_CACHE_TEST_SKIP_WRITE_COUNTER_UPDATE,
+        CORRUPT_CACHE_TEST,
+        SHAREDCACHE_API_TEST,
+        MINMAX_TEST,
+        PROTECT_NEW_ROMCLASS_DATA_TEST,
+        CACHE_FULL_TEST,
+        PROTECTA_SHARED_CACHE_DATA_TEST,
+        STARTUP_HINTS_TEST
+    };
 
-	static IDATA unitTest;
+    static IDATA unitTest;
 
-	/* Used in SH_CompositeCache::startup() for memory protection on Win32.
-	 * Any unit test using this field should ensure that it is OS page aligned.
-	 */
-	static void *cacheMemory;
+    /* Used in SH_CompositeCache::startup() for memory protection on Win32.
+     * Any unit test using this field should ensure that it is OS page aligned.
+     */
+    static void* cacheMemory;
 
-	/* Used in SH_CompositeCache::startup() for memory protection on Win32.
-	 * Any unit test using this field should ensure that it is OS page aligned.
-	 */
-	static U_32 cacheSize;
+    /* Used in SH_CompositeCache::startup() for memory protection on Win32.
+     * Any unit test using this field should ensure that it is OS page aligned.
+     */
+    static U_32 cacheSize;
 };
 
-#endif	/* UNITTESTING_HPP_INCLUDED */
+#endif /* UNITTESTING_HPP_INCLUDED */

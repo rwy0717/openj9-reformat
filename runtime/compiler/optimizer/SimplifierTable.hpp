@@ -23,18 +23,23 @@
 #ifndef SIMPLIFIERTABLE_INCL
 #define SIMPLIFIERTABLE_INCL
 
-namespace TR { class Block; }
-namespace TR { class Node; }
-namespace TR { class Simplifier; }
+namespace TR {
+class Block;
+}
+namespace TR {
+class Node;
+}
+namespace TR {
+class Simplifier;
+}
 
 #include "optimizer/OMRSimplifierHandlers.hpp"
 #include "optimizer/J9SimplifierHandlers.hpp"
 
-typedef TR::Node *(* SimplifierPtr)(TR::Node *node, TR::Block *block, TR::Simplifier *s);
+typedef TR::Node* (*SimplifierPtr)(TR::Node* node, TR::Block* block, TR::Simplifier* s);
 
-const SimplifierPtr simplifierOpts[TR::NumIlOps] =
-   {
-   #include "optimizer/J9SimplifierTableEnum.hpp"
-   };
+const SimplifierPtr simplifierOpts[TR::NumIlOps] = {
+#include "optimizer/J9SimplifierTableEnum.hpp"
+};
 
 #endif

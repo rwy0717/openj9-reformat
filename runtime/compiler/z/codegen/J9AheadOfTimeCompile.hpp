@@ -25,8 +25,14 @@
 
 #ifndef J9_AHEADOFTIMECOMPILE_CONNECTOR
 #define J9_AHEADOFTIMECOMPILE_CONNECTOR
-namespace J9 { namespace Z { class AheadOfTimeCompile; } }
-namespace J9 { typedef J9::Z::AheadOfTimeCompile AheadOfTimeCompileConnector; }
+namespace J9 {
+namespace Z {
+class AheadOfTimeCompile;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::Z::AheadOfTimeCompile AheadOfTimeCompileConnector;
+}
 #endif // J9_AHEADOFTIMECOMPILE_CONNECTOR
 
 #include "compiler/codegen/J9AheadOfTimeCompile.hpp"
@@ -34,34 +40,31 @@ namespace J9 { typedef J9::Z::AheadOfTimeCompile AheadOfTimeCompileConnector; }
 #include "compile/SymbolReferenceTable.hpp"
 #include "codegen/S390AOTRelocation.hpp"
 
-namespace TR { class CodeGenerator; }
+namespace TR {
+class CodeGenerator;
+}
 
-namespace J9
-{
+namespace J9 {
 
-namespace Z
-{
+namespace Z {
 
-class OMR_EXTENSIBLE AheadOfTimeCompile : public J9::AheadOfTimeCompile
-   {
-   public:
-     AheadOfTimeCompile(TR::CodeGenerator *cg);
+class OMR_EXTENSIBLE AheadOfTimeCompile : public J9::AheadOfTimeCompile {
+public:
+    AheadOfTimeCompile(TR::CodeGenerator* cg);
 
-    virtual void     processRelocations();
-    virtual uint8_t *initializeAOTRelocationHeader(TR::IteratedExternalRelocation *relocation);
+    virtual void processRelocations();
+    virtual uint8_t* initializeAOTRelocationHeader(TR::IteratedExternalRelocation* relocation);
 
-    TR::list<TR::S390Relocation*>& getRelocationList() {return _relocationList;}
+    TR::list<TR::S390Relocation*>& getRelocationList() { return _relocationList; }
 
-  private:
+private:
     static uint32_t _relocationTargetTypeToHeaderSizeMap[TR_NumExternalRelocationKinds];
-    TR::list<TR::S390Relocation*>     _relocationList;
-    TR::CodeGenerator *_cg;
-   };
+    TR::list<TR::S390Relocation*> _relocationList;
+    TR::CodeGenerator* _cg;
+};
 
 } // namespace Z
 
 } // namespace J9
 
 #endif
-
-

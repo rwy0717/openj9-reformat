@@ -23,106 +23,94 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
+static agentEnv* env;
 
-jint JNICALL
-ioh001(agentEnv * agent_env, char * args)
+jint JNICALL ioh001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiCapabilities capabilities;
-	jvmtiError err;                                
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_tag_objects = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}						
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_tag_objects = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-
-#define JVMTI_TEST_IOH001_JAVALANGCLASS_TAG    0xc0fe
-#define JVMTI_TEST_IOH001_CLASS_TAG            0xc0de
+#define JVMTI_TEST_IOH001_JAVALANGCLASS_TAG 0xc0fe
+#define JVMTI_TEST_IOH001_CLASS_TAG 0xc0de
 
 typedef struct ioh001_data {
-	int foundJavaLangClass;
-	int foundIoh001Class;
+    int foundJavaLangClass;
+    int foundIoh001Class;
 } ioh001_data;
 
-
-static jvmtiIterationControl JNICALL
-iohHeapObjectCallback(jlong class_tag, jlong size, jlong * tag_ptr, void * user_data)
+static jvmtiIterationControl JNICALL iohHeapObjectCallback(jlong class_tag, jlong size, jlong* tag_ptr, void* user_data)
 {
-	ioh001_data * data = (ioh001_data *) user_data;
+    ioh001_data* data = (ioh001_data*)user_data;
 
-	if (*tag_ptr == JVMTI_TEST_IOH001_JAVALANGCLASS_TAG) {
-         	data->foundJavaLangClass = 1;
-	}
+    if (*tag_ptr == JVMTI_TEST_IOH001_JAVALANGCLASS_TAG) {
+        data->foundJavaLangClass = 1;
+    }
 
- 	if (*tag_ptr == JVMTI_TEST_IOH001_CLASS_TAG) {
-         	data->foundIoh001Class = 1;
-	} 
+    if (*tag_ptr == JVMTI_TEST_IOH001_CLASS_TAG) {
+        data->foundIoh001Class = 1;
+    }
 
-	return JVMTI_ITERATION_CONTINUE;
+    return JVMTI_ITERATION_CONTINUE;
 }
 
-
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_iterateOverHeap_ioh001_iterate(JNIEnv * jni_env, jclass klazz)							      
+jboolean JNICALL Java_com_ibm_jvmti_tests_iterateOverHeap_ioh001_iterate(JNIEnv* jni_env, jclass klazz)
 {
-	jvmtiError rc;
-	jvmtiEnv * jvmti_env = env->jvmtiEnv;
-	jclass clazz;
-	ioh001_data data;
+    jvmtiError rc;
+    jvmtiEnv* jvmti_env = env->jvmtiEnv;
+    jclass clazz;
+    ioh001_data data;
 
-	data.foundJavaLangClass = 0;
-	
-	
-	clazz = (*jni_env)->FindClass(jni_env, "java/lang/Class");
-	if (clazz == NULL) {
-		error(env, JVMTI_ERROR_NONE, "Unable to FindClass java/lang/Class in preparation for tagging");
-		return JNI_FALSE;
-	}
-	
-	rc = (*jvmti_env)->SetTag(jvmti_env, clazz, JVMTI_TEST_IOH001_JAVALANGCLASS_TAG);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(env, rc, "Failed to SetTag [JVMTI_TEST_IOH001_JAVALANGCLASS_TAG]");
-		return JNI_FALSE;
-	}
+    data.foundJavaLangClass = 0;
 
- 	rc = (*jvmti_env)->SetTag(jvmti_env, klazz, JVMTI_TEST_IOH001_CLASS_TAG);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(env, rc, "Failed to SetTag [JVMTI_TEST_IOH001_JAVALANGCLASS_TAG]");
-		return JNI_FALSE;
-	}
+    clazz = (*jni_env)->FindClass(jni_env, "java/lang/Class");
+    if (clazz == NULL) {
+        error(env, JVMTI_ERROR_NONE, "Unable to FindClass java/lang/Class in preparation for tagging");
+        return JNI_FALSE;
+    }
 
+    rc = (*jvmti_env)->SetTag(jvmti_env, clazz, JVMTI_TEST_IOH001_JAVALANGCLASS_TAG);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(env, rc, "Failed to SetTag [JVMTI_TEST_IOH001_JAVALANGCLASS_TAG]");
+        return JNI_FALSE;
+    }
 
-	rc =  (*jvmti_env)->IterateOverHeap(jvmti_env, JVMTI_HEAP_OBJECT_TAGGED, iohHeapObjectCallback, &data);
-	if (rc != JVMTI_ERROR_NONE) {
-		error(env, rc, "Failed to jvmtiIterateOverInstancesOfClass");
-		return JNI_FALSE;
-	}
+    rc = (*jvmti_env)->SetTag(jvmti_env, klazz, JVMTI_TEST_IOH001_CLASS_TAG);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(env, rc, "Failed to SetTag [JVMTI_TEST_IOH001_JAVALANGCLASS_TAG]");
+        return JNI_FALSE;
+    }
 
-       
- 	/* Did we find ioh001 Class ? */
-	if (data.foundIoh001Class == 0) {
-		error(env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOH001_CLASS_TAG not found");
-		return JNI_FALSE;
-	}
- 
-	/* Did we find java/lang/Class ? */
-	if (data.foundJavaLangClass == 0) {
-		error(env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOH001_JAVALANGCLASS_TAG not found");
-		return JNI_FALSE;
-	}
- 
-	
-	return JNI_TRUE;
+    rc = (*jvmti_env)->IterateOverHeap(jvmti_env, JVMTI_HEAP_OBJECT_TAGGED, iohHeapObjectCallback, &data);
+    if (rc != JVMTI_ERROR_NONE) {
+        error(env, rc, "Failed to jvmtiIterateOverInstancesOfClass");
+        return JNI_FALSE;
+    }
+
+    /* Did we find ioh001 Class ? */
+    if (data.foundIoh001Class == 0) {
+        error(env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOH001_CLASS_TAG not found");
+        return JNI_FALSE;
+    }
+
+    /* Did we find java/lang/Class ? */
+    if (data.foundJavaLangClass == 0) {
+        error(env, JVMTI_ERROR_NONE, "klass tagged with JVMTI_TEST_IOH001_JAVALANGCLASS_TAG not found");
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
 }
-
-

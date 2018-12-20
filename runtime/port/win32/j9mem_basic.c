@@ -24,16 +24,14 @@
 #include "j9port.h"
 #include "portpriv.h"
 
-void *
-j9mem_allocate_portLibrary(uintptr_t byteAmount)
+void* j9mem_allocate_portLibrary(uintptr_t byteAmount)
 {
-	HANDLE memHeap = GetProcessHeap();
-	return HeapAlloc(memHeap, 0, byteAmount );
+    HANDLE memHeap = GetProcessHeap();
+    return HeapAlloc(memHeap, 0, byteAmount);
 }
 
-void
-j9mem_deallocate_portLibrary(void *memoryPointer)
+void j9mem_deallocate_portLibrary(void* memoryPointer)
 {
-	HANDLE memHeap = GetProcessHeap();
-	HeapFree(memHeap, 0, memoryPointer);
+    HANDLE memHeap = GetProcessHeap();
+    HeapFree(memHeap, 0, memoryPointer);
 }

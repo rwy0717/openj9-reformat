@@ -38,17 +38,16 @@
 extern "C" {
 /**
  */
-void memoryManagerAsyncCallbackHandler(J9VMThread *vmThread, IDATA handlerKey, void *userData);
+void memoryManagerAsyncCallbackHandler(J9VMThread* vmThread, IDATA handlerKey, void* userData);
 }
 
 /**
  * @todo Provide class documentation
  * @ingroup GC_Base
  */
-class MM_AsyncCallbackHandler : public MM_BaseNonVirtual
-{
+class MM_AsyncCallbackHandler : public MM_BaseNonVirtual {
 public:
-	static void signalThreadForCallback(J9VMThread *vmThread);
+    static void signalThreadForCallback(J9VMThread* vmThread);
 };
 
 #endif /* ASYNCCALLBACKHANDLER_HPP_ */

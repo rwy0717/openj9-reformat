@@ -25,41 +25,56 @@
 #include "j9.h"
 #include "j9port.h"
 
-jboolean JNICALL Java_java_security_AccessController_initializeInternal(JNIEnv *env, jclass thisClz)
+jboolean JNICALL Java_java_security_AccessController_initializeInternal(JNIEnv* env, jclass thisClz)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
-	jclass accessControllerClass;
-	jmethodID mid;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
+    jclass accessControllerClass;
+    jmethodID mid;
 
-	accessControllerClass = (*env)->FindClass(env, "java/security/AccessController");
-	if(accessControllerClass == NULL) goto fail;
+    accessControllerClass = (*env)->FindClass(env, "java/security/AccessController");
+    if (accessControllerClass == NULL)
+        goto fail;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedAction;)Ljava/lang/Object;");
-	if(mid == NULL) goto fail;
-	javaVM->doPrivilegedMethodID1 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(
+        env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedAction;)Ljava/lang/Object;");
+    if (mid == NULL)
+        goto fail;
+    javaVM->doPrivilegedMethodID1 = (UDATA)mid;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;");
-	if(mid == NULL) goto fail;
-	javaVM->doPrivilegedMethodID2 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(
+        env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;");
+    if (mid == NULL)
+        goto fail;
+    javaVM->doPrivilegedMethodID2 = (UDATA)mid;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;");
-	if(mid == NULL) goto fail;
-	javaVM->doPrivilegedWithContextMethodID1 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged",
+        "(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;");
+    if (mid == NULL)
+        goto fail;
+    javaVM->doPrivilegedWithContextMethodID1 = (UDATA)mid;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;");
-	if(mid == NULL) goto fail;
-	javaVM->doPrivilegedWithContextMethodID2 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged",
+        "(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;");
+    if (mid == NULL)
+        goto fail;
+    javaVM->doPrivilegedWithContextMethodID2 = (UDATA)mid;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;[Ljava/security/Permission;)Ljava/lang/Object;");
-	if (NULL == mid) goto fail;
-	javaVM->doPrivilegedWithContextPermissionMethodID1 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged",
+        "(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;[Ljava/security/Permission;)Ljava/lang/"
+        "Object;");
+    if (NULL == mid)
+        goto fail;
+    javaVM->doPrivilegedWithContextPermissionMethodID1 = (UDATA)mid;
 
-	mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;[Ljava/security/Permission;)Ljava/lang/Object;");
-	if (NULL == mid) goto fail;
-	javaVM->doPrivilegedWithContextPermissionMethodID2 = (UDATA) mid;
+    mid = (*env)->GetStaticMethodID(env, accessControllerClass, "doPrivileged",
+        "(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;[Ljava/security/"
+        "Permission;)Ljava/lang/Object;");
+    if (NULL == mid)
+        goto fail;
+    javaVM->doPrivilegedWithContextPermissionMethodID2 = (UDATA)mid;
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 
 fail:
-	return JNI_FALSE;
+    return JNI_FALSE;
 }

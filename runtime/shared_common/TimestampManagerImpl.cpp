@@ -25,83 +25,79 @@
 #include "ut_j9shr.h"
 #include <string.h>
 
-SH_TimestampManagerImpl*
-SH_TimestampManagerImpl::newInstance(J9JavaVM* vm, SH_TimestampManagerImpl* memForConstructor, J9SharedClassConfig* sharedClassConfig)
+SH_TimestampManagerImpl* SH_TimestampManagerImpl::newInstance(
+    J9JavaVM* vm, SH_TimestampManagerImpl* memForConstructor, J9SharedClassConfig* sharedClassConfig)
 {
-	SH_TimestampManagerImpl* newTSM = (SH_TimestampManagerImpl*)memForConstructor;
+    SH_TimestampManagerImpl* newTSM = (SH_TimestampManagerImpl*)memForConstructor;
 
-	new(newTSM) SH_TimestampManagerImpl();
-	newTSM->_sharedClassConfig = sharedClassConfig;
+    new (newTSM) SH_TimestampManagerImpl();
+    newTSM->_sharedClassConfig = sharedClassConfig;
 
-	return newTSM;
+    return newTSM;
 }
 
 UDATA
-SH_TimestampManagerImpl::getRequiredConstrBytes(void)
+SH_TimestampManagerImpl::getRequiredConstrBytes(void) { return sizeof(SH_TimestampManagerImpl); }
+
+I_64 SH_TimestampManagerImpl::checkCPEITimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei)
 {
-	return sizeof(SH_TimestampManagerImpl);
+    return localCheckTimeStamp(currentThread, cpei, NULL, 0, NULL);
 }
 
-I_64 
-SH_TimestampManagerImpl::checkCPEITimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei) 
+I_64 SH_TimestampManagerImpl::checkROMClassTimeStamp(J9VMThread* currentThread, const char* className,
+    UDATA classNameLen, ClasspathEntryItem* cpei, ROMClassWrapper* rcWrapper)
 {
-	return localCheckTimeStamp(currentThread, cpei, NULL, 0, NULL);
-}
-
-I_64 
-SH_TimestampManagerImpl::checkROMClassTimeStamp(J9VMThread* currentThread, const char* className, UDATA classNameLen, ClasspathEntryItem* cpei, ROMClassWrapper* rcWrapper) 
-{
-	return localCheckTimeStamp(currentThread, cpei, className, classNameLen, rcWrapper);	
+    return localCheckTimeStamp(currentThread, cpei, className, classNameLen, rcWrapper);
 }
 
 /* Returns TIMESTAMP_UNCHANGED, TIMESTAMP_DOES_NOT_EXIST, TIMESTAMP_DISAPPEARED or an actual timestamp.
  * Should ONLY be called to timestamp against cpitems held in cache, not locally
  * Note: If classname is added, specific classfile is timestamp checked */
-I_64 
-SH_TimestampManagerImpl::localCheckTimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei, const char* className, UDATA classNameLen, ROMClassWrapper* rcWrapper)
+I_64 SH_TimestampManagerImpl::localCheckTimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei,
+    const char* className, UDATA classNameLen, ROMClassWrapper* rcWrapper)
 {
-	I_64 current = 0;
-	I_64 test = cpei->timestamp;
-	char pathBuf[SHARE_PATHBUF_SIZE];
-	char* pathBufPtr = (char*)pathBuf;
-	bool doFreeBuffer = false;
+    I_64 current = 0;
+    I_64 test = cpei->timestamp;
+    char pathBuf[SHARE_PATHBUF_SIZE];
+    char* pathBufPtr = (char*)pathBuf;
+    bool doFreeBuffer = false;
 
-	PORT_ACCESS_FROM_PORT(currentThread->javaVM->portLibrary);
-	
-	if (cpei->protocol==PROTO_DIR) {
-		/* If stack buffer not big enough, doFreeBuffer is set to true */
-		SH_CacheMap::createPathString(currentThread, _sharedClassConfig, &pathBufPtr, SHARE_PATHBUF_SIZE, cpei, className, classNameLen, &doFreeBuffer);
+    PORT_ACCESS_FROM_PORT(currentThread->javaVM->portLibrary);
 
-		if (className!=NULL) {
-			/* Timestamp on class instead */
-			test = rcWrapper->timestamp;
-		}
-		Trc_SHR_TMI_LocalCheckTimestamp_Checking_File(currentThread, pathBufPtr);
-	} else {
-		SH_CacheMap::createPathString(currentThread, _sharedClassConfig, &pathBufPtr, SHARE_PATHBUF_SIZE, cpei, NULL, 0, &doFreeBuffer);
+    if (cpei->protocol == PROTO_DIR) {
+        /* If stack buffer not big enough, doFreeBuffer is set to true */
+        SH_CacheMap::createPathString(currentThread, _sharedClassConfig, &pathBufPtr, SHARE_PATHBUF_SIZE, cpei,
+            className, classNameLen, &doFreeBuffer);
 
-		Trc_SHR_TMI_LocalCheckTimestamp_Checking_Jar(currentThread, pathBufPtr);
-	}
-	if (!pathBufPtr) {
-		return TIMESTAMP_DOES_NOT_EXIST;
-	}
-	current = j9file_lastmod(pathBufPtr);
-	if (doFreeBuffer) {
-		j9mem_free_memory(pathBufPtr);
-	}
-	if (current == -1) {
-		if (test == -1) {
-			return TIMESTAMP_DOES_NOT_EXIST;
-		} else {
-			return TIMESTAMP_DISAPPEARED;
-		}
-	} else {
-		if (current == test) {
-			return TIMESTAMP_UNCHANGED;
-		} else {
-			return current;
-		}
-	}
+        if (className != NULL) {
+            /* Timestamp on class instead */
+            test = rcWrapper->timestamp;
+        }
+        Trc_SHR_TMI_LocalCheckTimestamp_Checking_File(currentThread, pathBufPtr);
+    } else {
+        SH_CacheMap::createPathString(
+            currentThread, _sharedClassConfig, &pathBufPtr, SHARE_PATHBUF_SIZE, cpei, NULL, 0, &doFreeBuffer);
+
+        Trc_SHR_TMI_LocalCheckTimestamp_Checking_Jar(currentThread, pathBufPtr);
+    }
+    if (!pathBufPtr) {
+        return TIMESTAMP_DOES_NOT_EXIST;
+    }
+    current = j9file_lastmod(pathBufPtr);
+    if (doFreeBuffer) {
+        j9mem_free_memory(pathBufPtr);
+    }
+    if (current == -1) {
+        if (test == -1) {
+            return TIMESTAMP_DOES_NOT_EXIST;
+        } else {
+            return TIMESTAMP_DISAPPEARED;
+        }
+    } else {
+        if (current == test) {
+            return TIMESTAMP_UNCHANGED;
+        } else {
+            return current;
+        }
+    }
 }
-
-

@@ -25,47 +25,44 @@
 #include "ModronTypes.hpp"
 #include "ScanFormatter.hpp"
 
-GC_Check *
-GC_CheckJNIWeakGlobalReferences::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckJNIWeakGlobalReferences::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckJNIWeakGlobalReferences *check = (GC_CheckJNIWeakGlobalReferences *) forge->allocate(sizeof(GC_CheckJNIWeakGlobalReferences), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckJNIWeakGlobalReferences(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckJNIWeakGlobalReferences* check = (GC_CheckJNIWeakGlobalReferences*)forge->allocate(
+        sizeof(GC_CheckJNIWeakGlobalReferences), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckJNIWeakGlobalReferences(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckJNIWeakGlobalReferences::kill()
+void GC_CheckJNIWeakGlobalReferences::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckJNIWeakGlobalReferences::check()
+void GC_CheckJNIWeakGlobalReferences::check()
 {
-	GC_JNIWeakGlobalReferenceIterator jniWeakGlobalReferenceIterator(_javaVM->jniWeakGlobalReferences);
-	J9Object **slotPtr;
-	while((slotPtr = (J9Object **)jniWeakGlobalReferenceIterator.nextSlot()) != NULL) {
-		if (_engine->checkSlotPool(_javaVM, slotPtr, _javaVM->jniWeakGlobalReferences) != J9MODRON_SLOT_ITERATOR_OK ){
-			return;
-		}
-	}
+    GC_JNIWeakGlobalReferenceIterator jniWeakGlobalReferenceIterator(_javaVM->jniWeakGlobalReferences);
+    J9Object** slotPtr;
+    while ((slotPtr = (J9Object**)jniWeakGlobalReferenceIterator.nextSlot()) != NULL) {
+        if (_engine->checkSlotPool(_javaVM, slotPtr, _javaVM->jniWeakGlobalReferences) != J9MODRON_SLOT_ITERATOR_OK) {
+            return;
+        }
+    }
 }
 
-void
-GC_CheckJNIWeakGlobalReferences::print()
+void GC_CheckJNIWeakGlobalReferences::print()
 {
-	J9Pool *pool = _javaVM->jniWeakGlobalReferences;
-	GC_PoolIterator poolReferenceIterator(pool);
-	J9Object **slotPtr;
+    J9Pool* pool = _javaVM->jniWeakGlobalReferences;
+    GC_PoolIterator poolReferenceIterator(pool);
+    J9Object** slotPtr;
 
-	GC_ScanFormatter formatter(_portLibrary, "jniWeakGlobalReferences", (void *) pool);
-	while((slotPtr = (J9Object **)poolReferenceIterator.nextSlot()) != NULL) {
-		formatter.entry((void *)*slotPtr);
-	}
-	formatter.end("jniWeakGlobalReferences", (void *)pool);
+    GC_ScanFormatter formatter(_portLibrary, "jniWeakGlobalReferences", (void*)pool);
+    while ((slotPtr = (J9Object**)poolReferenceIterator.nextSlot()) != NULL) {
+        formatter.entry((void*)*slotPtr);
+    }
+    formatter.end("jniWeakGlobalReferences", (void*)pool);
 }

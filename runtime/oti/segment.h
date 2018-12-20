@@ -25,28 +25,26 @@
 
 #include "omrlinkedlist.h"
 
-#define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_IS_EMPTY(root) \
-	J9_LINEAR_LINKED_LIST_IS_EMPTY(root)
+#define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_IS_EMPTY(root) J9_LINEAR_LINKED_LIST_IS_EMPTY(root)
 
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_IS_TAIL(root, segment) \
-	J9_LINEAR_LINKED_LIST_IS_TAIL(nextSegment, previousSegment, root, segment)
-	
-#define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_START_DO(root) \
-	J9_LINEAR_LINKED_LIST_START_DO(root)
+    J9_LINEAR_LINKED_LIST_IS_TAIL(nextSegment, previousSegment, root, segment)
+
+#define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_START_DO(root) J9_LINEAR_LINKED_LIST_START_DO(root)
 
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_NEXT_DO(root, segment) \
-	J9_LINEAR_LINKED_LIST_NEXT_DO(nextSegment, previousSegment, root, segment)
-	
+    J9_LINEAR_LINKED_LIST_NEXT_DO(nextSegment, previousSegment, root, segment)
+
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_ADD(root, segment) \
-	J9_LINEAR_LINKED_LIST_ADD(nextSegment, previousSegment, root, segment)
+    J9_LINEAR_LINKED_LIST_ADD(nextSegment, previousSegment, root, segment)
 
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_ADD_BEFORE(root, before, segment) \
-	J9_LINEAR_LINKED_LIST_ADD_BEFORE(nextSegment, previousSegment, root, before, segment)
+    J9_LINEAR_LINKED_LIST_ADD_BEFORE(nextSegment, previousSegment, root, before, segment)
 
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_ADD_AFTER(root, after, segment) \
-	J9_LINEAR_LINKED_LIST_ADD_AFTER(nextSegment, previousSegment, root, after, segment)
+    J9_LINEAR_LINKED_LIST_ADD_AFTER(nextSegment, previousSegment, root, after, segment)
 
 #define J9_MEMORY_SEGMENT_LINEAR_LINKED_LIST_REMOVE(root, segment) \
-	J9_LINEAR_LINKED_LIST_REMOVE(nextSegment, previousSegment, root, segment)
+    J9_LINEAR_LINKED_LIST_REMOVE(nextSegment, previousSegment, root, segment)
 
 #endif /*SEGMENT_H_*/

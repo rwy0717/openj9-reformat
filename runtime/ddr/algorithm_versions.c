@@ -42,30 +42,29 @@
 #define ALG_VM_ITABLE_VERSION 1
 #define ALG_VM_BYTECODE_VERSION 1
 
-J9DDRConstantTableBegin(DDRAlgorithmVersions)
-	J9DDRConstantTableEntryWithValue("VM_MAJOR_VERSION", VM_MAJOR_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_MINOR_VERSION", VM_MINOR_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_LINE_NUMBER_TABLE_VERSION", VM_LINE_NUMBER_TABLE_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_LOCAL_VARIABLE_TABLE_VERSION", VM_LOCAL_VARIABLE_TABLE_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_CAN_ACCESS_LOCALS_VERSION", VM_CAN_ACCESS_LOCALS_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_GC_ARRAYLET_OBJECT_MODEL_VERSION", ALG_GC_ARRAYLET_OBJECT_MODEL_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_HASHTABLE_VERSION", VM_HASHTABLE_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_VM_J9CLASS_VERSION", ALG_VM_J9CLASS_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_GC_OBJECT_HEAP_ITERATOR_SEGREGATED_ORDERED_LIST_VERSION", ALG_GC_OBJECT_HEAP_ITERATOR_SEGREGATED_ORDERED_LIST_VERSION)
-	J9DDRConstantTableEntryWithValue("J9_OBJECT_FIELD_OFFSET_ITERATOR_VERSION", J9_OBJECT_FIELD_OFFSET_ITERATOR_VERSION)
-	J9DDRConstantTableEntryWithValue("VM_STACK_GROW_VERSION", VM_STACK_GROW_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_ROM_HELP_VERSION", ALG_ROM_HELP_VERSION)
-	J9DDRConstantTableEntryWithValue("FOUR_BYTE_OFFSETS_VERSION", FOUR_BYTE_OFFSETS_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_VM_VTABLE_VERSION", ALG_VM_VTABLE_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_VM_ITABLE_VERSION", ALG_VM_ITABLE_VERSION)
-	J9DDRConstantTableEntryWithValue("ALG_VM_BYTECODE_VERSION", ALG_VM_BYTECODE_VERSION)
-J9DDRConstantTableEnd
+J9DDRConstantTableBegin(DDRAlgorithmVersions) J9DDRConstantTableEntryWithValue(
+    "VM_MAJOR_VERSION", VM_MAJOR_VERSION) J9DDRConstantTableEntryWithValue("VM_MINOR_VERSION",
+    VM_MINOR_VERSION) J9DDRConstantTableEntryWithValue("VM_LINE_NUMBER_TABLE_VERSION", VM_LINE_NUMBER_TABLE_VERSION)
+    J9DDRConstantTableEntryWithValue("VM_LOCAL_VARIABLE_TABLE_VERSION", VM_LOCAL_VARIABLE_TABLE_VERSION)
+        J9DDRConstantTableEntryWithValue("VM_CAN_ACCESS_LOCALS_VERSION", VM_CAN_ACCESS_LOCALS_VERSION)
+            J9DDRConstantTableEntryWithValue("ALG_GC_ARRAYLET_OBJECT_MODEL_VERSION",
+                ALG_GC_ARRAYLET_OBJECT_MODEL_VERSION) J9DDRConstantTableEntryWithValue("VM_HASHTABLE_VERSION",
+                VM_HASHTABLE_VERSION) J9DDRConstantTableEntryWithValue("ALG_VM_J9CLASS_VERSION", ALG_VM_J9CLASS_VERSION)
+                J9DDRConstantTableEntryWithValue("ALG_GC_OBJECT_HEAP_ITERATOR_SEGREGATED_ORDERED_LIST_VERSION",
+                    ALG_GC_OBJECT_HEAP_ITERATOR_SEGREGATED_ORDERED_LIST_VERSION)
+                    J9DDRConstantTableEntryWithValue(
+                        "J9_OBJECT_FIELD_OFFSET_ITERATOR_VERSION", J9_OBJECT_FIELD_OFFSET_ITERATOR_VERSION)
+                        J9DDRConstantTableEntryWithValue("VM_STACK_GROW_VERSION", VM_STACK_GROW_VERSION)
+                            J9DDRConstantTableEntryWithValue("ALG_ROM_HELP_VERSION", ALG_ROM_HELP_VERSION)
+                                J9DDRConstantTableEntryWithValue("FOUR_BYTE_OFFSETS_VERSION", FOUR_BYTE_OFFSETS_VERSION)
+                                    J9DDRConstantTableEntryWithValue("ALG_VM_VTABLE_VERSION", ALG_VM_VTABLE_VERSION)
+                                        J9DDRConstantTableEntryWithValue("ALG_VM_ITABLE_VERSION", ALG_VM_ITABLE_VERSION)
+                                            J9DDRConstantTableEntryWithValue("ALG_VM_BYTECODE_VERSION",
+                                                ALG_VM_BYTECODE_VERSION) J9DDRConstantTableEnd
 
-J9DDRStructTableBegin(AlgorithmVersions)
-	J9DDREmptyStruct(DDRAlgorithmVersions, NULL)
-J9DDRStructTableEnd
+    J9DDRStructTableBegin(AlgorithmVersions) J9DDREmptyStruct(DDRAlgorithmVersions, NULL) J9DDRStructTableEnd
 
-const J9DDRStructDefinition* getAlgorithmVersionStructTable()
+    const J9DDRStructDefinition* getAlgorithmVersionStructTable()
 {
-	return J9DDR_AlgorithmVersions_structs;
+    return J9DDR_AlgorithmVersions_structs;
 }

@@ -25,124 +25,111 @@
 #include "j9cp.h"
 #include "jclprots.h"
 
-jboolean JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_is32Bit(JNIEnv *env, jclass rcv)
+jboolean JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_is32Bit(JNIEnv* env, jclass rcv)
 {
 #if defined(J9VM_ENV_DATA64)
-	return JNI_FALSE;
+    return JNI_FALSE;
 #else
-	return JNI_TRUE;
+    return JNI_TRUE;
 #endif
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getNumBitsInReferenceField(JNIEnv *env, jclass rcv)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getNumBitsInReferenceField(JNIEnv* env, jclass rcv)
 {
-	return (jint) (sizeof(fj9object_t) * 8);
+    return (jint)(sizeof(fj9object_t) * 8);
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInReferenceField(JNIEnv *env, jclass rcv)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInReferenceField(JNIEnv* env, jclass rcv)
 {
-	return (jint) sizeof(fj9object_t);
+    return (jint)sizeof(fj9object_t);
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getNumBitsInDescriptionWord(JNIEnv *env, jclass rcv)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getNumBitsInDescriptionWord(JNIEnv* env, jclass rcv)
 {
-	return (jint) (sizeof(UDATA) * 8);
+    return (jint)(sizeof(UDATA) * 8);
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInDescriptionWord(JNIEnv *env, jclass rcv)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInDescriptionWord(JNIEnv* env, jclass rcv)
 {
-	return (jint) sizeof(UDATA);
+    return (jint)sizeof(UDATA);
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInJ9ObjectHeader(JNIEnv *env, jclass rcv)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getNumBytesInJ9ObjectHeader(JNIEnv* env, jclass rcv)
 {
-	return (jint) sizeof(J9Object);
+    return (jint)sizeof(J9Object);
 }
 
 #if defined(J9VM_ENV_DATA64)
 
-jlong JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getJ9ClassFromClass64(JNIEnv *env, jclass rcv, jclass c)
+jlong JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getJ9ClassFromClass64(JNIEnv* env, jclass rcv, jclass c)
 {
-	J9VMThread * vmThread = (J9VMThread *)env;
-	J9InternalVMFunctions *vmFuncs = vmThread->javaVM->internalVMFunctions;
-	J9Class * clazz = NULL;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    J9InternalVMFunctions* vmFuncs = vmThread->javaVM->internalVMFunctions;
+    J9Class* clazz = NULL;
 
-	vmFuncs->internalEnterVMFromJNI(vmThread);
+    vmFuncs->internalEnterVMFromJNI(vmThread);
 
-	if (NULL == c) {
-		vmFuncs->setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGNULLPOINTEREXCEPTION, NULL);
-	} else {
-		clazz = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, *(j9object_t*)c);
-	}
+    if (NULL == c) {
+        vmFuncs->setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGNULLPOINTEREXCEPTION, NULL);
+    } else {
+        clazz = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, *(j9object_t*)c);
+    }
 
-	vmFuncs->internalExitVMToJNI(vmThread);
+    vmFuncs->internalExitVMToJNI(vmThread);
 
-	return (jlong)(UDATA)clazz;
+    return (jlong)(UDATA)clazz;
 }
 
-jlong JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getTotalInstanceSizeFromJ9Class64(JNIEnv *env, jclass rcv, jlong j9clazz)
+jlong JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getTotalInstanceSizeFromJ9Class64(JNIEnv* env, jclass rcv, jlong j9clazz)
 {
-	J9Class * clazz = (J9Class *)(UDATA)j9clazz;
+    J9Class* clazz = (J9Class*)(UDATA)j9clazz;
 
-	return (jlong)clazz->totalInstanceSize;
+    return (jlong)clazz->totalInstanceSize;
 }
 
-jlong JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getInstanceDescriptionFromJ9Class64(JNIEnv *env, jclass rcv, jlong j9clazz)
+jlong JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getInstanceDescriptionFromJ9Class64(
+    JNIEnv* env, jclass rcv, jlong j9clazz)
 {
-	J9Class * clazz = (J9Class *)(UDATA)j9clazz;
+    J9Class* clazz = (J9Class*)(UDATA)j9clazz;
 
-	return (jlong)(UDATA)clazz->instanceDescription;
+    return (jlong)(UDATA)clazz->instanceDescription;
 }
 
-jlong JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getDescriptionWordFromPtr64(JNIEnv *env, jclass rcv, jlong descriptorPtr)
+jlong JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getDescriptionWordFromPtr64(JNIEnv* env, jclass rcv, jlong descriptorPtr)
 {
-	return *(jlong*)(UDATA)descriptorPtr;
+    return *(jlong*)(UDATA)descriptorPtr;
 }
 
 #else
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getJ9ClassFromClass32(JNIEnv *env, jclass rcv, jclass c)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getJ9ClassFromClass32(JNIEnv* env, jclass rcv, jclass c)
 {
-	J9VMThread * vmThread = (J9VMThread *)env;
-	J9Class * clazz;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    J9Class* clazz;
 
-	vmThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(vmThread);
-	clazz = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, *(j9object_t*)c);
-	vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
-	return (jint)(UDATA)clazz;
+    vmThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(vmThread);
+    clazz = J9VM_J9CLASS_FROM_HEAPCLASS(vmThread, *(j9object_t*)c);
+    vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
+    return (jint)(UDATA)clazz;
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getTotalInstanceSizeFromJ9Class32(JNIEnv *env, jclass rcv, jint j9clazz)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getTotalInstanceSizeFromJ9Class32(JNIEnv* env, jclass rcv, jint j9clazz)
 {
-	J9Class * clazz = (J9Class *)(UDATA)j9clazz;
+    J9Class* clazz = (J9Class*)(UDATA)j9clazz;
 
-	return (jint)clazz->totalInstanceSize;
+    return (jint)clazz->totalInstanceSize;
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getInstanceDescriptionFromJ9Class32(JNIEnv *env, jclass rcv, jint j9clazz)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getInstanceDescriptionFromJ9Class32(JNIEnv* env, jclass rcv, jint j9clazz)
 {
-	J9Class * clazz = (J9Class *)(UDATA)j9clazz;
+    J9Class* clazz = (J9Class*)(UDATA)j9clazz;
 
-	return (jint)(UDATA)clazz->instanceDescription;
+    return (jint)(UDATA)clazz->instanceDescription;
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_getDescriptionWordFromPtr32(JNIEnv *env, jclass rcv, jint descriptorPtr)
+jint JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_getDescriptionWordFromPtr32(JNIEnv* env, jclass rcv, jint descriptorPtr)
 {
-	return *(jint*)(UDATA)descriptorPtr;
+    return *(jint*)(UDATA)descriptorPtr;
 }
 
 #endif
@@ -163,29 +150,28 @@ Java_com_ibm_oti_vm_ORBVMHelpers_getDescriptionWordFromPtr32(JNIEnv *env, jclass
  * 		Caller			<-- Marks this frame
  *
  */
-jlong JNICALL
-Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLMarkFrame(JNIEnv *env, jclass rcv)
+jlong JNICALL Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLMarkFrame(JNIEnv* env, jclass rcv)
 {
-	J9VMThread *vmThread = (J9VMThread *) env;
-	J9JavaVM *vm = vmThread->javaVM;
-	J9InternalVMFunctions *vmfuncs = vm->internalVMFunctions;
-	J9StackWalkState walkState;
-	jlong previousValue = (((jlong)vmThread->ludclBPOffset) << 32) | vmThread->ludclInlineDepth;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    J9JavaVM* vm = vmThread->javaVM;
+    J9InternalVMFunctions* vmfuncs = vm->internalVMFunctions;
+    J9StackWalkState walkState;
+    jlong previousValue = (((jlong)vmThread->ludclBPOffset) << 32) | vmThread->ludclInlineDepth;
 
-	walkState.walkThread = vmThread;
-	walkState.skipCount = 1;
-	walkState.maxFrames = 1;
-	walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_COUNT_SPECIFIED | J9_STACKWALK_INCLUDE_NATIVES;
-	walkState.userData1 = NULL;
+    walkState.walkThread = vmThread;
+    walkState.skipCount = 1;
+    walkState.maxFrames = 1;
+    walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_COUNT_SPECIFIED | J9_STACKWALK_INCLUDE_NATIVES;
+    walkState.userData1 = NULL;
 
-	vmfuncs->internalEnterVMFromJNI(vmThread);
-	vm->walkStackFrames(vmThread, &walkState);
-	vmfuncs->internalExitVMToJNI(vmThread);
+    vmfuncs->internalEnterVMFromJNI(vmThread);
+    vm->walkStackFrames(vmThread, &walkState);
+    vmfuncs->internalExitVMToJNI(vmThread);
 
-	vmThread->ludclBPOffset = (U_32) (vmThread->stackObject->end - walkState.bp);
-	vmThread->ludclInlineDepth = (U_32) walkState.inlineDepth;
+    vmThread->ludclBPOffset = (U_32)(vmThread->stackObject->end - walkState.bp);
+    vmThread->ludclInlineDepth = (U_32)walkState.inlineDepth;
 
-	return previousValue;
+    return previousValue;
 }
 
 /**
@@ -198,19 +184,19 @@ Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLMarkFrame(
  * Returns true if unmarking a frame that has been marked.  False otherwise.
  *
  */
-jboolean JNICALL
-Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLUnmarkFrameImpl(JNIEnv *env, jclass rcv, jlong previousValue)
+jboolean JNICALL Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLUnmarkFrameImpl(
+    JNIEnv* env, jclass rcv, jlong previousValue)
 {
-	J9VMThread *thread = (J9VMThread *) env;
-	U_32 bpOffset = (U_32) (previousValue >> 32);
-	U_32 inlineDepth = (U_32)previousValue;
+    J9VMThread* thread = (J9VMThread*)env;
+    U_32 bpOffset = (U_32)(previousValue >> 32);
+    U_32 inlineDepth = (U_32)previousValue;
 
-	if ((thread->ludclBPOffset == 0) && (thread->ludclInlineDepth == 0)) {
-		return JNI_FALSE;
-	}
-	thread->ludclInlineDepth = inlineDepth;
-	thread->ludclBPOffset = bpOffset;
-	return JNI_TRUE;
+    if ((thread->ludclBPOffset == 0) && (thread->ludclInlineDepth == 0)) {
+        return JNI_FALSE;
+    }
+    thread->ludclInlineDepth = inlineDepth;
+    thread->ludclBPOffset = bpOffset;
+    return JNI_TRUE;
 }
 
 /**
@@ -221,29 +207,35 @@ Java_com_ibm_rmi_io_IIOPInputStream_00024LUDCLStackWalkOptimizer_LUDCLUnmarkFram
  *
  * See sunvmi.c for a similar iterator without the early stop capability.
  */
-static UDATA latestUserDefinedLoaderIterator(J9VMThread * currentThread, J9StackWalkState * walkState)
+static UDATA latestUserDefinedLoaderIterator(J9VMThread* currentThread, J9StackWalkState* walkState)
 {
-	J9JavaVM * vm = currentThread->javaVM;
-	J9Class * currentClass = J9_CLASS_FROM_CP(walkState->constantPool);
-	J9ClassLoader * classLoader = currentClass->classLoader;
-	U_32 bpOffset = (U_32) (currentThread->stackObject->end - walkState->bp);
+    J9JavaVM* vm = currentThread->javaVM;
+    J9Class* currentClass = J9_CLASS_FROM_CP(walkState->constantPool);
+    J9ClassLoader* classLoader = currentClass->classLoader;
+    U_32 bpOffset = (U_32)(currentThread->stackObject->end - walkState->bp);
 
-	if (classLoader != vm->systemClassLoader) {
-		if ( (vm->jliArgumentHelper && vm->internalVMFunctions->instanceOfOrCheckCast(currentClass, J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*) vm->jliArgumentHelper)))) ||
-		     (vm->srMethodAccessor && vm->internalVMFunctions->instanceOfOrCheckCast(currentClass, J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*) vm->srMethodAccessor)))) ||
-		     (vm->srConstructorAccessor && vm->internalVMFunctions->instanceOfOrCheckCast(currentClass, J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*) vm->srConstructorAccessor)))) ) {
-			/* skip reflection classes */
-		} else {
-			walkState->userData1 = J9CLASSLOADER_CLASSLOADEROBJECT(currentThread, classLoader);
-			return J9_STACKWALK_STOP_ITERATING;
-		}
-	}
+    if (classLoader != vm->systemClassLoader) {
+        if ((vm->jliArgumentHelper
+                && vm->internalVMFunctions->instanceOfOrCheckCast(
+                       currentClass, J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*)vm->jliArgumentHelper))))
+            || (vm->srMethodAccessor
+                   && vm->internalVMFunctions->instanceOfOrCheckCast(currentClass,
+                          J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*)vm->srMethodAccessor))))
+            || (vm->srConstructorAccessor
+                   && vm->internalVMFunctions->instanceOfOrCheckCast(currentClass,
+                          J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, *((j9object_t*)vm->srConstructorAccessor))))) {
+            /* skip reflection classes */
+        } else {
+            walkState->userData1 = J9CLASSLOADER_CLASSLOADEROBJECT(currentThread, classLoader);
+            return J9_STACKWALK_STOP_ITERATING;
+        }
+    }
 
-	if ((currentThread->ludclBPOffset == bpOffset) && (currentThread->ludclInlineDepth == walkState->inlineDepth)) {
-		return J9_STACKWALK_STOP_ITERATING;
-	}
+    if ((currentThread->ludclBPOffset == bpOffset) && (currentThread->ludclInlineDepth == walkState->inlineDepth)) {
+        return J9_STACKWALK_STOP_ITERATING;
+    }
 
-	return J9_STACKWALK_KEEP_ITERATING;
+    return J9_STACKWALK_KEEP_ITERATING;
 }
 
 /**
@@ -251,25 +243,23 @@ static UDATA latestUserDefinedLoaderIterator(J9VMThread * currentThread, J9Stack
  * This will terminate the walk early if it detects a "marked" frame.
  * (See Java_com_ibm_oti_vm_ORBVMHelpers_LUDCLMarkFrame for details).
  */
-jobject JNICALL
-Java_com_ibm_oti_vm_ORBVMHelpers_LatestUserDefinedLoader(JNIEnv *env, jclass rcv)
+jobject JNICALL Java_com_ibm_oti_vm_ORBVMHelpers_LatestUserDefinedLoader(JNIEnv* env, jclass rcv)
 {
-	J9VMThread * vmThread = (J9VMThread *) env;
-	J9JavaVM * vm = vmThread->javaVM;
-	J9StackWalkState walkState;
-	jobject result;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    J9JavaVM* vm = vmThread->javaVM;
+    J9StackWalkState walkState;
+    jobject result;
 
-	walkState.walkThread = vmThread;
-	walkState.skipCount = 0;
-	walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_ITERATE_FRAMES | J9_STACKWALK_INCLUDE_NATIVES;
-	walkState.userData1 = NULL;
-	walkState.frameWalkFunction = latestUserDefinedLoaderIterator;
-	vm->internalVMFunctions->internalEnterVMFromJNI(vmThread);
-	vm->walkStackFrames(vmThread, &walkState);
+    walkState.walkThread = vmThread;
+    walkState.skipCount = 0;
+    walkState.flags = J9_STACKWALK_VISIBLE_ONLY | J9_STACKWALK_ITERATE_FRAMES | J9_STACKWALK_INCLUDE_NATIVES;
+    walkState.userData1 = NULL;
+    walkState.frameWalkFunction = latestUserDefinedLoaderIterator;
+    vm->internalVMFunctions->internalEnterVMFromJNI(vmThread);
+    vm->walkStackFrames(vmThread, &walkState);
 
-	result = vm->internalVMFunctions->j9jni_createLocalRef(env, walkState.userData1);
-	vm->internalVMFunctions->internalExitVMToJNI(vmThread);
+    result = vm->internalVMFunctions->j9jni_createLocalRef(env, walkState.userData1);
+    vm->internalVMFunctions->internalExitVMToJNI(vmThread);
 
-	return result;
+    return result;
 }
-

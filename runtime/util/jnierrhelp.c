@@ -23,31 +23,28 @@
 #include "j9.h"
 #include "jni.h"
 
-jint
-omrErrorCodeToJniErrorCode(omr_error_t omrError)
+jint omrErrorCodeToJniErrorCode(omr_error_t omrError)
 {
-	jint rc = JNI_OK;
-	switch (omrError) {
-	case OMR_ERROR_NONE:
-		rc = JNI_OK;
-		break;
-	case OMR_ERROR_OUT_OF_NATIVE_MEMORY:
-		rc = JNI_ENOMEM;
-		break;
-	case OMR_ERROR_ILLEGAL_ARGUMENT:
-		rc = JNI_EINVAL;
-		break;
-	case OMR_ERROR_INTERNAL:
-		rc = JNI_ERR;
-		break;
-	case OMR_ERROR_NOT_AVAILABLE:
-		rc = JNI_EEXIST;
-		break;
-	default:
-		rc = JNI_ERR;
-		break;
-	}
-	return rc;
+    jint rc = JNI_OK;
+    switch (omrError) {
+    case OMR_ERROR_NONE:
+        rc = JNI_OK;
+        break;
+    case OMR_ERROR_OUT_OF_NATIVE_MEMORY:
+        rc = JNI_ENOMEM;
+        break;
+    case OMR_ERROR_ILLEGAL_ARGUMENT:
+        rc = JNI_EINVAL;
+        break;
+    case OMR_ERROR_INTERNAL:
+        rc = JNI_ERR;
+        break;
+    case OMR_ERROR_NOT_AVAILABLE:
+        rc = JNI_EEXIST;
+        break;
+    default:
+        rc = JNI_ERR;
+        break;
+    }
+    return rc;
 }
-
-

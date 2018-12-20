@@ -25,19 +25,16 @@
 #include "portpriv.h"
 #include "ut_j9prt.h"
 
-int32_t
-j9port_control(struct J9PortLibrary *portLibrary, const char *key, uintptr_t value)
+int32_t j9port_control(struct J9PortLibrary* portLibrary, const char* key, uintptr_t value)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	if (!strcmp(J9PORT_CTLDATA_TRACE_START, key) && value) {
-		UtInterface *utIntf = (UtInterface *) value;
-		utIntf->module->TraceInit(NULL, &UT_MODULE_INFO);
-	}
-	if (!strcmp(J9PORT_CTLDATA_TRACE_STOP, key) && value) {
-		UtInterface *utIntf = (UtInterface *) value;
-		utIntf->module->TraceTerm(NULL, &UT_MODULE_INFO);
-	}
-	return omrport_control(key, value);
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    if (!strcmp(J9PORT_CTLDATA_TRACE_START, key) && value) {
+        UtInterface* utIntf = (UtInterface*)value;
+        utIntf->module->TraceInit(NULL, &UT_MODULE_INFO);
+    }
+    if (!strcmp(J9PORT_CTLDATA_TRACE_STOP, key) && value) {
+        UtInterface* utIntf = (UtInterface*)value;
+        utIntf->module->TraceTerm(NULL, &UT_MODULE_INFO);
+    }
+    return omrport_control(key, value);
 }
-
-

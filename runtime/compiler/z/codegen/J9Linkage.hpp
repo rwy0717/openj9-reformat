@@ -28,8 +28,14 @@
  */
 #ifndef J9_LINKAGE_CONNECTOR
 #define J9_LINKAGE_CONNECTOR
-namespace J9 { namespace Z { class Linkage; } }
-namespace J9 { typedef J9::Z::Linkage LinkageConnector; }
+namespace J9 {
+namespace Z {
+class Linkage;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::Z::Linkage LinkageConnector;
+}
 #endif
 
 #include "codegen/OMRLinkage.hpp"
@@ -49,21 +55,18 @@ namespace J9 { typedef J9::Z::Linkage LinkageConnector; }
  *                                                                                 *
  ***********************************************************************************/
 
-namespace J9
-{
-    
-namespace Z
-{
+namespace J9 {
 
-class OMR_EXTENSIBLE Linkage : public OMR::LinkageConnector
-   {
-   public:
-      
-   Linkage(TR::CodeGenerator * codeGen,TR_S390LinkageConventions elc, TR_LinkageConventions lc)
-     : OMR::LinkageConnector(codeGen,elc,lc) {}
-         
-   TR::Instruction *loadUpArguments(TR::Instruction * cursor);
-   };
+namespace Z {
+
+class OMR_EXTENSIBLE Linkage : public OMR::LinkageConnector {
+public:
+    Linkage(TR::CodeGenerator* codeGen, TR_S390LinkageConventions elc, TR_LinkageConventions lc)
+        : OMR::LinkageConnector(codeGen, elc, lc)
+    {}
+
+    TR::Instruction* loadUpArguments(TR::Instruction* cursor);
+};
 
 } // namespace Z
 

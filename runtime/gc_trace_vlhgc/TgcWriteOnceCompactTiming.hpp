@@ -32,7 +32,7 @@
 #include "j9.h"
 
 #if defined(J9VM_GC_MODRON_COMPACTION)
-bool tgcWriteOnceCompactTimingInitialize(J9JavaVM *javaVM);
+bool tgcWriteOnceCompactTimingInitialize(J9JavaVM* javaVM);
 #endif /* J9VM_GC_MODRON_COMPACTION */
 
 #endif /* TGCWRITEONCECOMPACTTIMING_HPP_ */

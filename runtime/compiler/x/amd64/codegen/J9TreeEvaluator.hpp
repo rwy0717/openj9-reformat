@@ -28,32 +28,33 @@
  */
 #ifndef J9_TREE_EVALUATOR_CONNECTOR
 #define J9_TREE_EVALUATOR_CONNECTOR
-namespace J9 { namespace X86 { namespace AMD64 { class TreeEvaluator; } } }
-namespace J9 { typedef J9::X86::AMD64::TreeEvaluator TreeEvaluatorConnector; }
+namespace J9 {
+namespace X86 {
+namespace AMD64 {
+class TreeEvaluator;
+}
+} // namespace X86
+} // namespace J9
+namespace J9 {
+typedef J9::X86::AMD64::TreeEvaluator TreeEvaluatorConnector;
+}
 #else
 #error J9::X86::AMD64::TreeEvaluator expected to be a primary connector, but a J9 connector is already defined
 #endif
 
+#include "x/codegen/J9TreeEvaluator.hpp" // include parent
 
-#include "x/codegen/J9TreeEvaluator.hpp"  // include parent
+namespace J9 {
 
-namespace J9
-{
+namespace X86 {
 
-namespace X86
-{
+namespace AMD64 {
 
-namespace AMD64
-{
-
-class OMR_EXTENSIBLE TreeEvaluator: public J9::X86::TreeEvaluator
-   {
-   public:
-
-   static TR::Register *conditionalHelperEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *dwrtbarEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-
-   };
+class OMR_EXTENSIBLE TreeEvaluator : public J9::X86::TreeEvaluator {
+public:
+    static TR::Register* conditionalHelperEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* dwrtbarEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+};
 
 } // namespace AMD64
 

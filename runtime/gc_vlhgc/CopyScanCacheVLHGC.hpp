@@ -40,55 +40,55 @@
  * @todo Provide class documentation
  * @ingroup GC_Modron_Base
  */
-class MM_CopyScanCacheVLHGC : public MM_CopyScanCache
-{
-	/* Data Members */
+class MM_CopyScanCacheVLHGC : public MM_CopyScanCache {
+    /* Data Members */
 private:
 protected:
 public:
-	GC_ObjectIteratorState _objectIteratorState; /**< the scan state of the partially scanned object */
-	UDATA _compactGroup; /**< The compact group this cache belongs to */
-	double _allocationAgeSizeProduct; /**< sum of (age * size) products for each object copied to this copy cache */
-	UDATA _objectSize;   /**< sum of objects sizes copied to this copy cache */
-	U_64 _lowerAgeBound; /**< lowest possible age of any object in this copy cache */
-	U_64 _upperAgeBound; /**< highest possible age of any object in this copy cache */
-	UDATA _arraySplitIndex; /**< The index within the array in scanCurrent to start scanning from (meaningful is J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY is set) */ 
+    GC_ObjectIteratorState _objectIteratorState; /**< the scan state of the partially scanned object */
+    UDATA _compactGroup; /**< The compact group this cache belongs to */
+    double _allocationAgeSizeProduct; /**< sum of (age * size) products for each object copied to this copy cache */
+    UDATA _objectSize; /**< sum of objects sizes copied to this copy cache */
+    U_64 _lowerAgeBound; /**< lowest possible age of any object in this copy cache */
+    U_64 _upperAgeBound; /**< highest possible age of any object in this copy cache */
+    UDATA _arraySplitIndex; /**< The index within the array in scanCurrent to start scanning from (meaningful is
+                               J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY is set) */
 
-	/* Members Function */
+    /* Members Function */
 private:
 protected:
 public:
-	/**
-	 * Clears the flag on the cache which denotes that is represents a split array.
-	 */
-	MMINLINE void clearSplitArray()
-	{
-		flags &= ~J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY;
-		_arraySplitIndex = 0;
-	}
+    /**
+     * Clears the flag on the cache which denotes that is represents a split array.
+     */
+    MMINLINE void clearSplitArray()
+    {
+        flags &= ~J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY;
+        _arraySplitIndex = 0;
+    }
 
-	/**
-	 * Determine whether the receiver represents a split array. 
-	 * If so, the array object may be found in scanCurrent and the index in _arraySplitIndex.
-	 * @return whether the receiver represents a split array
-	 */	
-	MMINLINE bool isSplitArray() const
-	{
-		return (J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY == (flags & J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY));
-	}
+    /**
+     * Determine whether the receiver represents a split array.
+     * If so, the array object may be found in scanCurrent and the index in _arraySplitIndex.
+     * @return whether the receiver represents a split array
+     */
+    MMINLINE bool isSplitArray() const
+    {
+        return (J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY == (flags & J9VM_MODRON_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY));
+    }
 
-	/**
-	 * Create a CopyScanCacheVLHGC object.
-	 */	
-	MM_CopyScanCacheVLHGC()
-		: MM_CopyScanCache()
-		, _compactGroup(UDATA_MAX)
-		, _allocationAgeSizeProduct(0.0)
-		, _objectSize(0)
-		, _lowerAgeBound(U_64_MAX)
-		, _upperAgeBound(0)
-		, _arraySplitIndex(0)
-	{}
+    /**
+     * Create a CopyScanCacheVLHGC object.
+     */
+    MM_CopyScanCacheVLHGC()
+        : MM_CopyScanCache()
+        , _compactGroup(UDATA_MAX)
+        , _allocationAgeSizeProduct(0.0)
+        , _objectSize(0)
+        , _lowerAgeBound(U_64_MAX)
+        , _upperAgeBound(0)
+        , _arraySplitIndex(0)
+    {}
 };
 
 #endif /* COPYSCANCACHEVLHGC_HPP_ */

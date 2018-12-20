@@ -25,45 +25,38 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
-static agentEnv * env;                                                    
+static agentEnv* env;
 
-jint JNICALL
-gomi001(agentEnv * agent_env, char * args)
+jint JNICALL gomi001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);                                
-	jvmtiCapabilities capabilities;
-	jvmtiError err = JVMTI_ERROR_NONE;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err = JVMTI_ERROR_NONE;
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_get_owned_monitor_info = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "gomi001 failed to add capabilities");
-		return JNI_ERR;
-	}				
-			
-	return JNI_OK;
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_get_owned_monitor_info = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "gomi001 failed to add capabilities");
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }
 
-jboolean JNICALL
-Java_com_ibm_jvmti_tests_getOwnedMonitorInfo_ThreadMonitorInfoTest_verifyMonitors(
-		JNIEnv *jni_env, 
-		jclass klass, 
-		jthread thread,
-		jobject monitorA,
-		jobject monitorB)
+jboolean JNICALL Java_com_ibm_jvmti_tests_getOwnedMonitorInfo_ThreadMonitorInfoTest_verifyMonitors(
+    JNIEnv* jni_env, jclass klass, jthread thread, jobject monitorA, jobject monitorB)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
     jvmtiError err = JVMTI_ERROR_NONE;
     jint monitorCount = 0;
-    jobject *monitors = NULL;
-    
-    
+    jobject* monitors = NULL;
+
     err = (*jvmti_env)->GetOwnedMonitorInfo(jvmti_env, thread, &monitorCount, &monitors);
     if (err != JVMTI_ERROR_NONE) {
-    	error(env, err, "gomi001 failed to GetOwnedMonitorInfo");
+        error(env, err, "gomi001 failed to GetOwnedMonitorInfo");
         return JNI_FALSE;
     }
 
@@ -71,29 +64,27 @@ Java_com_ibm_jvmti_tests_getOwnedMonitorInfo_ThreadMonitorInfoTest_verifyMonitor
 
     if (NULL == monitorB) {
         if (monitorCount != 1) {
-        	error(env, err, "Incorrect count of owned monitors. Expected 1 got [%d]",  monitorCount);
+            error(env, err, "Incorrect count of owned monitors. Expected 1 got [%d]", monitorCount);
             return JNI_FALSE;
         }
     } else {
-    	if (monitorCount != 2) {
-    		error(env, err, "Incorrect count of owned monitors. Expected 2 got [%d]", monitorCount);
-    		return JNI_FALSE;
-    	}
-
+        if (monitorCount != 2) {
+            error(env, err, "Incorrect count of owned monitors. Expected 2 got [%d]", monitorCount);
+            return JNI_FALSE;
+        }
     }
 
     if ((*jni_env)->IsSameObject(jni_env, monitors[0], monitorA) != JNI_TRUE) {
-    	error(env, err, "The returned monitor object does not match the expected one (monitorA)");
-    	return JNI_FALSE;
+        error(env, err, "The returned monitor object does not match the expected one (monitorA)");
+        return JNI_FALSE;
     }
 
     if (NULL != monitorB) {
-    	if ((*jni_env)->IsSameObject(jni_env, monitors[1], monitorB) != JNI_TRUE) {
-    		error(env, err, "The returned monitor object does not match the expected one (monitorB)");
-    		return JNI_FALSE;
-    	}
+        if ((*jni_env)->IsSameObject(jni_env, monitors[1], monitorB) != JNI_TRUE) {
+            error(env, err, "The returned monitor object does not match the expected one (monitorB)");
+            return JNI_FALSE;
+        }
     }
 
     return JNI_TRUE;
 }
-

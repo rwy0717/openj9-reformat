@@ -20,10 +20,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef shrcls_bundle_h
 #define shrcls_bundle_h
 
 IDATA J9VMDllMain(J9JavaVM* vm, IDATA stage, void* reserved);
 
-#endif     /* shrclssup_h */
+#endif /* shrclssup_h */

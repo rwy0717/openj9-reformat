@@ -31,19 +31,20 @@
  * for JCL. The valid types are (defined in j9port.h):
  *  - PHYSICAL: Number of physical CPU's on this platform
  * 	- BOUND: Number of physical CPU's bound to this process
- * 	- TARGET: Number of CPU's that should be used by the process. This is normally BOUND, but is overridden by ActiveCPUs if set.
+ * 	- TARGET: Number of CPU's that should be used by the process. This is normally BOUND, but is overridden by
+ * ActiveCPUs if set.
  *
  * @param[in] type Flag to indicate the information type (see function description).
  *
  * @return The number of CPUs, qualified by the argument <code>type</code>.
  */
-jint JNICALL
-Java_com_ibm_lang_management_internal_ProcessorMXBeanImpl_getNumberCPUsImpl(JNIEnv *env, jobject o, jint type)
+jint JNICALL Java_com_ibm_lang_management_internal_ProcessorMXBeanImpl_getNumberCPUsImpl(
+    JNIEnv* env, jobject o, jint type)
 {
-	jint toReturn = 0;
-	PORT_ACCESS_FROM_ENV(env);
-	toReturn = (jint) j9sysinfo_get_number_CPUs_by_type((UDATA) type);
-	return toReturn;
+    jint toReturn = 0;
+    PORT_ACCESS_FROM_ENV(env);
+    toReturn = (jint)j9sysinfo_get_number_CPUs_by_type((UDATA)type);
+    return toReturn;
 }
 
 /**
@@ -52,10 +53,10 @@ Java_com_ibm_lang_management_internal_ProcessorMXBeanImpl_getNumberCPUsImpl(JNIE
  *
  * @param[in] number Number of user-specified active CPUs (non-negative).
  */
-void JNICALL
-Java_com_ibm_lang_management_internal_ProcessorMXBeanImpl_setNumberActiveCPUsImpl(JNIEnv *env, jobject o, jint number)
+void JNICALL Java_com_ibm_lang_management_internal_ProcessorMXBeanImpl_setNumberActiveCPUsImpl(
+    JNIEnv* env, jobject o, jint number)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	j9sysinfo_set_number_user_specified_CPUs((UDATA) number);
-	return;
+    PORT_ACCESS_FROM_ENV(env);
+    j9sysinfo_set_number_user_specified_CPUs((UDATA)number);
+    return;
 }

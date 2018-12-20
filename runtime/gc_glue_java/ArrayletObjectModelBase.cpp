@@ -25,83 +25,81 @@
 
 #if defined(J9VM_GC_ARRAYLETS)
 
-bool
-GC_ArrayletObjectModelBase::initialize(MM_GCExtensionsBase * extensions)
+bool GC_ArrayletObjectModelBase::initialize(MM_GCExtensionsBase* extensions)
 {
-	_omrVM = extensions->getOmrVM();
-	_arrayletRangeBase = NULL;
-	_arrayletRangeTop = (void *)UDATA_MAX;
-	_arrayletSubSpace = NULL;
-	_largestDesirableArraySpineSize = UDATA_MAX;
+    _omrVM = extensions->getOmrVM();
+    _arrayletRangeBase = NULL;
+    _arrayletRangeTop = (void*)UDATA_MAX;
+    _arrayletSubSpace = NULL;
+    _largestDesirableArraySpineSize = UDATA_MAX;
 
-	return true;
+    return true;
 }
 
-void
-GC_ArrayletObjectModelBase::tearDown(MM_GCExtensionsBase * extensions)
+void GC_ArrayletObjectModelBase::tearDown(MM_GCExtensionsBase* extensions)
 {
 
-	/* ensure that we catch any invalid uses during shutdown */
-	_omrVM = NULL;
-	_arrayletRangeTop = NULL;
-	_arrayletSubSpace = NULL;
-	_arrayletRangeBase = 0;
-	_largestDesirableArraySpineSize = 0;
+    /* ensure that we catch any invalid uses during shutdown */
+    _omrVM = NULL;
+    _arrayletRangeTop = NULL;
+    _arrayletSubSpace = NULL;
+    _arrayletRangeBase = 0;
+    _largestDesirableArraySpineSize = 0;
 }
 
-
-void
-GC_ArrayletObjectModelBase::expandArrayletSubSpaceRange(MM_MemorySubSpace * subSpace, void * rangeBase, void * rangeTop, UDATA largestDesirableArraySpineSize)
+void GC_ArrayletObjectModelBase::expandArrayletSubSpaceRange(
+    MM_MemorySubSpace* subSpace, void* rangeBase, void* rangeTop, UDATA largestDesirableArraySpineSize)
 {
-	/* Is this the first expand? */
-	if(NULL == _arrayletSubSpace) {
-		_arrayletRangeBase = rangeBase;
-		_arrayletRangeTop = rangeTop;
-		_arrayletSubSpace = subSpace;
-		_largestDesirableArraySpineSize = largestDesirableArraySpineSize;
-	} else {
-		/* Expand the valid range for arraylets. */
-		if (rangeBase < _arrayletRangeBase) {
-			_arrayletRangeBase = rangeBase;
-		}
-		if (rangeTop > _arrayletRangeTop) {
-			_arrayletRangeTop = rangeTop;
-		}
-	}
+    /* Is this the first expand? */
+    if (NULL == _arrayletSubSpace) {
+        _arrayletRangeBase = rangeBase;
+        _arrayletRangeTop = rangeTop;
+        _arrayletSubSpace = subSpace;
+        _largestDesirableArraySpineSize = largestDesirableArraySpineSize;
+    } else {
+        /* Expand the valid range for arraylets. */
+        if (rangeBase < _arrayletRangeBase) {
+            _arrayletRangeBase = rangeBase;
+        }
+        if (rangeTop > _arrayletRangeTop) {
+            _arrayletRangeTop = rangeTop;
+        }
+    }
 }
 
 UDATA
-GC_ArrayletObjectModelBase::getSpineSizeWithoutHeader(ArrayLayout layout, UDATA numberArraylets, UDATA dataSize, bool alignData)
+GC_ArrayletObjectModelBase::getSpineSizeWithoutHeader(
+    ArrayLayout layout, UDATA numberArraylets, UDATA dataSize, bool alignData)
 {
-	/* The spine consists of three (possibly empty) sections, not including the header:
-	 * 1. the alignment word - padding between arrayoid and inline-data
-	 * 2. the arrayoid - an array of pointers to the leaves
-	 * 3. in-line data
-	 * In hybrid specs, the spine may also include padding for a secondary size field in empty arrays
-	 */
+    /* The spine consists of three (possibly empty) sections, not including the header:
+     * 1. the alignment word - padding between arrayoid and inline-data
+     * 2. the arrayoid - an array of pointers to the leaves
+     * 3. in-line data
+     * In hybrid specs, the spine may also include padding for a secondary size field in empty arrays
+     */
 #if defined(J9VM_GC_HYBRID_ARRAYLETS)
-	MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
-	UDATA spineArrayoidSize = 0;
-	UDATA spinePaddingSize = 0;
-	if (InlineContiguous != layout) {
-		if (0 != dataSize) {
-			/* not in-line, so there in an arrayoid */
-			spinePaddingSize = alignData ? (extensions->getObjectAlignmentInBytes() - sizeof(fj9object_t)) : 0;
-			spineArrayoidSize = numberArraylets * sizeof(fj9object_t);
-		}
-	}
+    MM_GCExtensionsBase* extensions = MM_GCExtensionsBase::getExtensions(_omrVM);
+    UDATA spineArrayoidSize = 0;
+    UDATA spinePaddingSize = 0;
+    if (InlineContiguous != layout) {
+        if (0 != dataSize) {
+            /* not in-line, so there in an arrayoid */
+            spinePaddingSize = alignData ? (extensions->getObjectAlignmentInBytes() - sizeof(fj9object_t)) : 0;
+            spineArrayoidSize = numberArraylets * sizeof(fj9object_t);
+        }
+    }
 #else
-	UDATA spinePaddingSize = alignData ? sizeof(fj9object_t) : 0;
-	UDATA spineArrayoidSize = numberArraylets * sizeof(fj9object_t);
+    UDATA spinePaddingSize = alignData ? sizeof(fj9object_t) : 0;
+    UDATA spineArrayoidSize = numberArraylets * sizeof(fj9object_t);
 #endif
-	UDATA spineDataSize = 0;
-	if (InlineContiguous == layout) {
-		spineDataSize = dataSize; // All data in spine
-	} else if (Hybrid == layout) {
-		spineDataSize = (dataSize & (_omrVM->_arrayletLeafSize - 1)); // Last arraylet in spine.
-	}
+    UDATA spineDataSize = 0;
+    if (InlineContiguous == layout) {
+        spineDataSize = dataSize; // All data in spine
+    } else if (Hybrid == layout) {
+        spineDataSize = (dataSize & (_omrVM->_arrayletLeafSize - 1)); // Last arraylet in spine.
+    }
 
-	return spinePaddingSize + spineArrayoidSize + spineDataSize;
+    return spinePaddingSize + spineArrayoidSize + spineDataSize;
 }
 
 #endif /* defined(J9VM_GC_ARRAYLETS) */

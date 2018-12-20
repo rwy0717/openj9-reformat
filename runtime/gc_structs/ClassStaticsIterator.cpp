@@ -31,6 +31,3 @@
 #include "j9cp.h"
 
 #include "ClassStaticsIterator.hpp"
-
-
-

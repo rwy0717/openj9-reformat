@@ -26,13 +26,13 @@
 /* @ddr_namespace: map_to_type=RasdumpInternalConstants */
 
 /**
-* @file rasdump_internal.h
-* @brief Internal prototypes used within the OMR RASDUMP module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the OMR RASDUMP module.
-*
-*/
+ * @file rasdump_internal.h
+ * @brief Internal prototypes used within the OMR RASDUMP module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the OMR RASDUMP module.
+ *
+ */
 
 #include "j9comp.h"
 #include "rasdump_api.h"
@@ -42,32 +42,29 @@ extern "C" {
 #endif
 
 /* Extended dump facade */
-typedef struct J9RASdumpQueue
-{
-	/* facade _must_ be first */
-	J9RASdumpFunctions facade;
-	J9RASdumpFunctions *oldFacade;
-	struct J9RASdumpSettings *settings;
-	struct J9RASdumpAgent *agents;
-	struct J9RASdumpSettings *defaultSettings;
-	struct J9RASdumpAgent *defaultAgents;
-	struct J9RASdumpAgent *agentShutdownQueue;
-}\
-J9RASdumpQueue;
+typedef struct J9RASdumpQueue {
+    /* facade _must_ be first */
+    J9RASdumpFunctions facade;
+    J9RASdumpFunctions* oldFacade;
+    struct J9RASdumpSettings* settings;
+    struct J9RASdumpAgent* agents;
+    struct J9RASdumpSettings* defaultSettings;
+    struct J9RASdumpAgent* defaultAgents;
+    struct J9RASdumpAgent* agentShutdownQueue;
+} J9RASdumpQueue;
 
 #define DUMP_FACADE_KEY ((void*)(long)0xFacadeDA)
 
 /* Checks facade and returns dump queue, NULL if no match */
-#define FIND_DUMP_QUEUE( vm, Q ) \
-	( ( (Q) = (J9RASdumpQueue *) (vm)->j9rasDumpFunctions ) && \
-	  ( (Q)->facade.reserved == DUMP_FACADE_KEY || ((Q) = NULL) ) )
+#define FIND_DUMP_QUEUE(vm, Q) \
+    (((Q) = (J9RASdumpQueue*)(vm)->j9rasDumpFunctions) && ((Q)->facade.reserved == DUMP_FACADE_KEY || ((Q) = NULL)))
 
 /* Structure definition for a recognized/parsed dump option */
 typedef struct J9RASdumpOption {
-	IDATA kind;
-	IDATA flags;
-	char *args;
-	IDATA pass;
+    IDATA kind;
+    IDATA flags;
+    char* args;
+    IDATA pass;
 } J9RASdumpOption;
 
 #define J9RAS_DUMP_INVALID_TYPE -1
@@ -79,42 +76,41 @@ typedef struct J9RASdumpOption {
 
 /* Structure definition for a default dump option */
 typedef struct J9RASdefaultOption {
-	char *type;
-	char *args;
+    char* type;
+    char* args;
 } J9RASdefaultOption;
 
-typedef enum J9RASdumpRequestState
-{
-	J9RAS_DUMP_GOT_LOCK                    = 1,
-	J9RAS_DUMP_GOT_VM_ACCESS               = 2,
-	J9RAS_DUMP_GOT_EXCLUSIVE_VM_ACCESS     = 4,
-	J9RAS_DUMP_HEAP_COMPACTED              = 8,
-	J9RAS_DUMP_HEAP_PREPARED               = 16,
-	J9RAS_DUMP_THREADS_HALTED              = 32,
-	J9RAS_DUMP_ATTACHED_THREAD             = 64,
-	J9RAS_DUMP_PREEMPT_THREADS             = 128,
-	J9RAS_DUMP_TRACE_DISABLED              = 256,
-	J9RAS_DUMP_GOT_JNI_VM_ACCESS           = 512, 
+typedef enum J9RASdumpRequestState {
+    J9RAS_DUMP_GOT_LOCK = 1,
+    J9RAS_DUMP_GOT_VM_ACCESS = 2,
+    J9RAS_DUMP_GOT_EXCLUSIVE_VM_ACCESS = 4,
+    J9RAS_DUMP_HEAP_COMPACTED = 8,
+    J9RAS_DUMP_HEAP_PREPARED = 16,
+    J9RAS_DUMP_THREADS_HALTED = 32,
+    J9RAS_DUMP_ATTACHED_THREAD = 64,
+    J9RAS_DUMP_PREEMPT_THREADS = 128,
+    J9RAS_DUMP_TRACE_DISABLED = 256,
+    J9RAS_DUMP_GOT_JNI_VM_ACCESS = 512,
 } J9RASdumpRequestState;
 
-/* Internal function prototypes for rasdump module */ 
-omr_error_t mapDumpSwitches(J9JavaVM *vm, J9RASdumpOption agentOpts[], IDATA *agentNum);
-omr_error_t mapDumpOptions(J9JavaVM *vm, J9RASdumpOption agentOpts[], IDATA *agentNum);
-omr_error_t mapDumpActions(J9JavaVM *vm, J9RASdumpOption agentOpts[], IDATA *agentNum, char *buf, IDATA condition);
-omr_error_t mapDumpDefaults(J9JavaVM *vm, J9RASdumpOption agentOpts[], IDATA *agentNum);
-omr_error_t mapDumpSettings(J9JavaVM *vm, J9RASdumpOption agentOpts[], IDATA *agentNum);
+/* Internal function prototypes for rasdump module */
+omr_error_t mapDumpSwitches(J9JavaVM* vm, J9RASdumpOption agentOpts[], IDATA* agentNum);
+omr_error_t mapDumpOptions(J9JavaVM* vm, J9RASdumpOption agentOpts[], IDATA* agentNum);
+omr_error_t mapDumpActions(J9JavaVM* vm, J9RASdumpOption agentOpts[], IDATA* agentNum, char* buf, IDATA condition);
+omr_error_t mapDumpDefaults(J9JavaVM* vm, J9RASdumpOption agentOpts[], IDATA* agentNum);
+omr_error_t mapDumpSettings(J9JavaVM* vm, J9RASdumpOption agentOpts[], IDATA* agentNum);
 void disableDumpOnOutOfMemoryError(J9RASdumpOption agentOpts[], IDATA agentNum);
-void enableDumpOnOutOfMemoryError(J9RASdumpOption agentOpts[], IDATA *agentNum);
-UDATA parseAllocationRange(char *range, UDATA *min, UDATA *max);
-omr_error_t rasDumpEnableHooks(J9JavaVM *vm, UDATA eventFlags);
-void rasDumpFlushHooks(J9JavaVM *vm, IDATA stage);
-void setAllocationThreshold(J9VMThread *vmThread, UDATA min, UDATA max);
+void enableDumpOnOutOfMemoryError(J9RASdumpOption agentOpts[], IDATA* agentNum);
+UDATA parseAllocationRange(char* range, UDATA* min, UDATA* max);
+omr_error_t rasDumpEnableHooks(J9JavaVM* vm, UDATA eventFlags);
+void rasDumpFlushHooks(J9JavaVM* vm, IDATA stage);
+void setAllocationThreshold(J9VMThread* vmThread, UDATA min, UDATA max);
 
 /* Constants used with the RASDumpSystemInfo structures (linked list off J9RAS.systemInfo) */
 #define J9RAS_SYSTEMINFO_SCHED_COMPAT_YIELD 1
-#define J9RAS_SYSTEMINFO_HYPERVISOR         2
-#define J9RAS_SYSTEMINFO_CORE_PATTERN       3
-#define J9RAS_SYSTEMINFO_CORE_USES_PID      4
+#define J9RAS_SYSTEMINFO_HYPERVISOR 2
+#define J9RAS_SYSTEMINFO_CORE_PATTERN 3
+#define J9RAS_SYSTEMINFO_CORE_USES_PID 4
 
 #define J9RAS_SCHED_COMPAT_YIELD_FILE "/proc/sys/kernel/sched_compat_yield"
 #define J9RAS_CORE_PATTERN_FILE "/proc/sys/kernel/core_pattern"
@@ -124,11 +120,12 @@ void setAllocationThreshold(J9VMThread *vmThread, UDATA min, UDATA max);
 #define ALT_DIR_SEPARATOR '/'
 #endif
 
-#define J9RAS_DUMP_EXCEPTION_EVENT_GROUP (J9RAS_DUMP_ON_EXCEPTION_THROW | J9RAS_DUMP_ON_EXCEPTION_SYSTHROW | J9RAS_DUMP_ON_EXCEPTION_CATCH | J9RAS_DUMP_ON_EXCEPTION_DESCRIBE)
+#define J9RAS_DUMP_EXCEPTION_EVENT_GROUP                                                              \
+    (J9RAS_DUMP_ON_EXCEPTION_THROW | J9RAS_DUMP_ON_EXCEPTION_SYSTHROW | J9RAS_DUMP_ON_EXCEPTION_CATCH \
+        | J9RAS_DUMP_ON_EXCEPTION_DESCRIBE)
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* rasdump_internal_h */
-

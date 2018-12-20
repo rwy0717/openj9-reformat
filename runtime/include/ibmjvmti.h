@@ -24,7 +24,7 @@
 #define ibmjvmti_h
 
 /* @ddr_namespace: default */
-/* 
+/*
  *-----------------------------------------------------------------------------
  * This file defines structures, constants, enums and other
  * definitions which can be used with IBM Corporation's
@@ -35,10 +35,9 @@
  *-----------------------------------------------------------------------------
  */
 
-
 #include "jvmti.h"
 
-/* 
+/*
  *-----------------------------------------------------------------------------
  * Extended JVMTI constants
  *-----------------------------------------------------------------------------
@@ -78,7 +77,7 @@
 #define COM_IBM_ITERATE_SHARED_CACHES "com.ibm.IterateSharedCaches"
 #define COM_IBM_DESTROY_SHARED_CACHE "com.ibm.DestroySharedCache"
 
-#define COM_IBM_REMOVE_ALL_TAGS   "com.ibm.RemoveAllTags"
+#define COM_IBM_REMOVE_ALL_TAGS "com.ibm.RemoveAllTags"
 
 #define COM_IBM_REGISTER_TRACE_SUBSCRIBER "com.ibm.RegisterTraceSubscriber"
 #define COM_IBM_DEREGISTER_TRACE_SUBSCRIBER "com.ibm.DeregisterTraceSubscriber"
@@ -105,9 +104,9 @@
 #define COM_IBM_SHARED_CACHE_MODLEVEL_JAVA7 3
 #define COM_IBM_SHARED_CACHE_MODLEVEL_JAVA8 4
 #define COM_IBM_SHARED_CACHE_MODLEVEL_JAVA9 5
-/* 
- * No macro is defined for shared cache modLevel starting from Java 10. The value of modLevel equals to the java version number
- * on which the shared cache is created.
+/*
+ * No macro is defined for shared cache modLevel starting from Java 10. The value of modLevel equals to the java version
+ * number on which the shared cache is created.
  */
 
 #define COM_IBM_SHARED_CACHE_ADDRMODE_32 32
@@ -135,13 +134,14 @@
  *-----------------------------------------------------------------------------
  */
 /* When no cache exists or successfully destroyed all caches. */
-#define COM_IBM_DESTROYED_ALL_CACHE					0
+#define COM_IBM_DESTROYED_ALL_CACHE 0
 /* When failed to destroy any cache. */
-#define COM_IBM_DESTROYED_NONE						-1
+#define COM_IBM_DESTROYED_NONE -1
 /* When failed to destroy cache of current generation. */
-#define COM_IBM_DESTROY_FAILED_CURRENT_GEN_CACHEE	-2
-/* When failed to destroy one or more older generation cache and either current generation cache does not exists or is successfully destroyed */
-#define COM_IBM_DESTROY_FAILED_OLDER_GEN_CACHE		-3
+#define COM_IBM_DESTROY_FAILED_CURRENT_GEN_CACHEE -2
+/* When failed to destroy one or more older generation cache and either current generation cache does not exists or is
+ * successfully destroyed */
+#define COM_IBM_DESTROY_FAILED_OLDER_GEN_CACHE -3
 
 /*
  *-----------------------------------------------------------------------------
@@ -149,48 +149,34 @@
  *-----------------------------------------------------------------------------
  */
 enum {
-	COM_IBM_METHOD_ENTRY_EXTENDED_INTERPRETED = 0,
-	COM_IBM_METHOD_ENTRY_EXTENDED_COMPILED = 1,
-	COM_IBM_METHOD_ENTRY_EXTENDED_NATIVE = 2,
-	COM_IBM_METHOD_ENTRY_EXTENDED_PARTIAL_IN_LINE = 3,
-	COM_IBM_METHOD_ENTRY_EXTENDED_IN_LINE = 4
+    COM_IBM_METHOD_ENTRY_EXTENDED_INTERPRETED = 0,
+    COM_IBM_METHOD_ENTRY_EXTENDED_COMPILED = 1,
+    COM_IBM_METHOD_ENTRY_EXTENDED_NATIVE = 2,
+    COM_IBM_METHOD_ENTRY_EXTENDED_PARTIAL_IN_LINE = 3,
+    COM_IBM_METHOD_ENTRY_EXTENDED_IN_LINE = 4
 };
 
-enum {
-	COM_IBM_JLM_START = 0,
-	COM_IBM_JLM_START_TIME_STAMP = 1,
-	COM_IBM_JLM_STOP = 2,
-	COM_IBM_JLM_STOP_TIME_STAMP = 3
-};
+enum { COM_IBM_JLM_START = 0, COM_IBM_JLM_START_TIME_STAMP = 1, COM_IBM_JLM_STOP = 2, COM_IBM_JLM_STOP_TIME_STAMP = 3 };
 
-enum {
-	COM_IBM_STACK_FRAME_EXTENDED_NOT_JITTED = 0,
-	COM_IBM_STACK_FRAME_EXTENDED_JITTED     = 1
-};
+enum { COM_IBM_STACK_FRAME_EXTENDED_NOT_JITTED = 0, COM_IBM_STACK_FRAME_EXTENDED_JITTED = 1 };
 
 /**
- * Bits used to select the type of data to be returned by the extended stack trace calls 
+ * Bits used to select the type of data to be returned by the extended stack trace calls
  */
 enum {
-	COM_IBM_GET_STACK_TRACE_PRUNE_UNREPORTED_METHODS	= 1,	/** Prunes methods for which method enter was not reported */
-	COM_IBM_GET_STACK_TRACE_ENTRY_LOCAL_STORAGE			= 2,	/** Returns ELS pointers */
-	COM_IBM_GET_STACK_TRACE_EXTRA_FRAME_INFO			= 4		/** Returns jitted vs non-jitted data */
+    COM_IBM_GET_STACK_TRACE_PRUNE_UNREPORTED_METHODS = 1, /** Prunes methods for which method enter was not reported */
+    COM_IBM_GET_STACK_TRACE_ENTRY_LOCAL_STORAGE = 2, /** Returns ELS pointers */
+    COM_IBM_GET_STACK_TRACE_EXTRA_FRAME_INFO = 4 /** Returns jitted vs non-jitted data */
 };
-
 
 /**
  * JlmDumpStats format specifiers
- */ 
+ */
 
-enum {
-	COM_IBM_JLM_DUMP_FORMAT_OBJECT_ID = 0,
-	COM_IBM_JLM_DUMP_FORMAT_TAGS      = 1
-};
+enum { COM_IBM_JLM_DUMP_FORMAT_OBJECT_ID = 0, COM_IBM_JLM_DUMP_FORMAT_TAGS = 1 };
 
-
-#define JVMTI_MONITOR_JAVA		0x01
-#define JVMTI_MONITOR_RAW		0x02
-
+#define JVMTI_MONITOR_JAVA 0x01
+#define JVMTI_MONITOR_RAW 0x02
 
 /*
  *-----------------------------------------------------------------------------
@@ -205,8 +191,8 @@ enum {
  */
 
 typedef struct jlm_dump {
-	char * begin;
-	char * end;
+    char* begin;
+    char* end;
 } jlm_dump;
 
 /*  JLM dump format
@@ -238,46 +224,50 @@ typedef struct jlm_dump {
  * struct jvmtiFrameInfoExtended
  * Has two additional fields, compared to struct jvmtiFrameInfo:
  * machinepc and type
- */  
+ */
 typedef struct jvmtiFrameInfoExtended {
-	jmethodID method;
-	jlocation location;
-	jlocation machinepc;
-	jint      type;                 /*!< frame type can be not jitted or jitted */
-	void    * nativeFrameAddress;   /*!< address of the native frame */
+    jmethodID method;
+    jlocation location;
+    jlocation machinepc;
+    jint type; /*!< frame type can be not jitted or jitted */
+    void* nativeFrameAddress; /*!< address of the native frame */
 } jvmtiFrameInfoExtended;
 
 /**
  * struct jvmtiStackInfoExtended
  * frame buffer is a pointer to jvmtiFrameInfoExtended,
- * whereas frame buffer is pointer to jvmtiFrameInfo 
+ * whereas frame buffer is pointer to jvmtiFrameInfo
  * in struct jvmtiStackInfo
- */  
+ */
 typedef struct jvmtiStackInfoExtended {
-	jthread thread;
-	jint state;
-	jvmtiFrameInfoExtended* frame_buffer;
-	jint frame_count;
+    jthread thread;
+    jint state;
+    jvmtiFrameInfoExtended* frame_buffer;
+    jint frame_count;
 } jvmtiStackInfoExtended;
 
 /**
  * Version information for the COM_IBM_ITERATE_SHARED_CACHES API. Users
  * should pass this value as the "version" parameter. If the jvmtiSharedCacheInfo
  * structure is expanded, IBM will increment this define.
- */ 
+ */
 #define COM_IBM_ITERATE_SHARED_CACHES_VERSION_1 1
 #define COM_IBM_ITERATE_SHARED_CACHES_VERSION_2 2
 #define COM_IBM_ITERATE_SHARED_CACHES_VERSION_3 3
 #define COM_IBM_ITERATE_SHARED_CACHES_VERSION_4 4
 
 /**
- * The following 5 macros can be used to get address mode and compressedRefs mode from jvmtiSharedCacheInfo.addrMode when COM_IBM_ITERATE_SHARED_CACHES_VERSION_3 or later is specified.
+ * The following 5 macros can be used to get address mode and compressedRefs mode from jvmtiSharedCacheInfo.addrMode
+ * when COM_IBM_ITERATE_SHARED_CACHES_VERSION_3 or later is specified.
  */
 #define COM_IBM_ITERATE_SHARED_CACHES_UNKNOWN_COMPRESSED_POINTERS_MODE 0x00000
-#define COM_IBM_ITERATE_SHARED_CACHES_COMPRESSED_POINTERS_MODE	0x10000
+#define COM_IBM_ITERATE_SHARED_CACHES_COMPRESSED_POINTERS_MODE 0x10000
 #define COM_IBM_ITERATE_SHARED_CACHES_NON_COMPRESSED_POINTERS_MODE 0x20000
 #define COM_IBM_ITERATE_SHARED_CACHES_GET_ADDR_MODE(value) (value & 0xFFFF)
-#define COM_IBM_ITERATE_SHARED_CACHES_GET_CMPRSSREF_MODE(value) (value & (COM_IBM_ITERATE_SHARED_CACHES_COMPRESSED_POINTERS_MODE | COM_IBM_ITERATE_SHARED_CACHES_NON_COMPRESSED_POINTERS_MODE))
+#define COM_IBM_ITERATE_SHARED_CACHES_GET_CMPRSSREF_MODE(value)   \
+    (value                                                        \
+        & (COM_IBM_ITERATE_SHARED_CACHES_COMPRESSED_POINTERS_MODE \
+              | COM_IBM_ITERATE_SHARED_CACHES_NON_COMPRESSED_POINTERS_MODE))
 
 /**
  * struct jvmtiSharedCacheInfo
@@ -287,53 +277,53 @@ typedef struct jvmtiStackInfoExtended {
  * os_shmid - Operating System specific shared memory id
  * os_semid - Operating System specific semaphore id
  * modLevel - the modification level
- * addrMode - the address mode of the JVM. This field includes additional information on whether it is a 64-bit compressedRefs cache when COM_IBM_ITERATE_SHARED_CACHES_VERSION_3 or later is specified
- * isCorrupt - true when the cache is found to be corrupt
- * cacheSize - the size of the cache
- * freeBytes - the size of free space in the cache
+ * addrMode - the address mode of the JVM. This field includes additional information on whether it is a 64-bit
+ * compressedRefs cache when COM_IBM_ITERATE_SHARED_CACHES_VERSION_3 or later is specified isCorrupt - true when the
+ * cache is found to be corrupt cacheSize - the size of the cache freeBytes - the size of free space in the cache
  * lastDetach - time from which last detach has happened
- * cacheType - the type of the cache. This is the new field included when COM_IBM_ITERATE_SHARED_CACHES_VERSION_2 or later is specified
- * softMaxBytes - the soft limit for the available space in the cache. This is the new field included when COM_IBM_ITERATE_SHARED_CACHES_VERSION_4 or later is specified
- * 
+ * cacheType - the type of the cache. This is the new field included when COM_IBM_ITERATE_SHARED_CACHES_VERSION_2 or
+ * later is specified softMaxBytes - the soft limit for the available space in the cache. This is the new field included
+ * when COM_IBM_ITERATE_SHARED_CACHES_VERSION_4 or later is specified
+ *
  * If IBM adds new information to this structure, it will be added
  * to the end to preserve backwards compability, and
  * COM_IBM_ITERATE_SHARED_CACHES_VERSION will be incremented.
  */
 typedef struct jvmtiSharedCacheInfo {
-	const char *name;
-	jboolean isCompatible;
-	jboolean isPersistent;
-	jint os_shmid;
-	jint os_semid;
-	jint modLevel;
-	jint addrMode;
-	jboolean isCorrupt;
-	jlong cacheSize;
-	jlong freeBytes;
-	jlong lastDetach;
-	jint cacheType;
-	jlong softMaxBytes;
+    const char* name;
+    jboolean isCompatible;
+    jboolean isPersistent;
+    jint os_shmid;
+    jint os_semid;
+    jint modLevel;
+    jint addrMode;
+    jboolean isCorrupt;
+    jlong cacheSize;
+    jlong freeBytes;
+    jlong lastDetach;
+    jint cacheType;
+    jlong softMaxBytes;
 } jvmtiSharedCacheInfo;
 
 /**
  * Signature of callback function which must be provided to COM_IBM_ITERATE_SHARED_CACHES.
- * 
+ *
  * When your callback is called you will be provided with:
  * env - the jvmtiEnv you supplied when calling COM_IBM_ITERATE_SHARED_CACHES
  * cache_info - a structure containing information about a shared cache
  * user_data - the user_data you provided to COM_IBM_ITERATE_SHARED_CACHES
- * 
+ *
  * Return - JNI_OK on success, JNI_ERR on failure (no more callbacks will be sent).
  */
-typedef jint (JNICALL *jvmtiIterateSharedCachesCallback)(
-		jvmtiEnv *env, jvmtiSharedCacheInfo *cache_info, void *user_data);
+typedef jint(JNICALL* jvmtiIterateSharedCachesCallback)(
+    jvmtiEnv* env, jvmtiSharedCacheInfo* cache_info, void* user_data);
 
 /**
  * struct jvmtiObjectRenameInfo
  * oldAutoTag is the previous automatic tag.
- * newAutoTag is the new automatic tag. 
+ * newAutoTag is the new automatic tag.
  * The value 0 means that the object is deleted.
- */  
+ */
 typedef struct jvmtiObjectRenameInfo {
     jlong oldAutoTag;
     jlong newAutoTag;
@@ -350,9 +340,9 @@ typedef struct jvmtiObjectRenameInfo {
  * return:
  *    JVMTI_ERROR_NONE - success
  *    any other value - the subscriber is deregistered and will not receive any more data
- *    
+ *
  */
-typedef jvmtiError (*jvmtiTraceSubscriber)(jvmtiEnv *env, void *record, jlong length, void *userData);
+typedef jvmtiError (*jvmtiTraceSubscriber)(jvmtiEnv* env, void* record, jlong length, void* userData);
 
 /*
  * Alarm callback function that's executed if the subscriber returns an error or misbehaves.
@@ -360,22 +350,18 @@ typedef jvmtiError (*jvmtiTraceSubscriber)(jvmtiEnv *env, void *record, jlong le
  * subscriptionID - the ID of the subscription that raised the alarm
  * userData - user data provided at registration
  */
-typedef void (*jvmtiTraceAlarm)(jvmtiEnv *env, void *subscriptionID, void *userData);
+typedef void (*jvmtiTraceAlarm)(jvmtiEnv* env, void* subscriptionID, void* userData);
 
-
-	
 /*
- * Return data for the jvmtiGetMethodClassPackageNames extension. Keeps track of class, 
- * method and package name pointers copied into the user supplied buffer. 
+ * Return data for the jvmtiGetMethodClassPackageNames extension. Keeps track of class,
+ * method and package name pointers copied into the user supplied buffer.
  */
-typedef	struct jvmtiExtensionRamMethodData
-{
-	jchar * className;           /* ptr into ramMethodStrings, a null terminated class name string */
-	jchar * methodName;          /* ptr into ramMethodStrings, a null terminated method name string */
-	jvmtiError reasonCode;       /* error code indicating why this record has not been returned back 
-									(out of memory, invalid method or none) */
+typedef struct jvmtiExtensionRamMethodData {
+    jchar* className; /* ptr into ramMethodStrings, a null terminated class name string */
+    jchar* methodName; /* ptr into ramMethodStrings, a null terminated method name string */
+    jvmtiError reasonCode; /* error code indicating why this record has not been returned back
+                                                              (out of memory, invalid method or none) */
 } jvmtiExtensionRamMethodData;
-
 
 /**
  * Version information for the GetMemoryCategories API. Users
@@ -388,29 +374,29 @@ typedef	struct jvmtiExtensionRamMethodData
  * Return data for the GetMemoryCategories API
  */
 typedef struct jvmtiMemoryCategory {
-	/* Category name */
-	const char * name;
+    /* Category name */
+    const char* name;
 
-	/* Bytes allocated under this category */
-	jlong liveBytesShallow;
+    /* Bytes allocated under this category */
+    jlong liveBytesShallow;
 
-	/* Bytes allocated under this category and all child categories */
-	jlong liveBytesDeep;
+    /* Bytes allocated under this category and all child categories */
+    jlong liveBytesDeep;
 
-	/* Number of allocations under this category */
-	jlong liveAllocationsShallow;
+    /* Number of allocations under this category */
+    jlong liveAllocationsShallow;
 
-	/* Number of allocations under this category and all child categories */
-	jlong liveAllocationsDeep;
+    /* Number of allocations under this category and all child categories */
+    jlong liveAllocationsDeep;
 
-	/* Pointer to the first child category (NULL if this node has no children) */
-	struct jvmtiMemoryCategory * firstChild;
+    /* Pointer to the first child category (NULL if this node has no children) */
+    struct jvmtiMemoryCategory* firstChild;
 
-	/* Pointer to the next sibling category (NULL if this node has no next sibling)*/
-	struct jvmtiMemoryCategory * nextSibling;
+    /* Pointer to the next sibling category (NULL if this node has no next sibling)*/
+    struct jvmtiMemoryCategory* nextSibling;
 
-	/* Pointer to the parent category. (NULL if this node is a root) */
-	struct jvmtiMemoryCategory * parent;
+    /* Pointer to the parent category. (NULL if this node is a root) */
+    struct jvmtiMemoryCategory* parent;
 } jvmtiMemoryCategory;
 
 /*
@@ -418,8 +404,8 @@ typedef struct jvmtiMemoryCategory {
  * data as it is processed. The data is in ASCII XML. The data is valid for the duration of the callback.
  * If the subscriber wishes to save the data, it must copy it elsewhere.
  *
- * Note that the callback is called while the VM is stopped, thus the callback must not use JNI functions 
- * and must not use JVMTI functions except those which specifically allow such use. 
+ * Note that the callback is called while the VM is stopped, thus the callback must not use JNI functions
+ * and must not use JVMTI functions except those which specifically allow such use.
  *
  * @param env[in] the jvmti env supplied when the subscriber was registered
  * @param record[in] the XML data
@@ -428,7 +414,7 @@ typedef struct jvmtiMemoryCategory {
  * @return JVMTI_ERROR_NONE on success
  * If an error is returned, the alarm callback is called, the subscriber is deregistered, and no more data is sent
  */
-typedef jvmtiError (*jvmtiVerboseGCSubscriber)(jvmtiEnv *env, const char *record, jlong length, void *userData);
+typedef jvmtiError (*jvmtiVerboseGCSubscriber)(jvmtiEnv* env, const char* record, jlong length, void* userData);
 
 /*
  * Alarm callback function that's executed if the subscriber returns an error or misbehaves.
@@ -436,7 +422,6 @@ typedef jvmtiError (*jvmtiVerboseGCSubscriber)(jvmtiEnv *env, const char *record
  * @param subscriptionID[in] the ID of the subscription that raised the alarm
  * @param userData[in] user data provided at registration
  */
-typedef void (*jvmtiVerboseGCAlarm)(jvmtiEnv *env, void *subscriptionID, void *userData);
+typedef void (*jvmtiVerboseGCAlarm)(jvmtiEnv* env, void* subscriptionID, void* userData);
 
-
-#endif     /* ibmjvmti_h */
+#endif /* ibmjvmti_h */

@@ -33,16 +33,15 @@ extern "C" {
  * Method:    write
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write__I
-  (JNIEnv *, jobject, jint);
+JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write__I(JNIEnv*, jobject, jint);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniOutputStream
  * Method:    write
  * Signature: ([BII)V
  */
-JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write___3BII
-  (JNIEnv *, jobject, jbyteArray, jint, jint);
+JNIEXPORT void JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniOutputStream_write___3BII(
+    JNIEnv*, jobject, jbyteArray, jint, jint);
 
 #ifdef __cplusplus
 }

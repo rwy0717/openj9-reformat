@@ -23,7 +23,7 @@
 
 #if !defined(EVENT_CON_ABORTED_HPP_)
 #define EVENT_CON_ABORTED_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -34,24 +34,22 @@
  * Stores the data relating to an aborted concurrent collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentAborted : public MM_VerboseEvent
-{
-	UDATA _reason; /**< Reason why the we aborted concurrent mark cycle */
-	const char *getReasonAsString();
-public:
-		
-	static MM_VerboseEvent *newInstance(MM_ConcurrentAbortedEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+class MM_VerboseEventConcurrentAborted : public MM_VerboseEvent {
+    UDATA _reason; /**< Reason why the we aborted concurrent mark cycle */
+    const char* getReasonAsString();
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-	
-	MM_VerboseEventConcurrentAborted(MM_ConcurrentAbortedEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_reason(event->reason)
-	{};
+public:
+    static MM_VerboseEvent* newInstance(MM_ConcurrentAbortedEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventConcurrentAborted(MM_ConcurrentAbortedEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _reason(event->reason) {};
 };
 
 #endif /* EVENT_CON_ABORTED_HPP_ */

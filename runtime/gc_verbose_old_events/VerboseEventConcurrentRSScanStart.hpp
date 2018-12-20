@@ -34,27 +34,26 @@
  * Stores the data relating to the start of a concurrent remebered set scan
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentRSScanStart : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentRSScanStart : public MM_VerboseEvent {
 private:
-	/* Passed data */
-	UDATA	_workStackOverflowCount; /**< the current count of concurrent work stack overflows */
+    /* Passed data */
+    UDATA _workStackOverflowCount; /**< the current count of concurrent work stack overflows */
 public:
+    UDATA getWorkStackOverflowCount() { return _workStackOverflowCount; };
 
-	UDATA	getWorkStackOverflowCount()		{ return _workStackOverflowCount; };
+    static MM_VerboseEvent* newInstance(
+        MM_ConcurrentRememberedSetScanStartEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ConcurrentRememberedSetScanStartEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
-	
-	MMINLINE virtual bool definesOutputRoutine() { return false; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-		
-	MM_VerboseEventConcurrentRSScanStart(MM_ConcurrentRememberedSetScanStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_workStackOverflowCount(event->workStackOverflowCount)
-	{};
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine() { return false; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventConcurrentRSScanStart(
+        MM_ConcurrentRememberedSetScanStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _workStackOverflowCount(event->workStackOverflowCount) {};
 };
 
 #endif /* EVENT_CON_RS_SCAN_START_HPP_ */

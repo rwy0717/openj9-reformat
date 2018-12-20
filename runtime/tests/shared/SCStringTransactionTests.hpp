@@ -40,4 +40,4 @@ IDATA testSCStringTransaction(J9JavaVM* vm);
 } /*extern "C"*/
 #endif
 
-#endif  /*J9SC_STRING_TRANSACTION_TESTS_H_INCLUDED*/
+#endif /*J9SC_STRING_TRANSACTION_TESTS_H_INCLUDED*/

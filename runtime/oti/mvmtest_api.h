@@ -24,13 +24,13 @@
 #define mvmtest_api_h
 
 /**
-* @file mvmtest_api.h
-* @brief Public API for the MVMTEST module.
-*
-* This file contains public function prototypes and
-* type definitions for the MVMTEST module.
-*
-*/
+ * @file mvmtest_api.h
+ * @brief Public API for the MVMTEST module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the MVMTEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -38,7 +38,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #ifdef __cplusplus
 }

@@ -33,30 +33,30 @@
  * @brief Function indicates to the runtime that the library testjvmtiB has been
  * linked into the executable.
  */
-jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
+jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad (testjvmtiB): Agent_OnLoad [dynamically]\n");
-	fflush(stdout);
-	/* Return success. */
-	return 0;
+    fprintf(stdout, "[MSG] Reached OnLoad (testjvmtiB): Agent_OnLoad [dynamically]\n");
+    fflush(stdout);
+    /* Return success. */
+    return 0;
 }
 
-jint JNICALL Agent_OnAttach(JavaVM *vm, char *options, void *reserved)
+jint JNICALL Agent_OnAttach(JavaVM* vm, char* options, void* reserved)
 {
-	fprintf(stdout, "[MSG] Reached OnLoad (testjvmtiB): Agent_OnAttach [dynamically]\n");
-	fflush(stdout);
-	/* Return success. */
-	return 0;
+    fprintf(stdout, "[MSG] Reached OnLoad (testjvmtiB): Agent_OnAttach [dynamically]\n");
+    fflush(stdout);
+    /* Return success. */
+    return 0;
 }
 
 /**
  * @brief Function indicates an alternative to the traditional unload routine to
  * the runtime specifically targeting the library testjvmtiB.
  */
-void JNICALL Agent_OnUnload(JavaVM *vm)
+void JNICALL Agent_OnUnload(JavaVM* vm)
 {
-	fprintf(stdout, "[MSG] Reached OnUnload (testjvmtiB): Agent_OnUnload [dynamically]\n");
-	fflush(stdout);
-	/* Nothing much to cleanup here. */
-	return;
+    fprintf(stdout, "[MSG] Reached OnUnload (testjvmtiB): Agent_OnUnload [dynamically]\n");
+    fflush(stdout);
+    /* Nothing much to cleanup here. */
+    return;
 }

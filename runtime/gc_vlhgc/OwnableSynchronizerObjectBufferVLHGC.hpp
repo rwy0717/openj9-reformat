@@ -31,44 +31,40 @@
 
 /**
  * A per-thread buffer of recently allocated ownable synchronizer objects.
- * The buffer is periodically flushed to the global list. 
+ * The buffer is periodically flushed to the global list.
  */
-class MM_OwnableSynchronizerObjectBufferVLHGC : public MM_OwnableSynchronizerObjectBuffer
-{
+class MM_OwnableSynchronizerObjectBufferVLHGC : public MM_OwnableSynchronizerObjectBuffer {
 private:
 protected:
 public:
-	
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
-	
 public:
-	static MM_OwnableSynchronizerObjectBufferVLHGC *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush 
-	 */
-	MM_OwnableSynchronizerObjectBufferVLHGC(MM_GCExtensions *extensions, UDATA maxObjectCount);
+    static MM_OwnableSynchronizerObjectBufferVLHGC* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_OwnableSynchronizerObjectBufferVLHGC(MM_GCExtensions* extensions, UDATA maxObjectCount);
 
-	/**
-	 * Add the specified OwnableSynchronizer object to the buffer only when the object in Compacted Regions,
-	 * this method is only called from WriteOnceCompactor
-	 * @param env[in] the current thread
-	 * @param object[in] the object to add
-	 */
-	void addForOnlyCompactedRegion(MM_EnvironmentBase* env, j9object_t object);
-
+    /**
+     * Add the specified OwnableSynchronizer object to the buffer only when the object in Compacted Regions,
+     * this method is only called from WriteOnceCompactor
+     * @param env[in] the current thread
+     * @param object[in] the object to add
+     */
+    void addForOnlyCompactedRegion(MM_EnvironmentBase* env, j9object_t object);
 };
 
 #endif /* OWABLESYNCHRONIZEROBJECTBUFFERVLHGC_HPP_ */

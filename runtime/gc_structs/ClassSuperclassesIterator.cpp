@@ -36,20 +36,17 @@
  * @return a reference to the next superclass
  * @return NULL if the class has no more superclass references
  */
-J9Class **
-GC_ClassSuperclassesIterator::nextSlot()
+J9Class** GC_ClassSuperclassesIterator::nextSlot()
 {
-	J9Class **slotPtr;
+    J9Class** slotPtr;
 
-	if(0 == _classDepth) {
-		return NULL;
-	}
+    if (0 == _classDepth) {
+        return NULL;
+    }
 
-	_index += 1;
-	_classDepth -= 1;
-	slotPtr = _superclassPtr++;
+    _index += 1;
+    _classDepth -= 1;
+    slotPtr = _superclassPtr++;
 
-	return slotPtr;	
+    return slotPtr;
 }
-
-

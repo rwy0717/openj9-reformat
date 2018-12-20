@@ -24,81 +24,79 @@
 
 #include "jvmti_test.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-jint JNICALL
-mt001(agentEnv * agent_env, char * args)
+jint JNICALL mt001(agentEnv* agent_env, char* args)
 {
-	env = agent_env;
+    env = agent_env;
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleReads(JNIEnv * jni_env, jclass klass, jobject fromMod, jstring toMod)
+jint JNICALL Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleReads(
+    JNIEnv* jni_env, jclass klass, jobject fromMod, jstring toMod)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
 
-	return (jint) (*jvmti_env)->AddModuleReads(jvmti_env, fromMod, toMod);;
+    return (jint)(*jvmti_env)->AddModuleReads(jvmti_env, fromMod, toMod);
+    ;
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleExports(JNIEnv * jni_env, jclass klass, jobject fromMod, jstring pkgName, jobject toMod)
+jint JNICALL Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleExports(
+    JNIEnv* jni_env, jclass klass, jobject fromMod, jstring pkgName, jobject toMod)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err;
-	char *utfPackageName = NULL;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
+    char* utfPackageName = NULL;
 
-	if (NULL != pkgName) {
-		utfPackageName = (char *)(*jni_env)->GetStringUTFChars(jni_env, pkgName, NULL);
-		if (NULL == utfPackageName) {
-			return (jint) JVMTI_ERROR_INTERNAL;
-		}
-	}
+    if (NULL != pkgName) {
+        utfPackageName = (char*)(*jni_env)->GetStringUTFChars(jni_env, pkgName, NULL);
+        if (NULL == utfPackageName) {
+            return (jint)JVMTI_ERROR_INTERNAL;
+        }
+    }
 
+    err = (*jvmti_env)->AddModuleExports(jvmti_env, fromMod, utfPackageName, toMod);
 
-	err = (*jvmti_env)->AddModuleExports(jvmti_env, fromMod, utfPackageName, toMod);
+    (*jni_env)->ReleaseStringUTFChars(jni_env, pkgName, utfPackageName);
 
-	(*jni_env)->ReleaseStringUTFChars(jni_env, pkgName, utfPackageName);
-
-	return (jint) err;
+    return (jint)err;
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleOpens(JNIEnv * jni_env, jclass klass, jobject fromMod, jstring pkgName, jobject toMod)
+jint JNICALL Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleOpens(
+    JNIEnv* jni_env, jclass klass, jobject fromMod, jstring pkgName, jobject toMod)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jvmtiError err;
-	char *utfPackageName = NULL;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jvmtiError err;
+    char* utfPackageName = NULL;
 
-	if (NULL != pkgName) {
-		utfPackageName = (char *)(*jni_env)->GetStringUTFChars(jni_env, pkgName, NULL);
-		if (NULL == utfPackageName) {
-			return (jint) JVMTI_ERROR_INTERNAL;
-		}
-	}
+    if (NULL != pkgName) {
+        utfPackageName = (char*)(*jni_env)->GetStringUTFChars(jni_env, pkgName, NULL);
+        if (NULL == utfPackageName) {
+            return (jint)JVMTI_ERROR_INTERNAL;
+        }
+    }
 
+    err = (*jvmti_env)->AddModuleOpens(jvmti_env, fromMod, utfPackageName, toMod);
 
-	err = (*jvmti_env)->AddModuleOpens(jvmti_env, fromMod, utfPackageName, toMod);
+    (*jni_env)->ReleaseStringUTFChars(jni_env, pkgName, utfPackageName);
 
-	(*jni_env)->ReleaseStringUTFChars(jni_env, pkgName, utfPackageName);
-
-
-	return (jint) err;
+    return (jint)err;
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleUses(JNIEnv * jni_env, jclass klass, jobject module, jclass service)
+jint JNICALL Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleUses(
+    JNIEnv* jni_env, jclass klass, jobject module, jclass service)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
 
-	return (jint) (*jvmti_env)->AddModuleUses(jvmti_env, module, service);
+    return (jint)(*jvmti_env)->AddModuleUses(jvmti_env, module, service);
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleProvides(JNIEnv * jni_env, jclass klass, jobject module, jclass service, jclass implClass)
+jint JNICALL Java_com_ibm_jvmti_tests_modularityTests_mt001_addModuleProvides(
+    JNIEnv* jni_env, jclass klass, jobject module, jclass service, jclass implClass)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
+    JVMTI_ACCESS_FROM_AGENT(env);
 
-	return (jint) (*jvmti_env)->AddModuleProvides(jvmti_env, module, service, implClass);;
+    return (jint)(*jvmti_env)->AddModuleProvides(jvmti_env, module, service, implClass);
+    ;
 }

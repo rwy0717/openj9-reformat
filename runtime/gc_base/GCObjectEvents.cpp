@@ -45,69 +45,73 @@
 #include "HeapRegionManager.hpp"
 #include "ScavengerForwardedHeader.hpp"
 
-void
-globalGCReportObjectEvents(MM_EnvironmentBase *env, MM_HeapMap *markMap)
+void globalGCReportObjectEvents(MM_EnvironmentBase* env, MM_HeapMap* markMap)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	MM_HeapRegionManager *regionManager = extensions->heap->getHeapRegionManager();
-	GC_HeapRegionIterator regionIterator(regionManager);
-	MM_HeapRegionDescriptor *region = NULL;
-	OMR_VMThread *vmThread = env->getOmrVMThread();
-	while((region = regionIterator.nextRegion()) != NULL) {
-		/* Iterate over live objects only */
-		MM_MemorySubSpace *memorySubSpace = region->getSubSpace();
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    MM_HeapRegionManager* regionManager = extensions->heap->getHeapRegionManager();
+    GC_HeapRegionIterator regionIterator(regionManager);
+    MM_HeapRegionDescriptor* region = NULL;
+    OMR_VMThread* vmThread = env->getOmrVMThread();
+    while ((region = regionIterator.nextRegion()) != NULL) {
+        /* Iterate over live objects only */
+        MM_MemorySubSpace* memorySubSpace = region->getSubSpace();
 
-		GC_ObjectHeapBufferedIterator objectHeapIterator(extensions, region);
+        GC_ObjectHeapBufferedIterator objectHeapIterator(extensions, region);
 
-		J9Object *objectPtr = NULL;
-		while( NULL != (objectPtr = objectHeapIterator.nextObject()) ) {
-			/* Check the mark state of each object. If it isn't marked, build a dead object. */
-			if(!markMap->isBitSet(objectPtr)) {
+        J9Object* objectPtr = NULL;
+        while (NULL != (objectPtr = objectHeapIterator.nextObject())) {
+            /* Check the mark state of each object. If it isn't marked, build a dead object. */
+            if (!markMap->isBitSet(objectPtr)) {
 
-				UDATA deadObjectByteSize = extensions->objectModel.getConsumedSizeInBytesWithHeader(objectPtr);
-				memorySubSpace->abandonHeapChunk(objectPtr, ((U_8*)objectPtr) + deadObjectByteSize);
+                UDATA deadObjectByteSize = extensions->objectModel.getConsumedSizeInBytesWithHeader(objectPtr);
+                memorySubSpace->abandonHeapChunk(objectPtr, ((U_8*)objectPtr) + deadObjectByteSize);
 
-				TRIGGER_J9HOOK_MM_OMR_OBJECT_DELETE(env->getExtensions()->omrHookInterface, vmThread, objectPtr, memorySubSpace);
-			}
-		}
-	}
+                TRIGGER_J9HOOK_MM_OMR_OBJECT_DELETE(
+                    env->getExtensions()->omrHookInterface, vmThread, objectPtr, memorySubSpace);
+            }
+        }
+    }
 }
 
-void
-localGCReportObjectEvents(MM_EnvironmentBase *env, MM_MemorySubSpaceSemiSpace *memorySubSpaceNew)
+void localGCReportObjectEvents(MM_EnvironmentBase* env, MM_MemorySubSpaceSemiSpace* memorySubSpaceNew)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	OMR_VMThread *vmThread = env->getOmrVMThread();
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    OMR_VMThread* vmThread = env->getOmrVMThread();
 
-	/* Find the region associated with the evacuate allocate profile */
-	GC_MemorySubSpaceRegionIterator regionIterator(memorySubSpaceNew);
-	MM_HeapRegionDescriptor *evacuateRegion = NULL;
-	while ((evacuateRegion = regionIterator.nextRegion()) != NULL) {
-		J9Object *objectPtr = (J9Object *)evacuateRegion->getLowAddress();
-		/* skip survivor regions */
-		if (memorySubSpaceNew->isObjectInEvacuateMemory(objectPtr)) {
-			MM_MemorySubSpace *evacuateMemorySubSpace = evacuateRegion->getSubSpace();
-			/* Use the object model helper to test for holes,
-			 * otherwise use ScavengerForwardedHeader to test for forwarded objects.
-			 */
-			while(objectPtr < (J9Object *)evacuateRegion->getHighAddress()) {
-				if (extensions->objectModel.isDeadObject(objectPtr)) {
-					objectPtr = (J9Object *)((U_8 *)objectPtr + extensions->objectModel.getSizeInBytesDeadObject(objectPtr));
-				} else {
-					MM_ScavengerForwardedHeader forwardHeader(objectPtr);
-					if (forwardHeader.isForwardedPointer()) {
-						J9Object *forwardPtr = forwardHeader.getForwardedObject();
-						Assert_MM_true(NULL != forwardPtr);
-						TRIGGER_J9HOOK_MM_OMR_OBJECT_RENAME(env->getExtensions()->omrHookInterface, vmThread, objectPtr, forwardPtr);
-						objectPtr = (J9Object *)((U_8 *)objectPtr + extensions->objectModel.getConsumedSizeInBytesWithHeaderBeforeMove(forwardPtr));
-					} else {
-						TRIGGER_J9HOOK_MM_OMR_OBJECT_DELETE(env->getExtensions()->omrHookInterface, vmThread, objectPtr, evacuateMemorySubSpace);
-						objectPtr = (J9Object *)((U_8 *)objectPtr + extensions->objectModel.getConsumedSizeInBytesWithHeader(objectPtr));
-					}
-				}
-			}
-		}
-	}
+    /* Find the region associated with the evacuate allocate profile */
+    GC_MemorySubSpaceRegionIterator regionIterator(memorySubSpaceNew);
+    MM_HeapRegionDescriptor* evacuateRegion = NULL;
+    while ((evacuateRegion = regionIterator.nextRegion()) != NULL) {
+        J9Object* objectPtr = (J9Object*)evacuateRegion->getLowAddress();
+        /* skip survivor regions */
+        if (memorySubSpaceNew->isObjectInEvacuateMemory(objectPtr)) {
+            MM_MemorySubSpace* evacuateMemorySubSpace = evacuateRegion->getSubSpace();
+            /* Use the object model helper to test for holes,
+             * otherwise use ScavengerForwardedHeader to test for forwarded objects.
+             */
+            while (objectPtr < (J9Object*)evacuateRegion->getHighAddress()) {
+                if (extensions->objectModel.isDeadObject(objectPtr)) {
+                    objectPtr
+                        = (J9Object*)((U_8*)objectPtr + extensions->objectModel.getSizeInBytesDeadObject(objectPtr));
+                } else {
+                    MM_ScavengerForwardedHeader forwardHeader(objectPtr);
+                    if (forwardHeader.isForwardedPointer()) {
+                        J9Object* forwardPtr = forwardHeader.getForwardedObject();
+                        Assert_MM_true(NULL != forwardPtr);
+                        TRIGGER_J9HOOK_MM_OMR_OBJECT_RENAME(
+                            env->getExtensions()->omrHookInterface, vmThread, objectPtr, forwardPtr);
+                        objectPtr = (J9Object*)((U_8*)objectPtr
+                            + extensions->objectModel.getConsumedSizeInBytesWithHeaderBeforeMove(forwardPtr));
+                    } else {
+                        TRIGGER_J9HOOK_MM_OMR_OBJECT_DELETE(
+                            env->getExtensions()->omrHookInterface, vmThread, objectPtr, evacuateMemorySubSpace);
+                        objectPtr = (J9Object*)((U_8*)objectPtr
+                            + extensions->objectModel.getConsumedSizeInBytesWithHeader(objectPtr));
+                    }
+                }
+            }
+        }
+    }
 }
 
 #endif /* J9VM_PROF_EVENT_REPORTING */

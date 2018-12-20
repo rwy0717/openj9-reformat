@@ -29,7 +29,7 @@
 //
 // note that the name of the following variable is important,
 // because the macros in <j9dbgexts.h> assume it is ExtensionApis.
-	WINDBG_EXTENSION_APIS ExtensionApis;
+WINDBG_EXTENSION_APIS ExtensionApis;
 USHORT MjVersion;
 USHORT MnVersion;
 
@@ -41,64 +41,46 @@ EXT_API_VERSION Version = { 3, 5, EXT_API_VERSION_NUMBER64, 0 };
 EXT_API_VERSION Version = { 3, 5, EXT_API_VERSION_NUMBER, 0 };
 #endif
 
-
-
 LPEXT_API_VERSION
-   WDBGAPI
-   ExtensionApiVersion()
-{
-	return &Version;
-} 
+WDBGAPI
+ExtensionApiVersion() { return &Version; }
 // WinDbgExtensionDllInit() is called when the debugger loads
 // your extension DLL.
-void
-   WDBGAPI
-   WinDbgExtensionDllInit(
-						  PWINDBG_EXTENSION_APIS lpExtensionApis,
-						  USHORT                 MajorVersion,
-						  USHORT                 MinorVersion
-						 )
+void WDBGAPI WinDbgExtensionDllInit(PWINDBG_EXTENSION_APIS lpExtensionApis, USHORT MajorVersion, USHORT MinorVersion)
 {
-	ExtensionApis = *lpExtensionApis;   // structure copy
-	MjVersion = MajorVersion;
-	MnVersion = MinorVersion;
+    ExtensionApis = *lpExtensionApis; // structure copy
+    MjVersion = MajorVersion;
+    MnVersion = MinorVersion;
 }
 
-void dbgReadMemory (UDATA address, void *structure, UDATA size, UDATA *bytesRead)
+void dbgReadMemory(UDATA address, void* structure, UDATA size, UDATA* bytesRead)
 {
-	*bytesRead = 0;
-	ReadMemory(address,structure,(U_32)size,(U_32*)bytesRead);
+    *bytesRead = 0;
+    ReadMemory(address, structure, (U_32)size, (U_32*)bytesRead);
 }
-UDATA dbgGetExpression (const char* args)
-{
-	return GetExpression(args);
-}
+UDATA dbgGetExpression(const char* args) { return GetExpression(args); }
 
 /*
  * See dbgFindPatternInRange
  */
-void* 
-dbgFindPattern(U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom, UDATA* bytesSearched) 
+void* dbgFindPattern(
+    U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom, UDATA* bytesSearched)
 {
 #if defined(J9VM_ENV_DATA64)
-	*bytesSearched = 0;
-	return NULL;
+    *bytesSearched = 0;
+    return NULL;
 #else
-	return dbgFindPatternInRange(pattern, patternLength, patternAlignment, startSearchFrom, (UDATA)-1 - (UDATA)startSearchFrom, bytesSearched);
+    return dbgFindPatternInRange(
+        pattern, patternLength, patternAlignment, startSearchFrom, (UDATA)-1 - (UDATA)startSearchFrom, bytesSearched);
 #endif
 }
 
 /*
  * Prints message to the debug print screen
  */
-void 
-dbgWriteString (const char* message)
-{
-	dprintf("%s", message);
-}
+void dbgWriteString(const char* message) { dprintf("%s", message); }
 
-I_32
-dbg_j9port_create_library(J9PortLibrary *portLib, J9PortLibraryVersion *version, UDATA size)
+I_32 dbg_j9port_create_library(J9PortLibrary* portLib, J9PortLibraryVersion* version, UDATA size)
 {
-	return j9port_create_library(portLib, version, size);
+    return j9port_create_library(portLib, version, size);
 }

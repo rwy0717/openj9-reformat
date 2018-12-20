@@ -20,39 +20,34 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-#include <stddef.h>                   // for NULL
-#include <stdint.h>                   // for int32_t, int64_t, uint32_t
+#include <stddef.h> // for NULL
+#include <stdint.h> // for int32_t, int64_t, uint32_t
 #include <assert.h>
 #include "compile/Compilation.hpp"
 #include "env/DebugEnv.hpp"
 #include "env/CompilerEnv.hpp"
-#include "env/jittypes.h"             // for uintptrj_t, intptrj_t
+#include "env/jittypes.h" // for uintptrj_t, intptrj_t
 #include "env/VMJ9.h"
-#include "infra/Assert.hpp"           // for TR_ASSERT
+#include "infra/Assert.hpp" // for TR_ASSERT
 #include "thrtypes.h"
-
 
 #if defined(LINUX) || defined(AIXPPC)
 #include <signal.h>
 #endif
 
-void
-J9::DebugEnv::breakPoint()
-   {
+void J9::DebugEnv::breakPoint()
+{
 
 #if defined(LINUX) || defined(AIXPPC)
-   raise(SIGTRAP);
+    raise(SIGTRAP);
 #elif defined(_MSC_VER)
-   DebugBreak();
+    DebugBreak();
 #else
-   assert(0);
+    assert(0);
 #endif
+}
 
-   }
-
-
-char *
-J9::DebugEnv::extraAssertMessage(TR::Compilation *comp)
-   {
-   return comp->fej9()->printAdditionalInfoOnAssertionFailure(comp);
-   }
+char* J9::DebugEnv::extraAssertMessage(TR::Compilation* comp)
+{
+    return comp->fej9()->printAdditionalInfoOnAssertionFailure(comp);
+}

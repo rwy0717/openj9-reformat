@@ -29,39 +29,39 @@
 #include "j9protos.h"
 #include "j9.h"
 
-class SH_AttachedDataManagerImpl : public SH_AttachedDataManager
-{
+class SH_AttachedDataManagerImpl : public SH_AttachedDataManager {
 public:
-	typedef char* BlockPtr;
+    typedef char* BlockPtr;
 
-	SH_AttachedDataManagerImpl();
+    SH_AttachedDataManagerImpl();
 
-	~SH_AttachedDataManagerImpl();
+    ~SH_AttachedDataManagerImpl();
 
-	static SH_AttachedDataManagerImpl* newInstance(J9JavaVM* vm, SH_SharedCache* cache, SH_AttachedDataManagerImpl* memForConstructor);
+    static SH_AttachedDataManagerImpl* newInstance(
+        J9JavaVM* vm, SH_SharedCache* cache, SH_AttachedDataManagerImpl* memForConstructor);
 
-	static UDATA getRequiredConstrBytes(void);
+    static UDATA getRequiredConstrBytes(void);
 
-	virtual UDATA getNumOfType(UDATA type);
+    virtual UDATA getNumOfType(UDATA type);
 
-	virtual UDATA getDataBytesForType(UDATA type);
+    virtual UDATA getDataBytesForType(UDATA type);
 
-	virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
+    virtual bool storeNew(J9VMThread* currentThread, const ShcItem* itemInCache, SH_CompositeCache* cachelet);
 
 protected:
-	virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
+    virtual U_32 getHashTableEntriesFromCacheSize(UDATA cacheSizeBytes);
 
-	virtual UDATA getKeyForItem(const ShcItem* cacheItem);
+    virtual UDATA getKeyForItem(const ShcItem* cacheItem);
 
 private:
-	UDATA _numBytesByType[J9SHR_ATTACHED_DATA_TYPE_MAX+1];
-	UDATA _bytesByType[J9SHR_ATTACHED_DATA_TYPE_MAX+1];
+    UDATA _numBytesByType[J9SHR_ATTACHED_DATA_TYPE_MAX + 1];
+    UDATA _bytesByType[J9SHR_ATTACHED_DATA_TYPE_MAX + 1];
 
-	/* Copy prevention */
-	SH_AttachedDataManagerImpl(const SH_AttachedDataManagerImpl&);
-	SH_AttachedDataManagerImpl& operator=(const SH_AttachedDataManagerImpl&);
+    /* Copy prevention */
+    SH_AttachedDataManagerImpl(const SH_AttachedDataManagerImpl&);
+    SH_AttachedDataManagerImpl& operator=(const SH_AttachedDataManagerImpl&);
 
-	void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
+    void initialize(J9JavaVM* vm, SH_SharedCache* cache, BlockPtr memForConstructor);
 };
 
-#endif	/* ATTACHED_DATA_MANAGER_IMPL_HPP_INCLUDED */
+#endif /* ATTACHED_DATA_MANAGER_IMPL_HPP_INCLUDED */

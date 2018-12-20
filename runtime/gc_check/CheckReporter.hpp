@@ -42,83 +42,79 @@
  * to the appropriate device.
  * @ingroup GC_Check
  */
-class GC_CheckReporter : public MM_Base
-{
-	/*
-	 * Data members
-	 */
+class GC_CheckReporter : public MM_Base {
+    /*
+     * Data members
+     */
 private:
-
 protected:
-	UDATA _maxErrorsToReport;
-	J9PortLibrary *_portLibrary;
+    UDATA _maxErrorsToReport;
+    J9PortLibrary* _portLibrary;
 
 public:
-	J9JavaVM *_javaVM;
+    J9JavaVM* _javaVM;
 
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
 protected:
 public:
+    /**
+     * Release any required resources for the reporter.
+     */
+    virtual void kill() = 0;
 
-	/**
-	 * Release any required resources for the reporter.
-	 */
-	virtual void kill() = 0;
+    /**
+     * Report an error.
+     *
+     * Accepts an error object and outputs error to the appropriate device.
+     * @param error The error to be reported
+     */
+    virtual void report(GC_CheckError* error) = 0;
 
-	/** 
-	 * Report an error.
-	 * 
-	 * Accepts an error object and outputs error to the appropriate device.
-	 * @param error The error to be reported
-	 */
-	virtual void report(GC_CheckError *error) = 0;
+    /*
+     * Report information from an object header, class, or some other type
+     */
+    virtual void reportGenericType(GC_CheckError* error, GC_CheckElement reference, const char* prefix);
 
-	/*
-	 * Report information from an object header, class, or some other type
-	 */
-	virtual void reportGenericType(GC_CheckError *error, GC_CheckElement reference, const char *prefix);
+    /**
+     * Report information from an object header.
+     */
+    virtual void reportObjectHeader(GC_CheckError* error, J9Object* objectPtr, const char* prefix) = 0;
 
-	/**
-	 * Report information from an object header.
-	 */
-	virtual void reportObjectHeader(GC_CheckError *error, J9Object *objectPtr, const char *prefix) = 0;
+    /**
+     * Report information from a class
+     */
+    virtual void reportClass(GC_CheckError* error, J9Class* clazz, const char* prefix) = 0;
 
-	/**
-	 * Report information from a class
-	 */
-	virtual void reportClass(GC_CheckError *error, J9Class *clazz, const char *prefix) = 0;
+    /**
+     * Report the fact that a fatal error has occurred.
+     */
+    virtual void reportFatalError(GC_CheckError* error) = 0;
 
-	/**
-	 * Report the fact that a fatal error has occurred.
-	 */
-	virtual void reportFatalError(GC_CheckError *error) = 0;
-	
-	/**
-	 * Report the fact that an error has occurred while walking the heap.
-	 */
-	virtual void reportHeapWalkError(
-		GC_CheckError *error, 
-		GC_CheckElement previousObjectPtr1, 
-		GC_CheckElement previousObjectPtr2, 
-		GC_CheckElement previousObjectPtr3) = 0;
+    /**
+     * Report the fact that an error has occurred while walking the heap.
+     */
+    virtual void reportHeapWalkError(GC_CheckError* error, GC_CheckElement previousObjectPtr1,
+        GC_CheckElement previousObjectPtr2, GC_CheckElement previousObjectPtr3)
+        = 0;
 
-	void setMaxErrorsToReport(UDATA count) { _maxErrorsToReport = count; }
-	bool shouldReport(GC_CheckError *error) { 
-		return (_maxErrorsToReport == 0) || (error->_errorNumber <= _maxErrorsToReport);
-	}
+    void setMaxErrorsToReport(UDATA count) { _maxErrorsToReport = count; }
+    bool shouldReport(GC_CheckError* error)
+    {
+        return (_maxErrorsToReport == 0) || (error->_errorNumber <= _maxErrorsToReport);
+    }
 
-	/**
-	 * Create a new CheckReporter object.
-	 */
-	GC_CheckReporter(J9JavaVM *javaVM)
-		: MM_Base()
-		, _maxErrorsToReport(0)
-		, _portLibrary(javaVM->portLibrary)
-		, _javaVM(javaVM)
-	{}
+    /**
+     * Create a new CheckReporter object.
+     */
+    GC_CheckReporter(J9JavaVM* javaVM)
+        : MM_Base()
+        , _maxErrorsToReport(0)
+        , _portLibrary(javaVM->portLibrary)
+        , _javaVM(javaVM)
+    {}
 };
 
 #endif /* CHECKREPORTER_HPP_ */

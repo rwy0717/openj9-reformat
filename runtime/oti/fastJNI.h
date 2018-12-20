@@ -27,41 +27,49 @@
 #include "j9comp.h"
 
 /* Flag constants */
-#define J9_FAST_JNI_RETAIN_VM_ACCESS		1
-#define J9_FAST_JNI_NOT_GC_POINT			2
-#define J9_FAST_JNI_NO_NATIVE_METHOD_FRAME	4
-#define J9_FAST_JNI_NO_EXCEPTION_THROW		8
-#define J9_FAST_JNI_NO_SPECIAL_TEAR_DOWN	16
-#define J9_FAST_JNI_DO_NOT_WRAP_OBJECTS		32
-#define J9_FAST_JNI_DO_NOT_PASS_RECEIVER	64
-#define J9_FAST_JNI_DO_NOT_PASS_THREAD		128
+#define J9_FAST_JNI_RETAIN_VM_ACCESS 1
+#define J9_FAST_JNI_NOT_GC_POINT 2
+#define J9_FAST_JNI_NO_NATIVE_METHOD_FRAME 4
+#define J9_FAST_JNI_NO_EXCEPTION_THROW 8
+#define J9_FAST_JNI_NO_SPECIAL_TEAR_DOWN 16
+#define J9_FAST_JNI_DO_NOT_WRAP_OBJECTS 32
+#define J9_FAST_JNI_DO_NOT_PASS_RECEIVER 64
+#define J9_FAST_JNI_DO_NOT_PASS_THREAD 128
 
 /* Legacy constant */
-#define J9_FAST_NO_NATIVE_METHOD_FRAME		J9_FAST_JNI_NO_NATIVE_METHOD_FRAME
+#define J9_FAST_NO_NATIVE_METHOD_FRAME J9_FAST_JNI_NO_NATIVE_METHOD_FRAME
 
 /* Structure and macro definitions for fast native method tables */
 
 typedef struct {
-	const char *methodName;
-	UDATA methodNameLength;
-	const char *methodSignature;
-	UDATA methodSignatureLength;
-	UDATA flags;
-	void * function;
+    const char* methodName;
+    UDATA methodNameLength;
+    const char* methodSignature;
+    UDATA methodSignatureLength;
+    UDATA flags;
+    void* function;
 } J9FastJNINativeMethodDescriptor;
 
 #define J9_FAST_JNI_METHOD_TABLE_EXTERN(tableName) extern J9FastJNINativeMethodDescriptor FastJNINatives_##tableName[]
 #define J9_FAST_JNI_METHOD_TABLE(tableName) J9FastJNINativeMethodDescriptor FastJNINatives_##tableName[] = {
 #define J9_FAST_JNI_METHOD(name, sig, func, flags) { name, sizeof(name) - 1, sig, sizeof(sig) - 1, flags, (void*)func },
-#define J9_FAST_JNI_METHOD_TABLE_END J9_FAST_JNI_METHOD(NULL, NULL, NULL, 0) };
+#define J9_FAST_JNI_METHOD_TABLE_END        \
+    J9_FAST_JNI_METHOD(NULL, NULL, NULL, 0) \
+    }                                       \
+    ;
 
 typedef struct {
-	const char *className;
-	UDATA classNameLength;
-	J9FastJNINativeMethodDescriptor *natives;
+    const char* className;
+    UDATA classNameLength;
+    J9FastJNINativeMethodDescriptor* natives;
 } J9FastJNINativeClassDescriptor;
 
 #define J9_FAST_JNI_CLASS_TABLE(tableName) J9FastJNINativeClassDescriptor tableName[] = {
 #define J9_FAST_JNI_CLASS(className, table) { className, sizeof(className) - 1, FastJNINatives_##table },
-#define J9_FAST_JNI_CLASS_TABLE_END { NULL, 0, NULL } };
+#define J9_FAST_JNI_CLASS_TABLE_END \
+    {                               \
+        NULL, 0, NULL               \
+    }                               \
+    }                               \
+    ;
 #endif

@@ -20,39 +20,37 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "javaPriority.h"
 
-static void 
-initializeRange(int start_index, int end_index, UDATA range_min, UDATA range_max, UDATA values[])
+static void initializeRange(int start_index, int end_index, UDATA range_min, UDATA range_max, UDATA values[])
 {
-	UDATA delta;
-	int i;
-	UDATA tmpmax;
-	UDATA tmpmin;
-	UDATA mid;
-	int midrange;
-	int tailcount;
+    UDATA delta;
+    int i;
+    UDATA tmpmax;
+    UDATA tmpmin;
+    UDATA mid;
+    int midrange;
+    int tailcount;
 
-	 /* give us some room to do some math */
-	tmpmax = range_max * 1024;
-	tmpmin = range_min * 1024;
-	mid = (tmpmin + tmpmax) / 2;
-	midrange = (end_index-start_index)/2;
+    /* give us some room to do some math */
+    tmpmax = range_max * 1024;
+    tmpmin = range_min * 1024;
+    mid = (tmpmin + tmpmax) / 2;
+    midrange = (end_index - start_index) / 2;
 
-	values[start_index] = range_min; 
+    values[start_index] = range_min;
 
-	delta = (mid - tmpmin) / midrange;
-	for (i = 1; i < midrange; i++) {
-	 	values[start_index+midrange-i] = (mid - delta*i)/1024; 
-	}
+    delta = (mid - tmpmin) / midrange;
+    for (i = 1; i < midrange; i++) {
+        values[start_index + midrange - i] = (mid - delta * i) / 1024;
+    }
 
-	tailcount = (end_index-start_index)-midrange;
-	delta = (tmpmax - mid) / tailcount;
-	for (i = 0; i < tailcount; i++) {
-	 	values[start_index+midrange+i] = (mid + delta*i)/ 1024;
-	}
-	values[end_index] = range_max;
+    tailcount = (end_index - start_index) - midrange;
+    delta = (tmpmax - mid) / tailcount;
+    for (i = 0; i < tailcount; i++) {
+        values[start_index + midrange + i] = (mid + delta * i) / 1024;
+    }
+    values[end_index] = range_max;
 }
 
 /*
@@ -62,37 +60,37 @@ initializeRange(int start_index, int end_index, UDATA range_min, UDATA range_max
  * These mappings convert between the priorities of java threads as assigned to java.lang.Thread objects
  * and omrthread priorities which are managed by the omrthread library.
  */
-void initializeJavaPriorityMaps (J9JavaVM *javaVM) {
+void initializeJavaPriorityMaps(J9JavaVM* javaVM)
+{
 
-        int i; 
-		UDATA target;
-		int javaPriorityMax;
+    int i;
+    UDATA target;
+    int javaPriorityMax;
 
-        initializeRange(JAVA_PRIORITY_MIN, JAVA_PRIORITY_MAX, J9THREAD_PRIORITY_USER_MIN, J9THREAD_PRIORITY_USER_MAX, javaVM->java2J9ThreadPriorityMap);
+    initializeRange(JAVA_PRIORITY_MIN, JAVA_PRIORITY_MAX, J9THREAD_PRIORITY_USER_MIN, J9THREAD_PRIORITY_USER_MAX,
+        javaVM->java2J9ThreadPriorityMap);
 
-		javaPriorityMax = JAVA_PRIORITY_MAX;
+    javaPriorityMax = JAVA_PRIORITY_MAX;
 
-        /* Now we construct the reverse map. */
-        /* Initalize all mappings to -1 to indicate they have not been mapped yet */
-        for(i=0; i<=J9THREAD_PRIORITY_MAX; i++) {
-                javaVM->j9Thread2JavaPriorityMap[i] = -1;
+    /* Now we construct the reverse map. */
+    /* Initalize all mappings to -1 to indicate they have not been mapped yet */
+    for (i = 0; i <= J9THREAD_PRIORITY_MAX; i++) {
+        javaVM->j9Thread2JavaPriorityMap[i] = -1;
+    }
+
+    /* then assign the direct mappings: vm priorities which are direct targets of java priorities */
+    for (i = 0; i <= javaPriorityMax; i++) {
+        javaVM->j9Thread2JavaPriorityMap[javaVM->java2J9ThreadPriorityMap[i]] = i;
+    }
+
+    /* now map any unmapped j9 priorities to the first available higher java priority  */
+    target = javaPriorityMax;
+    for (i = J9THREAD_PRIORITY_MAX; i >= 0; i--) {
+        UDATA value = javaVM->j9Thread2JavaPriorityMap[i];
+        if (value == (UDATA)-1) {
+            javaVM->j9Thread2JavaPriorityMap[i] = target;
+        } else {
+            target = value;
         }
-
-        /* then assign the direct mappings: vm priorities which are direct targets of java priorities */
-        for(i=0; i<= javaPriorityMax; i++) {
-                javaVM->j9Thread2JavaPriorityMap[javaVM->java2J9ThreadPriorityMap[i]] = i;
-        }
-
-        /* now map any unmapped j9 priorities to the first available higher java priority  */
-        target = javaPriorityMax;
-        for(i=J9THREAD_PRIORITY_MAX; i>=0; i--) {
-                UDATA value = javaVM->j9Thread2JavaPriorityMap[i];
-                if(value == (UDATA)-1) {
-                        javaVM->j9Thread2JavaPriorityMap[i] = target;
-                } else {
-                        target = value;
-                }
-        }
+    }
 }
-
-

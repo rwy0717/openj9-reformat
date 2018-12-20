@@ -20,8 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
-
 #include "jnicsup.h"
 #include "j9consts.h"
 #include "vmaccess.h"
@@ -29,386 +27,384 @@
 extern const struct JNINativeInterface_ EsJNIFunctions;
 
 #define RUN_CALLIN_METHOD(env, receiver, cls, methodID, args) \
-		RUN_CALLIN_METHOD_HELPER(env, receiver, cls, methodID, args)
+    RUN_CALLIN_METHOD_HELPER(env, receiver, cls, methodID, args)
 
-#define RUN_CALLIN_METHOD_HELPER(env, receiver, cls, methodID, args) \
-		gpCheckCallin(env, receiver, cls, methodID, args)
+#define RUN_CALLIN_METHOD_HELPER(env, receiver, cls, methodID, args) gpCheckCallin(env, receiver, cls, methodID, args)
 
-void JNICALL callVirtualVoidMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+void JNICALL callVirtualVoidMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return;
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return;
 }
 
-void JNICALL callVirtualVoidMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+void JNICALL callVirtualVoidMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return;
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return;
 }
 
-void JNICALL callVirtualVoidMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+void JNICALL callVirtualVoidMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return;
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return;
 }
 
-jobject JNICALL callVirtualObjectMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+jobject JNICALL callVirtualObjectMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callVirtualObjectMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+jobject JNICALL callVirtualObjectMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callVirtualObjectMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+jobject JNICALL callVirtualObjectMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jint JNICALL callVirtualIntMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+jint JNICALL callVirtualIntMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callVirtualIntMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+jint JNICALL callVirtualIntMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callVirtualIntMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+jint JNICALL callVirtualIntMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jlong JNICALL callVirtualLongMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+jlong JNICALL callVirtualLongMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callVirtualLongMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+jlong JNICALL callVirtualLongMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callVirtualLongMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+jlong JNICALL callVirtualLongMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jfloat JNICALL callVirtualFloatMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+jfloat JNICALL callVirtualFloatMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callVirtualFloatMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+jfloat JNICALL callVirtualFloatMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callVirtualFloatMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+jfloat JNICALL callVirtualFloatMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jdouble JNICALL callVirtualDoubleMethod (JNIEnv *env, jobject receiver, jmethodID methodID, ...)
+jdouble JNICALL callVirtualDoubleMethod(JNIEnv* env, jobject receiver, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callVirtualDoubleMethodV (JNIEnv *env, jobject receiver, jmethodID methodID, va_list va)
+jdouble JNICALL callVirtualDoubleMethodV(JNIEnv* env, jobject receiver, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, VA_PTR(va));
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callVirtualDoubleMethodA (JNIEnv *env, jobject receiver, jmethodID methodID, jvalue *args)
+jdouble JNICALL callVirtualDoubleMethodA(JNIEnv* env, jobject receiver, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, NULL, methodID, (U_8*)args + 1);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-void JNICALL callNonvirtualVoidMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+void JNICALL callNonvirtualVoidMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return;
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return;
 }
 
-void JNICALL callNonvirtualVoidMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+void JNICALL callNonvirtualVoidMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return;
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return;
 }
 
-void JNICALL callNonvirtualVoidMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+void JNICALL callNonvirtualVoidMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return;
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return;
 }
 
-jobject JNICALL callNonvirtualObjectMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+jobject JNICALL callNonvirtualObjectMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callNonvirtualObjectMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+jobject JNICALL callNonvirtualObjectMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callNonvirtualObjectMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+jobject JNICALL callNonvirtualObjectMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jint JNICALL callNonvirtualIntMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+jint JNICALL callNonvirtualIntMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callNonvirtualIntMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+jint JNICALL callNonvirtualIntMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callNonvirtualIntMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+jint JNICALL callNonvirtualIntMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jlong JNICALL callNonvirtualLongMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+jlong JNICALL callNonvirtualLongMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callNonvirtualLongMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+jlong JNICALL callNonvirtualLongMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callNonvirtualLongMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+jlong JNICALL callNonvirtualLongMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jfloat JNICALL callNonvirtualFloatMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+jfloat JNICALL callNonvirtualFloatMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callNonvirtualFloatMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+jfloat JNICALL callNonvirtualFloatMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callNonvirtualFloatMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+jfloat JNICALL callNonvirtualFloatMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jdouble JNICALL callNonvirtualDoubleMethod (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, ...)
+jdouble JNICALL callNonvirtualDoubleMethod(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callNonvirtualDoubleMethodV (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
+jdouble JNICALL callNonvirtualDoubleMethodV(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, VA_PTR(va));
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callNonvirtualDoubleMethodA (JNIEnv *env, jobject receiver, jclass cls, jmethodID methodID, jvalue *args)
+jdouble JNICALL callNonvirtualDoubleMethodA(JNIEnv* env, jobject receiver, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, receiver, cls, methodID, (U_8*)args + 1);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-void JNICALL callStaticVoidMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+void JNICALL callStaticVoidMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return;
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return;
 }
 
-void JNICALL callStaticVoidMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+void JNICALL callStaticVoidMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return;
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return;
 }
 
-void JNICALL callStaticVoidMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+void JNICALL callStaticVoidMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return;
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return;
 }
 
-jobject JNICALL callStaticObjectMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+jobject JNICALL callStaticObjectMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callStaticObjectMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+jobject JNICALL callStaticObjectMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jobject JNICALL callStaticObjectMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+jobject JNICALL callStaticObjectMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return *(jobject*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return *(jobject*)(&((J9VMThread*)env)->returnValue);
 }
 
-jint JNICALL callStaticIntMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+jint JNICALL callStaticIntMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callStaticIntMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+jint JNICALL callStaticIntMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jint JNICALL callStaticIntMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+jint JNICALL callStaticIntMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return *(jint*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return *(jint*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jlong JNICALL callStaticLongMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+jlong JNICALL callStaticLongMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callStaticLongMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+jlong JNICALL callStaticLongMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jlong JNICALL callStaticLongMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+jlong JNICALL callStaticLongMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return *(jlong*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return *(jlong*)(&((J9VMThread*)env)->returnValue);
 }
 
-jfloat JNICALL callStaticFloatMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+jfloat JNICALL callStaticFloatMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callStaticFloatMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+jfloat JNICALL callStaticFloatMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jfloat JNICALL callStaticFloatMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+jfloat JNICALL callStaticFloatMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return *(jfloat*)(&(((J9VMThread*)env)->returnValue));
 }
 
-jdouble JNICALL callStaticDoubleMethod (JNIEnv *env, jclass cls, jmethodID methodID, ...)
+jdouble JNICALL callStaticDoubleMethod(JNIEnv* env, jclass cls, jmethodID methodID, ...)
 {
-	va_list va;
-	va_start(va, methodID);
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	va_end(va);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    va_list va;
+    va_start(va, methodID);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    va_end(va);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callStaticDoubleMethodV (JNIEnv *env, jclass cls, jmethodID methodID, va_list va)
+jdouble JNICALL callStaticDoubleMethodV(JNIEnv* env, jclass cls, jmethodID methodID, va_list va)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, VA_PTR(va));
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
 
-jdouble JNICALL callStaticDoubleMethodA (JNIEnv *env, jclass cls, jmethodID methodID, jvalue *args)
+jdouble JNICALL callStaticDoubleMethodA(JNIEnv* env, jclass cls, jmethodID methodID, jvalue* args)
 {
-	RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
-	return *(jdouble*)(&((J9VMThread*)env)->returnValue);
+    RUN_CALLIN_METHOD(env, NULL, cls, methodID, (U_8*)args + 1);
+    return *(jdouble*)(&((J9VMThread*)env)->returnValue);
 }
-

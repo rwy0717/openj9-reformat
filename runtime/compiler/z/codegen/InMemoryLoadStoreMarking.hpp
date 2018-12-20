@@ -23,83 +23,83 @@
 #ifndef IN_MEM_LOAD_STORE_MARK_INCL
 #define IN_MEM_LOAD_STORE_MARK_INCL
 
-#include "codegen/CodeGenerator.hpp"  // for CodeGenerator
-#include "compile/Compilation.hpp"    // for Compilation
-#include "env/TRMemory.hpp"           // for TR_Memory, etc
-#include "il/Node.hpp"                // for vcount_t
-#include "infra/List.hpp"             // for List
+#include "codegen/CodeGenerator.hpp" // for CodeGenerator
+#include "compile/Compilation.hpp" // for Compilation
+#include "env/TRMemory.hpp" // for TR_Memory, etc
+#include "il/Node.hpp" // for vcount_t
+#include "infra/List.hpp" // for List
 
-namespace TR { class TreeTop; }
+namespace TR {
+class TreeTop;
+}
 
-class InMemoryLoadStoreMarking
-   {
-   public:
-   TR_ALLOC(TR_Memory::CodeGenerator);
-   InMemoryLoadStoreMarking(TR::CodeGenerator* cg): cg(cg),
-                                      _BCDAggrLoadList(cg->comp()->trMemory()),
-                                      _BCDAggrStoreList(cg->comp()->trMemory()),
-                                      _BCDConditionalCleanLoadList(cg->comp()->trMemory())
-   {
-   _comp = cg->comp();
-   }
+class InMemoryLoadStoreMarking {
+public:
+    TR_ALLOC(TR_Memory::CodeGenerator);
+    InMemoryLoadStoreMarking(TR::CodeGenerator* cg)
+        : cg(cg)
+        , _BCDAggrLoadList(cg->comp()->trMemory())
+        , _BCDAggrStoreList(cg->comp()->trMemory())
+        , _BCDConditionalCleanLoadList(cg->comp()->trMemory())
+    {
+        _comp = cg->comp();
+    }
 
-   void perform();
+    void perform();
 
-   private:
+private:
+    TR::CodeGenerator* cg;
+    TR::Compilation* _comp;
+    List<TR::Node> _BCDAggrLoadList;
+    List<TR::Node> _BCDAggrStoreList;
 
-   TR::CodeGenerator * cg;
-   TR::Compilation *_comp;
-   List<TR::Node>                    _BCDAggrLoadList;
-   List<TR::Node>                    _BCDAggrStoreList;
+    // _BCDConditionalCleanLoadList contains the commoned BCD load nodes that can have skipCopyOnLoad set on
+    // them under these particular conditions:
+    //
+    // pdstore "a" clean
+    //    pdload "a"
+    //
+    //    =>pdload "a"
+    //
+    // Can set skipCopyOnLoad on pdload "a" iff all commoned references have parents who do not rely
+    // on a clean sign (other cleans, setsign, pd arith etc)...
+    // Any stores aliased to "a" are explicitly checking for perfect overlap (a 'must' vs a 'may' alias)
 
-   // _BCDConditionalCleanLoadList contains the commoned BCD load nodes that can have skipCopyOnLoad set on
-   // them under these particular conditions:
-   //
-   // pdstore "a" clean
-   //    pdload "a"
-   //
-   //    =>pdload "a"
-   //
-   // Can set skipCopyOnLoad on pdload "a" iff all commoned references have parents who do not rely
-   // on a clean sign (other cleans, setsign, pd arith etc)...
-   // Any stores aliased to "a" are explicitly checking for perfect overlap (a 'must' vs a 'may' alias)
+    List<TR::Node> _BCDConditionalCleanLoadList;
 
-   List<TR::Node>                    _BCDConditionalCleanLoadList;
+    // NOTE: update _TR_NodeListTypeNames when adding new node list types
+    enum TR_NodeListTypes {
+        LoadList = 0,
+        ConditionalCleanLoadList = 1,
+        StoreList = 2,
+        NodeList_NumTypes,
+        UnknownNodeList = NodeList_NumTypes
+    };
 
-   // NOTE: update _TR_NodeListTypeNames when adding new node list types
-   enum TR_NodeListTypes
-      {
-      LoadList                   = 0,
-      ConditionalCleanLoadList   = 1,
-      StoreList                  = 2,
-      NodeList_NumTypes,
-      UnknownNodeList            = NodeList_NumTypes
-      };
+    TR::Compilation* comp() { return _comp; }
 
-   TR::Compilation *comp() { return _comp; }
+    void examineFirstReference(TR::Node* node, TR::TreeTop* tt);
+    void examineCommonedReference(TR::Node* child, TR::Node* parent, TR::TreeTop* tt);
+    bool isConditionalCleanLoad(TR::Node* listNode, TR::Node* defNode);
+    void addToConditionalCleanLoadList(TR::Node* listNode);
+    void refineConditionalCleanLoadList(TR::Node* child, TR::Node* parent);
+    void handleLoadLastReference(TR::Node* node, List<TR::Node>& nodeList, TR_NodeListTypes listType);
+    void processBCDAggrNodeList(List<TR::Node>& nodeList, TR::Node* defNode, TR_NodeListTypes listType);
+    void handleDef(TR::Node*, TR::TreeTop*);
+    void visitChildren(TR::Node*, TR::TreeTop*, vcount_t);
+    bool allListsAreEmpty();
+    void clearAllLists();
+    void clearLoadLists();
 
-   void examineFirstReference(TR::Node *node, TR::TreeTop *tt);
-   void examineCommonedReference(TR::Node *child, TR::Node *parent, TR::TreeTop *tt);
-   bool isConditionalCleanLoad(TR::Node *listNode, TR::Node *defNode);
-   void addToConditionalCleanLoadList(TR::Node *listNode);
-   void refineConditionalCleanLoadList(TR::Node *child, TR::Node *parent);
-   void handleLoadLastReference(TR::Node *node, List<TR::Node> &nodeList, TR_NodeListTypes listType);
-   void processBCDAggrNodeList(List<TR::Node> &nodeList, TR::Node *defNode, TR_NodeListTypes listType);
-   void handleDef(TR::Node*, TR::TreeTop*);
-   void visitChildren(TR::Node*, TR::TreeTop*, vcount_t);
-   bool allListsAreEmpty();
-   void clearAllLists();
-   void clearLoadLists();
+    static char* getName(TR_NodeListTypes s)
+    {
+        if (s < NodeList_NumTypes)
+            return _TR_NodeListTypeNames[s];
+        else
+            return (char*)"UnknownNodeListType";
+    }
 
-   static char *getName(TR_NodeListTypes s)
-      {
-      if (s < NodeList_NumTypes)
-         return _TR_NodeListTypeNames[s];
-      else
-         return (char*)"UnknownNodeListType";
-      }
-
-   static char *_TR_NodeListTypeNames[NodeList_NumTypes];
-   };
+    static char* _TR_NodeListTypeNames[NodeList_NumTypes];
+};
 
 #endif

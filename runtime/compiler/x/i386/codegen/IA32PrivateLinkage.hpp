@@ -25,40 +25,42 @@
 
 #include "x/codegen/X86PrivateLinkage.hpp"
 
-namespace TR { class UnresolvedDataSnippet; }
+namespace TR {
+class UnresolvedDataSnippet;
+}
 
 namespace TR {
 
-class IA32PrivateLinkage : public TR::X86PrivateLinkage
-   {
-   public:
+class IA32PrivateLinkage : public TR::X86PrivateLinkage {
+public:
+    IA32PrivateLinkage(TR::CodeGenerator* cg);
 
-   IA32PrivateLinkage(TR::CodeGenerator *cg);
+    TR::Register* pushThis(TR::Node* child);
+    TR::Register* pushIntegerWordArg(TR::Node* child);
 
-   TR::Register *pushThis(TR::Node *child);
-   TR::Register *pushIntegerWordArg(TR::Node *child);
+    TR::UnresolvedDataSnippet* generateX86UnresolvedDataSnippetWithCPIndex(
+        TR::Node* child, TR::SymbolReference* symRef, int32_t cpIndex);
 
-   TR::UnresolvedDataSnippet *generateX86UnresolvedDataSnippetWithCPIndex(TR::Node *child, TR::SymbolReference *symRef, int32_t cpIndex);
+protected:
+    virtual TR::Instruction* savePreservedRegisters(TR::Instruction* cursor);
+    virtual TR::Instruction* restorePreservedRegisters(TR::Instruction* cursor);
+    virtual int32_t buildCallArguments(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies)
+    {
+        return buildArgs(callNode, dependencies);
+    }
 
-   protected:
+    virtual int32_t buildArgs(TR::Node* callNode, TR::RegisterDependencyConditions* dependencies);
 
-   virtual TR::Instruction *savePreservedRegisters(TR::Instruction *cursor);
-   virtual TR::Instruction *restorePreservedRegisters(TR::Instruction *cursor);
-   virtual int32_t buildCallArguments(TR::Node *callNode, TR::RegisterDependencyConditions *dependencies){ return buildArgs(callNode, dependencies); }
+    virtual void buildVirtualOrComputedCall(
+        TR::X86CallSite& site, TR::LabelSymbol* entryLabel, TR::LabelSymbol* doneLabel, uint8_t* thunk);
+    virtual TR::Instruction* buildPICSlot(
+        TR::X86PICSlot picSlot, TR::LabelSymbol* mismatchLabel, TR::LabelSymbol* doneLabel, TR::X86CallSite& site);
+    virtual void buildIPIC(
+        TR::X86CallSite& site, TR::LabelSymbol* entryLabel, TR::LabelSymbol* doneLabel, uint8_t* thunk);
+};
 
-   virtual int32_t buildArgs(TR::Node *callNode, TR::RegisterDependencyConditions *dependencies);
+inline TR::IA32PrivateLinkage* toIA32PrivateLinkage(TR::Linkage* linkage) { return (TR::IA32PrivateLinkage*)linkage; }
 
-   virtual void buildVirtualOrComputedCall(TR::X86CallSite &site, TR::LabelSymbol *entryLabel, TR::LabelSymbol *doneLabel, uint8_t *thunk);
-   virtual TR::Instruction *buildPICSlot(TR::X86PICSlot picSlot, TR::LabelSymbol *mismatchLabel, TR::LabelSymbol *doneLabel, TR::X86CallSite &site);
-   virtual void buildIPIC(TR::X86CallSite &site, TR::LabelSymbol *entryLabel, TR::LabelSymbol *doneLabel, uint8_t *thunk);
-   };
-
-inline TR::IA32PrivateLinkage *toIA32PrivateLinkage(TR::Linkage *linkage)
-   {
-   return (TR::IA32PrivateLinkage*)linkage;
-   }
-
-}
+} // namespace TR
 
 #endif
-

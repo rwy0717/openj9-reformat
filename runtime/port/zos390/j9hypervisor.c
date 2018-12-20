@@ -40,80 +40,77 @@
 #define J9ZOS390_ZVM_DETECT_STRING "z/VM"
 
 /* VM hypervisor program name buffer length */
-#define VMHP_NAME_LENGTH           32U
+#define VMHP_NAME_LENGTH 32U
 
-intptr_t
-detect_hypervisor(struct J9PortLibrary *portLibrary)
+intptr_t detect_hypervisor(struct J9PortLibrary* portLibrary)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	const j9csrsi_t * j9csrsi_sess = NULL;
-	char *tmpPtr = NULL;							/* temporary pointer */
-	char cpIdentifier[VMHP_NAME_LENGTH+1] = {0};	/* vm control program identifier */
-	const char *errMsg = NULL;
-	intptr_t rc = 0;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    const j9csrsi_t* j9csrsi_sess = NULL;
+    char* tmpPtr = NULL; /* temporary pointer */
+    char cpIdentifier[VMHP_NAME_LENGTH + 1] = { 0 }; /* vm control program identifier */
+    const char* errMsg = NULL;
+    intptr_t rc = 0;
 
-	Trc_PRT_virt_j9hypervisor_detect_hypervisor_Entry();
+    Trc_PRT_virt_j9hypervisor_detect_hypervisor_Entry();
 
-	j9csrsi_sess = j9csrsi_init(&PPG_j9csrsi_ret_code);
-	PPG_j9csrsi_session = j9csrsi_sess;
+    j9csrsi_sess = j9csrsi_init(&PPG_j9csrsi_ret_code);
+    PPG_j9csrsi_session = j9csrsi_sess;
 
-	if (NULL == j9csrsi_sess) {
-		errMsg = omrnls_lookup_message(J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE,
-												J9NLS_PORT_CSRSIC_FAILURE__MODULE,
-												J9NLS_PORT_CSRSIC_FAILURE__ID,
-												NULL);
-		omrerror_set_last_error_with_message(J9PORT_ERROR_HYPERVISOR_UNSUPPORTED, errMsg);
-		portLibrary->portGlobals->hypervisorData.isVirtual = J9PORT_ERROR_HYPERVISOR_OPFAILED;
-		portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
-		Trc_PRT_virt_j9hypervisor_detect_hypervisor_CSRSICfailed();
-		Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(J9PORT_ERROR_HYPERVISOR_OPFAILED);
-		return J9PORT_ERROR_HYPERVISOR_OPFAILED;
-	}
+    if (NULL == j9csrsi_sess) {
+        errMsg = omrnls_lookup_message(J9NLS_ERROR | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_PORT_CSRSIC_FAILURE__MODULE,
+            J9NLS_PORT_CSRSIC_FAILURE__ID, NULL);
+        omrerror_set_last_error_with_message(J9PORT_ERROR_HYPERVISOR_UNSUPPORTED, errMsg);
+        portLibrary->portGlobals->hypervisorData.isVirtual = J9PORT_ERROR_HYPERVISOR_OPFAILED;
+        portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
+        Trc_PRT_virt_j9hypervisor_detect_hypervisor_CSRSICfailed();
+        Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(J9PORT_ERROR_HYPERVISOR_OPFAILED);
+        return J9PORT_ERROR_HYPERVISOR_OPFAILED;
+    }
 
-	/* Let's first check for level-3 and above hypervisor. */
-	if (j9csrsi_is_vmh(j9csrsi_sess)) {
-		/* Detected level-3 and above configuration. */
-		portLibrary->portGlobals->hypervisorData.isVirtual = TRUE;
-		/* In a multilevel virtualization stack, the first description block
-		 * always points to the highest-numbered level-3 configuration;
-		 * and we are only concerned about the hypervisor managing the guest
-		 * that is running this program.
-		 */
-		rc = j9csrsi_get_vmhpidentifier(j9csrsi_sess, 0U, cpIdentifier, sizeof(cpIdentifier));
-		/* During j9 compilation on z/OS, string literals are by default converted to an ASCII code page
-		 * using convlit(ISO8859-1) compiler option - to search for substring the identifier should get
-		 * converted into ASCII as well.
-		 */
-		if (0 >= rc) {
-			rc = J9PORT_ERROR_OPFAILED;
-			portLibrary->portGlobals->hypervisorData.isVirtual = J9PORT_ERROR_OPFAILED;
-			portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
-			Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(rc);
-			return rc;
-		}
+    /* Let's first check for level-3 and above hypervisor. */
+    if (j9csrsi_is_vmh(j9csrsi_sess)) {
+        /* Detected level-3 and above configuration. */
+        portLibrary->portGlobals->hypervisorData.isVirtual = TRUE;
+        /* In a multilevel virtualization stack, the first description block
+         * always points to the highest-numbered level-3 configuration;
+         * and we are only concerned about the hypervisor managing the guest
+         * that is running this program.
+         */
+        rc = j9csrsi_get_vmhpidentifier(j9csrsi_sess, 0U, cpIdentifier, sizeof(cpIdentifier));
+        /* During j9 compilation on z/OS, string literals are by default converted to an ASCII code page
+         * using convlit(ISO8859-1) compiler option - to search for substring the identifier should get
+         * converted into ASCII as well.
+         */
+        if (0 >= rc) {
+            rc = J9PORT_ERROR_OPFAILED;
+            portLibrary->portGlobals->hypervisorData.isVirtual = J9PORT_ERROR_OPFAILED;
+            portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
+            Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(rc);
+            return rc;
+        }
 
-		tmpPtr = strstr(cpIdentifier, J9ZOS390_ZVM_DETECT_STRING);
-		if (NULL != tmpPtr) {
-			portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = HYPE_NAME_ZVM;
-			rc = 0; /* return success */
-		} else {
-			/* Unknown condition - paradoxically, we shouldn't be here. */
-			portLibrary->portGlobals->hypervisorData.isVirtual = FALSE;
-			portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
-			rc = J9PORT_ERROR_HYPERVISOR_NO_HYPERVISOR;
-		}
-	} else if (j9csrsi_is_lpar(j9csrsi_sess)) {
-		/* Failed to detect any level-3 hypervisor - fallback on level-2 configuration. */
-		portLibrary->portGlobals->hypervisorData.isVirtual = TRUE;
-		/* There is no need to probe further; we are definitely managed by PR/SM. */
-		portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = HYPE_NAME_PRSM;
-		rc = 0; /* return success */
-	} else {
-		/* The machine is neither VM nor LPAR => are we running directly on bare metal? */
-		portLibrary->portGlobals->hypervisorData.isVirtual = FALSE;
-		portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
-		rc = J9PORT_ERROR_HYPERVISOR_NO_HYPERVISOR;
-	}
-	Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(rc);
-	return rc;
+        tmpPtr = strstr(cpIdentifier, J9ZOS390_ZVM_DETECT_STRING);
+        if (NULL != tmpPtr) {
+            portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = HYPE_NAME_ZVM;
+            rc = 0; /* return success */
+        } else {
+            /* Unknown condition - paradoxically, we shouldn't be here. */
+            portLibrary->portGlobals->hypervisorData.isVirtual = FALSE;
+            portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
+            rc = J9PORT_ERROR_HYPERVISOR_NO_HYPERVISOR;
+        }
+    } else if (j9csrsi_is_lpar(j9csrsi_sess)) {
+        /* Failed to detect any level-3 hypervisor - fallback on level-2 configuration. */
+        portLibrary->portGlobals->hypervisorData.isVirtual = TRUE;
+        /* There is no need to probe further; we are definitely managed by PR/SM. */
+        portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = HYPE_NAME_PRSM;
+        rc = 0; /* return success */
+    } else {
+        /* The machine is neither VM nor LPAR => are we running directly on bare metal? */
+        portLibrary->portGlobals->hypervisorData.isVirtual = FALSE;
+        portLibrary->portGlobals->hypervisorData.vendorDetails.hypervisorName = NULL;
+        rc = J9PORT_ERROR_HYPERVISOR_NO_HYPERVISOR;
+    }
+    Trc_PRT_virt_j9hypervisor_detect_hypervisor_Exit(rc);
+    return rc;
 }

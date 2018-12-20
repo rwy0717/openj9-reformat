@@ -29,16 +29,16 @@
  * Create an new instance of a MM_VerboseEventCompactStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventCompactStart::newInstance(MM_CompactStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventCompactStart::newInstance(MM_CompactStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventCompactStart *eventObject;
-	
-	eventObject = (MM_VerboseEventCompactStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventCompactStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventCompactStart(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventCompactStart* eventObject;
+
+    eventObject = (MM_VerboseEventCompactStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventCompactStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventCompactStart(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -46,18 +46,12 @@ MM_VerboseEventCompactStart::newInstance(MM_CompactStartEvent *event, J9HookInte
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventCompactStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventCompactStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventCompactStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventCompactStart::formattedOutput(MM_VerboseOutputAgent* agent) {}
 
 #endif /* defined(J9VM_GC_MODRON_COMPACTION) */

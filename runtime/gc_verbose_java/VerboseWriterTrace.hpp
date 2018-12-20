@@ -25,7 +25,7 @@
 
 #if !defined(VERBOSEWRITTERTRACE_HPP_)
 #define VERBOSEWRITTERTRACE_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 
@@ -34,26 +34,28 @@
 /**
  * Ouptut agent which directs verbosegc output to a tracepoint.
  */
-class MM_VerboseWriterTrace : public MM_VerboseWriter
-{
+class MM_VerboseWriterTrace : public MM_VerboseWriter {
 private:
-	bool _componentLoaded; /**< has the trace component been initialized? */
+    bool _componentLoaded; /**< has the trace component been initialized? */
 
 protected:
-	MM_VerboseWriterTrace(MM_EnvironmentBase *env);
+    MM_VerboseWriterTrace(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	
+    virtual bool initialize(MM_EnvironmentBase* env);
+
 public:
-	static MM_VerboseWriterTrace *newInstance(MM_EnvironmentBase *env);
+    static MM_VerboseWriterTrace* newInstance(MM_EnvironmentBase* env);
 
-	virtual bool reconfigure(MM_EnvironmentBase *env, const char *filename, UDATA fileCount, UDATA iterations) { return true; };
-	
-	virtual void endOfCycle(MM_EnvironmentBase *env);
-	
-	virtual void closeStream(MM_EnvironmentBase *env);
-	
-	virtual void outputString(MM_EnvironmentBase *env, const char* string);
+    virtual bool reconfigure(MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations)
+    {
+        return true;
+    };
+
+    virtual void endOfCycle(MM_EnvironmentBase* env);
+
+    virtual void closeStream(MM_EnvironmentBase* env);
+
+    virtual void outputString(MM_EnvironmentBase* env, const char* string);
 };
 
 #endif /* VERBOSEWRITTERTRACE_HPP_ */

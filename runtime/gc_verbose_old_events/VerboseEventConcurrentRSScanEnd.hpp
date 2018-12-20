@@ -34,34 +34,31 @@
  * Stores the data relating to the end of a concurrent remebered set scan
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentRSScanEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentRSScanEnd : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_objectsFound; /**< the number of objects found */
-	UDATA	_bytesTraced; /**< the number of bytes traced */
-	UDATA	_workStackOverflowCount; /**< the current count of concurrent work stack overflows */
-	
-	/* Consumed Data */
-	U_64	_conRSScanStartTime; /**< timestamp of Remembered Set Scan Start */
-	UDATA	_workStackOverflowCountStart; /**< the count of concurrent work stack overflows at start of RS scan */
-	
+    /* Passed Data */
+    UDATA _objectsFound; /**< the number of objects found */
+    UDATA _bytesTraced; /**< the number of bytes traced */
+    UDATA _workStackOverflowCount; /**< the current count of concurrent work stack overflows */
+
+    /* Consumed Data */
+    U_64 _conRSScanStartTime; /**< timestamp of Remembered Set Scan Start */
+    UDATA _workStackOverflowCountStart; /**< the count of concurrent work stack overflows at start of RS scan */
+
 public:
+    static MM_VerboseEvent* newInstance(MM_ConcurrentRememberedSetScanEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_ConcurrentRememberedSetScanEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
 
-	MM_VerboseEventConcurrentRSScanEnd(MM_ConcurrentRememberedSetScanEndEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_objectsFound(event->objectsFound),
-	_bytesTraced(event->bytesTraced),
-	_workStackOverflowCount(event->workStackOverflowCount)
-	{};
+    MM_VerboseEventConcurrentRSScanEnd(MM_ConcurrentRememberedSetScanEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _objectsFound(event->objectsFound)
+        , _bytesTraced(event->bytesTraced)
+        , _workStackOverflowCount(event->workStackOverflowCount) {};
 };
 
 #endif /* EVENT_CON_RS_SCAN_END_HPP_ */

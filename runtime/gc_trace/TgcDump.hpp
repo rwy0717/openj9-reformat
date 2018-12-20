@@ -33,9 +33,9 @@
  * @todo Provide struct documentation
  */
 typedef struct TgcDumpExtensions {
-	UDATA unused;
+    UDATA unused;
 } TgcDumpExtensions;
-	
-bool tgcDumpInitialize(J9JavaVM *javaVM);
+
+bool tgcDumpInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCDUMP_HPP_ */

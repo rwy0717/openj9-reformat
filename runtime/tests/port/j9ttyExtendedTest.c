@@ -24,10 +24,10 @@
  * @file
  * @ingroup PortTest
  * @brief Verify TTY operations
- * 
+ *
  * Exercise the j9tty_daemonize API for port library functions in @ref j9tty.c
- * 
- * 
+ *
+ *
  */
 #include <string.h>
 #include <stdio.h>
@@ -46,52 +46,47 @@
  *
  * @return TEST_PASS on success, TEST_FAIL on error
  */
-int
-j9tty_daemonize_test(struct J9PortLibrary *portLibrary)
+int j9tty_daemonize_test(struct J9PortLibrary* portLibrary)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	const char* testName = "j9tty_daemonize_test";
-	const char *format = "Test string %d %d %d\n";
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    const char* testName = "j9tty_daemonize_test";
+    const char* format = "Test string %d %d %d\n";
 
-	reportTestEntry(portLibrary, testName);
+    reportTestEntry(portLibrary, testName);
 
-	j9tty_printf(PORTLIB, "pre-daemonize\n");
-	j9tty_daemonize();
-	/* outpuComment uses j9tty_vprintf */
-	outputComment(PORTLIB, format , 1, 2, 3);
-	j9tty_printf(PORTLIB, "post-daemonize\n");
+    j9tty_printf(PORTLIB, "pre-daemonize\n");
+    j9tty_daemonize();
+    /* outpuComment uses j9tty_vprintf */
+    outputComment(PORTLIB, format, 1, 2, 3);
+    j9tty_printf(PORTLIB, "post-daemonize\n");
 
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
 
 /**
  * Verify port library TTY operations.
- * 
+ *
  * Exercise all API related to port library string operations found in
  * @ref j9tty.c
- * 
+ *
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return0 on success, -1 on failure
  */
-I_32 
-j9tty_runExtendedTests(struct J9PortLibrary *portLibrary)
+I_32 j9tty_runExtendedTests(struct J9PortLibrary* portLibrary)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	int rc = 0;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    int rc = 0;
 
-	/* Display unit under test */
-	HEADING(portLibrary, "Extended TTY test");
+    /* Display unit under test */
+    HEADING(portLibrary, "Extended TTY test");
 
-	/* verify sanity of port library for these tests.  If this fails there is no
-	 * point in continuing
-	 */
-	rc |= j9tty_daemonize_test(portLibrary);
+    /* verify sanity of port library for these tests.  If this fails there is no
+     * point in continuing
+     */
+    rc |= j9tty_daemonize_test(portLibrary);
 
-	/* Output results */
-	j9tty_printf(PORTLIB, "\nExtended TTY test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
-	return TEST_PASS == rc ? 0 : -1;	
+    /* Output results */
+    j9tty_printf(PORTLIB, "\nExtended TTY test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
+    return TEST_PASS == rc ? 0 : -1;
 }
-
- 
-

@@ -24,11 +24,6 @@
 #include "jvmti_test.h"
 #include "ibmjvmti.h"
 
-static agentEnv * env;
+static agentEnv* env;
 
-jint JNICALL
-att001(agentEnv * agent_env, char * args)
-{
-	return JNI_OK;
-}
-
+jint JNICALL att001(agentEnv* agent_env, char* args) { return JNI_OK; }

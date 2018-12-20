@@ -37,20 +37,18 @@
  * @return the next monitor record slot in the thread
  * @return NULL if there are no more such slots
  */
-j9object_t *
-GC_VMThreadMonitorRecordSlotIterator::nextSlot()
+j9object_t* GC_VMThreadMonitorRecordSlotIterator::nextSlot()
 {
-	if(_monitorRecord != NULL) {
-		J9MonitorEnterRecord *currentMonitorRecord = _monitorRecord;
-		_monitorRecord = currentMonitorRecord->next;
-		return &currentMonitorRecord->object;
-	} else if (_jniMonitorRecord != NULL) {
-		J9MonitorEnterRecord *currentMonitorRecord = _jniMonitorRecord;
-		_jniMonitorRecord = currentMonitorRecord->next;
-		return &currentMonitorRecord->object;
-	}
-	return NULL;
+    if (_monitorRecord != NULL) {
+        J9MonitorEnterRecord* currentMonitorRecord = _monitorRecord;
+        _monitorRecord = currentMonitorRecord->next;
+        return &currentMonitorRecord->object;
+    } else if (_jniMonitorRecord != NULL) {
+        J9MonitorEnterRecord* currentMonitorRecord = _jniMonitorRecord;
+        _jniMonitorRecord = currentMonitorRecord->next;
+        return &currentMonitorRecord->object;
+    }
+    return NULL;
 }
 
 #endif /* J9VM_INTERP_HOT_CODE_REPLACEMENT */
-

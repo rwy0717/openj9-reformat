@@ -27,25 +27,19 @@
 
 namespace TR {
 
-class X86JNIPauseSnippet  : public TR::X86RestartSnippet
-   {
-   public:
+class X86JNIPauseSnippet : public TR::X86RestartSnippet {
+public:
+    X86JNIPauseSnippet(TR::CodeGenerator* cg, TR::Node* node, TR::LabelSymbol* restartlab, TR::LabelSymbol* snippetlab)
+        : TR::X86RestartSnippet(cg, node, restartlab, snippetlab, false)
+    {}
 
-   X86JNIPauseSnippet(TR::CodeGenerator *cg,
-                      TR::Node          *node,
-                      TR::LabelSymbol    *restartlab,
-                      TR::LabelSymbol    *snippetlab)
-      : TR::X86RestartSnippet(cg, node, restartlab, snippetlab, false)
-      {
-      }
+    virtual Kind getKind() { return IsJNIPause; }
 
-   virtual Kind getKind() { return IsJNIPause; }
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
-
-}
+} // namespace TR
 
 #endif

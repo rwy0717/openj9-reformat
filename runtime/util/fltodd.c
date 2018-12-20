@@ -20,36 +20,28 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
-
 #include "j9comp.h"
 #include "fltconst.h"
 
-int isDoubleOdd (double d);
-
-
-
+int isDoubleOdd(double d);
 
 /* answer true if d represents an odd integer (used by pow) */
-int isDoubleOdd(double d)  
+int isDoubleOdd(double d)
 {
-	U_32 hi32 = HIGH_U32_FROM_DBL(d), lo32;
-	I_32 exponent = 1075 - ((hi32 & DOUBLE_EXPONENT_MASK_HI) >>20);  /*shifted exp*/
-	U_64 m,int_part;
+    U_32 hi32 = HIGH_U32_FROM_DBL(d), lo32;
+    I_32 exponent = 1075 - ((hi32 & DOUBLE_EXPONENT_MASK_HI) >> 20); /*shifted exp*/
+    U_64 m, int_part;
 
-	if(exponent>52 || exponent<0)
-		return 0;
+    if (exponent > 52 || exponent < 0)
+        return 0;
 
-	lo32 = LOW_U32_FROM_DBL(d);
-	m = (U_64)(hi32 & DOUBLE_MANTISSA_MASK_HI) << 32;
-	m += lo32 & DOUBLE_MANTISSA_MASK_LO;
-	m |= (U_64)0x1 << 52; /* the implicit bit */
+    lo32 = LOW_U32_FROM_DBL(d);
+    m = (U_64)(hi32 & DOUBLE_MANTISSA_MASK_HI) << 32;
+    m += lo32 & DOUBLE_MANTISSA_MASK_LO;
+    m |= (U_64)0x1 << 52; /* the implicit bit */
 
-	int_part=m >> exponent;
+    int_part = m >> exponent;
 
-	/*now just see if it's integral AND then odd*/
-	return m==(int_part<<exponent) && (int_part & 0x1);
+    /*now just see if it's integral AND then odd*/
+    return m == (int_part << exponent) && (int_part & 0x1);
 }
-
-
-

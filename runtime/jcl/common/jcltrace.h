@@ -35,22 +35,22 @@
 struct ArrayList;
 
 typedef struct traceDotCGlobalMemory {
-	/* Module Info arraylist */
-	struct ArrayList * modInfoList;	
+    /* Module Info arraylist */
+    struct ArrayList* modInfoList;
 
-	/*List containing arrays of words describing the expected arguments for each trace point*/
-	struct ArrayList * argumentStructureList;
+    /*List containing arrays of words describing the expected arguments for each trace point*/
+    struct ArrayList* argumentStructureList;
 
-	/* Count of applications registered for app trace */
-	U_32 numberOfAppTraceApplications;
+    /* Count of applications registered for app trace */
+    U_32 numberOfAppTraceApplications;
 
-	/* RAS interface pointer */
-	DgRasInterface  *rasIntf;
+    /* RAS interface pointer */
+    DgRasInterface* rasIntf;
 
-	/* trace interface pointer */
-	UtInterface     *utIntf;
+    /* trace interface pointer */
+    UtInterface* utIntf;
 } traceDotCGlobalMemory;
 
-extern void terminateTrace(JNIEnv *env);
+extern void terminateTrace(JNIEnv* env);
 
 #endif /* trace_h */

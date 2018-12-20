@@ -32,23 +32,24 @@
  * Create an new instance of a MM_VerboseEventMetronomeGCStart event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeGCStart::newInstance(MM_MetronomeIncrementStartEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeGCStart::newInstance(
+    MM_MetronomeIncrementStartEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeGCStart *eventObject;
-	
-	eventObject = (MM_VerboseEventMetronomeGCStart *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeGCStart));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeGCStart(event, hookInterface);
-		eventObject->initialize(event);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeGCStart* eventObject;
+
+    eventObject = (MM_VerboseEventMetronomeGCStart*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventMetronomeGCStart));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeGCStart(event, hookInterface);
+        eventObject->initialize(event);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventMetronomeGCStart::initialize(MM_MetronomeIncrementStartEvent *event)
+void MM_VerboseEventMetronomeGCStart::initialize(MM_MetronomeIncrementStartEvent* event)
 {
-	_startPriority = omrthread_get_priority(static_cast<J9VMThread*>(event->currentThread->_language_vmthread)->osThread);
+    _startPriority
+        = omrthread_get_priority(static_cast<J9VMThread*>(event->currentThread->_language_vmthread)->osThread);
 }
 
 /**
@@ -56,18 +57,12 @@ MM_VerboseEventMetronomeGCStart::initialize(MM_MetronomeIncrementStartEvent *eve
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeGCStart::consumeEvents(void)
-{
-}
+void MM_VerboseEventMetronomeGCStart::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeGCStart::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventMetronomeGCStart::formattedOutput(MM_VerboseOutputAgent* agent) {}
 
 #endif /* J9VM_GC_REALTIME */

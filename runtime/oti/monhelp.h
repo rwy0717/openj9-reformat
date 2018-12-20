@@ -28,15 +28,19 @@
  * NOTE: this will return an incorrect value if the flat lock is unowned or for an inflated lock
  */
 #if defined(J9VM_THR_LOCK_RESERVATION)
-#define J9_FLATLOCK_COUNT(lock)  ((((lock) & OBJECT_HEADER_LOCK_BITS_MASK) >> OBJECT_HEADER_LOCK_RECURSION_OFFSET) + (((lock) & OBJECT_HEADER_LOCK_RESERVED) ? 0 : 1))
+#define J9_FLATLOCK_COUNT(lock)                                                     \
+    ((((lock)&OBJECT_HEADER_LOCK_BITS_MASK) >> OBJECT_HEADER_LOCK_RECURSION_OFFSET) \
+        + (((lock)&OBJECT_HEADER_LOCK_RESERVED) ? 0 : 1))
 #else
-#define J9_FLATLOCK_COUNT(lock)  ((((lock) & OBJECT_HEADER_LOCK_BITS_MASK) >> OBJECT_HEADER_LOCK_RECURSION_OFFSET) + 1)
+#define J9_FLATLOCK_COUNT(lock) ((((lock)&OBJECT_HEADER_LOCK_BITS_MASK) >> OBJECT_HEADER_LOCK_RECURSION_OFFSET) + 1)
 #endif
 
-#define J9_FLATLOCK_OWNER(lockWord) ((J9VMThread *)(UDATA)((lockWord) & (~(j9objectmonitor_t)OBJECT_HEADER_LOCK_BITS_MASK)))
+#define J9_FLATLOCK_OWNER(lockWord) \
+    ((J9VMThread*)(UDATA)((lockWord) & (~(j9objectmonitor_t)OBJECT_HEADER_LOCK_BITS_MASK)))
 
-#define J9_LOCK_IS_INFLATED(lockWord) ((lockWord) & OBJECT_HEADER_LOCK_INFLATED)
-#define J9_INFLLOCK_OBJECT_MONITOR(lockWord) ((J9ObjectMonitor *)(UDATA)((lockWord) & (~(j9objectmonitor_t)OBJECT_HEADER_LOCK_INFLATED)))
+#define J9_LOCK_IS_INFLATED(lockWord) ((lockWord)&OBJECT_HEADER_LOCK_INFLATED)
+#define J9_INFLLOCK_OBJECT_MONITOR(lockWord) \
+    ((J9ObjectMonitor*)(UDATA)((lockWord) & (~(j9objectmonitor_t)OBJECT_HEADER_LOCK_INFLATED)))
 #define J9_INFLLOCK_MONITOR(lockWord) (J9_INFLLOCK_OBJECT_MONITOR(lockWord)->monitor)
 
 #define J9_INFLLOCK_ABSTRACT_MONITOR(lockWord) ((J9ThreadAbstractMonitor*)J9_INFLLOCK_MONITOR(lockWord))

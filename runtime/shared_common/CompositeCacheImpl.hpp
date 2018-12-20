@@ -39,7 +39,7 @@
 #define J9SHR_MIN_GAP_BEFORE_METADATA 1024
 /* On Windows, 1K is reserved to try and avoid a cache corruption bug.
  * See SH_CompositeCacheImpl::allocate().
- * Use a higher threshold on Windows. 
+ * Use a higher threshold on Windows.
  */
 #define CC_MIN_SPACE_BEFORE_CACHE_FULL 3072
 #else
@@ -64,567 +64,572 @@
 
 /**
  * Represents view of the shared cache at the level of blocks of memory.
- * 
+ *
  * Allocates memory backwards from the end of the cache, apart from segment
  * memory which it allocates from the start of the cache (see allocate below).
- * Provides a mutex for accessing the shared cache and functions 
+ * Provides a mutex for accessing the shared cache and functions
  * for walking and reading the cache.
  */
-class SH_CompositeCacheImpl : public SH_CompositeCache, public AbstractMemoryPermission
-{
+class SH_CompositeCacheImpl : public SH_CompositeCache, public AbstractMemoryPermission {
 protected:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
 public:
-	typedef char* BlockPtr;
+    typedef char* BlockPtr;
 
-	static UDATA getRequiredConstrBytes(bool isNested, bool startupForStats);
-	
-	static UDATA getRequiredConstrBytesWithCommonInfo(bool isNested, bool startupForStats);
+    static UDATA getRequiredConstrBytes(bool isNested, bool startupForStats);
+
+    static UDATA getRequiredConstrBytesWithCommonInfo(bool isNested, bool startupForStats);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	static SH_CompositeCacheImpl* newInstanceNested(J9JavaVM* vm, SH_CompositeCacheImpl* parent, SH_CompositeCacheImpl* memForConstructor, UDATA nestedSize, BlockPtr nestedMemory, bool creatingCachelet);
+    static SH_CompositeCacheImpl* newInstanceNested(J9JavaVM* vm, SH_CompositeCacheImpl* parent,
+        SH_CompositeCacheImpl* memForConstructor, UDATA nestedSize, BlockPtr nestedMemory, bool creatingCachelet);
 
-	IDATA startupNested(J9VMThread* currentThread);
+    IDATA startupNested(J9VMThread* currentThread);
 
-	static SH_CompositeCacheImpl* newInstanceChained(J9JavaVM* vm, SH_CompositeCacheImpl* memForConstructor, J9SharedClassConfig* sharedClassConfig, I_32 cacheTypeRequired);
+    static SH_CompositeCacheImpl* newInstanceChained(J9JavaVM* vm, SH_CompositeCacheImpl* memForConstructor,
+        J9SharedClassConfig* sharedClassConfig, I_32 cacheTypeRequired);
 
-	IDATA startupChained(J9VMThread* currentThread, SH_CompositeCacheImpl* ccHead,
-			J9SharedClassPreinitConfig* piconfig, U_32* actualSize, UDATA* localCrashCntr);
+    IDATA startupChained(J9VMThread* currentThread, SH_CompositeCacheImpl* ccHead, J9SharedClassPreinitConfig* piconfig,
+        U_32* actualSize, UDATA* localCrashCntr);
 #endif /* J9SHR_CACHELET_SUPPORT */
-	
-	static SH_CompositeCacheImpl* newInstance(J9JavaVM* vm, J9SharedClassConfig* sharedClassConfig, SH_CompositeCacheImpl* memForConstructor, const char* cacheName, I_32 newPersistentCacheReqd, bool startupForStats);
-	
-	IDATA startup(J9VMThread* currentThread, J9SharedClassPreinitConfig* piconfig, BlockPtr cacheMemoryUT, U_64* runtimeFlags, UDATA verboseFlags,
-			const char* rootName, const char* ctrlDirName, UDATA cacheDirPerm, U_32* actualSize, UDATA* localCrashCntr, bool isFirstStart, bool* cacheHasIntegrity);
 
-	void cleanup(J9VMThread* currentThread);
+    static SH_CompositeCacheImpl* newInstance(J9JavaVM* vm, J9SharedClassConfig* sharedClassConfig,
+        SH_CompositeCacheImpl* memForConstructor, const char* cacheName, I_32 newPersistentCacheReqd,
+        bool startupForStats);
 
-	IDATA deleteCache(J9VMThread *currentThread, bool suppressVerbose);
+    IDATA startup(J9VMThread* currentThread, J9SharedClassPreinitConfig* piconfig, BlockPtr cacheMemoryUT,
+        U_64* runtimeFlags, UDATA verboseFlags, const char* rootName, const char* ctrlDirName, UDATA cacheDirPerm,
+        U_32* actualSize, UDATA* localCrashCntr, bool isFirstStart, bool* cacheHasIntegrity);
 
-	IDATA enterReadWriteAreaMutex(J9VMThread* currentThread, BOOLEAN readOnly, UDATA* doRebuildLocalData, UDATA* doRebuildCacheData);
+    void cleanup(J9VMThread* currentThread);
 
-	IDATA exitReadWriteAreaMutex(J9VMThread* currentThread, UDATA resetReason);
+    IDATA deleteCache(J9VMThread* currentThread, bool suppressVerbose);
 
-	IDATA enterWriteMutex(J9VMThread* currentThread, bool lockCache, const char* caller);
+    IDATA enterReadWriteAreaMutex(
+        J9VMThread* currentThread, BOOLEAN readOnly, UDATA* doRebuildLocalData, UDATA* doRebuildCacheData);
 
-	IDATA exitWriteMutex(J9VMThread* currentThread, const char* caller, bool doDecWriteCounter=true);
+    IDATA exitReadWriteAreaMutex(J9VMThread* currentThread, UDATA resetReason);
 
-	void doLockCache(J9VMThread* currentThread);
+    IDATA enterWriteMutex(J9VMThread* currentThread, bool lockCache, const char* caller);
 
-	void doUnlockCache(J9VMThread* currentThread);
+    IDATA exitWriteMutex(J9VMThread* currentThread, const char* caller, bool doDecWriteCounter = true);
 
-	bool isLocked(void);
-	
-	IDATA enterReadMutex(J9VMThread* currentThread, const char* caller);
+    void doLockCache(J9VMThread* currentThread);
 
-	void exitReadMutex(J9VMThread* currentThread, const char* caller);
+    void doUnlockCache(J9VMThread* currentThread);
 
-	BlockPtr allocateBlock(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 align, U_32 alignOffset);
+    bool isLocked(void);
 
-	BlockPtr allocateWithSegment(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 segBufSize, BlockPtr* segBuf);
+    IDATA enterReadMutex(J9VMThread* currentThread, const char* caller);
 
-	BlockPtr allocateAOT(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 dataBytes);
+    void exitReadMutex(J9VMThread* currentThread, const char* caller);
 
-	BlockPtr allocateJIT(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 dataBytes);
+    BlockPtr allocateBlock(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 align, U_32 alignOffset);
 
-	BlockPtr allocateWithReadWriteBlock(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 readWriteBufferSize, BlockPtr* readWriteBuffer);
+    BlockPtr allocateWithSegment(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 segBufSize, BlockPtr* segBuf);
 
-	UDATA checkUpdates(J9VMThread* currentThread);
+    BlockPtr allocateAOT(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 dataBytes);
 
-	void doneReadUpdates(J9VMThread* currentThread, IDATA updates);
+    BlockPtr allocateJIT(J9VMThread* currentThread, ShcItem* itemToWrite, U_32 dataBytes);
 
-	void updateStoredSegmentUsedBytes(U_32 usedBytes);
+    BlockPtr allocateWithReadWriteBlock(
+        J9VMThread* currentThread, ShcItem* itemToWrite, U_32 readWriteBufferSize, BlockPtr* readWriteBuffer);
 
-	void commitUpdate(J9VMThread* currentThread, bool isCachelet);
+    UDATA checkUpdates(J9VMThread* currentThread);
 
-	void initBlockData(ShcItem** itemBuf, U_32 dataLen, U_16 dataType);
+    void doneReadUpdates(J9VMThread* currentThread, IDATA updates);
 
-	void rollbackUpdate(J9VMThread* currentThread);
+    void updateStoredSegmentUsedBytes(U_32 usedBytes);
 
-	void startCriticalUpdate(J9VMThread* currentThread);
+    void commitUpdate(J9VMThread* currentThread, bool isCachelet);
 
-	void endCriticalUpdate(J9VMThread* currentThread);
+    void initBlockData(ShcItem** itemBuf, U_32 dataLen, U_16 dataType);
 
-	bool isCacheCorrupt(void);
+    void rollbackUpdate(J9VMThread* currentThread);
 
-	void setCorruptCache(J9VMThread *currentThread, IDATA corruptionCode, UDATA corruptValue);
+    void startCriticalUpdate(J9VMThread* currentThread);
 
-	bool crashDetected(UDATA* localCrashCntr);
+    void endCriticalUpdate(J9VMThread* currentThread);
 
-	void reset(J9VMThread* currentThread);
+    bool isCacheCorrupt(void);
 
-	BlockPtr nextEntry(J9VMThread* currentThread, UDATA* staleItems);
-	
-	void markStale(J9VMThread* currentThread, BlockPtr block, bool isCacheLocked);
+    void setCorruptCache(J9VMThread* currentThread, IDATA corruptionCode, UDATA corruptValue);
 
-	UDATA stale(BlockPtr block);
-	
-	void findStart(J9VMThread* currentThread);
-	
-	void* getBaseAddress(void);
+    bool crashDetected(UDATA* localCrashCntr);
 
-	J9SharedCacheHeader* getCacheHeaderAddress(void);
-	
-	void* getStringTableBase(void);
-	
+    void reset(J9VMThread* currentThread);
+
+    BlockPtr nextEntry(J9VMThread* currentThread, UDATA* staleItems);
+
+    void markStale(J9VMThread* currentThread, BlockPtr block, bool isCacheLocked);
+
+    UDATA stale(BlockPtr block);
+
+    void findStart(J9VMThread* currentThread);
+
+    void* getBaseAddress(void);
+
+    J9SharedCacheHeader* getCacheHeaderAddress(void);
+
+    void* getStringTableBase(void);
+
 #if defined(J9SHR_CACHELETS_SAVE_READWRITE_AREA)
-	void* getReadWriteAllocPtr(void);
+    void* getReadWriteAllocPtr(void);
 #endif
 
-	UDATA getCacheMemorySize(void);
+    UDATA getCacheMemorySize(void);
 
-	void* getCacheEndAddress(void);
-	
-	void* getCacheLastEffectiveAddress(void);
+    void* getCacheEndAddress(void);
 
-	void* getSegmentAllocPtr(void);
+    void* getCacheLastEffectiveAddress(void);
 
-	void* getMetaAllocPtr(void);
+    void* getSegmentAllocPtr(void);
 
-	UDATA getTotalUsableCacheSize(void);
+    void* getMetaAllocPtr(void);
 
-	void getMinMaxBytes(U_32 *softmx, I_32 *minAOT, I_32 *maxAOT, I_32 *minJIT, I_32 *maxJIT);
+    UDATA getTotalUsableCacheSize(void);
 
-	UDATA getFreeBytes(void);
-	
-	UDATA getFreeAvailableBytes(void);
+    void getMinMaxBytes(U_32* softmx, I_32* minAOT, I_32* maxAOT, I_32* minJIT, I_32* maxJIT);
 
-	U_32 getUsedBytes(void);
+    UDATA getFreeBytes(void);
 
-	BOOLEAN isAddressInCacheDebugArea(void *address, UDATA length);
+    UDATA getFreeAvailableBytes(void);
 
-	U_32 getDebugBytes(void);
+    U_32 getUsedBytes(void);
 
-	U_32 getFreeDebugSpaceBytes(void);
+    BOOLEAN isAddressInCacheDebugArea(void* address, UDATA length);
 
-	U_32 getLineNumberTableBytes(void);
+    U_32 getDebugBytes(void);
 
-	U_32 getLocalVariableTableBytes(void);
+    U_32 getFreeDebugSpaceBytes(void);
 
-	UDATA getFreeReadWriteBytes(void);
-	
-	UDATA getTotalStoredBytes(void);
+    U_32 getLineNumberTableBytes(void);
 
-	void getUnstoredBytes(U_32* softmxUnstoredBytes, U_32* maxAOTUnstoredBytes, U_32* maxJITUnstoredBytes) const;
+    U_32 getLocalVariableTableBytes(void);
 
-	UDATA getAOTBytes(void);
+    UDATA getFreeReadWriteBytes(void);
 
-	UDATA getJITBytes(void);
+    UDATA getTotalStoredBytes(void);
 
-	UDATA getReadWriteBytes(void);
-	
-	UDATA getStringTableBytes(void);
-	
-	UDATA testAndSetWriteHash(J9VMThread *currentThread, UDATA hash);
+    void getUnstoredBytes(U_32* softmxUnstoredBytes, U_32* maxAOTUnstoredBytes, U_32* maxJITUnstoredBytes) const;
 
-	UDATA tryResetWriteHash(J9VMThread *currentThread, UDATA hash);
+    UDATA getAOTBytes(void);
 
-	void setWriteHash(J9VMThread *currentThread, UDATA hash);
+    UDATA getJITBytes(void);
 
-	bool peekForWriteHash(J9VMThread *currentThread);
+    UDATA getReadWriteBytes(void);
 
-	bool isAddressInROMClassSegment(const void* address);
+    UDATA getStringTableBytes(void);
 
-	bool isAddressInCache(const void* address);
+    UDATA testAndSetWriteHash(J9VMThread* currentThread, UDATA hash);
 
-	void runExitCode(J9VMThread *currentThread);
-	
-	U_16 getJVMID(void);
+    UDATA tryResetWriteHash(J9VMThread* currentThread, UDATA hash);
 
-	void setInternCacheHeaderFields(J9SRP** sharedTail, J9SRP** sharedHead, U_32** totalSharedNodes, U_32** totalSharedWeight);
-	
-	UDATA getReaderCount(J9VMThread* currentThread);
+    void setWriteHash(J9VMThread* currentThread, UDATA hash);
 
-	bool hasWriteMutex(J9VMThread* currentThread);
+    bool peekForWriteHash(J9VMThread* currentThread);
 
-	bool hasReadWriteMutex(J9VMThread* currentThread);
+    bool isAddressInROMClassSegment(const void* address);
 
-	void notifyRefreshMutexEntered(J9VMThread* currentThread);
+    bool isAddressInCache(const void* address);
 
-	void notifyRefreshMutexExited(J9VMThread* currentThread);
-	
-	bool isRunningReadOnly(void);
+    void runExitCode(J9VMThread* currentThread);
 
-	bool isVerbosePages(void);
+    U_16 getJVMID(void);
 
-	bool isMemProtectEnabled(void);
+    void setInternCacheHeaderFields(
+        J9SRP** sharedTail, J9SRP** sharedHead, U_32** totalSharedNodes, U_32** totalSharedWeight);
 
-	bool isMemProtectPartialPagesEnabled(void);
+    UDATA getReaderCount(J9VMThread* currentThread);
 
-	U_32 getTotalSize(void);
-	
-	UDATA getJavacoreData(J9JavaVM *vm, J9SharedClassJavacoreDataDescriptor* descriptor);
+    bool hasWriteMutex(J9VMThread* currentThread);
 
-	void updateMetadataSegment(J9VMThread* currentThread);
-	
-	BOOLEAN isReadWriteAreaHeaderReadOnly();
+    bool hasReadWriteMutex(J9VMThread* currentThread);
 
-	SH_CompositeCacheImpl* getNext(void);
-	
-	void setNext(SH_CompositeCacheImpl* next);
+    void notifyRefreshMutexEntered(J9VMThread* currentThread);
 
-	U_32 getBytesRequiredForItemWithAlign(ShcItem* itemToWrite, U_32 align, U_32 alignOffset);
+    void notifyRefreshMutexExited(J9VMThread* currentThread);
 
-	U_32 getBytesRequiredForItem(ShcItem* itemToWrite);
+    bool isRunningReadOnly(void);
 
-	J9MemorySegment* getCurrentROMSegment(void);
-	
-	void setCurrentROMSegment(J9MemorySegment* segment);
-	
-	BlockPtr getFirstROMClassAddress(bool isNested);
+    bool isVerbosePages(void);
 
-	bool isStarted(void);
-	
-	bool getIsNoLineNumberEnabled(void);
+    bool isMemProtectEnabled(void);
 
-	void setIsNoLineNumberEnabled(bool value);
-	
-	bool getIsNoLineNumberContentEnabled(void);
+    bool isMemProtectPartialPagesEnabled(void);
 
-	void setNoLineNumberContentEnabled(J9VMThread *currentThread);
+    U_32 getTotalSize(void);
 
-	bool getIsLineNumberContentEnabled(void);
+    UDATA getJavacoreData(J9JavaVM* vm, J9SharedClassJavacoreDataDescriptor* descriptor);
 
-	void setLineNumberContentEnabled(J9VMThread* currentThread);
+    void updateMetadataSegment(J9VMThread* currentThread);
 
-	UDATA getOSPageSize(void);
+    BOOLEAN isReadWriteAreaHeaderReadOnly();
+
+    SH_CompositeCacheImpl* getNext(void);
+
+    void setNext(SH_CompositeCacheImpl* next);
+
+    U_32 getBytesRequiredForItemWithAlign(ShcItem* itemToWrite, U_32 align, U_32 alignOffset);
+
+    U_32 getBytesRequiredForItem(ShcItem* itemToWrite);
+
+    J9MemorySegment* getCurrentROMSegment(void);
+
+    void setCurrentROMSegment(J9MemorySegment* segment);
+
+    BlockPtr getFirstROMClassAddress(bool isNested);
+
+    bool isStarted(void);
+
+    bool getIsNoLineNumberEnabled(void);
+
+    void setIsNoLineNumberEnabled(bool value);
+
+    bool getIsNoLineNumberContentEnabled(void);
+
+    void setNoLineNumberContentEnabled(J9VMThread* currentThread);
+
+    bool getIsLineNumberContentEnabled(void);
+
+    void setLineNumberContentEnabled(J9VMThread* currentThread);
+
+    UDATA getOSPageSize(void);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	bool copyFromCacheChain(J9VMThread* currentThread, SH_CompositeCacheImpl* _ccHead, IDATA* metadataOffset);
-	
-	SH_CompositeCacheImpl* getParent(void);
-	
-	IDATA getDeployedOffset(void);
+    bool copyFromCacheChain(J9VMThread* currentThread, SH_CompositeCacheImpl* _ccHead, IDATA* metadataOffset);
 
-	void setDeployedOffset(IDATA offset);
-	
-	IDATA fixupSerializedCompiledMethods(J9VMThread* currentThread, void*
-			serializedROMClassStartAddress);
-	
+    SH_CompositeCacheImpl* getParent(void);
+
+    IDATA getDeployedOffset(void);
+
+    void setDeployedOffset(IDATA offset);
+
+    IDATA fixupSerializedCompiledMethods(J9VMThread* currentThread, void* serializedROMClassStartAddress);
+
 #if defined(J9SHR_CACHELETS_SAVE_READWRITE_AREA)
-	UDATA computeDeployedReadWriteOffsets(J9VMThread* currentThread, SH_CompositeCacheImpl* ccHead);
-	IDATA getDeployedReadWriteOffset(void);
-	void setDeployedReadWriteOffset(IDATA offset);
+    UDATA computeDeployedReadWriteOffsets(J9VMThread* currentThread, SH_CompositeCacheImpl* ccHead);
+    IDATA getDeployedReadWriteOffset(void);
+    void setDeployedReadWriteOffset(IDATA offset);
 #endif
 
 #if 0
 	void growCacheInPlace(UDATA rwGrowth, UDATA freeGrowth);
 #endif
-	
-	BlockPtr getNestedMemory(void);
 
-	UDATA countROMSegments(J9VMThread* currentThread);
-	UDATA writeROMSegmentMetadata(J9VMThread* currentThread, UDATA numSegments, BlockPtr dest, UDATA* lastSegmentAlloc); 
+    BlockPtr getNestedMemory(void);
 
-	IDATA lockStartupMonitor(J9VMThread* currentThread);
-	void unlockStartupMonitor(J9VMThread* currentThread);
+    UDATA countROMSegments(J9VMThread* currentThread);
+    UDATA writeROMSegmentMetadata(J9VMThread* currentThread, UDATA numSegments, BlockPtr dest, UDATA* lastSegmentAlloc);
+
+    IDATA lockStartupMonitor(J9VMThread* currentThread);
+    void unlockStartupMonitor(J9VMThread* currentThread);
 #endif /* J9SHR_CACHELET_SUPPORT */
-	
-	bool getContainsCachelets(void);
 
-	void setStringTableInitialized(bool);
-	
-	bool isStringTableInitialized(void);
+    bool getContainsCachelets(void);
 
-	IDATA allocateClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData, const J9RomClassRequirements * sizes, J9SharedRomClassPieces * pieces);
+    void setStringTableInitialized(bool);
 
-	void rollbackClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData);
+    bool isStringTableInitialized(void);
 
-	void commitClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData);
+    IDATA allocateClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData,
+        const J9RomClassRequirements* sizes, J9SharedRomClassPieces* pieces);
 
-	void * getClassDebugDataStartAddress(void);
+    void rollbackClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData);
 
-	IDATA startupForStats(J9VMThread* currentThread, SH_OSCache * oscache, U_64 * runtimeFlags, UDATA verboseFlags);
+    void commitClassDebugData(J9VMThread* currentThread, U_16 classnameLength, const char* classnameData);
 
-	IDATA shutdownForStats(J9VMThread* currentThread);
+    void* getClassDebugDataStartAddress(void);
+
+    IDATA startupForStats(J9VMThread* currentThread, SH_OSCache* oscache, U_64* runtimeFlags, UDATA verboseFlags);
+
+    IDATA shutdownForStats(J9VMThread* currentThread);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	IDATA startupNestedForStats(J9VMThread* currentThread);
+    IDATA startupNestedForStats(J9VMThread* currentThread);
 #endif
 
-	static IDATA getNumRequiredOSLocks();
+    static IDATA getNumRequiredOSLocks();
 
-	void getCorruptionContext(IDATA *corruptionCode, UDATA *corruptValue);
+    void getCorruptionContext(IDATA* corruptionCode, UDATA* corruptValue);
 
-	void setCorruptionContext(IDATA corruptionCode, UDATA corruptValue);
+    void setCorruptionContext(IDATA corruptionCode, UDATA corruptValue);
 
-	I_32 getFreeBlockBytes(void);
+    I_32 getFreeBlockBytes(void);
 
-	bool getIsBCIEnabled(void);
+    bool getIsBCIEnabled(void);
 
-	void setRuntimeCacheFullFlags(J9VMThread *currentThread);
+    void setRuntimeCacheFullFlags(J9VMThread* currentThread);
 
-	void protectLastUnusedPages(J9VMThread *currentThread);
+    void protectLastUnusedPages(J9VMThread* currentThread);
 
-	bool isAllRuntimeCacheFullFlagsSet(void) const;
+    bool isAllRuntimeCacheFullFlagsSet(void) const;
 
-	void markReadOnlyCacheFull(void);
+    void markReadOnlyCacheFull(void);
 
-	I_32 getAvailableReservedAOTBytes(J9VMThread *currentThread);
+    I_32 getAvailableReservedAOTBytes(J9VMThread* currentThread);
 
-	I_32 getAvailableReservedJITBytes(J9VMThread *currentThread);
+    I_32 getAvailableReservedJITBytes(J9VMThread* currentThread);
 
-	bool isCacheMarkedFull(J9VMThread *currentThread);
+    bool isCacheMarkedFull(J9VMThread* currentThread);
 
-	void setCacheHeaderFullFlags(J9VMThread *currentThread, UDATA flags, bool setRuntimeFlags);
+    void setCacheHeaderFullFlags(J9VMThread* currentThread, UDATA flags, bool setRuntimeFlags);
 
-	void clearCacheHeaderFullFlags(J9VMThread *currentThread);
+    void clearCacheHeaderFullFlags(J9VMThread* currentThread);
 
-	void fillCacheIfNearlyFull(J9VMThread* currentThread);
+    void fillCacheIfNearlyFull(J9VMThread* currentThread);
 
-	bool isUsingWriteHash(void) const {
-		return _useWriteHash;
-	}
+    bool isUsingWriteHash(void) const { return _useWriteHash; }
 
-	void setCacheHeaderExtraFlags(J9VMThread *currentThread, UDATA extraFlags);
+    void setCacheHeaderExtraFlags(J9VMThread* currentThread, UDATA extraFlags);
 
-	bool checkCacheCompatibility(J9VMThread *currentThread);
+    bool checkCacheCompatibility(J9VMThread* currentThread);
 
-	void setAOTHeaderPresent(J9VMThread *currentThread);
+    void setAOTHeaderPresent(J9VMThread* currentThread);
 
-	bool isAOTHeaderPresent(J9VMThread *currentThread);
+    bool isAOTHeaderPresent(J9VMThread* currentThread);
 
-	bool isMprotectPartialPagesSet(J9VMThread *currentThread);
+    bool isMprotectPartialPagesSet(J9VMThread* currentThread);
 
-	bool isMprotectPartialPagesOnStartupSet(J9VMThread *currentThread);
+    bool isMprotectPartialPagesOnStartupSet(J9VMThread* currentThread);
 
-	SH_CacheAccess isCacheAccessible(void) const;
-	
-	bool isRestrictClasspathsSet(J9VMThread *currentThread);
+    SH_CacheAccess isCacheAccessible(void) const;
 
-	bool canStoreClasspaths(void) const;
+    bool isRestrictClasspathsSet(J9VMThread* currentThread);
 
-	IDATA restoreFromSnapshot(J9JavaVM* vm, const char* cacheName, bool* cacheExist);
-	void dontNeedMetadata(J9VMThread *currentThread, const void* startAddress, size_t length);
+    bool canStoreClasspaths(void) const;
 
-	void changePartialPageProtection(J9VMThread *currentThread, void *addr, bool readOnly, bool phaseCheck = true);
+    IDATA restoreFromSnapshot(J9JavaVM* vm, const char* cacheName, bool* cacheExist);
+    void dontNeedMetadata(J9VMThread* currentThread, const void* startAddress, size_t length);
 
-	void protectPartiallyFilledPages(J9VMThread *currentThread, bool protectSegmentPage = true, bool protectMetadataPage = true, bool protectDebugDataPages = true, bool phaseCheck = true);
+    void changePartialPageProtection(J9VMThread* currentThread, void* addr, bool readOnly, bool phaseCheck = true);
 
-	void unprotectPartiallyFilledPages(J9VMThread *currentThread, bool unprotectSegmentPage = true, bool unprotectMetadataPage = true, bool unprotectDebugDataPages = true, bool phaseCheck = true);
+    void protectPartiallyFilledPages(J9VMThread* currentThread, bool protectSegmentPage = true,
+        bool protectMetadataPage = true, bool protectDebugDataPages = true, bool phaseCheck = true);
 
-	I_32 tryAdjustMinMaxSizes(J9VMThread *currentThread, bool isJCLCall = false);
+    void unprotectPartiallyFilledPages(J9VMThread* currentThread, bool unprotectSegmentPage = true,
+        bool unprotectMetadataPage = true, bool unprotectDebugDataPages = true, bool phaseCheck = true);
 
-	void updateRuntimeFullFlags(J9VMThread* currentThread);
-	
-	void increaseUnstoredBytes(U_32 blockBytes, U_32 aotBytes, U_32 jitBytes);
+    I_32 tryAdjustMinMaxSizes(J9VMThread* currentThread, bool isJCLCall = false);
 
-	bool isNewCache(void);
+    void updateRuntimeFullFlags(J9VMThread* currentThread);
+
+    void increaseUnstoredBytes(U_32 blockBytes, U_32 aotBytes, U_32 jitBytes);
+
+    bool isNewCache(void);
 
 private:
-	J9SharedClassConfig* _sharedClassConfig;
-	SH_OSCache* _oscache;
-	omrthread_monitor_t _utMutex, _headerProtectMutex, _runtimeFlagsProtectMutex;
-	J9PortLibrary* _portlib;
+    J9SharedClassConfig* _sharedClassConfig;
+    SH_OSCache* _oscache;
+    omrthread_monitor_t _utMutex, _headerProtectMutex, _runtimeFlagsProtectMutex;
+    J9PortLibrary* _portlib;
 
-	J9SharedCacheHeader* _theca;
-	bool _started;
-	const char* _cacheName;
-	
-	SH_CompositeCacheImpl* _next;
-	SH_CompositeCacheImpl* _parent;
-	SH_CompositeCacheImpl* _ccHead; /* first supercache, if chained */
-	
-	ShcItemHdr* _scan;
-	ShcItemHdr* _prevScan;
-	ShcItemHdr* _storedScan;
-	ShcItemHdr* _storedPrevScan;
-	BlockPtr _romClassProtectEnd;
+    J9SharedCacheHeader* _theca;
+    bool _started;
+    const char* _cacheName;
 
-	UDATA _oldUpdateCount;
+    SH_CompositeCacheImpl* _next;
+    SH_CompositeCacheImpl* _parent;
+    SH_CompositeCacheImpl* _ccHead; /* first supercache, if chained */
 
-	U_32 _storedSegmentUsedBytes;
-	U_32 _storedMetaUsedBytes;
-	U_32 _storedAOTUsedBytes;
-	U_32 _storedJITUsedBytes;
-	U_32 _storedReadWriteUsedBytes;
-	U_32 _softmxUnstoredBytes;
-	U_32 _maxAOTUnstoredBytes;
-	U_32 _maxJITUnstoredBytes;
-	I_32 _maxAOT;
-	I_32 _maxJIT;
+    ShcItemHdr* _scan;
+    ShcItemHdr* _prevScan;
+    ShcItemHdr* _storedScan;
+    ShcItemHdr* _storedPrevScan;
+    BlockPtr _romClassProtectEnd;
 
-	U_64* _runtimeFlags;
-	UDATA _verboseFlags;
-	UDATA _cacheFullFlags;
+    UDATA _oldUpdateCount;
 
-	U_32 _totalStoredBytes;
+    U_32 _storedSegmentUsedBytes;
+    U_32 _storedMetaUsedBytes;
+    U_32 _storedAOTUsedBytes;
+    U_32 _storedJITUsedBytes;
+    U_32 _storedReadWriteUsedBytes;
+    U_32 _softmxUnstoredBytes;
+    U_32 _maxAOTUnstoredBytes;
+    U_32 _maxJITUnstoredBytes;
+    I_32 _maxAOT;
+    I_32 _maxJIT;
 
-	UDATA _lastFailedWriteHash;
-	U_32 _lastFailedWHCount;
+    U_64* _runtimeFlags;
+    UDATA _verboseFlags;
+    UDATA _cacheFullFlags;
 
-	BlockPtr _readWriteAreaStart;
-	U_32 _readWriteAreaBytes;
-	BlockPtr _readWriteAreaPageStart;
-	U_32 _readWriteAreaPageBytes;
-	
-	BlockPtr _cacheHeaderPageStart;
-	U_32 _cacheHeaderPageBytes;
+    U_32 _totalStoredBytes;
 
-	UDATA _osPageSize;
-	
-	UDATA _nestedSize;
-	BlockPtr _nestedMemory;
-	
-	UDATA _localReadWriteCrashCntr;
+    UDATA _lastFailedWriteHash;
+    U_32 _lastFailedWHCount;
 
-	J9MemorySegment** _metadataSegmentPtr;
-	J9MemorySegment* _currentROMSegment;
-	
-	bool _doReadWriteSync;
-	bool _doHeaderReadWriteProtect;
-	bool _readWriteAreaHeaderIsReadOnly;
-	bool _doHeaderProtect;
-	bool _doSegmentProtect;
-	bool _doMetaProtect;
-	bool _doPartialPagesProtect;
-	bool _readOnlyOSCache;
-#if defined (J9SHR_MSYNC_SUPPORT)
-	bool _doMetaSync;
-	bool _doHeaderSync;
-	bool _doSegmentSync;
+    BlockPtr _readWriteAreaStart;
+    U_32 _readWriteAreaBytes;
+    BlockPtr _readWriteAreaPageStart;
+    U_32 _readWriteAreaPageBytes;
+
+    BlockPtr _cacheHeaderPageStart;
+    U_32 _cacheHeaderPageBytes;
+
+    UDATA _osPageSize;
+
+    UDATA _nestedSize;
+    BlockPtr _nestedMemory;
+
+    UDATA _localReadWriteCrashCntr;
+
+    J9MemorySegment** _metadataSegmentPtr;
+    J9MemorySegment* _currentROMSegment;
+
+    bool _doReadWriteSync;
+    bool _doHeaderReadWriteProtect;
+    bool _readWriteAreaHeaderIsReadOnly;
+    bool _doHeaderProtect;
+    bool _doSegmentProtect;
+    bool _doMetaProtect;
+    bool _doPartialPagesProtect;
+    bool _readOnlyOSCache;
+#if defined(J9SHR_MSYNC_SUPPORT)
+    bool _doMetaSync;
+    bool _doHeaderSync;
+    bool _doSegmentSync;
 #endif
-	
-	IDATA _headerProtectCntr;
-	IDATA _readWriteProtectCntr;
-	IDATA _readOnlyReaderCount;
-	bool _incrementedRWCrashCntr;
-	
-	bool _useWriteHash;
-	
-	bool _canStoreClasspaths;
 
-	bool _reduceStoreContentionDisabled;
+    IDATA _headerProtectCntr;
+    IDATA _readWriteProtectCntr;
+    IDATA _readOnlyReaderCount;
+    bool _incrementedRWCrashCntr;
 
-	bool _initializingNewCache;
+    bool _useWriteHash;
+
+    bool _canStoreClasspaths;
+
+    bool _reduceStoreContentionDisabled;
+
+    bool _initializingNewCache;
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	/**
-	 * @bug THIS IS A HORRIBLE HACK FOR CMVC 141328. THIS WILL NOT WORK FOR NON-READONLY CACHES.
-	 * In the non-readonly case, cachelet startup is completely broken due to a lock ordering 
-	 * problem involving the write area mutex. Deadlock scenario:  
-	 * <table>
-	 * <tr><th>Thread A<th>Thread B</tr>
-	 * <tr><td>storeSharedClass()<td>findCompiledMethod()</tr>
-	 * <tr><td>enterWriteMutex()<td>enterReadMutex()</tr>
-	 * <tr><td>startupHintCachelets()<td>startupHintCachelets()</tr>
-	 * <tr><td>block on _startupMonitor<td>lock _startupMonitor</tr>
-	 * <tr><td>- <td>run startup(), block in enterWriteMutex()</tr>
-	 * </table>
-	 * 
-	 * _startupMonitor protects against:
-	 * <ol>
-	 * <li>the cachelet being simultaneously started by different threads from the same manager
-	 * <li>the cachelet being simultaneously started by different threads from different managers
-	 * <li>one thread seeing the cachelet as started before readCache() on it was done
-	 * </ol>
-	 * Always get _startupMonitor before the refresh mutex. We should never need to startup a
-	 * cachelet while holding the refresh mutex.
-	 * @see SH_Manager::startupHintCachelets, SH_ROMClassResourceManager::rrmTableLookup
-	 */
-	omrthread_monitor_t _startupMonitor;
-	IDATA _deployedOffset;
+    /**
+     * @bug THIS IS A HORRIBLE HACK FOR CMVC 141328. THIS WILL NOT WORK FOR NON-READONLY CACHES.
+     * In the non-readonly case, cachelet startup is completely broken due to a lock ordering
+     * problem involving the write area mutex. Deadlock scenario:
+     * <table>
+     * <tr><th>Thread A<th>Thread B</tr>
+     * <tr><td>storeSharedClass()<td>findCompiledMethod()</tr>
+     * <tr><td>enterWriteMutex()<td>enterReadMutex()</tr>
+     * <tr><td>startupHintCachelets()<td>startupHintCachelets()</tr>
+     * <tr><td>block on _startupMonitor<td>lock _startupMonitor</tr>
+     * <tr><td>- <td>run startup(), block in enterWriteMutex()</tr>
+     * </table>
+     *
+     * _startupMonitor protects against:
+     * <ol>
+     * <li>the cachelet being simultaneously started by different threads from the same manager
+     * <li>the cachelet being simultaneously started by different threads from different managers
+     * <li>one thread seeing the cachelet as started before readCache() on it was done
+     * </ol>
+     * Always get _startupMonitor before the refresh mutex. We should never need to startup a
+     * cachelet while holding the refresh mutex.
+     * @see SH_Manager::startupHintCachelets, SH_ROMClassResourceManager::rrmTableLookup
+     */
+    omrthread_monitor_t _startupMonitor;
+    IDATA _deployedOffset;
 #if defined(J9SHR_CACHELETS_SAVE_READWRITE_AREA)
-	IDATA _deployedReadWriteOffset;
-	bool _commitParent;
+    IDATA _deployedReadWriteOffset;
+    bool _commitParent;
 #endif
 #endif
 
-	/* All instances of this class share a common debug & raw class data region
-	 */
-	ClassDebugDataProvider * _debugData;
-	
-	/* All composite caches within a JVM point to the same 'J9ShrCompositeCacheCommonInfo' 
-	 * structure.
-	 */
-	J9ShrCompositeCacheCommonInfo * _commonCCInfo;
-	
-	BlockPtr next(J9VMThread* currentThread);
+    /* All instances of this class share a common debug & raw class data region
+     */
+    ClassDebugDataProvider* _debugData;
 
-	void incReaderCount(J9VMThread* currentThread);
-	void decReaderCount(J9VMThread* currentThread);
+    /* All composite caches within a JVM point to the same 'J9ShrCompositeCacheCommonInfo'
+     * structure.
+     */
+    J9ShrCompositeCacheCommonInfo* _commonCCInfo;
 
-	void initialize(J9JavaVM* vm, BlockPtr memForConstructor, J9SharedClassConfig* sharedClassConfig, const char* cacheName, I_32 cacheTypeRequired, bool startupForStats);
-	void initializeWithCommonInfo(J9JavaVM* vm, J9SharedClassConfig* sharedClassConfig, BlockPtr memForConstructor, const char* cacheName, I_32 newPersistentCacheReqd, bool startupForStats);
-	void initCommonCCInfoHelper();
+    BlockPtr next(J9VMThread* currentThread);
+
+    void incReaderCount(J9VMThread* currentThread);
+    void decReaderCount(J9VMThread* currentThread);
+
+    void initialize(J9JavaVM* vm, BlockPtr memForConstructor, J9SharedClassConfig* sharedClassConfig,
+        const char* cacheName, I_32 cacheTypeRequired, bool startupForStats);
+    void initializeWithCommonInfo(J9JavaVM* vm, J9SharedClassConfig* sharedClassConfig, BlockPtr memForConstructor,
+        const char* cacheName, I_32 newPersistentCacheReqd, bool startupForStats);
+    void initCommonCCInfoHelper();
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	void initializeNested(J9JavaVM* vm, SH_CompositeCacheImpl* parent, BlockPtr memForConstructor, UDATA nestedSize, BlockPtr nestedMemory, bool creatingCachelet);
+    void initializeNested(J9JavaVM* vm, SH_CompositeCacheImpl* parent, BlockPtr memForConstructor, UDATA nestedSize,
+        BlockPtr nestedMemory, bool creatingCachelet);
 #endif
 
-	void commonInit(J9JavaVM* vm);
-	
-	BlockPtr allocate(J9VMThread* currentThread, U_8 type, ShcItem* itemToWrite, U_32 len2, U_32 segBufSize, 
-			BlockPtr* segBuf, BlockPtr* readWriteBuffer, U_32 align, U_32 alignOffset);
+    void commonInit(J9JavaVM* vm);
 
-	BlockPtr allocateMetadataEntry(J9VMThread* currentThread, BlockPtr allocPtr, ShcItem *itemToWrite, U_32 itemLen);
+    BlockPtr allocate(J9VMThread* currentThread, U_8 type, ShcItem* itemToWrite, U_32 len2, U_32 segBufSize,
+        BlockPtr* segBuf, BlockPtr* readWriteBuffer, U_32 align, U_32 alignOffset);
+
+    BlockPtr allocateMetadataEntry(J9VMThread* currentThread, BlockPtr allocPtr, ShcItem* itemToWrite, U_32 itemLen);
 
 #if defined(J9SHR_CACHELETS_SAVE_READWRITE_AREA)
-	BlockPtr allocateReadWrite(U_32 separateBufferSize);
+    BlockPtr allocateReadWrite(U_32 separateBufferSize);
 #endif
-	void setCacheAreaBoundaries(J9VMThread* currentThread, J9SharedClassPreinitConfig* piConfig);
+    void setCacheAreaBoundaries(J9VMThread* currentThread, J9SharedClassPreinitConfig* piConfig);
 
-	void notifyPagesRead(BlockPtr start, BlockPtr end, UDATA expectedDirection, bool protect);
-	void notifyPagesCommitted(BlockPtr start, BlockPtr end, UDATA expectedDirection);
+    void notifyPagesRead(BlockPtr start, BlockPtr end, UDATA expectedDirection, bool protect);
+    void notifyPagesCommitted(BlockPtr start, BlockPtr end, UDATA expectedDirection);
 
-	void unprotectHeaderReadWriteArea(J9VMThread* currentThread, bool changeReadWrite);
-	void protectHeaderReadWriteArea(J9VMThread* currentThread, bool changeReadWrite);
-	
-	void unprotectMetadataArea();
-	void protectMetadataArea(J9VMThread *currentThread);
+    void unprotectHeaderReadWriteArea(J9VMThread* currentThread, bool changeReadWrite);
+    void protectHeaderReadWriteArea(J9VMThread* currentThread, bool changeReadWrite);
 
-	U_32 getCacheCRC(void);
-	U_32 getCacheAreaCRC(U_8* areaStart, U_32 areaSize);
-	void updateCacheCRC(void);
-	bool checkCacheCRC(bool* cacheHasIntegrity, UDATA *crcValue);
+    void unprotectMetadataArea();
+    void protectMetadataArea(J9VMThread* currentThread);
+
+    U_32 getCacheCRC(void);
+    U_32 getCacheAreaCRC(U_8* areaStart, U_32 areaSize);
+    void updateCacheCRC(void);
+    bool checkCacheCRC(bool* cacheHasIntegrity, UDATA* crcValue);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	void setContainsCachelets(J9VMThread* currentThread);
+    void setContainsCachelets(J9VMThread* currentThread);
 #endif
 
-	IDATA setRegionPermissions(J9PortLibrary* portLibrary, void *address, UDATA length, UDATA flags);
+    IDATA setRegionPermissions(J9PortLibrary* portLibrary, void* address, UDATA length, UDATA flags);
 
-	void commitUpdateHelper(J9VMThread* currentThread, bool isCachelet);
+    void commitUpdateHelper(J9VMThread* currentThread, bool isCachelet);
 
-	void setIsLocked(bool value);
+    void setIsLocked(bool value);
 
-	bool isCacheInitComplete(void);
+    bool isCacheInitComplete(void);
 
-	void setCorruptCache(J9VMThread *currentThread);
+    void setCorruptCache(J9VMThread* currentThread);
 
-	I_32 getFreeAOTBytes(J9VMThread *currentThread);
-	I_32 getFreeJITBytes(J9VMThread *currentThread);
-	
-	void setSoftMaxBytes(J9VMThread *currentThread, U_32 softMaxBytes, bool isJCLCall = false);
+    I_32 getFreeAOTBytes(J9VMThread* currentThread);
+    I_32 getFreeJITBytes(J9VMThread* currentThread);
 
-	void unsetCacheHeaderFullFlags(J9VMThread *currentThread, UDATA flagsToUnset);
+    void setSoftMaxBytes(J9VMThread* currentThread, U_32 softMaxBytes, bool isJCLCall = false);
 
-	BlockPtr getRomClassProtectEnd() {
-		return _romClassProtectEnd;
-	}
-	void setRomClassProtectEnd(BlockPtr pointer) {
-		_romClassProtectEnd = pointer;
-	}
+    void unsetCacheHeaderFullFlags(J9VMThread* currentThread, UDATA flagsToUnset);
 
-	class SH_SharedCacheHeaderInit : public SH_OSCache::SH_OSCacheInitializer
-	{
-	protected:
-		void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    BlockPtr getRomClassProtectEnd() { return _romClassProtectEnd; }
+    void setRomClassProtectEnd(BlockPtr pointer) { _romClassProtectEnd = pointer; }
 
-	public:
-		static SH_SharedCacheHeaderInit* newInstance(SH_SharedCacheHeaderInit* memForConstructor);
-		virtual void init(BlockPtr data, U_32 len, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT, U_32 readWriteLen, U_32 softMaxBytes);
-	};
+    class SH_SharedCacheHeaderInit : public SH_OSCache::SH_OSCacheInitializer {
+    protected:
+        void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
-	SH_SharedCacheHeaderInit* _newHdrPtr;
+    public:
+        static SH_SharedCacheHeaderInit* newInstance(SH_SharedCacheHeaderInit* memForConstructor);
+        virtual void init(BlockPtr data, U_32 len, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT,
+            U_32 readWriteLen, U_32 softMaxBytes);
+    };
 
-	friend IDATA testProtectNewROMClassData_test1(J9JavaVM* vm);
-	friend IDATA testProtectSharedCacheData_test1(J9JavaVM* vm);
-	friend IDATA testProtectSharedCacheData_test2(J9JavaVM* vm);
-	friend IDATA testProtectSharedCacheData_test3(J9JavaVM* vm);
-	friend class OpenCacheHelper;
+    SH_SharedCacheHeaderInit* _newHdrPtr;
+
+    friend IDATA testProtectNewROMClassData_test1(J9JavaVM* vm);
+    friend IDATA testProtectSharedCacheData_test1(J9JavaVM* vm);
+    friend IDATA testProtectSharedCacheData_test2(J9JavaVM* vm);
+    friend IDATA testProtectSharedCacheData_test3(J9JavaVM* vm);
+    friend class OpenCacheHelper;
 };
 
 #endif /* !defined(COMPOSITECACHEIMPL_H_INCLUDED) */
-

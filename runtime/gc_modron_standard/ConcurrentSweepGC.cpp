@@ -31,41 +31,41 @@
 
 #include "ConcurrentSweepScheme.hpp"
 
-MM_ConcurrentSweepGC *
-MM_ConcurrentSweepGC::newInstance(MM_EnvironmentBase *env)
+MM_ConcurrentSweepGC* MM_ConcurrentSweepGC::newInstance(MM_EnvironmentBase* env)
 {
-	MM_ConcurrentSweepGC *globalGC;
-	
-	globalGC = (MM_ConcurrentSweepGC *)env->getForge()->allocate(sizeof(MM_ConcurrentSweepGC), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (globalGC) {
-		new(globalGC) MM_ConcurrentSweepGC(env);
-		if (!globalGC->initialize(env)) { 
-			globalGC->kill(env);
-			globalGC = NULL;
-		}
-	}
-	return globalGC;
+    MM_ConcurrentSweepGC* globalGC;
+
+    globalGC = (MM_ConcurrentSweepGC*)env->getForge()->allocate(
+        sizeof(MM_ConcurrentSweepGC), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (globalGC) {
+        new (globalGC) MM_ConcurrentSweepGC(env);
+        if (!globalGC->initialize(env)) {
+            globalGC->kill(env);
+            globalGC = NULL;
+        }
+    }
+    return globalGC;
 }
 
-void
-MM_ConcurrentSweepGC::internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *subSpace, MM_AllocateDescription *allocDescription, U_32 gcCode)
+void MM_ConcurrentSweepGC::internalPreCollect(
+    MM_EnvironmentBase* env, MM_MemorySubSpace* subSpace, MM_AllocateDescription* allocDescription, U_32 gcCode)
 {
-	/* Finish off any sweep work that was still in progress */
-	MM_ConcurrentSweepScheme *concurrentSweep = (MM_ConcurrentSweepScheme *)_sweepScheme;
-	if(concurrentSweep->isConcurrentSweepActive()) {
-		concurrentSweep->completeSweep(env, ABOUT_TO_GC);
-	}
+    /* Finish off any sweep work that was still in progress */
+    MM_ConcurrentSweepScheme* concurrentSweep = (MM_ConcurrentSweepScheme*)_sweepScheme;
+    if (concurrentSweep->isConcurrentSweepActive()) {
+        concurrentSweep->completeSweep(env, ABOUT_TO_GC);
+    }
 
-	MM_ParallelGlobalGC::internalPreCollect(env, subSpace, allocDescription, gcCode);
+    MM_ParallelGlobalGC::internalPreCollect(env, subSpace, allocDescription, gcCode);
 }
 
 /**
  * Pay the allocation tax for the mutator.
  */
-void
-MM_ConcurrentSweepGC::payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpace *subspace, MM_MemorySubSpace *baseSubSpace, MM_AllocateDescription *allocDescription)
+void MM_ConcurrentSweepGC::payAllocationTax(MM_EnvironmentBase* env, MM_MemorySubSpace* subspace,
+    MM_MemorySubSpace* baseSubSpace, MM_AllocateDescription* allocDescription)
 {
-	((MM_ConcurrentSweepScheme *)_sweepScheme)->payAllocationTax(env, baseSubSpace, allocDescription);
+    ((MM_ConcurrentSweepScheme*)_sweepScheme)->payAllocationTax(env, baseSubSpace, allocDescription);
 }
 
 /**
@@ -76,10 +76,9 @@ MM_ConcurrentSweepGC::payAllocationTax(MM_EnvironmentBase *env, MM_MemorySubSpac
  * @note Base implementation does no work.
  * @return True if the pool was replenished with a free entry that can satisfy the size, false otherwise.
  */
-bool
-MM_ConcurrentSweepGC::replenishPoolForAllocate(MM_EnvironmentBase *env, MM_MemoryPool *memoryPool, UDATA size)
+bool MM_ConcurrentSweepGC::replenishPoolForAllocate(MM_EnvironmentBase* env, MM_MemoryPool* memoryPool, UDATA size)
 {
-	return _sweepScheme->replenishPoolForAllocate(env, memoryPool, size);
+    return _sweepScheme->replenishPoolForAllocate(env, memoryPool, size);
 }
 
 #endif /* J9VM_GC_CONCURRENT_SWEEP */

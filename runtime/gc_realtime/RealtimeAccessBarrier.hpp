@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #if !defined(REALTIMEACCESSBARRIER_HPP_)
 #define REALTIMEACCESSBARRIER_HPP_
 
@@ -47,70 +46,70 @@ class MM_RealtimeGC;
  * at the beggining barrier that remembers overwritten values.
  */
 
-class MM_RealtimeAccessBarrier : public MM_ObjectAccessBarrier
-{
-/* Data members & types */
+class MM_RealtimeAccessBarrier : public MM_ObjectAccessBarrier {
+    /* Data members & types */
 public:
 protected:
-	MM_RealtimeMarkingScheme *_markingScheme;	
-	MM_RealtimeGC *_realtimeGC;
-private:
-	
-/* Methods */
-public:
-	/* Constructors & destructors */
-	MM_RealtimeAccessBarrier(MM_EnvironmentBase *env) :
-		MM_ObjectAccessBarrier(env),
-		_markingScheme(NULL),
-		_realtimeGC(NULL)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
-	/* Inherited from MM_ObjectAccessBarrier */
-	virtual J9Object* referenceGet(J9VMThread *vmThread, J9Object *refObject);
-	virtual void jniDeleteGlobalReference(J9VMThread *vmThread, J9Object *reference);
-	virtual void stringConstantEscaped(J9VMThread *vmThread, J9Object *stringConst);
-	virtual void deleteHeapReference(MM_EnvironmentBase *env, J9Object *object);
-	
-	virtual void storeObjectToInternalVMSlot(J9VMThread *vmThread, J9Object** destSlot, J9Object *value);
+    MM_RealtimeMarkingScheme* _markingScheme;
+    MM_RealtimeGC* _realtimeGC;
 
-	virtual void* jniGetPrimitiveArrayCritical(J9VMThread* vmThread, jarray array, jboolean *isCopy);
-	virtual void jniReleasePrimitiveArrayCritical(J9VMThread* vmThread, jarray array, void * elems, jint mode);
-	virtual const jchar* jniGetStringCritical(J9VMThread* vmThread, jstring str, jboolean *isCopy);
-	virtual void jniReleaseStringCritical(J9VMThread* vmThread, jstring str, const jchar* elems);
+private:
+    /* Methods */
+public:
+    /* Constructors & destructors */
+    MM_RealtimeAccessBarrier(MM_EnvironmentBase* env)
+        : MM_ObjectAccessBarrier(env)
+        , _markingScheme(NULL)
+        , _realtimeGC(NULL)
+    {
+        _typeId = __FUNCTION__;
+    }
+
+    /* Inherited from MM_ObjectAccessBarrier */
+    virtual J9Object* referenceGet(J9VMThread* vmThread, J9Object* refObject);
+    virtual void jniDeleteGlobalReference(J9VMThread* vmThread, J9Object* reference);
+    virtual void stringConstantEscaped(J9VMThread* vmThread, J9Object* stringConst);
+    virtual void deleteHeapReference(MM_EnvironmentBase* env, J9Object* object);
+
+    virtual void storeObjectToInternalVMSlot(J9VMThread* vmThread, J9Object** destSlot, J9Object* value);
+
+    virtual void* jniGetPrimitiveArrayCritical(J9VMThread* vmThread, jarray array, jboolean* isCopy);
+    virtual void jniReleasePrimitiveArrayCritical(J9VMThread* vmThread, jarray array, void* elems, jint mode);
+    virtual const jchar* jniGetStringCritical(J9VMThread* vmThread, jstring str, jboolean* isCopy);
+    virtual void jniReleaseStringCritical(J9VMThread* vmThread, jstring str, const jchar* elems);
 
 #if defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING)
-	/**
-	 * Check is class alive
-	 * Required to prevent visibility of dead classes in incremental GC policies 
-	 * Check is J9_GC_CLASS_LOADER_DEAD flag set for classloader and try to mark
-	 * class loader object if bit is not set to force class to be alive
-	 * @param javaVM pointer to J9JavaVM
-	 * @param classPtr class to check
-	 * @return true if class is alive
-	 */
-	virtual bool checkClassLive(J9JavaVM *javaVM, J9Class *classPtr);
+    /**
+     * Check is class alive
+     * Required to prevent visibility of dead classes in incremental GC policies
+     * Check is J9_GC_CLASS_LOADER_DEAD flag set for classloader and try to mark
+     * class loader object if bit is not set to force class to be alive
+     * @param javaVM pointer to J9JavaVM
+     * @param classPtr class to check
+     * @return true if class is alive
+     */
+    virtual bool checkClassLive(J9JavaVM* javaVM, J9Class* classPtr);
 #endif /* defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING) */
 
 protected:
-	/* Constructors & destructors */
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
-	
-	/* Inherited from MM_ObjectAccessBarrier */
-	virtual mm_j9object_t readObjectFromInternalVMSlotImpl(J9VMThread *vmThread, j9object_t *srcAddress, bool isVolatile=false);
-	
-	/* New methods */
-	void validateWriteBarrier(J9VMThread *vmThread, J9Object *dstObject, fj9object_t *dstAddress, J9Object *srcObject);
-	virtual void rememberObjectImpl(MM_EnvironmentBase *env, J9Object *object) = 0;
-	
-	/* New methods */
-	void rememberObject(MM_EnvironmentBase *env, J9Object *object);
-	void rememberObjectIfBarrierEnabled(J9VMThread *vmThread, J9Object* object);
-	
+    /* Constructors & destructors */
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
+
+    /* Inherited from MM_ObjectAccessBarrier */
+    virtual mm_j9object_t readObjectFromInternalVMSlotImpl(
+        J9VMThread* vmThread, j9object_t* srcAddress, bool isVolatile = false);
+
+    /* New methods */
+    void validateWriteBarrier(J9VMThread* vmThread, J9Object* dstObject, fj9object_t* dstAddress, J9Object* srcObject);
+    virtual void rememberObjectImpl(MM_EnvironmentBase* env, J9Object* object) = 0;
+
+    /* New methods */
+    void rememberObject(MM_EnvironmentBase* env, J9Object* object);
+    void rememberObjectIfBarrierEnabled(J9VMThread* vmThread, J9Object* object);
+
 private:
-	void printClass(J9JavaVM *javaVM, J9Class* clazz);
+    void printClass(J9JavaVM* javaVM, J9Class* clazz);
 };
 
 #endif /* J9VM_GC_REALTIME */

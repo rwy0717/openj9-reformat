@@ -34,30 +34,25 @@
 #include "VMThreadStackSlotIterator.hpp"
 
 extern "C" {
-	
+
 /**
  * The object callback function that is passed to the stack walker.
  * Simply massages the arguments and calls the function that was passed by the user into
  * GC_VMThreadStackSlotIterator::scanSlots()
  */
-static void
-vmThreadStackDoOSlotIterator(J9VMThread *vmThread, J9StackWalkState *walkState, j9object_t *oSlotPointer, const void * stackLocation) 
+static void vmThreadStackDoOSlotIterator(
+    J9VMThread* vmThread, J9StackWalkState* walkState, j9object_t* oSlotPointer, const void* stackLocation)
 {
-	J9MODRON_OSLOTITERATOR *oSlotIterator = (J9MODRON_OSLOTITERATOR*)walkState->userData1;
+    J9MODRON_OSLOTITERATOR* oSlotIterator = (J9MODRON_OSLOTITERATOR*)walkState->userData1;
 
-	(*oSlotIterator)(
-		(J9JavaVM *)walkState->userData2,
-		(J9Object **)oSlotPointer,
-		(void *)walkState->userData3,
-		walkState,
-		stackLocation);
+    (*oSlotIterator)((J9JavaVM*)walkState->userData2, (J9Object**)oSlotPointer, (void*)walkState->userData3, walkState,
+        stackLocation);
 }
 
-static UDATA
-vmThreadStackFrameIterator(J9VMThread * currentThread, J9StackWalkState * walkState)
+static UDATA vmThreadStackFrameIterator(J9VMThread* currentThread, J9StackWalkState* walkState)
 {
-	currentThread->javaVM->collectJitPrivateThreadData(currentThread, walkState);
-	return J9_STACKWALK_KEEP_ITERATING;
+    currentThread->javaVM->collectJitPrivateThreadData(currentThread, walkState);
+    return J9_STACKWALK_KEEP_ITERATING;
 }
 
 } /* extern "C" */
@@ -66,51 +61,43 @@ vmThreadStackFrameIterator(J9VMThread * currentThread, J9StackWalkState * walkSt
  * Walk all slots of the walk thread which contain object references.
  * For every object slot found in <code>walkThread</code> call the <code>oSlotIterator</code> function.
  * If <code>includeStackFrameClassReferences</code> is true, calls the <code>oSlotIterator</code> function
- * for every running method's class. 
+ * for every running method's class.
  * The contents of the slot can be changed by the iterator function.
- * 
+ *
  * @param vmThread a thread (when out of process, must be in local memory)
  * @param walkThread the thread whose stack is to be walked (when out of process, can be in remote memory)
  * @param userData will be passed as an argument to the callback function
  * @param oSlotIterator the callback function to be called with each slots
  * @param includeStackFrameClassReferences specifies whether the running methods classes should be included
  */
-void
-GC_VMThreadStackSlotIterator::scanSlots(
-			J9VMThread *vmThread,
-			J9VMThread *walkThread,
-			void *userData,
-			J9MODRON_OSLOTITERATOR *oSlotIterator,
-			bool includeStackFrameClassReferences,
-			bool trackVisibleFrameDepth
-		)
+void GC_VMThreadStackSlotIterator::scanSlots(J9VMThread* vmThread, J9VMThread* walkThread, void* userData,
+    J9MODRON_OSLOTITERATOR* oSlotIterator, bool includeStackFrameClassReferences, bool trackVisibleFrameDepth)
 {
-	J9StackWalkState stackWalkState;
-	J9JavaVM *vm = vmThread->javaVM;
+    J9StackWalkState stackWalkState;
+    J9JavaVM* vm = vmThread->javaVM;
 
-	stackWalkState.objectSlotWalkFunction = vmThreadStackDoOSlotIterator;
-	stackWalkState.userData1 = (void *)oSlotIterator;
-	stackWalkState.userData2 = (void *)vm;
-	stackWalkState.userData3 = userData;
+    stackWalkState.objectSlotWalkFunction = vmThreadStackDoOSlotIterator;
+    stackWalkState.userData1 = (void*)oSlotIterator;
+    stackWalkState.userData2 = (void*)vm;
+    stackWalkState.userData3 = userData;
 
-	stackWalkState.flags = J9_STACKWALK_ITERATE_O_SLOTS | J9_STACKWALK_DO_NOT_SNIFF_AND_WHACK;
-	stackWalkState.walkThread = walkThread;
+    stackWalkState.flags = J9_STACKWALK_ITERATE_O_SLOTS | J9_STACKWALK_DO_NOT_SNIFF_AND_WHACK;
+    stackWalkState.walkThread = walkThread;
 
-	if (trackVisibleFrameDepth) {
-		stackWalkState.skipCount = 0;
-		stackWalkState.flags |= J9_STACKWALK_VISIBLE_ONLY;
-	} else {
-		if (NULL != vm->collectJitPrivateThreadData) {
-			stackWalkState.frameWalkFunction = vmThreadStackFrameIterator;
-			stackWalkState.flags |= J9_STACKWALK_ITERATE_FRAMES;
-		}
-		stackWalkState.flags |= J9_STACKWALK_SKIP_INLINES;
-	}
+    if (trackVisibleFrameDepth) {
+        stackWalkState.skipCount = 0;
+        stackWalkState.flags |= J9_STACKWALK_VISIBLE_ONLY;
+    } else {
+        if (NULL != vm->collectJitPrivateThreadData) {
+            stackWalkState.frameWalkFunction = vmThreadStackFrameIterator;
+            stackWalkState.flags |= J9_STACKWALK_ITERATE_FRAMES;
+        }
+        stackWalkState.flags |= J9_STACKWALK_SKIP_INLINES;
+    }
 
-	if (includeStackFrameClassReferences) {
-		stackWalkState.flags |= J9_STACKWALK_ITERATE_METHOD_CLASS_SLOTS;
-	}
+    if (includeStackFrameClassReferences) {
+        stackWalkState.flags |= J9_STACKWALK_ITERATE_METHOD_CLASS_SLOTS;
+    }
 
-	vmThread->javaVM->walkStackFrames(vmThread, &stackWalkState);
+    vmThread->javaVM->walkStackFrames(vmThread, &stackWalkState);
 }
-

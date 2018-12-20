@@ -33,24 +33,22 @@
 /**
  * Stores the data relating to GC initialization
  */
-class MM_VerboseEventGCInitialized : public MM_VerboseEvent
-{
+class MM_VerboseEventGCInitialized : public MM_VerboseEvent {
 private:
-	MM_InitializedEvent _event;
-	
+    MM_InitializedEvent _event;
+
 public:
-	static MM_VerboseEvent *newInstance(MM_InitializedEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_InitializedEvent* event, J9HookInterface** hookInterface);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return true; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventGCInitialized(MM_InitializedEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, 0, hookInterface),
-		_event(*event)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return true; };
+
+    MM_VerboseEventGCInitialized(MM_InitializedEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, 0, hookInterface)
+        , _event(*event) {};
 };
 
 #endif /* EVENT_GCINITIALIZED_HPP_ */

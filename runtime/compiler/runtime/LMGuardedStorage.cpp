@@ -24,8 +24,8 @@
 #include "control/CompilationRuntime.hpp"
 #include "control/CompilationThread.hpp"
 
-TR_LMGuardedStorage::TR_LMGuardedStorage(J9JITConfig *jitConfig) :
-   _jitConfig(jitConfig)
-   {
-   _compInfo = TR::CompilationInfo::get(jitConfig);
-   }
+TR_LMGuardedStorage::TR_LMGuardedStorage(J9JITConfig* jitConfig)
+    : _jitConfig(jitConfig)
+{
+    _compInfo = TR::CompilationInfo::get(jitConfig);
+}

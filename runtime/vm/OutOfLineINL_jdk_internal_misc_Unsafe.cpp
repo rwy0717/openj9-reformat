@@ -28,66 +28,70 @@
 extern "C" {
 
 /* sun.misc.Unsafe: public native void fullFence(); */
-VM_BytecodeAction
-OutOfLineINL_jdk_internal_misc_Unsafe_fullFence(J9VMThread *currentThread, J9Method *method)
+VM_BytecodeAction OutOfLineINL_jdk_internal_misc_Unsafe_fullFence(J9VMThread* currentThread, J9Method* method)
 {
-	VM_UnsafeAPI::fullFence();
-	VM_OutOfLineINL_Helpers::returnVoid(currentThread, 1);
-	return EXECUTE_BYTECODE;
+    VM_UnsafeAPI::fullFence();
+    VM_OutOfLineINL_Helpers::returnVoid(currentThread, 1);
+    return EXECUTE_BYTECODE;
 }
 
-/* sun.misc.Unsafe: public final native java.lang.Object compareAndExchangeObjectVolatile(java.lang.Object obj, long offset, java.lang.Object compareValue, java.lang.Object swapValue); */
-VM_BytecodeAction
-OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeObjectVolatile(J9VMThread *currentThread, J9Method *method)
+/* sun.misc.Unsafe: public final native java.lang.Object compareAndExchangeObjectVolatile(java.lang.Object obj, long
+ * offset, java.lang.Object compareValue, java.lang.Object swapValue); */
+VM_BytecodeAction OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeObjectVolatile(
+    J9VMThread* currentThread, J9Method* method)
 {
-	j9object_t swapValue = *(j9object_t*)currentThread->sp;
-	j9object_t compareValue = *(j9object_t*)(currentThread->sp + 1);
-	UDATA offset = (UDATA)*(I_64*)(currentThread->sp + 2);
-	j9object_t obj = *(j9object_t*)(currentThread->sp + 4);
-	MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
+    j9object_t swapValue = *(j9object_t*)currentThread->sp;
+    j9object_t compareValue = *(j9object_t*)(currentThread->sp + 1);
+    UDATA offset = (UDATA) * (I_64*)(currentThread->sp + 2);
+    j9object_t obj = *(j9object_t*)(currentThread->sp + 4);
+    MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
 
-	VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
-	j9object_t result = VM_UnsafeAPI::compareAndExchangeObject(currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
-	VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+    VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
+    j9object_t result = VM_UnsafeAPI::compareAndExchangeObject(
+        currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
+    VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
 
-	VM_OutOfLineINL_Helpers::returnObject(currentThread, result, 6);
-	return EXECUTE_BYTECODE;
+    VM_OutOfLineINL_Helpers::returnObject(currentThread, result, 6);
+    return EXECUTE_BYTECODE;
 }
 
-/* sun.misc.Unsafe: public final native int compareAndExchangeIntVolatile(java.lang.Object obj, long offset, int compareValue, int swapValue); */
-VM_BytecodeAction
-OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeIntVolatile(J9VMThread *currentThread, J9Method *method)
+/* sun.misc.Unsafe: public final native int compareAndExchangeIntVolatile(java.lang.Object obj, long offset, int
+ * compareValue, int swapValue); */
+VM_BytecodeAction OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeIntVolatile(
+    J9VMThread* currentThread, J9Method* method)
 {
-	U_32 swapValue = *(U_32*)currentThread->sp;
-	U_32 compareValue = *(U_32*)(currentThread->sp + 1);
-	UDATA offset = (UDATA)*(I_64*)(currentThread->sp + 2);
-	j9object_t obj = *(j9object_t*)(currentThread->sp + 4);
-	MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
+    U_32 swapValue = *(U_32*)currentThread->sp;
+    U_32 compareValue = *(U_32*)(currentThread->sp + 1);
+    UDATA offset = (UDATA) * (I_64*)(currentThread->sp + 2);
+    j9object_t obj = *(j9object_t*)(currentThread->sp + 4);
+    MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
 
-	VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
-	U_32 result = VM_UnsafeAPI::compareAndExchangeInt(currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
-	VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+    VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
+    U_32 result = VM_UnsafeAPI::compareAndExchangeInt(
+        currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
+    VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
 
-	VM_OutOfLineINL_Helpers::returnSingle(currentThread, result, 6);
-	return EXECUTE_BYTECODE;
+    VM_OutOfLineINL_Helpers::returnSingle(currentThread, result, 6);
+    return EXECUTE_BYTECODE;
 }
 
-/* sun.misc.Unsafe: public final native long compareAndExchangeLongVolatile(java.lang.Object obj, long offset, long compareValue, long swapValue); */
-VM_BytecodeAction
-OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeLongVolatile(J9VMThread *currentThread, J9Method *method)
+/* sun.misc.Unsafe: public final native long compareAndExchangeLongVolatile(java.lang.Object obj, long offset, long
+ * compareValue, long swapValue); */
+VM_BytecodeAction OutOfLineINL_jdk_internal_misc_Unsafe_compareAndExchangeLongVolatile(
+    J9VMThread* currentThread, J9Method* method)
 {
-	U_64 swapValue = *(U_64*)currentThread->sp;
-	U_64 compareValue = *(U_64*)(currentThread->sp + 2);
-	UDATA offset = (UDATA)*(I_64*)(currentThread->sp + 4);
-	j9object_t obj = *(j9object_t*)(currentThread->sp + 6);
-	MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
+    U_64 swapValue = *(U_64*)currentThread->sp;
+    U_64 compareValue = *(U_64*)(currentThread->sp + 2);
+    UDATA offset = (UDATA) * (I_64*)(currentThread->sp + 4);
+    j9object_t obj = *(j9object_t*)(currentThread->sp + 6);
+    MM_ObjectAccessBarrierAPI _objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
 
-	VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
-	U_64 result = VM_UnsafeAPI::compareAndExchangeLong(currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
-	VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+    VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, method);
+    U_64 result = VM_UnsafeAPI::compareAndExchangeLong(
+        currentThread, &_objectAccessBarrier, obj, offset, compareValue, swapValue);
+    VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
 
-	VM_OutOfLineINL_Helpers::returnDouble(currentThread, result, 8);
-	return EXECUTE_BYTECODE;
+    VM_OutOfLineINL_Helpers::returnDouble(currentThread, result, 8);
+    return EXECUTE_BYTECODE;
 }
-
 }

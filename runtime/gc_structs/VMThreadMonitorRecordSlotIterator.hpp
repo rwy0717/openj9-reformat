@@ -38,19 +38,16 @@
  * Used internally by GC_VMThreadIterator
  * @ingroup GC_Structs
  */
-class GC_VMThreadMonitorRecordSlotIterator
-{
-	J9MonitorEnterRecord *_monitorRecord;
-	J9MonitorEnterRecord *_jniMonitorRecord;
+class GC_VMThreadMonitorRecordSlotIterator {
+    J9MonitorEnterRecord* _monitorRecord;
+    J9MonitorEnterRecord* _jniMonitorRecord;
 
 public:
-	GC_VMThreadMonitorRecordSlotIterator(J9VMThread *vmThread) :
-		_monitorRecord(vmThread->monitorEnterRecords),
-		_jniMonitorRecord(vmThread->jniMonitorEnterRecords)
-	{};
+    GC_VMThreadMonitorRecordSlotIterator(J9VMThread* vmThread)
+        : _monitorRecord(vmThread->monitorEnterRecords)
+        , _jniMonitorRecord(vmThread->jniMonitorEnterRecords) {};
 
-	j9object_t *nextSlot();
+    j9object_t* nextSlot();
 };
 
 #endif /* VMTHREADMONITORRECORSLOTDITERATOR_HPP_ */
-

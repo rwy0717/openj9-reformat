@@ -32,51 +32,43 @@ extern "C" {
 /* ---------------- jitavl.c ---------------- */
 
 /**
-* @brief
-* @param *javaVM
-* @param *tree
-* @return void
-*/
-void
-avl_jit_artifact_free_all(J9JavaVM *javaVM, J9AVLTree *tree);
-
+ * @brief
+ * @param *javaVM
+ * @param *tree
+ * @return void
+ */
+void avl_jit_artifact_free_all(J9JavaVM* javaVM, J9AVLTree* tree);
 
 /**
-* @brief
-* @param *portLib
-* @param *nodeToDelete
-* @return void
-*/
-void
-avl_jit_artifact_free_node(J9PortLibrary *portLib, J9JITHashTable *nodeToDelete);
-
+ * @brief
+ * @param *portLib
+ * @param *nodeToDelete
+ * @return void
+ */
+void avl_jit_artifact_free_node(J9PortLibrary* portLib, J9JITHashTable* nodeToDelete);
 
 /**
-* @brief
-* @param *tree
-* @param *insertNode
-* @param *walkNode
-* @return IDATA
-*/
+ * @brief
+ * @param *tree
+ * @param *insertNode
+ * @param *walkNode
+ * @return IDATA
+ */
 IDATA
-avl_jit_artifact_insertionCompare(J9AVLTree *tree, J9JITHashTable *insertNode, J9JITHashTable *walkNode);
-
+avl_jit_artifact_insertionCompare(J9AVLTree* tree, J9JITHashTable* insertNode, J9JITHashTable* walkNode);
 
 /**
-* @brief
-* @param *tree
-* @param searchValue
-* @param *walkNode
-* @return IDATA
-*/
+ * @brief
+ * @param *tree
+ * @param searchValue
+ * @param *walkNode
+ * @return IDATA
+ */
 IDATA
-avl_jit_artifact_searchCompare(J9AVLTree *tree, UDATA searchValue, J9JITHashTable *walkNode);
-
+avl_jit_artifact_searchCompare(J9AVLTree* tree, UDATA searchValue, J9JITHashTable* walkNode);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif     /* jitavl_h */
-
-
+#endif /* jitavl_h */

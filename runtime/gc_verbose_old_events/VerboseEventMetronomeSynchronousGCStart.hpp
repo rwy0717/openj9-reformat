@@ -32,42 +32,44 @@
 
 #if defined(J9VM_GC_REALTIME)
 
-class MM_VerboseEventMetronomeSynchronousGCStart : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeSynchronousGCStart : public MM_VerboseEvent {
 private:
-	GCReason _reason;
-	UDATA _reasonParameter;
-	char _timestamp[32];	
-	
-	UDATA _heapFree;
-	
-	UDATA _classLoadersUnloaded; /**< Number of classLoaders unloaded just just before SyncGC started, but only for the current GC cycle */
-	UDATA _classesUnloaded;      /**< Number of classes unloaded just just before SyncGC started, but only for the current GC cycle */
-	
-	void initialize(MM_MetronomeSynchronousGCStartEvent *event);
-	
-public:	
-	static MM_VerboseEvent *newInstance(MM_MetronomeSynchronousGCStartEvent *event, J9HookInterface** hookInterface);
+    GCReason _reason;
+    UDATA _reasonParameter;
+    char _timestamp[32];
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    UDATA _heapFree;
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return false; }
-	MMINLINE virtual bool endsEventChain(void) { return false; }
-	
-	UDATA getHeapFree() const { return _heapFree; }
-	GCReason getReason() const { return _reason; }
-	UDATA getReasonParameter() const { return _reasonParameter; }
-	const char *getTimestamp() const { return _timestamp; }
-	UDATA getClassLoadersUnloaded() const { return _classLoadersUnloaded; }
-	UDATA getClassesUnloaded() const { return _classesUnloaded; }	
-			
-	MM_VerboseEventMetronomeSynchronousGCStart(MM_MetronomeSynchronousGCStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_heapFree(event->heapFree),
-	_classLoadersUnloaded(event->classLoadersUnloaded),
-	_classesUnloaded(event->classesUnloaded)
-	{}
+    UDATA _classLoadersUnloaded; /**< Number of classLoaders unloaded just just before SyncGC started, but only for the
+                                    current GC cycle */
+    UDATA _classesUnloaded; /**< Number of classes unloaded just just before SyncGC started, but only for the current GC
+                               cycle */
+
+    void initialize(MM_MetronomeSynchronousGCStartEvent* event);
+
+public:
+    static MM_VerboseEvent* newInstance(MM_MetronomeSynchronousGCStartEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine(void) { return false; }
+    MMINLINE virtual bool endsEventChain(void) { return false; }
+
+    UDATA getHeapFree() const { return _heapFree; }
+    GCReason getReason() const { return _reason; }
+    UDATA getReasonParameter() const { return _reasonParameter; }
+    const char* getTimestamp() const { return _timestamp; }
+    UDATA getClassLoadersUnloaded() const { return _classLoadersUnloaded; }
+    UDATA getClassesUnloaded() const { return _classesUnloaded; }
+
+    MM_VerboseEventMetronomeSynchronousGCStart(
+        MM_MetronomeSynchronousGCStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _heapFree(event->heapFree)
+        , _classLoadersUnloaded(event->classLoadersUnloaded)
+        , _classesUnloaded(event->classesUnloaded)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

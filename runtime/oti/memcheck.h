@@ -25,42 +25,41 @@
 
 /* @ddr_namespace: default */
 typedef struct J9MemoryCheckHeader {
-	UDATA wrappedBlockSize;
-	UDATA allocationNumber;
+    UDATA wrappedBlockSize;
+    UDATA allocationNumber;
 
-	/* IF MODE is J9_MCMODE_MPROTECT */
-	U_8 *self;						/* Ptr returned by malloc; must be given to free */
-	U_8 *topPage;					/* start of Top Locked Page */
-	U_8 *bottomPage;			/* start of (TODO - ?most? Bottom Locked Page */
-	U_8 *wrappedBlock;		/* start of the block given to user */
-	IDATA isLocked;				/* Current Lock state */
-	UDATA totalAllocation;		/* Total amount allocated */
-	/* END IF */
+    /* IF MODE is J9_MCMODE_MPROTECT */
+    U_8* self; /* Ptr returned by malloc; must be given to free */
+    U_8* topPage; /* start of Top Locked Page */
+    U_8* bottomPage; /* start of (TODO - ?most? Bottom Locked Page */
+    U_8* wrappedBlock; /* start of the block given to user */
+    IDATA isLocked; /* Current Lock state */
+    UDATA totalAllocation; /* Total amount allocated */
+    /* END IF */
 
-	struct J9MemoryCheckHeader *nextBlock;
-	struct J9MemoryCheckHeader *previousBlock;
-	J9MEMAVLTreeNode *node;
+    struct J9MemoryCheckHeader* nextBlock;
+    struct J9MemoryCheckHeader* previousBlock;
+    J9MEMAVLTreeNode* node;
 } J9MemoryCheckHeader;
 
 typedef struct J9MemoryCheckStats {
-	/* Current state. */
+    /* Current state. */
 
-	UDATA totalBlocksAllocated;
-	UDATA totalBlocksFreed;
-	U_64 totalBytesAllocated;
-	U_64 totalBytesFreed;
-	UDATA largestBlockAllocated;
-	UDATA largestBlockAllocNum;
-	UDATA totalUnknownBlocksIgnored;
+    UDATA totalBlocksAllocated;
+    UDATA totalBlocksFreed;
+    U_64 totalBytesAllocated;
+    U_64 totalBytesFreed;
+    UDATA largestBlockAllocated;
+    UDATA largestBlockAllocNum;
+    UDATA totalUnknownBlocksIgnored;
 
-	UDATA currentBlocksAllocated;
-	UDATA hiWaterBlocksAllocated;
-	UDATA currentBytesAllocated;
-	UDATA hiWaterBytesAllocated;	
+    UDATA currentBlocksAllocated;
+    UDATA hiWaterBlocksAllocated;
+    UDATA currentBytesAllocated;
+    UDATA hiWaterBytesAllocated;
 
-	UDATA failedAllocs;
+    UDATA failedAllocs;
 
 } J9MemoryCheckStats;
 
-#endif     /* memcheck_h */
-
+#endif /* memcheck_h */

@@ -28,17 +28,11 @@
  * @param vm The VM instance from which to obtain the VMI.
  * @return  A VMInterface or NULL.
  */
-VMInterface *JNICALL GetVMIFromJavaVM(JavaVM * vm)
-{
-	return (VMInterface*)&(((J9JavaVM*)vm)->vmInterface);
-}
+VMInterface* JNICALL GetVMIFromJavaVM(JavaVM* vm) { return (VMInterface*)&(((J9JavaVM*)vm)->vmInterface); }
 
 /**
  * Retrieves a VMInterface pointer given a JNIEnv.
  * @param env The JNIEnv from which to obtain the VMI.
  * @return  A VMInterface or NULL.
  */
-VMInterface *JNICALL GetVMIFromJNIEnv (JNIEnv * env)
-{
-	return (VMInterface*)&(((J9VMThread*)env)->javaVM->vmInterface);
-}
+VMInterface* JNICALL GetVMIFromJNIEnv(JNIEnv* env) { return (VMInterface*)&(((J9VMThread*)env)->javaVM->vmInterface); }

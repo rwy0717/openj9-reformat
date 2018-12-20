@@ -35,70 +35,57 @@
 /**
  * Class definition for the Java object allocation model.
  */
-class MM_JavaObjectAllocationModel : public MM_AllocateInitialization
-{
-	/*
-	 * Member data and types
-	 */
+class MM_JavaObjectAllocationModel : public MM_AllocateInitialization {
+    /*
+     * Member data and types
+     */
 public:
-	/**
-	 * Define object allocation categories. These are represented in MM_AllocateInitialization
-	 * objects and are used in GC_ObjectModel::initializeAllocation() to determine how to
-	 * initialize the header of a newly allocated object.
-	 */
-	enum {
-		allocation_category_mixed
-		, allocation_category_indexable
-	};
+    /**
+     * Define object allocation categories. These are represented in MM_AllocateInitialization
+     * objects and are used in GC_ObjectModel::initializeAllocation() to determine how to
+     * initialize the header of a newly allocated object.
+     */
+    enum { allocation_category_mixed, allocation_category_indexable };
 
 protected:
-	J9Class *_class;
+    J9Class* _class;
 
 private:
-
-	/*
-	 * Member functions
-	 */
+    /*
+     * Member functions
+     */
 private:
-
-	MMINLINE J9Class *getClass() { return J9_CURRENT_CLASS(_class); }
+    MMINLINE J9Class* getClass() { return J9_CURRENT_CLASS(_class); }
 
 protected:
-
 public:
+    /**
+     * Initializer.
+     */
+    MMINLINE omrobjectptr_t initializeJavaObject(MM_EnvironmentBase* env, void* allocatedBytes)
+    {
+        omrobjectptr_t objectPtr = (omrobjectptr_t)allocatedBytes;
 
-	/**
-	 * Initializer.
-	 */
-	MMINLINE omrobjectptr_t
-	initializeJavaObject(MM_EnvironmentBase *env, void *allocatedBytes)
-	{
-		omrobjectptr_t objectPtr = (omrobjectptr_t)allocatedBytes;
+        if (NULL != objectPtr) {
+            /* Initialize class pointer in object header -- preserve flags set by base class */
+            MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+            extensions->objectModel.setObjectClass(objectPtr, getClass());
 
-		if (NULL != objectPtr) {
-			/* Initialize class pointer in object header -- preserve flags set by base class */
-			MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-			extensions->objectModel.setObjectClass(objectPtr, getClass());
+            /* This might set the remembered bit in the header flags ... */
+            J9VMThread* vmThread = (J9VMThread*)env->getOmrVMThread()->_language_vmthread;
+            extensions->accessBarrier->recentlyAllocatedObject(vmThread, objectPtr);
+        }
 
-			/* This might set the remembered bit in the header flags ... */
-			J9VMThread *vmThread = (J9VMThread *)env->getOmrVMThread()->_language_vmthread;
-			extensions->accessBarrier->recentlyAllocatedObject(vmThread, objectPtr);
-		}
+        return objectPtr;
+    }
 
-		return objectPtr;
-	}
-
-	/**
-	 * Constructor.
-	 */
-	MM_JavaObjectAllocationModel(MM_EnvironmentBase *env,
-			J9Class *clazz,
-			uintptr_t allocationCategory,
-			uintptr_t requiredSizeInBytes,
-			uintptr_t allocateObjectFlags = 0
-	)
-		: MM_AllocateInitialization(env, allocationCategory, requiredSizeInBytes, allocateObjectFlags)
-		, _class(clazz)
-	{}
+    /**
+     * Constructor.
+     */
+    MM_JavaObjectAllocationModel(MM_EnvironmentBase* env, J9Class* clazz, uintptr_t allocationCategory,
+        uintptr_t requiredSizeInBytes, uintptr_t allocateObjectFlags = 0)
+        : MM_AllocateInitialization(env, allocationCategory, requiredSizeInBytes, allocateObjectFlags)
+        , _class(clazz)
+    {}
 };
 #endif /* JAVAOBJECTALLOCATIONMODEL_HPP_ */

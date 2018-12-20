@@ -30,7 +30,7 @@
 
 #define J9CUDA_ALLOCATE_MEMORY(byteCount) j9mem_allocate_memory(byteCount, J9MEM_CATEGORY_CUDA4J)
 
-#define J9CUDA_FREE_MEMORY(buffer)        j9mem_free_memory(buffer)
+#define J9CUDA_FREE_MEMORY(buffer) j9mem_free_memory(buffer)
 
 /**
  * Throw a new CudaException with the given error code.
@@ -38,7 +38,6 @@
  * @param[in] env the JNI environment handle
  * @param[in] error the CUDA runtime API error code
  */
-void
-throwCudaException(JNIEnv * env, int32_t error);
+void throwCudaException(JNIEnv* env, int32_t error);
 
 #endif // _Included_com_ibm_cuda_CudaCommon

@@ -23,15 +23,14 @@
 #ifndef simplepool_api_h
 #define simplepool_api_h
 
-
 /**
-* @file simplepool_api.h
-* @brief Public API for the SIMPLEPOOL module.
-*
-* This file contains public function prototypes and
-* type definitions for the SIMPLEPOOL module.
-*
-*/
+ * @file simplepool_api.h
+ * @brief Public API for the SIMPLEPOOL module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the SIMPLEPOOL module.
+ *
+ */
 
 #include "j9comp.h"
 #include "j9simplepool.h"
@@ -47,30 +46,30 @@ extern "C" {
 #define J9SIMPLEPOOLFREELIST_SIMPLEPOOL(parm) SRP_GET((parm)->simplePool, J9SimplePool*)
 
 /* Simple Pool Constants */
-#define SIMPLEPOOL_MIN_ELEMENT_SIZE		sizeof(J9SimplePoolFreeList) /* minimum size of an element in bytes => sizeof(J9SimplePoolFreeList) */
-#define SIMPLEPOOL_MAX_MEMORY_SIZE		((uint32_t)2*1024*1024*1024) /* maximum supported memory size of a simple pool => max range of a J9SRP == 2^31 */
-
+#define SIMPLEPOOL_MIN_ELEMENT_SIZE \
+    sizeof(J9SimplePoolFreeList) /* minimum size of an element in bytes => sizeof(J9SimplePoolFreeList) */
+#define SIMPLEPOOL_MAX_MEMORY_SIZE \
+    ((uint32_t)2 * 1024 * 1024     \
+        * 1024) /* maximum supported memory size of a simple pool => max range of a J9SRP == 2^31 */
 
 /* ---------------- simplepool.c ---------------- */
 
 /**
-* @brief
-* @param[in] poolAddress
-* @param[in] memorySize
-* @param[in] elementSize
-* @param[in] flags
-* @return J9SimplePool*
-*/
-J9SimplePool *
-simplepool_new(void *poolAddress, uint32_t memorySize, uint32_t elementSize, uint32_t flags);
+ * @brief
+ * @param[in] poolAddress
+ * @param[in] memorySize
+ * @param[in] elementSize
+ * @param[in] flags
+ * @return J9SimplePool*
+ */
+J9SimplePool* simplepool_new(void* poolAddress, uint32_t memorySize, uint32_t elementSize, uint32_t flags);
 
 /**
  * @brief
  * @param[in] simplePool
  * @return 	void*
  */
-void *
-simplepool_newElement(J9SimplePool *simplePool);
+void* simplepool_newElement(J9SimplePool* simplePool);
 
 /**
  * @brief
@@ -79,7 +78,7 @@ simplepool_newElement(J9SimplePool *simplePool);
  * @return  BOOLEAN
  */
 BOOLEAN
-simplepool_isElement(J9SimplePool *simplePool, void *address);
+simplepool_isElement(J9SimplePool* simplePool, void* address);
 
 /**
  * @brief
@@ -87,16 +86,14 @@ simplepool_isElement(J9SimplePool *simplePool, void *address);
  * @param[in] element
  * @return  intptr_t
  */
-intptr_t
-simplepool_removeElement(J9SimplePool *simplePool, void *element);
+intptr_t simplepool_removeElement(J9SimplePool* simplePool, void* element);
 
 /**
  * @brief
  * @param[in] simplePool
  * @return uintptr_t
  */
-uintptr_t
-simplepool_maxNumElements(J9SimplePool *simplePool);
+uintptr_t simplepool_maxNumElements(J9SimplePool* simplePool);
 
 /**
  * @brief
@@ -104,16 +101,14 @@ simplepool_maxNumElements(J9SimplePool *simplePool);
  * @param[in] numberOfElements
  * @return uintptr_t
  */
-uint32_t
-simplepool_totalSize(uint32_t  entrySize, uint32_t numberOfElements);
+uint32_t simplepool_totalSize(uint32_t entrySize, uint32_t numberOfElements);
 
 /**
  * @brief
  * @param[in] simplePool
  * @return uintptr_t
  */
-uintptr_t
-simplepool_numElements(J9SimplePool *simplePool);
+uintptr_t simplepool_numElements(J9SimplePool* simplePool);
 
 /**
  * @brief
@@ -124,7 +119,8 @@ simplepool_numElements(J9SimplePool *simplePool);
  * @return BOOLEAN
  */
 BOOLEAN
-simplepool_do(J9SimplePool *simplePool, J9PortLibrary *portLib, BOOLEAN (*doFunction) (void *anElement, void *userData), void *userData);
+simplepool_do(J9SimplePool* simplePool, J9PortLibrary* portLib, BOOLEAN (*doFunction)(void* anElement, void* userData),
+    void* userData);
 
 /**
  * @brief
@@ -135,15 +131,14 @@ simplepool_do(J9SimplePool *simplePool, J9PortLibrary *portLib, BOOLEAN (*doFunc
  *
  */
 BOOLEAN
-simplepool_verify(J9SimplePool *simplePool, uint32_t memorySize, uint32_t elementSize);
+simplepool_verify(J9SimplePool* simplePool, uint32_t memorySize, uint32_t elementSize);
 
 /**
  * @brief
  * @param[in] simplePool
  * @return void
  */
-void
-simplepool_clear(J9SimplePool *simplePool);
+void simplepool_clear(J9SimplePool* simplePool);
 
 /**
  * @brief
@@ -155,15 +150,15 @@ simplepool_clear(J9SimplePool *simplePool);
  * @return BOOLEAN
  */
 BOOLEAN
-simplepool_checkConsistency(J9SimplePool *simplePool, J9PortLibrary *portLib, BOOLEAN (*doFunction) (void *anElement, void *userData), void *userData, uintptr_t skipCount);
+simplepool_checkConsistency(J9SimplePool* simplePool, J9PortLibrary* portLib,
+    BOOLEAN (*doFunction)(void* anElement, void* userData), void* userData, uintptr_t skipCount);
 /**
  * @brief
  * @param void
  * @return uintptr_t
  *
  */
-uint32_t
-simplepool_headerSize(void);
+uint32_t simplepool_headerSize(void);
 
 #ifdef __cplusplus
 }

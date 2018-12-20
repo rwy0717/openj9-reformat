@@ -26,10 +26,10 @@
 #endif
 
 typedef struct j9ipAddress_struct hyipAddress_struct;
-typedef hyipAddress_struct *hyipAddress_t;
+typedef hyipAddress_struct* hyipAddress_t;
 
 typedef struct j9NetworkInterface_struct hyNetworkInterface_struct;
-typedef hyNetworkInterface_struct *hyNetworkInterface_t;
+typedef hyNetworkInterface_struct* hyNetworkInterface_t;
 typedef struct hyNetworkInterfaceArray_struct j9NetworkInterfaceArray_struct;
 
 #if defined(LINUX)

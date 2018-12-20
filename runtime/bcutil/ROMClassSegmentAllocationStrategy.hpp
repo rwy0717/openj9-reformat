@@ -33,26 +33,24 @@
 
 #include "AllocationStrategy.hpp"
 
-class ROMClassSegmentAllocationStrategy : public AllocationStrategy
-{
+class ROMClassSegmentAllocationStrategy : public AllocationStrategy {
 public:
-	ROMClassSegmentAllocationStrategy(J9JavaVM* javaVM, J9ClassLoader* classLoader) :
-		_javaVM(javaVM),
-		_classLoader(classLoader),
-		_segment(NULL),
-		_bytesRequested(0)
-	{
-	}
+    ROMClassSegmentAllocationStrategy(J9JavaVM* javaVM, J9ClassLoader* classLoader)
+        : _javaVM(javaVM)
+        , _classLoader(classLoader)
+        , _segment(NULL)
+        , _bytesRequested(0)
+    {}
 
-	U_8* allocate(UDATA byteAmount);
-	void updateFinalROMSize(UDATA finalSize);
-	UDATA getSegmentSize() { return _segment->size;}
+    U_8* allocate(UDATA byteAmount);
+    void updateFinalROMSize(UDATA finalSize);
+    UDATA getSegmentSize() { return _segment->size; }
 
 private:
-	J9JavaVM* _javaVM;
-	J9ClassLoader* _classLoader;
-	J9MemorySegment* _segment;
-	UDATA _bytesRequested;
+    J9JavaVM* _javaVM;
+    J9ClassLoader* _classLoader;
+    J9MemorySegment* _segment;
+    UDATA _bytesRequested;
 };
 
 #endif /* ROMCLASSSEGMENTALLOCATIONSTRATEGY_HPP_ */

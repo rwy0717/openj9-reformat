@@ -27,13 +27,7 @@
 #include "jvmti.h"
 
 /* Agent_OnLoad() is called first, we prepare for a VM_INIT event here. */
-JNIEXPORT jint JNICALL
-Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
-	return 0;
-}
+JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved) { return 0; }
 
 /* Agent_OnUnload() is called last */
-JNIEXPORT void JNICALL
-Agent_OnUnload(JavaVM *vm) {
-}
-
+JNIEXPORT void JNICALL Agent_OnUnload(JavaVM* vm) {}

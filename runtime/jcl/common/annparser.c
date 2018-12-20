@@ -27,136 +27,137 @@
 
 #include "vmaccess.h"
 
-typedef enum METHOD_OBJECT_TYPE {
-	OBJECT_TYPE_METHOD,
-	OBJECT_TYPE_CONSTRUCTOR,
-	OBJECT_TYPE_UNKNOWN
-} METHOD_OBJECT_TYPE;
+typedef enum METHOD_OBJECT_TYPE { OBJECT_TYPE_METHOD, OBJECT_TYPE_CONSTRUCTOR, OBJECT_TYPE_UNKNOWN } METHOD_OBJECT_TYPE;
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Field_2(JNIEnv *env, jclass unusedClass, jobject jlrField)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Field_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrField)
 {
-	jobject result = NULL;
-	j9object_t fieldObject = NULL;
-	J9VMThread *vmThread = (J9VMThread *) env;
+    jobject result = NULL;
+    j9object_t fieldObject = NULL;
+    J9VMThread* vmThread = (J9VMThread*)env;
 
-	enterVMFromJNI(vmThread);
-	fieldObject = J9_JNI_UNWRAP_REFERENCE(jlrField);
-	if (NULL != fieldObject) {
-		J9JNIFieldID *fieldID = vmThread->javaVM->reflectFunctions.idFromFieldObject(vmThread, NULL, fieldObject);
+    enterVMFromJNI(vmThread);
+    fieldObject = J9_JNI_UNWRAP_REFERENCE(jlrField);
+    if (NULL != fieldObject) {
+        J9JNIFieldID* fieldID = vmThread->javaVM->reflectFunctions.idFromFieldObject(vmThread, NULL, fieldObject);
 
-		j9object_t annotationsData = getFieldAnnotationData(vmThread, fieldID->declaringClass, fieldID);
-		if (NULL != annotationsData) {
-			result = vmThread->javaVM->internalVMFunctions->j9jni_createLocalRef(env, annotationsData);
-		}
-	}
-	exitVMToJNI(vmThread);
-	return result;
+        j9object_t annotationsData = getFieldAnnotationData(vmThread, fieldID->declaringClass, fieldID);
+        if (NULL != annotationsData) {
+            result = vmThread->javaVM->internalVMFunctions->j9jni_createLocalRef(env, annotationsData);
+        }
+    }
+    exitVMToJNI(vmThread);
+    return result;
+}
+
+jobject JNICALL Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Field_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrField)
+{
+    return getFieldTypeAnnotationsAsByteArray(env, jlrField);
+}
+
+static jobject getExecutableAnnotationDataHelper(JNIEnv* env, jobject jlrMethod, METHOD_OBJECT_TYPE objType,
+    j9object_t (*getAnnotationData)(struct J9VMThread* vmThread, struct J9Class* declaringClass, J9Method* ramMethod))
+{
+    jobject result = NULL;
+    j9object_t methodObject = NULL;
+    J9VMThread* vmThread = (J9VMThread*)env;
+
+    enterVMFromJNI(vmThread);
+    methodObject = J9_JNI_UNWRAP_REFERENCE(jlrMethod);
+    if (NULL != methodObject) {
+        J9JNIMethodID* methodID = NULL;
+        J9Method* ramMethod = NULL;
+        J9Class* declaringClass = NULL;
+        j9object_t annotationsData = NULL;
+
+        if ((OBJECT_TYPE_UNKNOWN == objType)) {
+            objType
+                = (J9OBJECT_CLAZZ(vmThread, methodObject) == J9VMJAVALANGREFLECTCONSTRUCTOR_OR_NULL(vmThread->javaVM))
+                ? OBJECT_TYPE_CONSTRUCTOR
+                : OBJECT_TYPE_METHOD;
+        }
+        if (OBJECT_TYPE_CONSTRUCTOR == objType) {
+            methodID = vmThread->javaVM->reflectFunctions.idFromConstructorObject(vmThread, methodObject);
+        } else {
+            methodID = vmThread->javaVM->reflectFunctions.idFromMethodObject(vmThread, methodObject);
+        }
+
+        ramMethod = methodID->method;
+        declaringClass = J9_CURRENT_CLASS(J9_CLASS_FROM_METHOD(ramMethod));
+
+        annotationsData = getAnnotationData(vmThread, declaringClass, ramMethod);
+        if (NULL != annotationsData) {
+            result = vmThread->javaVM->internalVMFunctions->j9jni_createLocalRef(env, annotationsData);
+        }
+    }
+    exitVMToJNI(vmThread);
+    return result;
+}
+
+jbyteArray getMethodTypeAnnotationsAsByteArray(JNIEnv* env, jobject jlrMethod)
+{
+    return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_UNKNOWN, getMethodTypeAnnotationData);
+}
+
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Constructor_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrConstructor)
+{
+    return getExecutableAnnotationDataHelper(env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodAnnotationData);
 }
 
 jobject JNICALL
-Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Field_2(JNIEnv *env, jclass unusedClass, jobject jlrField)
+Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Constructor_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrConstructor)
 {
-	return getFieldTypeAnnotationsAsByteArray(env, jlrField);
+    return getExecutableAnnotationDataHelper(env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodTypeAnnotationData);
 }
 
-static jobject
-getExecutableAnnotationDataHelper(JNIEnv *env, jobject jlrMethod, METHOD_OBJECT_TYPE objType,
-		j9object_t (*getAnnotationData)(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9Method *ramMethod))
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Method_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrMethod)
 {
-	jobject result = NULL;
-	j9object_t methodObject = NULL;
-	J9VMThread *vmThread = (J9VMThread *) env;
-
-	enterVMFromJNI(vmThread);
-	methodObject = J9_JNI_UNWRAP_REFERENCE(jlrMethod);
-	if (NULL != methodObject) {
-        J9JNIMethodID *methodID = NULL;
-		J9Method *ramMethod = NULL;
-		J9Class *declaringClass = NULL;
-		j9object_t annotationsData = NULL;
-
-		if ((OBJECT_TYPE_UNKNOWN == objType)) {
-			objType = (J9OBJECT_CLAZZ(vmThread, methodObject) == J9VMJAVALANGREFLECTCONSTRUCTOR_OR_NULL(vmThread->javaVM)) ? OBJECT_TYPE_CONSTRUCTOR: OBJECT_TYPE_METHOD;
-		}
-		if (OBJECT_TYPE_CONSTRUCTOR == objType) {
-			methodID = vmThread->javaVM->reflectFunctions.idFromConstructorObject(vmThread, methodObject);
-		} else {
-			methodID = vmThread->javaVM->reflectFunctions.idFromMethodObject(vmThread, methodObject);
-		}
-
-		ramMethod = methodID->method;
-		declaringClass = J9_CURRENT_CLASS(J9_CLASS_FROM_METHOD(ramMethod));
-
-		annotationsData = getAnnotationData(vmThread, declaringClass, ramMethod);
-		if (NULL != annotationsData) {
-			result = vmThread->javaVM->internalVMFunctions->j9jni_createLocalRef(env, annotationsData);
-		}
-	}
-	exitVMToJNI(vmThread);
-	return result;
+    return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodAnnotationData);
 }
 
-jbyteArray getMethodTypeAnnotationsAsByteArray(JNIEnv *env, jobject jlrMethod) {
-	return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_UNKNOWN, getMethodTypeAnnotationData);
+jobject JNICALL Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Method_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrMethod)
+{
+    return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_UNKNOWN, getMethodTypeAnnotationData);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Constructor_2(JNIEnv *env, jclass unusedClass, jobject jlrConstructor)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsDataImpl__Ljava_lang_Class_2(
+    JNIEnv* env, jclass unusedClass, jclass jlClass)
 {
-	return getExecutableAnnotationDataHelper(env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodAnnotationData);
+    return Java_java_lang_Class_getDeclaredAnnotationsData(env, jlClass);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Constructor_2(JNIEnv *env, jclass unusedClass, jobject jlrConstructor)
+jobject JNICALL Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_Class_2(
+    JNIEnv* env, jclass unusedClass, jclass jlClass)
 {
-	return getExecutableAnnotationDataHelper(env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodTypeAnnotationData);
+    return getClassTypeAnnotationsAsByteArray(env, jlClass);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsData__Ljava_lang_reflect_Method_2(JNIEnv *env, jclass unusedClass, jobject jlrMethod)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getParameterAnnotationsData__Ljava_lang_reflect_Constructor_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrConstructor)
 {
-	return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodAnnotationData);
+    return getExecutableAnnotationDataHelper(
+        env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodParametersAnnotationData);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_reflect_Method_2(JNIEnv *env, jclass unusedClass, jobject jlrMethod)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getParameterAnnotationsData__Ljava_lang_reflect_Method_2(
+    JNIEnv* env, jclass unusedClass, jobject jlrMethod)
 {
-	return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_UNKNOWN, getMethodTypeAnnotationData);
+    return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodParametersAnnotationData);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getAnnotationsDataImpl__Ljava_lang_Class_2(JNIEnv *env, jclass unusedClass, jclass jlClass)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getDefaultValueData(
+    JNIEnv* env, jclass unusedClass, jobject jlrMethod)
 {
-	return Java_java_lang_Class_getDeclaredAnnotationsData(env, jlClass);
+    return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodDefaultAnnotationData);
 }
 
-jobject JNICALL
-Java_com_ibm_oti_reflect_TypeAnnotationParser_getTypeAnnotationsDataImpl__Ljava_lang_Class_2(JNIEnv *env, jclass unusedClass, jclass jlClass)
+jobject JNICALL Java_com_ibm_oti_reflect_AnnotationParser_getConstantPool(
+    JNIEnv* env, jclass unusedClass, jobject classToIntrospect)
 {
-	return getClassTypeAnnotationsAsByteArray(env, jlClass);
-}
-
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getParameterAnnotationsData__Ljava_lang_reflect_Constructor_2(JNIEnv *env, jclass unusedClass, jobject jlrConstructor)
-{
-	return getExecutableAnnotationDataHelper(env, jlrConstructor, OBJECT_TYPE_CONSTRUCTOR, getMethodParametersAnnotationData);
-}
-
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getParameterAnnotationsData__Ljava_lang_reflect_Method_2(JNIEnv *env, jclass unusedClass, jobject jlrMethod)
-{
-	return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodParametersAnnotationData);
-}
-
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getDefaultValueData(JNIEnv *env, jclass unusedClass, jobject jlrMethod)
-{
-	return getExecutableAnnotationDataHelper(env, jlrMethod, OBJECT_TYPE_METHOD, getMethodDefaultAnnotationData);
-}
-
-jobject JNICALL
-Java_com_ibm_oti_reflect_AnnotationParser_getConstantPool(JNIEnv *env, jclass unusedClass, jobject classToIntrospect)
-{
-	return Java_java_lang_Access_getConstantPool(env, unusedClass, classToIntrospect);
+    return Java_java_lang_Access_getConstantPool(env, unusedClass, classToIntrospect);
 }

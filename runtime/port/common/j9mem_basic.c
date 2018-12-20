@@ -23,14 +23,6 @@
 #include "j9port.h"
 #include "portpriv.h"
 
-void *
-j9mem_allocate_portLibrary(uintptr_t byteAmount)
-{
-	return (void *)malloc(byteAmount);
-}
+void* j9mem_allocate_portLibrary(uintptr_t byteAmount) { return (void*)malloc(byteAmount); }
 
-void
-j9mem_deallocate_portLibrary(void *memoryPointer)
-{
-	free(memoryPointer);
-}
+void j9mem_deallocate_portLibrary(void* memoryPointer) { free(memoryPointer); }

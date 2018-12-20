@@ -30,12 +30,11 @@
  * This struct has fields corresponding to StructureTypeManager.TYPE_XXX categories
  * that don't appear elsewhere so that all paths in BytecodeGenerator are exercised.
  */
-struct GeneratorTypeSamples
-{
-	fj9object_t TYPE_FJ9OBJECT;
-	j9objectclass_t *TYPE_J9OBJECTCLASS_POINTER;
-	j9objectmonitor_t TYPE_J9OBJECTMONITOR;
-	j9objectmonitor_t *TYPE_J9OBJECTMONITOR_POINTER;
+struct GeneratorTypeSamples {
+    fj9object_t TYPE_FJ9OBJECT;
+    j9objectclass_t* TYPE_J9OBJECTCLASS_POINTER;
+    j9objectmonitor_t TYPE_J9OBJECTMONITOR;
+    j9objectmonitor_t* TYPE_J9OBJECTMONITOR_POINTER;
 };
 
 DdrDebugLink(types, GeneratorTypeSamples)

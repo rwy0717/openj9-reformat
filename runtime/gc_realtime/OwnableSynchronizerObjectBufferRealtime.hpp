@@ -33,34 +33,32 @@
  * A per-thread buffer of recently allocated ownableSynchronizer objects.
  * The buffer is periodically flushed to the global list.
  */
-class MM_OwnableSynchronizerObjectBufferRealtime : public MM_OwnableSynchronizerObjectBuffer
-{
+class MM_OwnableSynchronizerObjectBufferRealtime : public MM_OwnableSynchronizerObjectBuffer {
 private:
-	UDATA _ownableSynchronizerObjectListIndex;
+    UDATA _ownableSynchronizerObjectListIndex;
+
 protected:
 public:
-
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
-
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
 public:
-	static MM_OwnableSynchronizerObjectBufferRealtime *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush
-	 */
-	MM_OwnableSynchronizerObjectBufferRealtime(MM_GCExtensions *extensions, UDATA maxObjectCount);
+    static MM_OwnableSynchronizerObjectBufferRealtime* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_OwnableSynchronizerObjectBufferRealtime(MM_GCExtensions* extensions, UDATA maxObjectCount);
 };
 
 #endif /* OWNABLESYNCHRONIZEROBJECTBUFFERREALTIME_HPP_ */

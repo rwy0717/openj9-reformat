@@ -27,31 +27,27 @@
 
 #include "HeapRegionDataForCompactVLHGC.hpp"
 
-MM_HeapRegionDataForCompactVLHGC::MM_HeapRegionDataForCompactVLHGC(MM_EnvironmentVLHGC *env)
-	: MM_BaseNonVirtual()
-	, _shouldCompact(false)
-	, _shouldFixup(false)
-	, _compactDestination(NULL)
-	, _nextInWorkList(NULL)
-	, _blockedList(NULL)
-	, _nextEvacuationCandidate(NULL)
-	, _nextRebuildCandidate(NULL)
-	, _nextMoveEventCandidate(NULL)
-	, _isCompactDestination(false)
-	, _vineDepth(0)
-	, _previousContext(NULL)
+MM_HeapRegionDataForCompactVLHGC::MM_HeapRegionDataForCompactVLHGC(MM_EnvironmentVLHGC* env)
+    : MM_BaseNonVirtual()
+    , _shouldCompact(false)
+    , _shouldFixup(false)
+    , _compactDestination(NULL)
+    , _nextInWorkList(NULL)
+    , _blockedList(NULL)
+    , _nextEvacuationCandidate(NULL)
+    , _nextRebuildCandidate(NULL)
+    , _nextMoveEventCandidate(NULL)
+    , _isCompactDestination(false)
+    , _vineDepth(0)
+    , _previousContext(NULL)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-bool 
-MM_HeapRegionDataForCompactVLHGC::initialize(MM_EnvironmentVLHGC *env, MM_HeapRegionManager *regionManager, MM_HeapRegionDescriptor *descriptor)
+bool MM_HeapRegionDataForCompactVLHGC::initialize(
+    MM_EnvironmentVLHGC* env, MM_HeapRegionManager* regionManager, MM_HeapRegionDescriptor* descriptor)
 {
-	return true;
+    return true;
 }
 
-void 
-MM_HeapRegionDataForCompactVLHGC::tearDown(MM_EnvironmentVLHGC *env)
-{
-	
-}
+void MM_HeapRegionDataForCompactVLHGC::tearDown(MM_EnvironmentVLHGC* env) {}

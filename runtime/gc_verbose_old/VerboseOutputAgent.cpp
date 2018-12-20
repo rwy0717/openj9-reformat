@@ -30,31 +30,26 @@
  * Kill the instance.
  * Tears down the related structures and frees any storage.
  */
-void
-MM_VerboseOutputAgent::kill(MM_EnvironmentBase *env)
+void MM_VerboseOutputAgent::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
-	extensions->getForge()->free(this);
+    tearDown(env);
+
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+    extensions->getForge()->free(this);
 }
 
-void
-MM_VerboseOutputAgent::tearDown(MM_EnvironmentBase *env)
-{
-}
+void MM_VerboseOutputAgent::tearDown(MM_EnvironmentBase* env) {}
 
 /**
  * Routine that passes the agent to the formatted output routine in each event in the event stream.
  * @param eventStream The event stream.
  */
-void
-MM_VerboseOutputAgent::processEventStream(MM_EnvironmentBase *env, MM_VerboseEventStream *eventStream)
+void MM_VerboseOutputAgent::processEventStream(MM_EnvironmentBase* env, MM_VerboseEventStream* eventStream)
 {
-	MM_VerboseEvent *event = eventStream->getHead();
-	
-	while(NULL != event) {
-		event->formattedOutput(this);
-		event = event->getNextEvent();
-	}
+    MM_VerboseEvent* event = eventStream->getHead();
+
+    while (NULL != event) {
+        event->formattedOutput(this);
+        event = event->getNextEvent();
+    }
 }

@@ -25,14 +25,14 @@
 
 #include <setjmp.h>
 
-#define TARGET_NNSRP_GET(field, type) ((type) (((U_8 *) dbgLocalToTarget(&(field))) + (field)))
+#define TARGET_NNSRP_GET(field, type) ((type)(((U_8*)dbgLocalToTarget(&(field))) + (field)))
 #define TARGET_SRP_GET(field, type) ((field) ? TARGET_NNSRP_GET(field, type) : NULL)
-#define LOCAL_NNSRP_GET(field, type) ((type) (((U_8 *)(&(field))) + (field)))
+#define LOCAL_NNSRP_GET(field, type) ((type)(((U_8*)(&(field))) + (field)))
 #define LOCAL_SRP_GET(field, type) ((field) ? LOCAL_NNSRP_GET(field, type) : NULL)
 
-#define TARGET_NNWSRP_GET(field, type) ((type) (((U_8 *) dbgLocalToTarget(&(field))) + (field)))
+#define TARGET_NNWSRP_GET(field, type) ((type)(((U_8*)dbgLocalToTarget(&(field))) + (field)))
 #define TARGET_WSRP_GET(field, type) ((field) ? TARGET_NNWSRP_GET(field, type) : NULL)
-#define LOCAL_NNWSRP_GET(field, type) ((type) (((U_8 *)(&(field))) + (field)))
+#define LOCAL_NNWSRP_GET(field, type) ((type)(((U_8*)(&(field))) + (field)))
 #define LOCAL_WSRP_GET(field, type) ((field) ? LOCAL_NNWSRP_GET(field, type) : NULL)
 
 #ifndef DONT_REDIRECT_SRP
@@ -48,7 +48,8 @@
 #define NNWSRP_GET(field, type) TARGET_NNWSRP_GET(field, type)
 #endif
 
-#define J9DBG_AVL_SRP_GETNODE(node) ((J9AVLTreeNode *)(AVL_GETNODE(node) ? ((((U_8 *) dbgLocalToTarget(&(node))) + (J9WSRP)(AVL_GETNODE(node)))) : NULL))
+#define J9DBG_AVL_SRP_GETNODE(node) \
+    ((J9AVLTreeNode*)(AVL_GETNODE(node) ? ((((U_8*)dbgLocalToTarget(&(node))) + (J9WSRP)(AVL_GETNODE(node)))) : NULL))
 
 #endif
 
@@ -74,40 +75,41 @@
  */
 
 typedef struct {
-	jmp_buf buf;
+    jmp_buf buf;
 } DBG_JMPBUF;
 
-#define DBG_TRY do { \
-	DBG_JMPBUF dbgJmpbuf; \
-	DBG_JMPBUF *dbgOldHandler = dbgSetHandler(&dbgJmpbuf); \
-	int dbgSetjmpResult = setjmp(dbgJmpbuf.buf); \
-	if (dbgSetjmpResult == 0)
-#define DBG_CATCH \
-	dbgSetHandler(dbgOldHandler); \
-	if (dbgSetjmpResult != 0)
-#define DBG_FINALLY } while (0)
+#define DBG_TRY                                                \
+    do {                                                       \
+        DBG_JMPBUF dbgJmpbuf;                                  \
+        DBG_JMPBUF* dbgOldHandler = dbgSetHandler(&dbgJmpbuf); \
+        int dbgSetjmpResult = setjmp(dbgJmpbuf.buf);           \
+        if (dbgSetjmpResult == 0)
+#define DBG_CATCH                 \
+    dbgSetHandler(dbgOldHandler); \
+    if (dbgSetjmpResult != 0)
+#define DBG_FINALLY \
+    }               \
+    while (0)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void dbgext_walkj9pool(const char *args);
+void dbgext_walkj9pool(const char* args);
 
-J9PortLibrary * dbgGetPortLibrary(void);
+J9PortLibrary* dbgGetPortLibrary(void);
 
-void dbgUnmapPool (J9Pool *pool);
-J9Pool *dbgMapPool (UDATA addr);
-extern void dbgPrint (const char* message, ...);
-extern void dbgReadMemory (UDATA address, void *structure, UDATA size, UDATA *bytesRead);
-extern UDATA dbgReadSlot (UDATA srcaddr, UDATA size);
-extern UDATA dbgGetExpression (const char* args);
+void dbgUnmapPool(J9Pool* pool);
+J9Pool* dbgMapPool(UDATA addr);
+extern void dbgPrint(const char* message, ...);
+extern void dbgReadMemory(UDATA address, void* structure, UDATA size, UDATA* bytesRead);
+extern UDATA dbgReadSlot(UDATA srcaddr, UDATA size);
+extern UDATA dbgGetExpression(const char* args);
 extern void dbgSetVerboseMode(int verboseMode);
-extern I_32 dbg_j9port_create_library(J9PortLibrary *portLib, J9PortLibraryVersion *version, UDATA size);
+extern I_32 dbg_j9port_create_library(J9PortLibrary* portLib, J9PortLibraryVersion* version, UDATA size);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif     /* j9dbgext_h */
-
-
+#endif /* j9dbgext_h */

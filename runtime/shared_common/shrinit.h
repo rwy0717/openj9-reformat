@@ -27,62 +27,71 @@
 #include "sharedconsts.h"
 #include "SCAbstractAPI.h"
 
-UDATA j9shr_storeAttachedData(J9VMThread* currentThread, const void* addressInCache, const J9SharedDataDescriptor* data, UDATA forceReplace);
-const U_8* j9shr_findAttachedData(J9VMThread* currentThread, const void* addressInCache, J9SharedDataDescriptor* data, IDATA *corruptOffset);
-UDATA j9shr_updateAttachedData(J9VMThread* currentThread, const void* addressInCache, I_32 updateAtOffset, const J9SharedDataDescriptor* data);
-UDATA j9shr_updateAttachedUDATA(J9VMThread* currentThread, const void* addressInCache, UDATA type, I_32 updateAtOffset, UDATA value);
+UDATA j9shr_storeAttachedData(
+    J9VMThread* currentThread, const void* addressInCache, const J9SharedDataDescriptor* data, UDATA forceReplace);
+const U_8* j9shr_findAttachedData(
+    J9VMThread* currentThread, const void* addressInCache, J9SharedDataDescriptor* data, IDATA* corruptOffset);
+UDATA j9shr_updateAttachedData(
+    J9VMThread* currentThread, const void* addressInCache, I_32 updateAtOffset, const J9SharedDataDescriptor* data);
+UDATA j9shr_updateAttachedUDATA(
+    J9VMThread* currentThread, const void* addressInCache, UDATA type, I_32 updateAtOffset, UDATA value);
 void j9shr_freeAttachedDataDescriptor(J9VMThread* currentThread, J9SharedDataDescriptor* data);
-const U_8* j9shr_storeCompiledMethod(J9VMThread* currentThread, const J9ROMMethod* romMethod, const U_8* dataStart, UDATA dataSize, const U_8* codeStart, UDATA codeSize, UDATA forceReplace);
-UDATA j9shr_getJavacoreData(J9JavaVM *vm, J9SharedClassJavacoreDataDescriptor* descriptor);
-IDATA j9shr_init(J9JavaVM *vm, UDATA loadFlags, UDATA* nonfatal);
-IDATA j9shr_lateInit(J9JavaVM *vm, UDATA* nonfatal);
-IDATA j9shr_sharedClassesFinishInitialization(J9JavaVM *vm);
-void j9shr_guaranteed_exit(J9JavaVM *vm, BOOLEAN exitForDebug);
-void j9shr_shutdown(J9JavaVM *vm);
-IDATA j9shr_print_stats(J9JavaVM *vm, UDATA parseResult, U_64 runtimeFlags, UDATA printStatsOptions);
+const U_8* j9shr_storeCompiledMethod(J9VMThread* currentThread, const J9ROMMethod* romMethod, const U_8* dataStart,
+    UDATA dataSize, const U_8* codeStart, UDATA codeSize, UDATA forceReplace);
+UDATA j9shr_getJavacoreData(J9JavaVM* vm, J9SharedClassJavacoreDataDescriptor* descriptor);
+IDATA j9shr_init(J9JavaVM* vm, UDATA loadFlags, UDATA* nonfatal);
+IDATA j9shr_lateInit(J9JavaVM* vm, UDATA* nonfatal);
+IDATA j9shr_sharedClassesFinishInitialization(J9JavaVM* vm);
+void j9shr_guaranteed_exit(J9JavaVM* vm, BOOLEAN exitForDebug);
+void j9shr_shutdown(J9JavaVM* vm);
+IDATA j9shr_print_stats(J9JavaVM* vm, UDATA parseResult, U_64 runtimeFlags, UDATA printStatsOptions);
 void hookFindSharedClass(J9HookInterface** hookInterface, UDATA eventNum, void* voidData, void* userData);
 void hookSerializeSharedCache(J9HookInterface** hookInterface, UDATA eventNum, void* voidData, void* userData);
 void hookStoreSharedClass(J9HookInterface** hookInterface, UDATA eventNum, void* voidData, void* userData);
-UDATA j9shr_getCacheSizeBytes(J9JavaVM *vm);
-UDATA j9shr_getTotalUsableCacheBytes(J9JavaVM *vm);
-void j9shr_getMinMaxBytes(J9JavaVM *vm, U_32 *softmx, I_32 *minAOT, I_32 *maxAOT, I_32 *minJIT, I_32 *maxJIT);
-I_32 j9shr_setMinMaxBytes(J9JavaVM *vm, U_32 softmx, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT);
-void j9shr_increaseUnstoredBytes(J9JavaVM *vm, U_32 aotBytes, U_32 jitBytes);
-void j9shr_getUnstoredBytes(J9JavaVM *vm, U_32 *softmxUnstoredBytes, U_32 *maxAOTUnstoredBytes, U_32 *maxJITUnstoredBytes);
-UDATA j9shr_getFreeAvailableSpaceBytes(J9JavaVM *vm);
+UDATA j9shr_getCacheSizeBytes(J9JavaVM* vm);
+UDATA j9shr_getTotalUsableCacheBytes(J9JavaVM* vm);
+void j9shr_getMinMaxBytes(J9JavaVM* vm, U_32* softmx, I_32* minAOT, I_32* maxAOT, I_32* minJIT, I_32* maxJIT);
+I_32 j9shr_setMinMaxBytes(J9JavaVM* vm, U_32 softmx, I_32 minAOT, I_32 maxAOT, I_32 minJIT, I_32 maxJIT);
+void j9shr_increaseUnstoredBytes(J9JavaVM* vm, U_32 aotBytes, U_32 jitBytes);
+void j9shr_getUnstoredBytes(
+    J9JavaVM* vm, U_32* softmxUnstoredBytes, U_32* maxAOTUnstoredBytes, U_32* maxJITUnstoredBytes);
+UDATA j9shr_getFreeAvailableSpaceBytes(J9JavaVM* vm);
 void j9shr_hookZipLoadEvent(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData);
 void j9shr_resetSharedStringTable(J9JavaVM* vm);
-BOOLEAN j9shr_isCacheFull(J9JavaVM *vm);
-BOOLEAN j9shr_isAddressInCache(J9JavaVM *vm, void *address, UDATA length);
-void j9shr_populatePreinitConfigDefaults(J9JavaVM *vm, J9SharedClassPreinitConfig *updatedWithDefaults);
+BOOLEAN j9shr_isCacheFull(J9JavaVM* vm);
+BOOLEAN j9shr_isAddressInCache(J9JavaVM* vm, void* address, UDATA length);
+void j9shr_populatePreinitConfigDefaults(J9JavaVM* vm, J9SharedClassPreinitConfig* updatedWithDefaults);
 BOOLEAN j9shr_isPlatformDefaultPersistent(struct J9JavaVM* vm);
-UDATA j9shr_isBCIEnabled(J9JavaVM *vm);
-UDATA ensureCorrectCacheSizes(J9JavaVM *vm, J9PortLibrary* portlib, U_64 runtimeFlags, UDATA verboseFlags, J9SharedClassPreinitConfig* piconfig);
-UDATA parseArgs(J9JavaVM* vm, char* options, U_64* runtimeFlags, UDATA* verboseFlags, char** cacheName, char** modContext, char** expireTime, char** ctrlDirName, char** cacheDirPerm, char** methodSpecs, UDATA* printStatsOptions, UDATA* storageKeyTesting);
-UDATA convertPermToDecimal(J9JavaVM *vm, const char *permStr);
-SCAbstractAPI * initializeSharedAPI(J9JavaVM *vm);
+UDATA j9shr_isBCIEnabled(J9JavaVM* vm);
+UDATA ensureCorrectCacheSizes(
+    J9JavaVM* vm, J9PortLibrary* portlib, U_64 runtimeFlags, UDATA verboseFlags, J9SharedClassPreinitConfig* piconfig);
+UDATA parseArgs(J9JavaVM* vm, char* options, U_64* runtimeFlags, UDATA* verboseFlags, char** cacheName,
+    char** modContext, char** expireTime, char** ctrlDirName, char** cacheDirPerm, char** methodSpecs,
+    UDATA* printStatsOptions, UDATA* storageKeyTesting);
+UDATA convertPermToDecimal(J9JavaVM* vm, const char* permStr);
+SCAbstractAPI* initializeSharedAPI(J9JavaVM* vm);
 U_64 getDefaultRuntimeFlags(void);
-void j9shr_freeClasspathData(J9JavaVM *vm, void *cpData);
+void j9shr_freeClasspathData(J9JavaVM* vm, void* cpData);
 IDATA j9shr_createCacheSnapshot(J9JavaVM* vm, const char* cacheName);
 const U_8* j9shr_findCompiledMethodEx1(J9VMThread* currentThread, const J9ROMMethod* romMethod, UDATA* flags);
 void j9shr_jvmPhaseChange(J9VMThread* currentThread, UDATA phase);
 void j9shr_storeGCHints(J9VMThread* currentThread, UDATA heapSize1, UDATA heapSize2, BOOLEAN forceReplace);
-IDATA j9shr_findGCHints(J9VMThread* currentThread, UDATA *heapSize1, UDATA *heapSize2);
+IDATA j9shr_findGCHints(J9VMThread* currentThread, UDATA* heapSize1, UDATA* heapSize2);
 const U_8* storeStartupHintsToSharedCache(J9VMThread* currentThread);
 
 typedef struct J9SharedClassesHelpText {
-	const char* option;
-	U_32 nlsHelp1;
-	U_32 nlsHelp2;
-	U_32 nlsMoreHelp1;
-	U_32 nlsMoreHelp2;
+    const char* option;
+    U_32 nlsHelp1;
+    U_32 nlsHelp2;
+    U_32 nlsMoreHelp1;
+    U_32 nlsMoreHelp2;
 } J9SharedClassesHelpText;
 
 typedef struct J9SharedClassesOptions {
-	const char *option;
-	U_8 parseType;
-	U_8 action;
-	U_64 flag;
+    const char* option;
+    U_8 parseType;
+    U_8 action;
+    U_64 flag;
 } J9SharedClassesOptions;
 
 #define OPTION_NO_TIMESTAMP_CHECKS "noTimestampChecks"
@@ -100,7 +109,7 @@ typedef struct J9SharedClassesOptions {
 #define OPTION_EXPIRE_EQUALS "expire="
 #define OPTION_LISTALLCACHES "listAllCaches"
 #define OPTION_HELP "help"
-#define OPTION_MORE_HELP "morehelp"		/* Just for dev options */
+#define OPTION_MORE_HELP "morehelp" /* Just for dev options */
 #define OPTION_VERBOSE "verbose"
 #define OPTION_VERBOSE_IO "verboseIO"
 #define OPTION_VERBOSE_HELPER "verboseHelper"
@@ -115,7 +124,7 @@ typedef struct J9SharedClassesOptions {
 #define OPTION_FATAL "fatal"
 #define OPTION_SILENT "silent"
 #define OPTION_NONE "none"
-#define OPTION_CONTROLDIR_EQUALS "controlDir="		/* purely for java5 compatability */
+#define OPTION_CONTROLDIR_EQUALS "controlDir=" /* purely for java5 compatability */
 #define OPTION_NOAOT "noaot"
 #define OPTION_PERSISTENT "persistent"
 #define OPTION_NONPERSISTENT "nonpersistent"
@@ -133,8 +142,8 @@ typedef struct J9SharedClassesOptions {
 #define OPTION_RESTORE_FROM_SNAPSHOT "restoreFromSnapshot"
 #define OPTION_PRINT_SNAPSHOTNAME "printSnapshotFilename"
 #endif /* !defined(WIN32) */
-#define OPTION_SINGLEJVM "singleJVM"		/* purely for java5 compatability */
-#define OPTION_KEEP "keep"					/* purely for java5 compatability */
+#define OPTION_SINGLEJVM "singleJVM" /* purely for java5 compatability */
+#define OPTION_KEEP "keep" /* purely for java5 compatability */
 #define OPTION_MPROTECT_EQUALS "mprotect="
 #define SUB_OPTION_MPROTECT_ALL "all"
 #define SUB_OPTION_MPROTECT_ONFIND "onfind"
@@ -173,7 +182,7 @@ typedef struct J9SharedClassesOptions {
 #define OPTION_ADDTESTJITHINT "addTestJitHints"
 #define OPTION_STORAGE_KEY_EQUALS "storageKey="
 #define OPTION_RESTRICT_CLASSPATHS "restrictClasspaths"
-#define OPTION_ALLOW_CLASSPATHS	"allowClasspaths"
+#define OPTION_ALLOW_CLASSPATHS "allowClasspaths"
 #define OPTION_INVALIDATE_AOT_METHODS_EQUALS "invalidateAotMethods="
 #define OPTION_REVALIDATE_AOT_METHODS_EQUALS "revalidateAotMethods="
 #define OPTION_FIND_AOT_METHODS_EQUALS "findAotMethods="
@@ -258,42 +267,51 @@ typedef struct J9SharedClassesOptions {
 #define RESULT_DO_ADJUST_MAXJITDATA_EQUALS 48
 #define RESULT_DO_BOOTCLASSESONLY 49
 
-
 #define PARSE_TYPE_EXACT 1
 #define PARSE_TYPE_STARTSWITH 2
 #define PARSE_TYPE_OPTIONAL 3
 
-#define HELPTEXT_NAMEEQUALS_OPTION OPTION_NAME_EQUALS"<name>"
-#define HELPTEXT_EXPIRE_OPTION 	OPTION_EXPIRE_EQUALS"<t>"
-#define HELPTEXT_OPTION_RAW_DATA_AREA_SIZE_EQUALS OPTION_RAW_DATA_AREA_SIZE_EQUALS"<size>"
-#define HELPTEXT_MODIFIEDEQUALS_OPTION OPTION_MODIFIED_EQUALS"<modContext>"
-#define HELPTEXT_CACHEDIR_OPTION OPTION_CACHEDIR_EQUALS"<directory>"
-#define HELPTEXT_CACHEDIRPERM_OPTION OPTION_CACHEDIRPERM_EQUALS"<permission>"
+#define HELPTEXT_NAMEEQUALS_OPTION OPTION_NAME_EQUALS "<name>"
+#define HELPTEXT_EXPIRE_OPTION OPTION_EXPIRE_EQUALS "<t>"
+#define HELPTEXT_OPTION_RAW_DATA_AREA_SIZE_EQUALS OPTION_RAW_DATA_AREA_SIZE_EQUALS "<size>"
+#define HELPTEXT_MODIFIEDEQUALS_OPTION OPTION_MODIFIED_EQUALS "<modContext>"
+#define HELPTEXT_CACHEDIR_OPTION OPTION_CACHEDIR_EQUALS "<directory>"
+#define HELPTEXT_CACHEDIRPERM_OPTION OPTION_CACHEDIRPERM_EQUALS "<permission>"
 #if defined(J9ZOS390) || defined(AIXPPC)
-#define HELPTEXT_MPROTECTEQUALS_PUBLIC_OPTION OPTION_MPROTECT_EQUALS"["SUB_OPTION_MPROTECT_ALL"|"SUB_OPTION_MPROTECT_DEF"|"SUB_OPTION_MPROTECT_NONE"]"
-#define HELPTEXT_MPROTECTEQUALS_PARTIAL_PAGES_PRIVATE_OPTION OPTION_MPROTECT_EQUALS""SUB_OPTION_MPROTECT_PARTIAL_PAGES
-#define HELPTEXT_MPROTECTEQUALS_PARTIAL_PAGES_ON_STARTUP_PRIVATE_OPTION OPTION_MPROTECT_EQUALS""SUB_OPTION_MPROTECT_PARTIAL_PAGES_ON_STARTUP
+#define HELPTEXT_MPROTECTEQUALS_PUBLIC_OPTION \
+    OPTION_MPROTECT_EQUALS "[" SUB_OPTION_MPROTECT_ALL "|" SUB_OPTION_MPROTECT_DEF "|" SUB_OPTION_MPROTECT_NONE "]"
+#define HELPTEXT_MPROTECTEQUALS_PARTIAL_PAGES_PRIVATE_OPTION OPTION_MPROTECT_EQUALS "" SUB_OPTION_MPROTECT_PARTIAL_PAGES
+#define HELPTEXT_MPROTECTEQUALS_PARTIAL_PAGES_ON_STARTUP_PRIVATE_OPTION \
+    OPTION_MPROTECT_EQUALS "" SUB_OPTION_MPROTECT_PARTIAL_PAGES_ON_STARTUP
 #else
-#define HELPTEXT_MPROTECTEQUALS_PUBLIC_OPTION OPTION_MPROTECT_EQUALS "[" SUB_OPTION_MPROTECT_ALL "|" SUB_OPTION_MPROTECT_ONFIND "|" SUB_OPTION_MPROTECT_PARTIAL_PAGES_ON_STARTUP "|" SUB_OPTION_MPROTECT_DEF "|" SUB_OPTION_MPROTECT_NO_PARTIAL_PAGES "|" SUB_OPTION_MPROTECT_NONE "]"
+#define HELPTEXT_MPROTECTEQUALS_PUBLIC_OPTION                                                           \
+    OPTION_MPROTECT_EQUALS "[" SUB_OPTION_MPROTECT_ALL "|" SUB_OPTION_MPROTECT_ONFIND                   \
+                           "|" SUB_OPTION_MPROTECT_PARTIAL_PAGES_ON_STARTUP "|" SUB_OPTION_MPROTECT_DEF \
+                           "|" SUB_OPTION_MPROTECT_NO_PARTIAL_PAGES "|" SUB_OPTION_MPROTECT_NONE "]"
 #define HELPTEXT_MPROTECTEQUALS_NO_RW_PRIVATE_OPTION OPTION_MPROTECT_EQUALS "" SUB_OPTION_MPROTECT_NO_RW
 #endif /* defined(J9ZOS390) || defined(AIXPPC) */
-#define HELPTEXT_PRINTALLSTATS_OPTION OPTION_PRINTALLSTATS"[=option[+s]]"
-#define HELPTEXT_PRINTSTATS_OPTION OPTION_PRINTSTATS"[=option[+s]]"
-#define HELPTEXT_STORAGE_KEY_EQUALS OPTION_STORAGE_KEY_EQUALS"<key>"
-#define HELPTEXT_INVALIDATE_AOT_METHODS_OPTION OPTION_INVALIDATE_AOT_METHODS_EQUALS"help|{<method_specification>[,<method_specification>]}"
-#define HELPTEXT_REVALIDATE_AOT_METHODS_OPTION OPTION_REVALIDATE_AOT_METHODS_EQUALS"help|{<method_specification>[,<method_specification>]}"
-#define HELPTEXT_FIND_AOT_METHODS_OPTION OPTION_FIND_AOT_METHODS_EQUALS"help|{<method_specification>[,<method_specification>]}"
-#define HELPTEXT_ADJUST_SOFTMX_EQUALS OPTION_ADJUST_SOFTMX_EQUALS"<size>"
-#define HELPTEXT_ADJUST_MINAOT_EQUALS OPTION_ADJUST_MINAOT_EQUALS"<size>"
-#define HELPTEXT_ADJUST_MAXAOT_EQUALS OPTION_ADJUST_MAXAOT_EQUALS"<size>"
-#define HELPTEXT_ADJUST_MINJITDATA_EQUALS OPTION_ADJUST_MINJITDATA_EQUALS"<size>"
-#define HELPTEXT_ADJUST_MAXJITDATA_EQUALS OPTION_ADJUST_MAXJITDATA_EQUALS"<size>"
+#define HELPTEXT_PRINTALLSTATS_OPTION OPTION_PRINTALLSTATS "[=option[+s]]"
+#define HELPTEXT_PRINTSTATS_OPTION OPTION_PRINTSTATS "[=option[+s]]"
+#define HELPTEXT_STORAGE_KEY_EQUALS OPTION_STORAGE_KEY_EQUALS "<key>"
+#define HELPTEXT_INVALIDATE_AOT_METHODS_OPTION \
+    OPTION_INVALIDATE_AOT_METHODS_EQUALS "help|{<method_specification>[,<method_specification>]}"
+#define HELPTEXT_REVALIDATE_AOT_METHODS_OPTION \
+    OPTION_REVALIDATE_AOT_METHODS_EQUALS "help|{<method_specification>[,<method_specification>]}"
+#define HELPTEXT_FIND_AOT_METHODS_OPTION \
+    OPTION_FIND_AOT_METHODS_EQUALS "help|{<method_specification>[,<method_specification>]}"
+#define HELPTEXT_ADJUST_SOFTMX_EQUALS OPTION_ADJUST_SOFTMX_EQUALS "<size>"
+#define HELPTEXT_ADJUST_MINAOT_EQUALS OPTION_ADJUST_MINAOT_EQUALS "<size>"
+#define HELPTEXT_ADJUST_MAXAOT_EQUALS OPTION_ADJUST_MAXAOT_EQUALS "<size>"
+#define HELPTEXT_ADJUST_MINJITDATA_EQUALS OPTION_ADJUST_MINJITDATA_EQUALS "<size>"
+#define HELPTEXT_ADJUST_MAXJITDATA_EQUALS OPTION_ADJUST_MAXJITDATA_EQUALS "<size>"
 
-#define HELPTEXT_NEWLINE {"", 0, 0, 0, 0}
+#define HELPTEXT_NEWLINE \
+    {                    \
+        "", 0, 0, 0, 0   \
+    }
 
 #define SHRINIT_MAX_SHARED_STRING_TABLE_NODE_COUNT 15000
 #define SHRINIT_MAX_LOCAL_STRING_TABLE_BYTES 102400
-#define SHRINIT_LOCAL_STRING_TABLE_SIZE_DIVISOR 500 	/* 1/500 of the free space in the cache */
+#define SHRINIT_LOCAL_STRING_TABLE_SIZE_DIVISOR 500 /* 1/500 of the free space in the cache */
 
 #endif /* !defined(SHRINIT_H_INCLUDED) */
-

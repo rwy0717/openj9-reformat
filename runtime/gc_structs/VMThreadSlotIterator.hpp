@@ -37,19 +37,16 @@
  * Used internally by VMThreadIterator
  * @ingroup GC_Structs
  */
-class GC_VMThreadSlotIterator
-{
-	J9VMThread *_vmThread;
-	UDATA _scanIndex;
+class GC_VMThreadSlotIterator {
+    J9VMThread* _vmThread;
+    UDATA _scanIndex;
 
 public:
-	GC_VMThreadSlotIterator(J9VMThread *vmThread) :
-		_vmThread(vmThread),
-		_scanIndex(0)
-	{};
+    GC_VMThreadSlotIterator(J9VMThread* vmThread)
+        : _vmThread(vmThread)
+        , _scanIndex(0) {};
 
-	j9object_t *nextSlot();
+    j9object_t* nextSlot();
 };
 
 #endif /* VMTHREADSLOTITERATOR_HPP_ */
-

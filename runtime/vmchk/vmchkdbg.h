@@ -32,41 +32,31 @@
 #define UT_TRACE_OVERHEAD -1 /* disable assertions and tracepoints out of process */
 #endif
 
-#define DBG_ARROW(base, item) dbgReadSlot((UDATA)&((base)->item), sizeof((base)->item))
+#define DBG_ARROW(base, item) dbgReadSlot((UDATA) & ((base)->item), sizeof((base)->item))
 #define DBG_STAR(ptr) dbgReadSlot((UDATA)(ptr), sizeof(*(ptr)))
 #define DBG_INDEX(array, index) dbgReadSlot((UDATA)((array) + (index)), sizeof((array)[0]))
 
-#define VMCHECK_NNSRP_GET(base, field, type) \
-	((type) ((((U_8 *) &((base)->field))) + (J9SRP)DBG_ARROW(base, field)))
+#define VMCHECK_NNSRP_GET(base, field, type) ((type)((((U_8*)&((base)->field))) + (J9SRP)DBG_ARROW(base, field)))
 #define VMCHECK_SRP_GET(base, field, type) \
-	((type) (DBG_ARROW(base, field) ? VMCHECK_NNSRP_GET(base, field, type) : NULL))
-#define VMCHECK_NNWSRP_GET(base, field, type) \
-	((type) ((((U_8 *) &((base)->field))) + (J9WSRP)DBG_ARROW(base, field)))
+    ((type)(DBG_ARROW(base, field) ? VMCHECK_NNSRP_GET(base, field, type) : NULL))
+#define VMCHECK_NNWSRP_GET(base, field, type) ((type)((((U_8*)&((base)->field))) + (J9WSRP)DBG_ARROW(base, field)))
 #define VMCHECK_WSRP_GET(base, field, type) \
-	((type) (DBG_ARROW(base, field) ? VMCHECK_NNWSRP_GET(base, field, type) : NULL))
+    ((type)(DBG_ARROW(base, field) ? VMCHECK_NNWSRP_GET(base, field, type) : NULL))
 
 #define J9ROMCLASS_CLASSNAME(base) NNSRP_GET((base)->className, struct J9UTF8*)
 
 /* NOTE: These macros should match generated J9ROMCLASS_*(). */
-#define VMCHECK_J9ROMCLASS_CLASSNAME(base) \
-	VMCHECK_NNSRP_GET(base, className, struct J9UTF8*)
-#define VMCHECK_J9ROMCLASS_SUPERCLASSNAME(base) \
-	VMCHECK_SRP_GET(base, superclassName, struct J9UTF8*)
-#define VMCHECK_J9ROMCLASS_OUTERCLASSNAME(base) \
-	VMCHECK_SRP_GET(base, outerClassName, struct J9UTF8*)
-#define VMCHECK_J9ROMCLASS_INTERFACES(base) \
-	VMCHECK_NNSRP_GET(base, interfaces, J9SRP*)
-#define VMCHECK_J9ROMCLASS_ROMMETHODS(base) \
-	VMCHECK_NNSRP_GET(base, romMethods, struct J9ROMMethod*)
-#define VMCHECK_J9ROMCLASS_ROMFIELDS(base) \
-	VMCHECK_NNSRP_GET(base, romFields, struct J9ROMFieldShape*)
-#define VMCHECK_J9ROMCLASS_INNERCLASSES(base) \
-	VMCHECK_NNSRP_GET(base, innerClasses, J9SRP*)
-#define VMCHECK_J9ROMCLASS_CPSHAPEDESCRIPTION(base) \
-	VMCHECK_NNSRP_GET(base, cpShapeDescription, U_32*)
+#define VMCHECK_J9ROMCLASS_CLASSNAME(base) VMCHECK_NNSRP_GET(base, className, struct J9UTF8*)
+#define VMCHECK_J9ROMCLASS_SUPERCLASSNAME(base) VMCHECK_SRP_GET(base, superclassName, struct J9UTF8*)
+#define VMCHECK_J9ROMCLASS_OUTERCLASSNAME(base) VMCHECK_SRP_GET(base, outerClassName, struct J9UTF8*)
+#define VMCHECK_J9ROMCLASS_INTERFACES(base) VMCHECK_NNSRP_GET(base, interfaces, J9SRP*)
+#define VMCHECK_J9ROMCLASS_ROMMETHODS(base) VMCHECK_NNSRP_GET(base, romMethods, struct J9ROMMethod*)
+#define VMCHECK_J9ROMCLASS_ROMFIELDS(base) VMCHECK_NNSRP_GET(base, romFields, struct J9ROMFieldShape*)
+#define VMCHECK_J9ROMCLASS_INNERCLASSES(base) VMCHECK_NNSRP_GET(base, innerClasses, J9SRP*)
+#define VMCHECK_J9ROMCLASS_CPSHAPEDESCRIPTION(base) VMCHECK_NNSRP_GET(base, cpShapeDescription, U_32*)
 
 #define VMCHECK_J9_CP_FROM_METHOD(method) \
-	((J9ConstantPool *) ((UDATA)(DBG_ARROW(method, constantPool) & ~J9_STARTPC_STATUS)))
+    ((J9ConstantPool*)((UDATA)(DBG_ARROW(method, constantPool) & ~J9_STARTPC_STATUS)))
 
 #define VMCHECK_J9_NEXT_ROM_METHOD(base) dbgNextROMMethod(base)
 
@@ -75,22 +65,18 @@
 #define vmchkMonitorEnter(vm, monitor)
 #define vmchkMonitorExit(vm, monitor)
 
-#define vmchkAllClassesStartDo(vm, walkState) \
-	dbgAllClassesStartDo(walkState, vm, NULL)
-#define vmchkAllClassesNextDo(vm, walkState) \
-	dbgAllClassesNextDo(walkState)
+#define vmchkAllClassesStartDo(vm, walkState) dbgAllClassesStartDo(walkState, vm, NULL)
+#define vmchkAllClassesNextDo(vm, walkState) dbgAllClassesNextDo(walkState)
 #define vmchkAllClassesEndDo(vm, walkState)
 
-#define vmchkAllClassLoadersStartDo(vm, walkState) \
-	dbgAllClassLoadersStartDo(walkState, vm, 0)
-#define vmchkAllClassLoadersNextDo(vm, walkState) \
-	dbgAllClassLoadersNextDo(walkState)
+#define vmchkAllClassLoadersStartDo(vm, walkState) dbgAllClassLoadersStartDo(walkState, vm, 0)
+#define vmchkAllClassLoadersNextDo(vm, walkState) dbgAllClassLoadersNextDo(walkState)
 #define vmchkAllClassLoadersEndDo(vm, walkState)
 
 #else /* J9VM_OUT_OF_PROCESS */
 
 #define DBG_ARROW(base, item) ((UDATA)(base)->item)
-#define DBG_STAR(ptr) ((UDATA)*(ptr))
+#define DBG_STAR(ptr) ((UDATA) * (ptr))
 #define DBG_INDEX(array, index) ((UDATA)((array)[(index)]))
 
 #define VMCHECK_SRP_GET(base, field, type) SRP_GET((base)->field, type)
@@ -118,24 +104,19 @@
 #define vmchkMonitorExit(vm, monitor)
 #endif /* defined(J9VM_THR_PREEMPTIVE) */
 
-#define vmchkAllClassesStartDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassesStartDo(walkState, vm, NULL)
-#define vmchkAllClassesNextDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassesNextDo(walkState)
-#define vmchkAllClassesEndDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassesEndDo(walkState)
+#define vmchkAllClassesStartDo(vm, walkState) (vm)->internalVMFunctions->allClassesStartDo(walkState, vm, NULL)
+#define vmchkAllClassesNextDo(vm, walkState) (vm)->internalVMFunctions->allClassesNextDo(walkState)
+#define vmchkAllClassesEndDo(vm, walkState) (vm)->internalVMFunctions->allClassesEndDo(walkState)
 
-#define vmchkAllClassLoadersStartDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassLoadersStartDo(walkState, vm, 0)
-#define vmchkAllClassLoadersNextDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassLoadersNextDo(walkState)
-#define vmchkAllClassLoadersEndDo(vm, walkState) \
-	(vm)->internalVMFunctions->allClassLoadersEndDo(walkState)
+#define vmchkAllClassLoadersStartDo(vm, walkState) (vm)->internalVMFunctions->allClassLoadersStartDo(walkState, vm, 0)
+#define vmchkAllClassLoadersNextDo(vm, walkState) (vm)->internalVMFunctions->allClassLoadersNextDo(walkState)
+#define vmchkAllClassLoadersEndDo(vm, walkState) (vm)->internalVMFunctions->allClassLoadersEndDo(walkState)
 
 #endif /* J9VM_OUT_OF_PROCESS */
 
 #define VMCHECK_CLASS_DEPTH(clazz) J9CLASS_DEPTH(clazz)
 #define VMCHECK_IS_CLASS_OBSOLETE(clazz) (J9CLASS_FLAGS(clazz) & J9_JAVA_CLASS_HOT_SWAPPED_OUT)
-#define VMCHECK_J9_CURRENT_CLASS(clazz) (VMCHECK_IS_CLASS_OBSOLETE(clazz) ? (J9Class *)DBG_ARROW(clazz, arrayClass) : (clazz))
+#define VMCHECK_J9_CURRENT_CLASS(clazz) \
+    (VMCHECK_IS_CLASS_OBSOLETE(clazz) ? (J9Class*)DBG_ARROW(clazz, arrayClass) : (clazz))
 
 #endif /* gcdbgext_h */

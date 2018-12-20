@@ -24,13 +24,13 @@
 #define cfdumper_api_h
 
 /**
-* @file cfdumper_api.h
-* @brief Public API for the CFDUMPER module.
-*
-* This file contains public function prototypes and
-* type definitions for the CFDUMPER module.
-*
-*/
+ * @file cfdumper_api.h
+ * @brief Public API for the CFDUMPER module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the CFDUMPER module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -42,69 +42,64 @@ extern "C" {
 /* ---------------- main.c ---------------- */
 
 /**
-* @brief
-* @param *arg
-* @return UDATA
-*/
-UDATA 
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
+ * @brief
+ * @param *arg
+ * @return UDATA
+ */
+UDATA
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 /* ---------------- romdump.c ---------------- */
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param baseAddress
-* @param nestingThreshold
-* @param validateRangeCallback
-* @return void
-*/
-void
-j9bcutil_linearDumpROMClass(J9PortLibrary *portlib, J9ROMClass *romClass, void *baseAddress, UDATA nestingThreshold,
-		BOOLEAN(*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param baseAddress
+ * @param nestingThreshold
+ * @param validateRangeCallback
+ * @return void
+ */
+void j9bcutil_linearDumpROMClass(J9PortLibrary* portlib, J9ROMClass* romClass, void* baseAddress,
+    UDATA nestingThreshold, BOOLEAN (*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param baseAddress
-* @param queries
-* @param numQueries
-* @param validateRangeCallback
-* @return void
-*/
-void
-j9bcutil_queryROMClass(J9PortLibrary *portLib, J9ROMClass *romClass, void *baseAddress, const char **queries, UDATA numQueries,
-		BOOLEAN(*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param baseAddress
+ * @param queries
+ * @param numQueries
+ * @param validateRangeCallback
+ * @return void
+ */
+void j9bcutil_queryROMClass(J9PortLibrary* portLib, J9ROMClass* romClass, void* baseAddress, const char** queries,
+    UDATA numQueries, BOOLEAN (*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param baseAddress
-* @param commaSeparatedQueries
-* @param validateRangeCallback
-* @return void
-*/
-void
-j9bcutil_queryROMClassCommaSeparated(J9PortLibrary *portLib, J9ROMClass *romClass, void *baseAddress, const char *commaSeparatedQueries,
-		BOOLEAN(*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param baseAddress
+ * @param commaSeparatedQueries
+ * @param validateRangeCallback
+ * @return void
+ */
+void j9bcutil_queryROMClassCommaSeparated(J9PortLibrary* portLib, J9ROMClass* romClass, void* baseAddress,
+    const char* commaSeparatedQueries, BOOLEAN (*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
 
 /**
-* @brief
-* @param portLib
-* @param romClass
-* @param validateRangeCallback
-* @return void
-*/
-void
-j9bcutil_linearDumpROMClassXML(J9PortLibrary *portlib, J9ROMClass *romClass,
-		BOOLEAN(*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
+ * @brief
+ * @param portLib
+ * @param romClass
+ * @param validateRangeCallback
+ * @return void
+ */
+void j9bcutil_linearDumpROMClassXML(
+    J9PortLibrary* portlib, J9ROMClass* romClass, BOOLEAN (*validateRangeCallback)(J9ROMClass*, void*, UDATA, void*));
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* cfdumper_api_h */
-

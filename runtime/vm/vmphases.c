@@ -25,45 +25,46 @@
 #include "ute.h"
 #include "ut_j9vm.h"
 
-void jvmPhaseChange(J9JavaVM* vm, UDATA phase) {
-	J9VMThread *currentThread = currentVMThread(vm);
-	vm->phase = phase;
-	Trc_VM_VMPhases_JVMPhaseChange(phase);
-	
-	if( phase == J9VM_PHASE_NOT_STARTUP ) {
-		RasGlobalStorage *tempRasGbl;
+void jvmPhaseChange(J9JavaVM* vm, UDATA phase)
+{
+    J9VMThread* currentThread = currentVMThread(vm);
+    vm->phase = phase;
+    Trc_VM_VMPhases_JVMPhaseChange(phase);
 
-		if (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags, J9_EXTENDED_RUNTIME_DISABLE_FAST_CLASS_HASH_TABLE)) {
-			if (NULL != vm->classLoaderBlocks) {
-				pool_state clState;
-				J9ClassLoader *loader;
+    if (phase == J9VM_PHASE_NOT_STARTUP) {
+        RasGlobalStorage* tempRasGbl;
 
-				omrthread_monitor_enter(vm->classTableMutex);
-				omrthread_monitor_enter(vm->classLoaderBlocksMutex);
-				loader = pool_startDo(vm->classLoaderBlocks, &clState);
-				while (loader != NULL) {
-					J9HashTable *table = loader->classHashTable;
-					if (NULL != table) {
-						table->flags |= J9HASH_TABLE_DO_NOT_GROW;
-					}
-					loader = pool_nextDo(&clState);
-				}
-				omrthread_monitor_enter(vm->runtimeFlagsMutex);
-				vm->extendedRuntimeFlags |= J9_EXTENDED_RUNTIME_FAST_CLASS_HASH_TABLE;
-				omrthread_monitor_exit(vm->runtimeFlagsMutex);
+        if (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags, J9_EXTENDED_RUNTIME_DISABLE_FAST_CLASS_HASH_TABLE)) {
+            if (NULL != vm->classLoaderBlocks) {
+                pool_state clState;
+                J9ClassLoader* loader;
 
-				omrthread_monitor_exit(vm->classLoaderBlocksMutex);
-				omrthread_monitor_exit(vm->classTableMutex);
-				Trc_VM_VMPhases_FastClassHashTable_Enabled();
-			}
-		}
+                omrthread_monitor_enter(vm->classTableMutex);
+                omrthread_monitor_enter(vm->classLoaderBlocksMutex);
+                loader = pool_startDo(vm->classLoaderBlocks, &clState);
+                while (loader != NULL) {
+                    J9HashTable* table = loader->classHashTable;
+                    if (NULL != table) {
+                        table->flags |= J9HASH_TABLE_DO_NOT_GROW;
+                    }
+                    loader = pool_nextDo(&clState);
+                }
+                omrthread_monitor_enter(vm->runtimeFlagsMutex);
+                vm->extendedRuntimeFlags |= J9_EXTENDED_RUNTIME_FAST_CLASS_HASH_TABLE;
+                omrthread_monitor_exit(vm->runtimeFlagsMutex);
 
-		tempRasGbl = (RasGlobalStorage *)vm->j9rasGlobalStorage;
-		if (tempRasGbl != NULL && tempRasGbl->utIntf != NULL) {
-			((J9UtServerInterface *)((UtInterface *)tempRasGbl->utIntf)->server)->StartupComplete(currentThread);
-		}
-	}
-	if (NULL != vm->sharedClassConfig) {
-		vm->sharedClassConfig->jvmPhaseChange(currentThread, phase);
-	}
+                omrthread_monitor_exit(vm->classLoaderBlocksMutex);
+                omrthread_monitor_exit(vm->classTableMutex);
+                Trc_VM_VMPhases_FastClassHashTable_Enabled();
+            }
+        }
+
+        tempRasGbl = (RasGlobalStorage*)vm->j9rasGlobalStorage;
+        if (tempRasGbl != NULL && tempRasGbl->utIntf != NULL) {
+            ((J9UtServerInterface*)((UtInterface*)tempRasGbl->utIntf)->server)->StartupComplete(currentThread);
+        }
+    }
+    if (NULL != vm->sharedClassConfig) {
+        vm->sharedClassConfig->jvmPhaseChange(currentThread, phase);
+    }
 }

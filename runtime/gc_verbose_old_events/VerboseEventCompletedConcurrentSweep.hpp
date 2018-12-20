@@ -34,37 +34,35 @@
  * Stores the data relating to the concurrent completion of the sweep phase.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventCompletedConcurrentSweep : public MM_VerboseEvent
-{
+class MM_VerboseEventCompletedConcurrentSweep : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	U_64 _timeElapsedSweep;  	/**< Time elapse during sweep phase */
-	UDATA _bytesSwept;  		/**< Total heap bytes processed during sweep phase */
-	U_64 _timeElapsedConnect;	/**< Time elapse during connect phase */
-	UDATA _bytesConnected;  	/**< Total heap bytes processed during connect phase */
-	UDATA _reason;				/**< Reason why the completion of concurrent sweep is required */
-	
-	I_64 _timeInMilliSeconds;
-	
-	void initialize(void);
+    /* Passed Data */
+    U_64 _timeElapsedSweep; /**< Time elapse during sweep phase */
+    UDATA _bytesSwept; /**< Total heap bytes processed during sweep phase */
+    U_64 _timeElapsedConnect; /**< Time elapse during connect phase */
+    UDATA _bytesConnected; /**< Total heap bytes processed during connect phase */
+    UDATA _reason; /**< Reason why the completion of concurrent sweep is required */
+
+    I_64 _timeInMilliSeconds;
+
+    void initialize(void);
+
 public:
-	static MM_VerboseEvent *newInstance(MM_CompletedConcurrentSweep *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_CompletedConcurrentSweep* event, J9HookInterface** hookInterface);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventCompletedConcurrentSweep(MM_CompletedConcurrentSweep *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-	_timeElapsedSweep(event->timeElapsedSweep),
-	_bytesSwept(event->bytesSwept),
-	_timeElapsedConnect(event->timeElapsedConnect),
-	_bytesConnected(event->bytesConnected),
-	_reason(event->reason)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventCompletedConcurrentSweep(MM_CompletedConcurrentSweep* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _timeElapsedSweep(event->timeElapsedSweep)
+        , _bytesSwept(event->bytesSwept)
+        , _timeElapsedConnect(event->timeElapsedConnect)
+        , _bytesConnected(event->bytesConnected)
+        , _reason(event->reason) {};
 };
 
 #endif /* EVENT_COMPLETED_CONCURRENT_SWEEP_HPP_ */
-

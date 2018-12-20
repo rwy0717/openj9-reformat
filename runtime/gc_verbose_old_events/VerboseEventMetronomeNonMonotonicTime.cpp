@@ -34,22 +34,23 @@
  * Create an new instance of a MM_VerboseEventMetronomeOutOfMemory event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeNonMonotonicTime::newInstance(MM_NonMonotonicTimeEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeNonMonotonicTime::newInstance(
+    MM_NonMonotonicTimeEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeNonMonotonicTime *eventObject = (MM_VerboseEventMetronomeNonMonotonicTime *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeNonMonotonicTime));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeNonMonotonicTime(event, hookInterface);
-		eventObject->initialize(event);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeNonMonotonicTime* eventObject
+        = (MM_VerboseEventMetronomeNonMonotonicTime*)MM_VerboseEvent::create(
+            event->currentThread, sizeof(MM_VerboseEventMetronomeNonMonotonicTime));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeNonMonotonicTime(event, hookInterface);
+        eventObject->initialize(event);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventMetronomeNonMonotonicTime::initialize(MM_NonMonotonicTimeEvent *event)
+void MM_VerboseEventMetronomeNonMonotonicTime::initialize(MM_NonMonotonicTimeEvent* event)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	_timeInMilliSeconds = omrtime_hires_delta(0, _time, J9PORT_TIME_DELTA_IN_MILLISECONDS);
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    _timeInMilliSeconds = omrtime_hires_delta(0, _time, J9PORT_TIME_DELTA_IN_MILLISECONDS);
 }
 
 /**
@@ -57,27 +58,25 @@ MM_VerboseEventMetronomeNonMonotonicTime::initialize(MM_NonMonotonicTimeEvent *e
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeNonMonotonicTime::consumeEvents()
-{
-}
+void MM_VerboseEventMetronomeNonMonotonicTime::consumeEvents() {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeNonMonotonicTime::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventMetronomeNonMonotonicTime::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
-	MM_VerboseManagerBase *manager = extensions->verboseGCManager;
-	char timestamp[32];
-	
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(), "<event details=\"non-monotonic time acknowledged\" timerDesc=\"%s\" timestamp=\"%s\" />", _timerDescription, timestamp);
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
+    MM_VerboseManagerBase* manager = extensions->verboseGCManager;
+    char timestamp[32];
+
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(),
+        "<event details=\"non-monotonic time acknowledged\" timerDesc=\"%s\" timestamp=\"%s\" />", _timerDescription,
+        timestamp);
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }
 
 #endif /* J9VM_GC_REALTIME */

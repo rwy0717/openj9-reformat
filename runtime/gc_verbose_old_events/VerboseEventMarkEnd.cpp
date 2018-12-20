@@ -20,23 +20,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventMarkEnd.hpp"
 
 /**
  * Create an new instance of a MM_VerboseEventMarkEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMarkEnd::newInstance(MM_MarkEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMarkEnd::newInstance(MM_MarkEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMarkEnd *eventObject;
-	
-	eventObject = (MM_VerboseEventMarkEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMarkEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMarkEnd(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventMarkEnd* eventObject;
+
+    eventObject
+        = (MM_VerboseEventMarkEnd*)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMarkEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMarkEnd(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -44,16 +44,10 @@ MM_VerboseEventMarkEnd::newInstance(MM_MarkEndEvent *event, J9HookInterface** ho
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMarkEnd::consumeEvents(void)
-{
-}
+void MM_VerboseEventMarkEnd::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMarkEnd::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventMarkEnd::formattedOutput(MM_VerboseOutputAgent* agent) {}

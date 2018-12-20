@@ -37,32 +37,31 @@
  * Stores the data relating to the end of a compaction.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventCompactEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventCompactEnd : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_movedObjects; /**< the number of objects moved */
-	UDATA	_movedBytes; /**< the number of bytes moved */
-	UDATA	_compactionReason; /**< the reason code for the compaction */
-	UDATA	_compactionPreventedReason; /**< the reason code for why the compaction was not run */
-	
+    /* Passed Data */
+    UDATA _movedObjects; /**< the number of objects moved */
+    UDATA _movedBytes; /**< the number of bytes moved */
+    UDATA _compactionReason; /**< the reason code for the compaction */
+    UDATA _compactionPreventedReason; /**< the reason code for why the compaction was not run */
+
 public:
+    static MM_VerboseEvent* newInstance(MM_CompactEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_CompactEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
 
-	MM_VerboseEventCompactEnd(MM_CompactEndEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->omrVMThread, event->timestamp, event->eventid, hookInterface),
-	_movedObjects(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._movedObjects),
-	_movedBytes(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._movedBytes),
-	_compactionReason(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._compactReason),
-	_compactionPreventedReason(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._compactPreventedReason)
-	{};
+    MM_VerboseEventCompactEnd(MM_CompactEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->omrVMThread, event->timestamp, event->eventid, hookInterface)
+        , _movedObjects(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._movedObjects)
+        , _movedBytes(MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._movedBytes)
+        , _compactionReason(
+              MM_GCExtensions::getExtensions(event->omrVMThread)->globalGCStats.compactStats._compactReason)
+        , _compactionPreventedReason(MM_GCExtensions::getExtensions(event->omrVMThread)
+                                         ->globalGCStats.compactStats._compactPreventedReason) {};
 };
 
 #endif /* J9VM_GC_MODRON_COMPACTION */

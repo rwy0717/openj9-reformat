@@ -30,51 +30,41 @@
 #include "HeapRegionDescriptorVLHGC.hpp"
 #include "UnfinalizedObjectList.hpp"
 
-MM_UnfinalizedObjectBufferVLHGC::MM_UnfinalizedObjectBufferVLHGC(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
+MM_UnfinalizedObjectBufferVLHGC::MM_UnfinalizedObjectBufferVLHGC(MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_UnfinalizedObjectBuffer(extensions, maxObjectCount)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_UnfinalizedObjectBufferVLHGC *
-MM_UnfinalizedObjectBufferVLHGC::newInstance(MM_EnvironmentBase *env)
+MM_UnfinalizedObjectBufferVLHGC* MM_UnfinalizedObjectBufferVLHGC::newInstance(MM_EnvironmentBase* env)
 {
-	MM_UnfinalizedObjectBufferVLHGC *unfinalizedObjectBuffer = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
+    MM_UnfinalizedObjectBufferVLHGC* unfinalizedObjectBuffer = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
 
-	unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferVLHGC *)env->getForge()->allocate(sizeof(MM_UnfinalizedObjectBufferVLHGC), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != unfinalizedObjectBuffer) {
-		new(unfinalizedObjectBuffer) MM_UnfinalizedObjectBufferVLHGC(extensions, UDATA_MAX);
-		if (!unfinalizedObjectBuffer->initialize(env)) {
-			unfinalizedObjectBuffer->kill(env);
-			unfinalizedObjectBuffer = NULL;
-		}
-	}
+    unfinalizedObjectBuffer = (MM_UnfinalizedObjectBufferVLHGC*)env->getForge()->allocate(
+        sizeof(MM_UnfinalizedObjectBufferVLHGC), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != unfinalizedObjectBuffer) {
+        new (unfinalizedObjectBuffer) MM_UnfinalizedObjectBufferVLHGC(extensions, UDATA_MAX);
+        if (!unfinalizedObjectBuffer->initialize(env)) {
+            unfinalizedObjectBuffer->kill(env);
+            unfinalizedObjectBuffer = NULL;
+        }
+    }
 
-	return unfinalizedObjectBuffer;
+    return unfinalizedObjectBuffer;
 }
 
-bool
-MM_UnfinalizedObjectBufferVLHGC::initialize(MM_EnvironmentBase *base)
+bool MM_UnfinalizedObjectBufferVLHGC::initialize(MM_EnvironmentBase* base) { return true; }
+
+void MM_UnfinalizedObjectBufferVLHGC::tearDown(MM_EnvironmentBase* base) {}
+
+void MM_UnfinalizedObjectBufferVLHGC::flushImpl(MM_EnvironmentBase* env)
 {
-	return true;
+    MM_HeapRegionDescriptorVLHGC* region = (MM_HeapRegionDescriptorVLHGC*)_region;
+    region->getUnfinalizedObjectList()->addAll(env, _head, _tail);
 }
 
-void
-MM_UnfinalizedObjectBufferVLHGC::tearDown(MM_EnvironmentBase *base)
+MM_HeapRegionDescriptorVLHGC* MM_UnfinalizedObjectBufferVLHGC::getRegion()
 {
-
-}
-
-void 
-MM_UnfinalizedObjectBufferVLHGC::flushImpl(MM_EnvironmentBase* env)
-{
-	MM_HeapRegionDescriptorVLHGC *region = (MM_HeapRegionDescriptorVLHGC*)_region;	
-	region->getUnfinalizedObjectList()->addAll(env, _head, _tail);
-}
-
-MM_HeapRegionDescriptorVLHGC *
-MM_UnfinalizedObjectBufferVLHGC::getRegion()
-{
-	return (MM_HeapRegionDescriptorVLHGC *)_region;
+    return (MM_HeapRegionDescriptorVLHGC*)_region;
 }

@@ -27,38 +27,35 @@
 
 #include "RegionListTarok.hpp"
 
-
-void
-MM_RegionListTarok::insertRegion(MM_HeapRegionDescriptorVLHGC *region)
+void MM_RegionListTarok::insertRegion(MM_HeapRegionDescriptorVLHGC* region)
 {
-	Assert_MM_true(NULL == region->_allocateData._nextInList);
-	Assert_MM_true(NULL == region->_allocateData._previousInList);
-	if (NULL != _regions) {
-		region->_allocateData._nextInList = _regions;
-		_regions->_allocateData._previousInList = region;
-	}
-	_regions = region;
-	_listSize += 1;
+    Assert_MM_true(NULL == region->_allocateData._nextInList);
+    Assert_MM_true(NULL == region->_allocateData._previousInList);
+    if (NULL != _regions) {
+        region->_allocateData._nextInList = _regions;
+        _regions->_allocateData._previousInList = region;
+    }
+    _regions = region;
+    _listSize += 1;
 }
 
-void
-MM_RegionListTarok::removeRegion(MM_HeapRegionDescriptorVLHGC *region)
+void MM_RegionListTarok::removeRegion(MM_HeapRegionDescriptorVLHGC* region)
 {
-	/* the list must contain something */
-	Assert_MM_true(_listSize > 0);
-	MM_HeapRegionDescriptorVLHGC *next = region->_allocateData._nextInList;
-	MM_HeapRegionDescriptorVLHGC *previous = region->_allocateData._previousInList;
-	
-	if (NULL != next) {
-		next->_allocateData._previousInList = previous;
-	}
-	if (NULL != previous) {
-		previous->_allocateData._nextInList = next;
-		Assert_MM_false(previous == previous->_allocateData._nextInList);
-	} else {
-		_regions = next;
-	}
-	region->_allocateData._nextInList = NULL;
-	region->_allocateData._previousInList = NULL;
-	_listSize -= 1;
+    /* the list must contain something */
+    Assert_MM_true(_listSize > 0);
+    MM_HeapRegionDescriptorVLHGC* next = region->_allocateData._nextInList;
+    MM_HeapRegionDescriptorVLHGC* previous = region->_allocateData._previousInList;
+
+    if (NULL != next) {
+        next->_allocateData._previousInList = previous;
+    }
+    if (NULL != previous) {
+        previous->_allocateData._nextInList = next;
+        Assert_MM_false(previous == previous->_allocateData._nextInList);
+    } else {
+        _regions = next;
+    }
+    region->_allocateData._nextInList = NULL;
+    region->_allocateData._previousInList = NULL;
+    _listSize -= 1;
 }

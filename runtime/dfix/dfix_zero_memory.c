@@ -24,15 +24,14 @@
 #include "dfix.h"
 #include "dfix_internal.h"
 
-static void
-zero_memory_impl1(void *address, size_t size)
+static void zero_memory_impl1(void* address, size_t size)
 {
-	printf("running in zero_memory_impl1(address=0x%p,size=%llu).\n", address, (unsigned long long)size);
+    printf("running in zero_memory_impl1(address=0x%p,size=%llu).\n", address, (unsigned long long)size);
 }
 
 BOOLEAN
 resolve_dfix_zero_memory()
 {
-	dfix_zero_memory_impl = zero_memory_impl1;
-	return TRUE;
+    dfix_zero_memory_impl = zero_memory_impl1;
+    return TRUE;
 }

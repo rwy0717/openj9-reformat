@@ -24,13 +24,13 @@
 #define shared_api_h
 
 /**
-* @file shared_api.h
-* @brief Public API for the SHARED module.
-*
-* This file contains public function prototypes and
-* type definitions for the SHARED module.
-*
-*/
+ * @file shared_api.h
+ * @brief Public API for the SHARED module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the SHARED module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,15 +43,14 @@ extern "C" {
 /* ---------------- shrclssup.c ---------------- */
 
 /**
-* @brief
-* @param vm
-* @param stage
-* @param reserved
-* @return IDATA
-*/
-IDATA 
+ * @brief
+ * @param vm
+ * @param stage
+ * @param reserved
+ * @return IDATA
+ */
+IDATA
 J9VMDllMain(J9JavaVM* vm, IDATA stage, void* reserved);
-
 
 #ifdef __cplusplus
 }

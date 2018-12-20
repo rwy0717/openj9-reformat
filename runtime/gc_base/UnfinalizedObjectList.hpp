@@ -35,88 +35,91 @@ class MM_EnvironmentBase;
 /**
  * A global list of unfinalized objects.
  */
-class MM_UnfinalizedObjectList : public MM_BaseNonVirtual
-{
-/* data members */
+class MM_UnfinalizedObjectList : public MM_BaseNonVirtual {
+    /* data members */
 private:
-	volatile j9object_t _head; /**< the head of the linked list of unfinalized objects */
-	j9object_t _priorHead; /**< the head of the linked list before unfinalized object processing */
-	MM_UnfinalizedObjectList *_nextList; /**< a pointer to the next unfinalized list in the global linked list of lists */
-	MM_UnfinalizedObjectList *_previousList; /**< a pointer to the previous unfinalized list in the global linked list of lists */
+    volatile j9object_t _head; /**< the head of the linked list of unfinalized objects */
+    j9object_t _priorHead; /**< the head of the linked list before unfinalized object processing */
+    MM_UnfinalizedObjectList*
+        _nextList; /**< a pointer to the next unfinalized list in the global linked list of lists */
+    MM_UnfinalizedObjectList*
+        _previousList; /**< a pointer to the previous unfinalized list in the global linked list of lists */
 protected:
 public:
-	
-/* function members */
+    /* function members */
 private:
 protected:
 public:
-	/**
-	 * Add the specified linked list of objects to the buffer.
-	 * The objects are expected to be in a NULL terminated linked
-	 * list, starting from head and end at tail.
-	 * This call is thread safe.
-	 * 
-	 * @param env[in] the current thread
-	 * @param head[in] the first object in the list to add
-	 * @param tail[in] the last object in the list to add
-	 */
-	void addAll(MM_EnvironmentBase* env, j9object_t head, j9object_t tail);
+    /**
+     * Add the specified linked list of objects to the buffer.
+     * The objects are expected to be in a NULL terminated linked
+     * list, starting from head and end at tail.
+     * This call is thread safe.
+     *
+     * @param env[in] the current thread
+     * @param head[in] the first object in the list to add
+     * @param tail[in] the last object in the list to add
+     */
+    void addAll(MM_EnvironmentBase* env, j9object_t head, j9object_t tail);
 
-	/**
-	 * Fetch the head of the linked list, as it appeared at the beginning of unfinalized object processing.
-	 * @return the head object, or NULL if the list is empty
-	 */
-	MMINLINE j9object_t getHeadOfList() { return _head; }
+    /**
+     * Fetch the head of the linked list, as it appeared at the beginning of unfinalized object processing.
+     * @return the head object, or NULL if the list is empty
+     */
+    MMINLINE j9object_t getHeadOfList() { return _head; }
 
-	/**
-	 * Move the list to the prior list and reset the current list to empty.
-	 * The prior list may be examined with wasEmpty() and getPriorList().
-	 */
-	void startUnfinalizedProcessing() {
-		_priorHead = _head;
-		_head = NULL; 
-	}
-	
-	/**
-	 * Determine if the list was empty at the beginning of unfinalized object processing.
-	 * @return true if the list was empty, false otherwise
-	 */
-	bool wasEmpty() { return NULL == _priorHead; }
-	
-	/**
-	 * Fetch the head of the linked list, as it appeared at the beginning of unfinalized object processing.
-	 * @return the head object, or NULL if the list is empty
-	 */
-	j9object_t getPriorList() { return _priorHead; }
-	
-	/**
-	 * Return a pointer to the next unfinalized object list in the global linked list of lists, or NULL if this is the last list.
-	 * @return the next list in the global list
-	 */
-	MMINLINE MM_UnfinalizedObjectList* getNextList() { return _nextList; }
-	
-	/**
-	 * Set the link to the next unfinalized object list in the global linked list of lists.
-	 * @param nextList[in] the next list, or NULL
-	 */
-	void setNextList(MM_UnfinalizedObjectList* nextList) { _nextList = nextList; }
+    /**
+     * Move the list to the prior list and reset the current list to empty.
+     * The prior list may be examined with wasEmpty() and getPriorList().
+     */
+    void startUnfinalizedProcessing()
+    {
+        _priorHead = _head;
+        _head = NULL;
+    }
 
-	/**
-	 * Return a pointer to the previous unfinalized object list in the global linked list of lists, or NULL if this is the first list.
-	 * @return the next list in the global list
-	 */
-	MMINLINE MM_UnfinalizedObjectList* getPreviousList() { return _previousList; }
+    /**
+     * Determine if the list was empty at the beginning of unfinalized object processing.
+     * @return true if the list was empty, false otherwise
+     */
+    bool wasEmpty() { return NULL == _priorHead; }
 
-	/**
-	 * Set the link to the previous unfinalized object list in the global linked list of lists.
-	 * @param nextList[in] the next list, or NULL
-	 */
-	void setPreviousList(MM_UnfinalizedObjectList* previousList) { _previousList = previousList; }
+    /**
+     * Fetch the head of the linked list, as it appeared at the beginning of unfinalized object processing.
+     * @return the head object, or NULL if the list is empty
+     */
+    j9object_t getPriorList() { return _priorHead; }
 
-	/**
-	 * Construct a new list.
-	 */
-	MM_UnfinalizedObjectList();
+    /**
+     * Return a pointer to the next unfinalized object list in the global linked list of lists, or NULL if this is the
+     * last list.
+     * @return the next list in the global list
+     */
+    MMINLINE MM_UnfinalizedObjectList* getNextList() { return _nextList; }
+
+    /**
+     * Set the link to the next unfinalized object list in the global linked list of lists.
+     * @param nextList[in] the next list, or NULL
+     */
+    void setNextList(MM_UnfinalizedObjectList* nextList) { _nextList = nextList; }
+
+    /**
+     * Return a pointer to the previous unfinalized object list in the global linked list of lists, or NULL if this is
+     * the first list.
+     * @return the next list in the global list
+     */
+    MMINLINE MM_UnfinalizedObjectList* getPreviousList() { return _previousList; }
+
+    /**
+     * Set the link to the previous unfinalized object list in the global linked list of lists.
+     * @param nextList[in] the next list, or NULL
+     */
+    void setPreviousList(MM_UnfinalizedObjectList* previousList) { _previousList = previousList; }
+
+    /**
+     * Construct a new list.
+     */
+    MM_UnfinalizedObjectList();
 };
 
 #endif /* UNFINALIZEDOBJECTLIST_HPP_ */

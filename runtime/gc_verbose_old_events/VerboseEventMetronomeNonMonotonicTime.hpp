@@ -35,29 +35,28 @@
 /**
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventMetronomeNonMonotonicTime : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeNonMonotonicTime : public MM_VerboseEvent {
 private:
-	U_64 _timeInMilliSeconds;
-	const char* _timerDescription;
-	
-	void initialize(MM_NonMonotonicTimeEvent *event);
-	
-public:	
-	static MM_VerboseEvent *newInstance(MM_NonMonotonicTimeEvent *event, J9HookInterface** hookInterface);
+    U_64 _timeInMilliSeconds;
+    const char* _timerDescription;
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    void initialize(MM_NonMonotonicTimeEvent* event);
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return true; }
-	MMINLINE virtual bool endsEventChain(void) { return true; }
-	
-	virtual bool isAtomic() { return true; }
-	
-	MM_VerboseEventMetronomeNonMonotonicTime(MM_NonMonotonicTimeEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_timerDescription(event->timerDesc)
-	{}
+public:
+    static MM_VerboseEvent* newInstance(MM_NonMonotonicTimeEvent* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine(void) { return true; }
+    MMINLINE virtual bool endsEventChain(void) { return true; }
+
+    virtual bool isAtomic() { return true; }
+
+    MM_VerboseEventMetronomeNonMonotonicTime(MM_NonMonotonicTimeEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _timerDescription(event->timerDesc)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

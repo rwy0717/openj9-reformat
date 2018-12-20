@@ -25,31 +25,30 @@
 #include "stackwalk.h"
 #include "util_internal.h"
 
-#if (defined(J9VM_INTERP_NATIVE_SUPPORT)) 
+#if (defined(J9VM_INTERP_NATIVE_SUPPORT))
 /**
  * @internal
- * 
+ *
  * Push a resolve frame on the stack so that it is walkable.
  *
  * This should be in jswalk.c, but it is in util for now so that is can be used by both jswalk.c and gphandle.c.
  * Once the JIT specific code in gphandle.c is moved into the JIT module this can be moved back to
  * jswalk.c where it belongs.
  */
-J9SFJITResolveFrame* 
-jitPushResolveFrame(J9VMThread* vmThread, UDATA* sp, U_8* pc) 
+J9SFJITResolveFrame* jitPushResolveFrame(J9VMThread* vmThread, UDATA* sp, U_8* pc)
 {
-	J9SFJITResolveFrame * resolveFrame = (J9SFJITResolveFrame *) (((U_8 *) sp) - sizeof(J9SFJITResolveFrame));
-	resolveFrame->savedJITException = NULL;
-	resolveFrame->specialFrameFlags = J9_SSF_JIT_RESOLVE;
-	resolveFrame->parmCount = 0;
-	resolveFrame->returnAddress = pc;
-	resolveFrame->taggedRegularReturnSP = (UDATA *) (((U_8 *) (resolveFrame + 1)) + J9SF_A0_INVISIBLE_TAG);
+    J9SFJITResolveFrame* resolveFrame = (J9SFJITResolveFrame*)(((U_8*)sp) - sizeof(J9SFJITResolveFrame));
+    resolveFrame->savedJITException = NULL;
+    resolveFrame->specialFrameFlags = J9_SSF_JIT_RESOLVE;
+    resolveFrame->parmCount = 0;
+    resolveFrame->returnAddress = pc;
+    resolveFrame->taggedRegularReturnSP = (UDATA*)(((U_8*)(resolveFrame + 1)) + J9SF_A0_INVISIBLE_TAG);
 
-	vmThread->pc = (U_8 *) J9SF_FRAME_TYPE_JIT_RESOLVE;
-	vmThread->arg0EA = (UDATA *) &(resolveFrame->taggedRegularReturnSP);
-	vmThread->literals = NULL;
-	vmThread->sp = (UDATA *) resolveFrame;
+    vmThread->pc = (U_8*)J9SF_FRAME_TYPE_JIT_RESOLVE;
+    vmThread->arg0EA = (UDATA*)&(resolveFrame->taggedRegularReturnSP);
+    vmThread->literals = NULL;
+    vmThread->sp = (UDATA*)resolveFrame;
 
-	return resolveFrame;
+    return resolveFrame;
 }
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */

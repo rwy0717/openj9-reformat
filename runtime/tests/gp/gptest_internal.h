@@ -24,13 +24,13 @@
 #define gptest_internal_h
 
 /**
-* @file gptest_internal.h
-* @brief Internal prototypes used within the GPTEST module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the GPTEST module.
-*
-*/
+ * @file gptest_internal.h
+ * @brief Internal prototypes used within the GPTEST module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the GPTEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,57 +44,49 @@ extern "C" {
 /* ---------------- gptest.c ---------------- */
 
 /**
-* @brief
-* @param *env
-* @param clazz
-* @param arg1
-* @return void
-*/
-void JNICALL 
-Java_VMBench_GPTests_GPTest_gpFloat(JNIEnv *env, jclass clazz, jobject arg1);
-
+ * @brief
+ * @param *env
+ * @param clazz
+ * @param arg1
+ * @return void
+ */
+void JNICALL Java_VMBench_GPTests_GPTest_gpFloat(JNIEnv* env, jclass clazz, jobject arg1);
 
 /**
-* @brief
-* @param *env
-* @param clazz
-* @param arg1
-* @return void
-*/
-void JNICALL 
-Java_VMBench_GPTests_GPTest_gpIll(JNIEnv *env, jclass clazz, jobject arg1);
-
+ * @brief
+ * @param *env
+ * @param clazz
+ * @param arg1
+ * @return void
+ */
+void JNICALL Java_VMBench_GPTests_GPTest_gpIll(JNIEnv* env, jclass clazz, jobject arg1);
 
 /**
-* @brief
-* @param *env
-* @param clazz
-* @param arg1
-* @return void
-*/
-void JNICALL 
-Java_VMBench_GPTests_GPTest_gpRead(JNIEnv *env, jclass clazz, jobject arg1);
-
+ * @brief
+ * @param *env
+ * @param clazz
+ * @param arg1
+ * @return void
+ */
+void JNICALL Java_VMBench_GPTests_GPTest_gpRead(JNIEnv* env, jclass clazz, jobject arg1);
 
 /**
-* @brief
-* @param *env
-* @param clazz
-* @param arg1
-* @return void
-*/
-void JNICALL 
-Java_VMBench_GPTests_GPTest_gpWrite(JNIEnv *env, jclass clazz, jobject arg1);
+ * @brief
+ * @param *env
+ * @param clazz
+ * @param arg1
+ * @return void
+ */
+void JNICALL Java_VMBench_GPTests_GPTest_gpWrite(JNIEnv* env, jclass clazz, jobject arg1);
 
 /**
-* @brief
-* @param *env
-* @param clazz
-* @param arg1
-* @return void
-*/
-void JNICALL 
-Java_VMBench_GPTests_GPTest_gpCallIn(JNIEnv *env, jclass clazz, jobject arg1);
+ * @brief
+ * @param *env
+ * @param clazz
+ * @param arg1
+ * @return void
+ */
+void JNICALL Java_VMBench_GPTests_GPTest_gpCallIn(JNIEnv* env, jclass clazz, jobject arg1);
 
 #ifdef __cplusplus
 }

@@ -26,53 +26,50 @@
 #include "ScanFormatter.hpp"
 #include "StringTable.hpp"
 
-GC_Check *
-GC_CheckStringTable::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckStringTable::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckStringTable *check = (GC_CheckStringTable *) forge->allocate(sizeof(GC_CheckStringTable), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckStringTable(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckStringTable* check = (GC_CheckStringTable*)forge->allocate(
+        sizeof(GC_CheckStringTable), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckStringTable(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckStringTable::kill()
+void GC_CheckStringTable::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckStringTable::check()
+void GC_CheckStringTable::check()
 {
-	MM_StringTable *stringTable = MM_GCExtensions::getExtensions(_javaVM)->getStringTable();
-	for (UDATA tableIndex = 0; tableIndex < stringTable->getTableCount(); tableIndex++) {
-		GC_HashTableIterator stringTableIterator(stringTable->getTable(tableIndex));
-		J9Object **slot;
+    MM_StringTable* stringTable = MM_GCExtensions::getExtensions(_javaVM)->getStringTable();
+    for (UDATA tableIndex = 0; tableIndex < stringTable->getTableCount(); tableIndex++) {
+        GC_HashTableIterator stringTableIterator(stringTable->getTable(tableIndex));
+        J9Object** slot;
 
-		while((slot = (J9Object **)stringTableIterator.nextSlot()) != NULL) {
-			if (_engine->checkSlotPool(_javaVM, slot, stringTable->getTable(tableIndex)) != J9MODRON_SLOT_ITERATOR_OK ){
-				return;
-			}
-		}
-	}
+        while ((slot = (J9Object**)stringTableIterator.nextSlot()) != NULL) {
+            if (_engine->checkSlotPool(_javaVM, slot, stringTable->getTable(tableIndex)) != J9MODRON_SLOT_ITERATOR_OK) {
+                return;
+            }
+        }
+    }
 }
 
-void
-GC_CheckStringTable::print()
+void GC_CheckStringTable::print()
 {
-	MM_StringTable *stringTable = MM_GCExtensions::getExtensions(_javaVM)->getStringTable();
-	GC_ScanFormatter formatter(_portLibrary, "StringTable", (void *)stringTable);
-	for (UDATA tableIndex = 0; tableIndex < stringTable->getTableCount(); tableIndex++) {
-		GC_HashTableIterator stringTableIterator(stringTable->getTable(tableIndex));
-		J9Object **slot;
+    MM_StringTable* stringTable = MM_GCExtensions::getExtensions(_javaVM)->getStringTable();
+    GC_ScanFormatter formatter(_portLibrary, "StringTable", (void*)stringTable);
+    for (UDATA tableIndex = 0; tableIndex < stringTable->getTableCount(); tableIndex++) {
+        GC_HashTableIterator stringTableIterator(stringTable->getTable(tableIndex));
+        J9Object** slot;
 
-		while((slot = (J9Object **)stringTableIterator.nextSlot()) != NULL) {
-			formatter.entry((void *)*slot);
-		}
-	}
-	formatter.end("StringTable", (void *)stringTable);
+        while ((slot = (J9Object**)stringTableIterator.nextSlot()) != NULL) {
+            formatter.entry((void*)*slot);
+        }
+    }
+    formatter.end("StringTable", (void*)stringTable);
 }

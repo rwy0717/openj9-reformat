@@ -35,20 +35,18 @@
  * @return the next slot containing a JNI reference
  * @return NULL if there are no more such slots
  */
-j9object_t *
-GC_VMThreadJNISlotIterator::nextSlot()
+j9object_t* GC_VMThreadJNISlotIterator::nextSlot()
 {
-	while(_jniFrame) {
-		j9object_t *objectPtr;
+    while (_jniFrame) {
+        j9object_t* objectPtr;
 
-		objectPtr = (j9object_t *)_poolIterator.nextSlot();
-		if(objectPtr) {
-			return objectPtr;
-		}
+        objectPtr = (j9object_t*)_poolIterator.nextSlot();
+        if (objectPtr) {
+            return objectPtr;
+        }
 
-		_jniFrame = _jniFrame->previous;
-		_poolIterator.init(_jniFrame ? (J9Pool *)_jniFrame->references : (J9Pool *)NULL);
-	}
-	return NULL;
+        _jniFrame = _jniFrame->previous;
+        _poolIterator.init(_jniFrame ? (J9Pool*)_jniFrame->references : (J9Pool*)NULL);
+    }
+    return NULL;
 }
-

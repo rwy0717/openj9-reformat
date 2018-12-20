@@ -29,22 +29,15 @@
 #include "ut_j9vm.h"
 #include "vm_internal.h"
 
-
-static void hookRegistrationEvent (J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData);
-static void hookAboutToBootstrapEvent (J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData);
-
+static void hookRegistrationEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData);
+static void hookAboutToBootstrapEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData);
 
 /*
  * Returns the VM's hook interface.
  * Callers should include "vmhook.h" for event and struct definitions.
  * This function is available through the J9VMInternalVMFunctions table
  */
-J9HookInterface**
-getVMHookInterface(J9JavaVM* vm)
-{
-	return J9_HOOK_INTERFACE(vm->hookInterface);
-}
-
+J9HookInterface** getVMHookInterface(J9JavaVM* vm) { return J9_HOOK_INTERFACE(vm->hookInterface); }
 
 /*
  * Initialize the VM's hook interface.
@@ -53,94 +46,90 @@ getVMHookInterface(J9JavaVM* vm)
 IDATA
 initializeVMHookInterface(J9JavaVM* vm)
 {
-	J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	if (J9HookInitializeInterface(hookInterface, OMRPORT_FROM_J9PORT(PORTLIB), sizeof(vm->hookInterface))) {
-		return -1;
-	}
+    if (J9HookInitializeInterface(hookInterface, OMRPORT_FROM_J9PORT(PORTLIB), sizeof(vm->hookInterface))) {
+        return -1;
+    }
 
+    if ((*hookInterface)
+            ->J9HookRegisterWithCallSite(
+                hookInterface, J9HOOK_REGISTRATION_EVENT, hookRegistrationEvent, OMR_GET_CALLSITE(), vm)) {
+        return -1;
+    }
 
-	if ((*hookInterface)->J9HookRegisterWithCallSite(hookInterface, J9HOOK_REGISTRATION_EVENT, hookRegistrationEvent, OMR_GET_CALLSITE(), vm)) {
-		return -1;
-	}
+    /* the VM wants to be the last one to respond to the about to bootstrap event so that other threads can set things
+     * up first */
+    if ((*hookInterface)
+            ->J9HookRegisterWithCallSite(hookInterface, J9HOOK_VM_ABOUT_TO_BOOTSTRAP | J9HOOK_TAG_AGENT_ID,
+                hookAboutToBootstrapEvent, OMR_GET_CALLSITE(), NULL, J9HOOK_AGENTID_LAST)) {
+        return -1;
+    }
 
-	/* the VM wants to be the last one to respond to the about to bootstrap event so that other threads can set things up first */
-	if ((*hookInterface)->J9HookRegisterWithCallSite(hookInterface, J9HOOK_VM_ABOUT_TO_BOOTSTRAP | J9HOOK_TAG_AGENT_ID, hookAboutToBootstrapEvent, OMR_GET_CALLSITE(), NULL, J9HOOK_AGENTID_LAST)) {
-		return -1;
-	}
-
-	return 0;
+    return 0;
 }
-
 
 /*
  * Shutdown the VM's hook interface.
  */
-void
-shutdownVMHookInterface(J9JavaVM* vm)
+void shutdownVMHookInterface(J9JavaVM* vm)
 {
-	J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
+    J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
 
-	if (*hookInterface) {
-		(*hookInterface)->J9HookShutdownInterface(hookInterface);
-	}
+    if (*hookInterface) {
+        (*hookInterface)->J9HookShutdownInterface(hookInterface);
+    }
 }
 
-
-static void
-hookRegistrationEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData)
+static void hookRegistrationEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData)
 {
-	J9HookRegistrationEvent* eventData = voidEventData;
-	J9JavaVM* vm = userData;
+    J9HookRegistrationEvent* eventData = voidEventData;
+    J9JavaVM* vm = userData;
 
-	Trc_VM_hookRegistration(NULL, eventData->isRegistration, eventData->eventNum, (void*)eventData->function, eventData->userData);
+    Trc_VM_hookRegistration(
+        NULL, eventData->isRegistration, eventData->eventNum, (void*)eventData->function, eventData->userData);
 
-	switch (eventData->eventNum) {
+    switch (eventData->eventNum) {
 #ifdef J9VM_INTERP_PROFILING_BYTECODES
-		case J9HOOK_VM_PROFILING_BYTECODE_BUFFER_FULL:
-			profilingBytecodeBufferFullHookRegistered(vm);
-			break;
+    case J9HOOK_VM_PROFILING_BYTECODE_BUFFER_FULL:
+        profilingBytecodeBufferFullHookRegistered(vm);
+        break;
 #endif
-	}
+    }
 }
-
 
 /*
  * The VM is about to start loading classes.
  * Disable hooks which must have been hooked by now
  */
-static void
-hookAboutToBootstrapEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData)
+static void hookAboutToBootstrapEvent(J9HookInterface** hook, UDATA eventNum, void* voidEventData, void* userData)
 {
-	J9VMAboutToBootstrapEvent* eventData = voidEventData;
-	J9VMThread* vmThread = eventData->currentThread;
-	J9JavaVM* vm = vmThread->javaVM;
-	J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
+    J9VMAboutToBootstrapEvent* eventData = voidEventData;
+    J9VMThread* vmThread = eventData->currentThread;
+    J9JavaVM* vm = vmThread->javaVM;
+    J9HookInterface** hookInterface = J9_HOOK_INTERFACE(vm->hookInterface);
 
-	/* these hooks must be reserved by now. Attempt to disable them so that they're in a well-known state after this */
-	(*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_MONITOR_CONTENDED_EXIT);
+    /* these hooks must be reserved by now. Attempt to disable them so that they're in a well-known state after this */
+    (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_MONITOR_CONTENDED_EXIT);
 
-	if ((*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_METHOD_ENTER)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_METHOD_RETURN)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_FRAME_POP)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_POP_FRAMES_INTERRUPT)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_SINGLE_STEP)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_BREAKPOINT)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_GET_FIELD)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_PUT_FIELD)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_GET_STATIC_FIELD)
-		|| (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_PUT_STATIC_FIELD)
-		|| (vm->extendedRuntimeFlags & J9_EXTENDED_RUNTIME_METHOD_TRACE_ENABLED)
-		|| (vm->requiredDebugAttributes & J9VM_DEBUG_ATTRIBUTE_CAN_ACCESS_LOCALS))
-	{
-		omrthread_monitor_enter(vm->runtimeFlagsMutex);
-		vm->extendedRuntimeFlags |= J9_EXTENDED_RUNTIME_DEBUG_MODE;
-		omrthread_monitor_exit(vm->runtimeFlagsMutex);
-	}
+    if ((*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_METHOD_ENTER)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_METHOD_RETURN)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_FRAME_POP)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_POP_FRAMES_INTERRUPT)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_SINGLE_STEP)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_BREAKPOINT)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_GET_FIELD)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_PUT_FIELD)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_GET_STATIC_FIELD)
+        || (*hookInterface)->J9HookDisable(hookInterface, J9HOOK_VM_PUT_STATIC_FIELD)
+        || (vm->extendedRuntimeFlags & J9_EXTENDED_RUNTIME_METHOD_TRACE_ENABLED)
+        || (vm->requiredDebugAttributes & J9VM_DEBUG_ATTRIBUTE_CAN_ACCESS_LOCALS)) {
+        omrthread_monitor_enter(vm->runtimeFlagsMutex);
+        vm->extendedRuntimeFlags |= J9_EXTENDED_RUNTIME_DEBUG_MODE;
+        omrthread_monitor_exit(vm->runtimeFlagsMutex);
+    }
 }
-
-
 
 #if defined(J9VM_INTERP_NATIVE_SUPPORT)
 /*
@@ -150,15 +139,14 @@ hookAboutToBootstrapEvent(J9HookInterface** hook, UDATA eventNum, void* voidEven
  * It will return NULL if neither is installed.
  * This function is available through the J9VMInternalVMFunctions table.
  */
-J9HookInterface**
-getJITHookInterface(J9JavaVM* vm)
+J9HookInterface** getJITHookInterface(J9JavaVM* vm)
 {
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	if (vm->jitConfig) {
-		return J9_HOOK_INTERFACE(vm->jitConfig->hookInterface);
-	}
+    if (vm->jitConfig) {
+        return J9_HOOK_INTERFACE(vm->jitConfig->hookInterface);
+    }
 #endif
 
-	return NULL;
+    return NULL;
 }
 #endif /* INTERP_NATIVE_SUPPORT */

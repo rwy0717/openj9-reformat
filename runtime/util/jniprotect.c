@@ -25,28 +25,27 @@
 #include "ut_j9util.h"
 
 typedef struct J9NewSignalSupportArgs {
-	protected_fn function;
-	void* args;
+    protected_fn function;
+    void* args;
 } J9NewSignalSupportArgs;
 
 /**
  * Calls the function passed in userData.
  *
- * @param portLibrary	
+ * @param portLibrary
  * @param userData    Function and its args which is called in this function.
  * @return The result of the function call which is passed in userData.
  *
  */
-static UDATA
-signalProtectAndRunGlue(J9PortLibrary* portLibrary, void * userData)
+static UDATA signalProtectAndRunGlue(J9PortLibrary* portLibrary, void* userData)
 {
-	J9NewSignalSupportArgs* newArgs = userData;
+    J9NewSignalSupportArgs* newArgs = userData;
 
-	return newArgs->function(newArgs->args);
+    return newArgs->function(newArgs->args);
 }
 
 /**
- * Calls the function passed in args by making sure that it is signal protected. 
+ * Calls the function passed in args by making sure that it is signal protected.
  * If it is not signal protected already, then it protects, calls the function and unprotects it again.
  *
  * @param function	Function to be called
@@ -61,32 +60,28 @@ signalProtectAndRunGlue(J9PortLibrary* portLibrary, void * userData)
  *
  */
 UDATA
-gpProtectAndRun(protected_fn function, JNIEnv * env, void *args)
+gpProtectAndRun(protected_fn function, JNIEnv* env, void* args)
 {
-	J9VMThread *vmThread = (J9VMThread *) env;
-	UDATA rc = 0;
-	J9NewSignalSupportArgs newArgs;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    UDATA rc = 0;
+    J9NewSignalSupportArgs newArgs;
 
-	PORT_ACCESS_FROM_VMC(vmThread);
+    PORT_ACCESS_FROM_VMC(vmThread);
 
-	Assert_Util_false(vmThread->gpProtected);
+    Assert_Util_false(vmThread->gpProtected);
 
-	vmThread->gpProtected = TRUE;
+    vmThread->gpProtected = TRUE;
 
-	newArgs.function = function;
-	newArgs.args = args;
-	if (j9sig_protect(signalProtectAndRunGlue, &newArgs,
-		vmThread->javaVM->internalVMFunctions->structuredSignalHandler, vmThread,
-		J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
-		&rc)
-	) {
-		Assert_Util_signalProtectionFailed();
-	}
+    newArgs.function = function;
+    newArgs.args = args;
+    if (j9sig_protect(signalProtectAndRunGlue, &newArgs, vmThread->javaVM->internalVMFunctions->structuredSignalHandler,
+            vmThread, J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION, &rc)) {
+        Assert_Util_signalProtectionFailed();
+    }
 
-	Assert_Util_true(vmThread->gpProtected);
+    Assert_Util_true(vmThread->gpProtected);
 
-	vmThread->gpProtected = FALSE;
+    vmThread->gpProtected = FALSE;
 
-	return rc;
+    return rc;
 }
-

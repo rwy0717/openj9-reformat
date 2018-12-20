@@ -24,61 +24,55 @@
 #include "util_api.h"
 #include "j9port.h"
 
-static I_32 
-testSignature(J9PortLibrary *portLib, const char* sig, UDATA expectedSlots, UDATA *passCount, UDATA *failCount);
+static I_32 testSignature(
+    J9PortLibrary* portLib, const char* sig, UDATA expectedSlots, UDATA* passCount, UDATA* failCount);
 
-I_32 
-verifySendSlots(J9PortLibrary *portLib, UDATA *passCount, UDATA *failCount) 
+I_32 verifySendSlots(J9PortLibrary* portLib, UDATA* passCount, UDATA* failCount)
 {
-	I_32 rc = 0;
-	PORT_ACCESS_FROM_PORT(portLib);
+    I_32 rc = 0;
+    PORT_ACCESS_FROM_PORT(portLib);
 
-	j9tty_printf(PORTLIB, "Testing getSendSlotsFromSignature()...\n");
+    j9tty_printf(PORTLIB, "Testing getSendSlotsFromSignature()...\n");
 
-	rc |= testSignature(portLib, "()V", 0, passCount, failCount);
-	rc |= testSignature(portLib, "(B)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(Z)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(C)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(S)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(I)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(F)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(D)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "(J)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "(Ljava/lang/String;)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "([Ljava/lang/String;)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "([[Ljava/lang/String;)V", 1, passCount, failCount);
-	rc |= testSignature(portLib, "(Ljava/lang/String;Z)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "([Ljava/lang/String;Z)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "([[Ljava/lang/String;Z)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "(DZ)V", 3, passCount, failCount);
-	rc |= testSignature(portLib, "([DZ)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "([[DZ)V", 2, passCount, failCount);
-	rc |= testSignature(portLib, "(Ljava/lang/String;IZ[[DD)Ljava/lang/StringBuffer;", 6, passCount, failCount);
+    rc |= testSignature(portLib, "()V", 0, passCount, failCount);
+    rc |= testSignature(portLib, "(B)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(Z)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(C)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(S)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(I)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(F)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(D)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "(J)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "(Ljava/lang/String;)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "([Ljava/lang/String;)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "([[Ljava/lang/String;)V", 1, passCount, failCount);
+    rc |= testSignature(portLib, "(Ljava/lang/String;Z)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "([Ljava/lang/String;Z)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "([[Ljava/lang/String;Z)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "(DZ)V", 3, passCount, failCount);
+    rc |= testSignature(portLib, "([DZ)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "([[DZ)V", 2, passCount, failCount);
+    rc |= testSignature(portLib, "(Ljava/lang/String;IZ[[DD)Ljava/lang/StringBuffer;", 6, passCount, failCount);
 
-	j9tty_printf(PORTLIB, "Finished getSendSlotsFromSignature().\n");
+    j9tty_printf(PORTLIB, "Finished getSendSlotsFromSignature().\n");
 
-	return rc;
+    return rc;
 }
 
-
-
-static I_32 
-testSignature(J9PortLibrary *portLib, const char* sig, UDATA expectedSlots, UDATA *passCount, UDATA *failCount)
+static I_32 testSignature(
+    J9PortLibrary* portLib, const char* sig, UDATA expectedSlots, UDATA* passCount, UDATA* failCount)
 {
-	PORT_ACCESS_FROM_PORT(portLib);
-	UDATA result;
+    PORT_ACCESS_FROM_PORT(portLib);
+    UDATA result;
 
-	result = getSendSlotsFromSignature((const U_8*)sig);
+    result = getSendSlotsFromSignature((const U_8*)sig);
 
-	if (result != expectedSlots) {
-		j9tty_err_printf(PORTLIB, "Incorrect result for \"%s\". Expected %u, got %u\n", sig, expectedSlots, result);
-		(*failCount)++;
-	} else {
-		(*passCount)++;
-	}
+    if (result != expectedSlots) {
+        j9tty_err_printf(PORTLIB, "Incorrect result for \"%s\". Expected %u, got %u\n", sig, expectedSlots, result);
+        (*failCount)++;
+    } else {
+        (*passCount)++;
+    }
 
-	return 0;
+    return 0;
 }
-
-
-

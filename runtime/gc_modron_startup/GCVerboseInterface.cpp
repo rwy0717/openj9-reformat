@@ -32,15 +32,14 @@ extern "C" {
  * This routine should return a table whose functions do nothing (default behavior).
  * @return the verbose GC API function table.
  */
-void *
-getVerboseGCFunctionTable(J9JavaVM *javaVM)
+void* getVerboseGCFunctionTable(J9JavaVM* javaVM)
 {
-	void *result = NULL;
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	if (NULL != extensions) {
-		result = &extensions->verboseFunctionTable;
-	}
-	return result;	
+    void* result = NULL;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    if (NULL != extensions) {
+        result = &extensions->verboseFunctionTable;
+    }
+    return result;
 }
 
 /**
@@ -51,63 +50,50 @@ getVerboseGCFunctionTable(J9JavaVM *javaVM)
  * @return 0
  */
 UDATA
-dummygcDebugVerboseStartupLogging(J9JavaVM *javaVM, char* filename, UDATA numFiles, UDATA numCycles)
-{
-	return 0;
-}
+dummygcDebugVerboseStartupLogging(J9JavaVM* javaVM, char* filename, UDATA numFiles, UDATA numCycles) { return 0; }
 
 /**
  * Dummy function for verbose function table.
  * @param releaseVerboseStructures Indicator of whether it is safe to free the infrastructure.
  */
-void
-dummygcDebugVerboseShutdownLogging(J9JavaVM *javaVM, UDATA releaseVerboseStructures)
+void dummygcDebugVerboseShutdownLogging(J9JavaVM* javaVM, UDATA releaseVerboseStructures) {}
+
+UDATA
+dummyconfigureVerbosegc(J9JavaVM* javaVM, int enable, char* filename, UDATA numFiles, UDATA numCycles)
 {
+    /* The verbose DLL isn't loaded, so call back into the VM to load it. This will
+     * reconfigure the function table to point at the functions in the verbose DLL. */
+    if (JNI_OK != javaVM->internalVMFunctions->postInitLoadJ9DLL(javaVM, J9_VERBOSE_DLL_NAME, NULL)) {
+        /* we failed to load the library */
+        return 0;
+    }
+
+    /* Now that the function table has been reconfigured, we can call the right function to
+     * start/stop verbosegc. */
+    J9MemoryManagerVerboseInterface* vrbFuncTable
+        = (J9MemoryManagerVerboseInterface*)javaVM->memoryManagerFunctions->getVerboseGCFunctionTable(javaVM);
+    return vrbFuncTable->configureVerbosegc(javaVM, enable, filename, numFiles, numCycles);
 }
 
 UDATA
-dummyconfigureVerbosegc(J9JavaVM *javaVM, int enable, char* filename, UDATA numFiles, UDATA numCycles)
-{
-	/* The verbose DLL isn't loaded, so call back into the VM to load it. This will
-	 * reconfigure the function table to point at the functions in the verbose DLL. */
-	if(JNI_OK != javaVM->internalVMFunctions->postInitLoadJ9DLL(javaVM, J9_VERBOSE_DLL_NAME, NULL)) {
-		/* we failed to load the library */
-		return 0;
-	}
-
-	/* Now that the function table has been reconfigured, we can call the right function to
-	 * start/stop verbosegc. */	
-	J9MemoryManagerVerboseInterface *vrbFuncTable = (J9MemoryManagerVerboseInterface *)javaVM->memoryManagerFunctions->getVerboseGCFunctionTable(javaVM);
-	return vrbFuncTable->configureVerbosegc(javaVM, enable, filename, numFiles, numCycles);
-}
-
-UDATA
-dummyQueryVerbosegc(J9JavaVM *javaVM)
-{
-	return 0;
-}
+dummyQueryVerbosegc(J9JavaVM* javaVM) { return 0; }
 
 /**
  * Dummy function for verbose function table.
  */
-void
-dummygcDumpMemorySizes(J9JavaVM *javaVM)
-{
-}
+void dummygcDumpMemorySizes(J9JavaVM* javaVM) {}
 
 /**
  * Initilises the verbose function table with the dummy routines.
  * @param table Pointer to the Verbose function table.
  */
-void
-initializeVerboseFunctionTableWithDummies(J9MemoryManagerVerboseInterface *table)
+void initializeVerboseFunctionTableWithDummies(J9MemoryManagerVerboseInterface* table)
 {
-	table->gcDebugVerboseStartupLogging = dummygcDebugVerboseStartupLogging;
-	table->gcDebugVerboseShutdownLogging = dummygcDebugVerboseShutdownLogging;
-	table->gcDumpMemorySizes = dummygcDumpMemorySizes;
-	table->configureVerbosegc = dummyconfigureVerbosegc;
-	table->queryVerbosegc = dummyQueryVerbosegc;
+    table->gcDebugVerboseStartupLogging = dummygcDebugVerboseStartupLogging;
+    table->gcDebugVerboseShutdownLogging = dummygcDebugVerboseShutdownLogging;
+    table->gcDumpMemorySizes = dummygcDumpMemorySizes;
+    table->configureVerbosegc = dummyconfigureVerbosegc;
+    table->queryVerbosegc = dummyQueryVerbosegc;
 }
 
 } /* extern "C" */
-

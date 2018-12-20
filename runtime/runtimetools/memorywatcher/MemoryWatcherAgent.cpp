@@ -40,29 +40,30 @@ static MemoryWatcherAgent* memoryWatcherAgent;
  * Callback that handles printing out the memory categories
  *
  */
-static UDATA memCategoryCallBack (U_32 categoryCode, const char * categoryName, UDATA liveBytes, UDATA liveAllocations, BOOLEAN isRoot, U_32 parentCategoryCode, OMRMemCategoryWalkState * state)
+static UDATA memCategoryCallBack(U_32 categoryCode, const char* categoryName, UDATA liveBytes, UDATA liveAllocations,
+    BOOLEAN isRoot, U_32 parentCategoryCode, OMRMemCategoryWalkState* state)
 {
-	MemoryWatcherAgent* agent = (MemoryWatcherAgent*) state->userData1;
-	agent->message(categoryName);
-	agent->message(":");
-	agent->messageUDATA(liveBytes);
-	agent->message("[");
-	agent->messageIDATA(((IDATA)liveBytes)- (IDATA)(agent->getLastBytes()));
-	agent->message("]");
-	agent->messageUDATA(agent->getLastBytes());
-	agent->message("\n");
-	agent->setLastBytes(liveBytes);
-	return J9MEM_CATEGORIES_KEEP_ITERATING;
+    MemoryWatcherAgent* agent = (MemoryWatcherAgent*)state->userData1;
+    agent->message(categoryName);
+    agent->message(":");
+    agent->messageUDATA(liveBytes);
+    agent->message("[");
+    agent->messageIDATA(((IDATA)liveBytes) - (IDATA)(agent->getLastBytes()));
+    agent->message("]");
+    agent->messageUDATA(agent->getLastBytes());
+    agent->message("\n");
+    agent->setLastBytes(liveBytes);
+    return J9MEM_CATEGORIES_KEEP_ITERATING;
 }
 
 /**
  * Callback used by to count memory categories with j9mem_walk_categories
  */
-static UDATA
-countMemoryCategoriesCallback (U_32 categoryCode, const char * categoryName, UDATA liveBytes, UDATA liveAllocations, BOOLEAN isRoot, U_32 parentCategoryCode, OMRMemCategoryWalkState * state)
+static UDATA countMemoryCategoriesCallback(U_32 categoryCode, const char* categoryName, UDATA liveBytes,
+    UDATA liveAllocations, BOOLEAN isRoot, U_32 parentCategoryCode, OMRMemCategoryWalkState* state)
 {
-	state->userData1 = (void *)((UDATA)state->userData1 + 1);
-	return J9MEM_CATEGORIES_KEEP_ITERATING;
+    state->userData1 = (void*)((UDATA)state->userData1 + 1);
+    return J9MEM_CATEGORIES_KEEP_ITERATING;
 }
 
 /*********************************************************
@@ -72,27 +73,24 @@ countMemoryCategoriesCallback (U_32 categoryCode, const char * categoryName, UDA
 extern "C" {
 #endif
 
-void JNICALL
-Agent_OnUnload(JavaVM * vm)
+void JNICALL Agent_OnUnload(JavaVM* vm)
 {
-	MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
-	agent->shutdown();
-	agent->kill();
+    MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
+    agent->shutdown();
+    agent->kill();
 }
 
-jint JNICALL
-Agent_OnLoad(JavaVM * vm, char * options, void * reserved)
+jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved)
 {
-	MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
-	return agent->setup(options);
+    MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
+    return agent->setup(options);
 }
 
-jint JNICALL
-Agent_OnAttach(JavaVM * vm, char * options, void * reserved)
+jint JNICALL Agent_OnAttach(JavaVM* vm, char* options, void* reserved)
 {
-	MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
-	return  agent->setup(options);
-	/* need to add code here that will get jvmti_env and jni env and then call startGenerationThread */
+    MemoryWatcherAgent* agent = MemoryWatcherAgent::getAgent(vm, &memoryWatcherAgent);
+    return agent->setup(options);
+    /* need to add code here that will get jvmti_env and jni env and then call startGenerationThread */
 }
 
 #ifdef __cplusplus
@@ -110,38 +108,37 @@ Agent_OnAttach(JavaVM * vm, char * options, void * reserved)
  */
 bool MemoryWatcherAgent::init()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	if (!RuntimeToolsIntervalAgent::init()){
-		return false;
-	}
+    if (!RuntimeToolsIntervalAgent::init()) {
+        return false;
+    }
 
-	_currentCategory = 0;
-	_lastUsedVirtual = 0;
-	_lastPeakUsedVirtual = 0;
-	_lastWorkingSet = 0;
-	_lastPeakWorkingSet = 0;
-	_cls = NULL;
-	_method = NULL;
-	_dumpGenerated = false;
-	_dumpThreshHold = 0;
+    _currentCategory = 0;
+    _lastUsedVirtual = 0;
+    _lastPeakUsedVirtual = 0;
+    _lastWorkingSet = 0;
+    _lastPeakWorkingSet = 0;
+    _cls = NULL;
+    _method = NULL;
+    _dumpGenerated = false;
+    _dumpThreshHold = 0;
 
-	OMRMemCategoryWalkState walkState;
+    OMRMemCategoryWalkState walkState;
 
-	memset(&walkState, 0, sizeof(OMRMemCategoryWalkState));
+    memset(&walkState, 0, sizeof(OMRMemCategoryWalkState));
 
-	walkState.walkFunction = countMemoryCategoriesCallback;
-	walkState.userData1 = 0;
-	j9mem_walk_categories(&walkState);
-	I_32 total_categories = (I_32)((UDATA)walkState.userData1);
-	_category_last = (UDATA*)j9mem_allocate_memory(sizeof(UDATA*)*total_categories, OMRMEM_CATEGORY_VM);
-	if( NULL == _category_last ) {
-		return false;
-	}
-	memset(_category_last,0,sizeof(U_32)*total_categories);
+    walkState.walkFunction = countMemoryCategoriesCallback;
+    walkState.userData1 = 0;
+    j9mem_walk_categories(&walkState);
+    I_32 total_categories = (I_32)((UDATA)walkState.userData1);
+    _category_last = (UDATA*)j9mem_allocate_memory(sizeof(UDATA*) * total_categories, OMRMEM_CATEGORY_VM);
+    if (NULL == _category_last) {
+        return false;
+    }
+    memset(_category_last, 0, sizeof(U_32) * total_categories);
 
-	return true;
-
+    return true;
 }
 
 /**
@@ -149,11 +146,10 @@ bool MemoryWatcherAgent::init()
  */
 void MemoryWatcherAgent::kill()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-	j9mem_free_memory(_category_last);
-	j9mem_free_memory(this);
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    j9mem_free_memory(_category_last);
+    j9mem_free_memory(this);
 }
-
 
 /**
  * This method is used to create an instance
@@ -161,19 +157,20 @@ void MemoryWatcherAgent::kill()
  * @param vm java vm that can be used by this manager
  * @returns an instance of the class
  */
-MemoryWatcherAgent* MemoryWatcherAgent::newInstance(JavaVM * vm)
+MemoryWatcherAgent* MemoryWatcherAgent::newInstance(JavaVM* vm)
 {
-	J9JavaVM * javaVM = ((J9InvocationJavaVM *)vm)->j9vm;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
-	MemoryWatcherAgent* obj = (MemoryWatcherAgent*) j9mem_allocate_memory(sizeof(MemoryWatcherAgent), OMRMEM_CATEGORY_VM);
-	if (obj){
-		new (obj) MemoryWatcherAgent(vm);
-		if (!obj->init()){
-			obj->kill();
-			obj = NULL;
-		}
-	}
-	return obj;
+    J9JavaVM* javaVM = ((J9InvocationJavaVM*)vm)->j9vm;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
+    MemoryWatcherAgent* obj
+        = (MemoryWatcherAgent*)j9mem_allocate_memory(sizeof(MemoryWatcherAgent), OMRMEM_CATEGORY_VM);
+    if (obj) {
+        new (obj) MemoryWatcherAgent(vm);
+        if (!obj->init()) {
+            obj->kill();
+            obj = NULL;
+        }
+    }
+    return obj;
 }
 
 /**
@@ -181,115 +178,115 @@ MemoryWatcherAgent* MemoryWatcherAgent::newInstance(JavaVM * vm)
  */
 void MemoryWatcherAgent::runAction()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	/* if this is the first time lookup the class/method id we need to generate the javacore */
-	if (_method == NULL){
-		_cls = getEnv()->FindClass("com/ibm/jvm/Dump");
-		if (!getEnv()->ExceptionCheck()) {
-			_method = getEnv()->GetStaticMethodID(_cls, "SystemDump", "()V");
-			if (getEnv()->ExceptionCheck()) {
-				_method = NULL;
-				error("failed to lookup JavaDump method\n");
-			}
-		} else {
-			error("failed to lookup Dump class\n");
-		}
-	}
+    /* if this is the first time lookup the class/method id we need to generate the javacore */
+    if (_method == NULL) {
+        _cls = getEnv()->FindClass("com/ibm/jvm/Dump");
+        if (!getEnv()->ExceptionCheck()) {
+            _method = getEnv()->GetStaticMethodID(_cls, "SystemDump", "()V");
+            if (getEnv()->ExceptionCheck()) {
+                _method = NULL;
+                error("failed to lookup JavaDump method\n");
+            }
+        } else {
+            error("failed to lookup Dump class\n");
+        }
+    }
 
-	message("\n");
-	_currentCategory = 0;
-	OMRMemCategoryWalkState walkState;
-	memset(&walkState, 0, sizeof(OMRMemCategoryWalkState));
-	walkState.walkFunction = &memCategoryCallBack;
-	walkState.userData1 = this;
-	j9mem_walk_categories(&walkState);
-	message("\n");
+    message("\n");
+    _currentCategory = 0;
+    OMRMemCategoryWalkState walkState;
+    memset(&walkState, 0, sizeof(OMRMemCategoryWalkState));
+    walkState.walkFunction = &memCategoryCallBack;
+    walkState.userData1 = this;
+    j9mem_walk_categories(&walkState);
+    message("\n");
 
 #if defined(XXXX)
-	MEMORYSTATUSEX memStats;
-	GlobalMemoryStatusEx(&memStats);
-/*	UDATA availVirtual = (UDATA)(memStats.ullAvailPageFile/1024);
-	message("Available virtual memory in K:");
-	messageUDATA(availVirtual);
-	message("/");
-	messageUDATA((UDATA)(memStats.ullTotalPageFile/1024));
-	message("[");
-	messageIDATA((IDATA)(availVirtual-_lastAvailVirtual));
-	message("]");
-	_lastAvailVirtual = availVirtual;
-	message("\n");
-*/
+    MEMORYSTATUSEX memStats;
+    GlobalMemoryStatusEx(&memStats);
+    /*	UDATA availVirtual = (UDATA)(memStats.ullAvailPageFile/1024);
+            message("Available virtual memory in K:");
+            messageUDATA(availVirtual);
+            message("/");
+            messageUDATA((UDATA)(memStats.ullTotalPageFile/1024));
+            message("[");
+            messageIDATA((IDATA)(availVirtual-_lastAvailVirtual));
+            message("]");
+            _lastAvailVirtual = availVirtual;
+            message("\n");
+    */
 
-	HANDLE process;
-	PROCESS_MEMORY_COUNTERS_EX counters;
-	process = OpenProcess(PROCESS_QUERY_INFORMATION |PROCESS_VM_READ,FALSE, GetCurrentProcessId());
-	GetProcessMemoryInfo(process, (PPROCESS_MEMORY_COUNTERS)&counters, sizeof(counters));
-	message("Working Set in K     :");
-	UDATA workingSet = counters.WorkingSetSize/1024;
-	UDATA peakWorkingSet = counters.PeakWorkingSetSize/1024;
-//	UDATA usedVirtual = (UDATA) (counters.PrivateUsage/1024);
-//	UDATA peakUsedVirtual = (UDATA) (counters.PeakPagefileUsage/1024);
-	messageUDATA(counters.WorkingSetSize);
-	message("[");
-	messageIDATA((IDATA)(workingSet-_lastWorkingSet));
-	message("]");
-	message("\n");
-	_lastWorkingSet=workingSet;
-	message("Peak Working Set in K:");
-	messageUDATA(counters.PeakWorkingSetSize);
-	message("[");
-	messageIDATA((IDATA)(peakWorkingSet-_lastPeakWorkingSet));
-	message("]");
-	message("\n");
-	_lastPeakWorkingSet=peakWorkingSet;
+    HANDLE process;
+    PROCESS_MEMORY_COUNTERS_EX counters;
+    process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
+    GetProcessMemoryInfo(process, (PPROCESS_MEMORY_COUNTERS)&counters, sizeof(counters));
+    message("Working Set in K     :");
+    UDATA workingSet = counters.WorkingSetSize / 1024;
+    UDATA peakWorkingSet = counters.PeakWorkingSetSize / 1024;
+    //	UDATA usedVirtual = (UDATA) (counters.PrivateUsage/1024);
+    //	UDATA peakUsedVirtual = (UDATA) (counters.PeakPagefileUsage/1024);
+    messageUDATA(counters.WorkingSetSize);
+    message("[");
+    messageIDATA((IDATA)(workingSet - _lastWorkingSet));
+    message("]");
+    message("\n");
+    _lastWorkingSet = workingSet;
+    message("Peak Working Set in K:");
+    messageUDATA(counters.PeakWorkingSetSize);
+    message("[");
+    messageIDATA((IDATA)(peakWorkingSet - _lastPeakWorkingSet));
+    message("]");
+    message("\n");
+    _lastPeakWorkingSet = peakWorkingSet;
 
-/*	message("Virtual memory in K   :");
-	messageUDATA(usedVirtual);
-	message("/");
-	messageUDATA((UDATA)(0));
-	message("[");
-	messageIDATA((IDATA)(usedVirtual-_lastUsedVirtual));
-	message("]");
-	_lastUsedVirtual = usedVirtual;
-	message("\n");
-	message("Peak virtual memory in K:");
-	messageUDATA(peakUsedVirtual);/dump
-	message("/");
-	messageUDATA((UDATA)(0));
-	message("[");
-	messageIDATA((IDATA)(peakUsedVirtual-_lastPeakUsedVirtual));
-	message("]");
-	_lastPeakUsedVirtual = peakUsedVirtual;
-	message("\n");
-*/
-	CloseHandle(process);
+    /*	message("Virtual memory in K   :");
+            messageUDATA(usedVirtual);
+            message("/");
+            messageUDATA((UDATA)(0));
+            message("[");
+            messageIDATA((IDATA)(usedVirtual-_lastUsedVirtual));
+            message("]");
+            _lastUsedVirtual = usedVirtual;
+            message("\n");
+            message("Peak virtual memory in K:");
+            messageUDATA(peakUsedVirtual);/dump
+            message("/");
+            messageUDATA((UDATA)(0));
+            message("[");
+            messageIDATA((IDATA)(peakUsedVirtual-_lastPeakUsedVirtual));
+            message("]");
+            _lastPeakUsedVirtual = peakUsedVirtual;
+            message("\n");
+    */
+    CloseHandle(process);
 
 #endif
-	message("Threshhold:");
-	messageIDATA(_dumpThreshHold);
-	message("\n");
+    message("Threshhold:");
+    messageIDATA(_dumpThreshHold);
+    message("\n");
 
 #if defined(J9ZOS390)
 
-	int  ascb, rax;
-	IDATA raxfmct;
+    int ascb, rax;
+    IDATA raxfmct;
 
-	ascb    = *((int*) 0x224);
-	rax     = *((int*) (ascb + 0x16c));
-	raxfmct = *((int*) (rax + 0x2c));
-	message("Total Real Frames Being Used =");
-	messageIDATA(raxfmct);
-	message("\n");
+    ascb = *((int*)0x224);
+    rax = *((int*)(ascb + 0x16c));
+    raxfmct = *((int*)(rax + 0x2c));
+    message("Total Real Frames Being Used =");
+    messageIDATA(raxfmct);
+    message("\n");
 
-	/* generate a system dump */
-	if ((_dumpGenerated == false)&&(_dumpThreshHold!=0)&&(raxfmct >_dumpThreshHold)){
-		_dumpGenerated = true;
-		if (_method != NULL){
-			getEnv()->CallStaticVoidMethod(_cls, _method);
-			message("Dump Requested");
-		}
-	}
+    /* generate a system dump */
+    if ((_dumpGenerated == false) && (_dumpThreshHold != 0) && (raxfmct > _dumpThreshHold)) {
+        _dumpGenerated = true;
+        if (_method != NULL) {
+            getEnv()->CallStaticVoidMethod(_cls, _method);
+            message("Dump Requested");
+        }
+    }
 #endif
 }
 
@@ -303,18 +300,18 @@ void MemoryWatcherAgent::runAction()
  */
 jint MemoryWatcherAgent::parseArgument(char* option)
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-	jint rc = AGENT_ERROR_NONE;
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    jint rc = AGENT_ERROR_NONE;
 
-	/* check for threshHold option */
-	if (try_scan(&option,"dumpThreshHold:")){
-		if (1 != sscanf(option,"%d",&_dumpThreshHold)){
-			error("invalid dumpThreshold value passed to agent\n");
-			return AGENT_ERROR_INVALID_ARGUMENT_VALUE;
-		}
-	} else {
-		rc = RuntimeToolsIntervalAgent::parseArgument(option);
-	}
+    /* check for threshHold option */
+    if (try_scan(&option, "dumpThreshHold:")) {
+        if (1 != sscanf(option, "%d", &_dumpThreshHold)) {
+            error("invalid dumpThreshold value passed to agent\n");
+            return AGENT_ERROR_INVALID_ARGUMENT_VALUE;
+        }
+    } else {
+        rc = RuntimeToolsIntervalAgent::parseArgument(option);
+    }
 
-	return rc;
+    return rc;
 }

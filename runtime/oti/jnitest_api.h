@@ -24,13 +24,13 @@
 #define jnitest_api_h
 
 /**
-* @file jnitest_api.h
-* @brief Public API for the JNITEST module.
-*
-* This file contains public function prototypes and
-* type definitions for the JNITEST module.
-*
-*/
+ * @file jnitest_api.h
+ * @brief Public API for the JNITEST module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the JNITEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* jnitest_api_h */
-

@@ -36,20 +36,19 @@ class GC_ClassLoaderLinkedListIterator {
 public:
 protected:
 private:
-	MM_ClassLoaderManager *_classLoaderManager; /**< Pointer to the classLoader manager which holds the linked list of classloaders */
-	J9ClassLoader *_currentLoader; /**< Current classloader in the iterator */
-	J9ClassLoader *_nextLoader; /**< Prefetched next classloader in the linked list */
-	
-public:
-	GC_ClassLoaderLinkedListIterator(MM_EnvironmentBase *env, MM_ClassLoaderManager *classLoaderManager) :
-		_classLoaderManager(classLoaderManager),
-		_currentLoader(NULL),
-		_nextLoader(J9_LINEAR_LINKED_LIST_START_DO(_classLoaderManager->_classLoaders))
-	{};
+    MM_ClassLoaderManager*
+        _classLoaderManager; /**< Pointer to the classLoader manager which holds the linked list of classloaders */
+    J9ClassLoader* _currentLoader; /**< Current classloader in the iterator */
+    J9ClassLoader* _nextLoader; /**< Prefetched next classloader in the linked list */
 
-	J9ClassLoader *nextSlot();
-	void removeSlot();
+public:
+    GC_ClassLoaderLinkedListIterator(MM_EnvironmentBase* env, MM_ClassLoaderManager* classLoaderManager)
+        : _classLoaderManager(classLoaderManager)
+        , _currentLoader(NULL)
+        , _nextLoader(J9_LINEAR_LINKED_LIST_START_DO(_classLoaderManager->_classLoaders)) {};
+
+    J9ClassLoader* nextSlot();
+    void removeSlot();
 };
 
 #endif /* CLASSLOADERLINKEDLISTITERATOR_HPP_ */
-

@@ -30,30 +30,29 @@
  * @param[in] env    the JNI interface pointer
  * @param[in] error  the CUDA error code to be included in the exception
  */
-void
-throwCudaException(JNIEnv * env, int32_t error)
+void throwCudaException(JNIEnv* env, int32_t error)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_throwCudaException_entry(thread, error);
+    Trc_cuda_throwCudaException_entry(thread, error);
 
-	J9JavaVM * javaVM = thread->javaVM;
-	J9CudaGlobals * globals = javaVM->cudaGlobals;
+    J9JavaVM* javaVM = thread->javaVM;
+    J9CudaGlobals* globals = javaVM->cudaGlobals;
 
-	Assert_cuda_true(NULL != globals);
-	Assert_cuda_true(NULL != globals->exception_init);
+    Assert_cuda_true(NULL != globals);
+    Assert_cuda_true(NULL != globals->exception_init);
 
-	if (env->ExceptionCheck()) {
-		Trc_cuda_throwCudaException_suppressed(thread);
-	} else {
-		jobject exception = env->NewObject(globals->exceptionClass, globals->exception_init, error);
+    if (env->ExceptionCheck()) {
+        Trc_cuda_throwCudaException_suppressed(thread);
+    } else {
+        jobject exception = env->NewObject(globals->exceptionClass, globals->exception_init, error);
 
-		if (NULL != exception) {
-			env->Throw((jthrowable)exception);
-		}
-	}
+        if (NULL != exception) {
+            env->Throw((jthrowable)exception);
+        }
+    }
 
-	Trc_cuda_throwCudaException_exit(thread);
+    Trc_cuda_throwCudaException_exit(thread);
 }
 
 /**
@@ -70,28 +69,26 @@ throwCudaException(JNIEnv * env, int32_t error)
  * @param[in] byteCount  the number of bytes requested
  * @return a pointer to the pinned block of storage
  */
-jlong JNICALL
-Java_com_ibm_cuda_Cuda_allocatePinnedBuffer
-  (JNIEnv * env, jclass, jlong byteCount)
+jlong JNICALL Java_com_ibm_cuda_Cuda_allocatePinnedBuffer(JNIEnv* env, jclass, jlong byteCount)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_allocatePinnedBuffer_entry(thread, byteCount);
+    Trc_cuda_allocatePinnedBuffer_entry(thread, byteCount);
 
-	void * address = NULL;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    void* address = NULL;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_hostAlloc((size_t)byteCount, J9CUDA_HOST_ALLOC_DEFAULT, &address);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_hostAlloc((size_t)byteCount, J9CUDA_HOST_ALLOC_DEFAULT, &address);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_allocatePinnedBuffer_exit(thread, address);
+    Trc_cuda_allocatePinnedBuffer_exit(thread, address);
 
-	return (jlong)address;
+    return (jlong)address;
 }
 
 /**
@@ -105,27 +102,25 @@ Java_com_ibm_cuda_Cuda_allocatePinnedBuffer
  * @param[in] (unused)  the class pointer
  * @return the number of devices visible to this process
  */
-jint JNICALL
-Java_com_ibm_cuda_Cuda_getDeviceCount
-  (JNIEnv * env, jclass)
+jint JNICALL Java_com_ibm_cuda_Cuda_getDeviceCount(JNIEnv* env, jclass)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_getDeviceCount_entry(thread);
+    Trc_cuda_getDeviceCount_entry(thread);
 
-	uint32_t count = 0;
+    uint32_t count = 0;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	int32_t error = j9cuda_deviceGetCount(&count);
+    PORT_ACCESS_FROM_ENV(env);
+    int32_t error = j9cuda_deviceGetCount(&count);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 #endif /* OMR_OPT_CUDA */
 
-	Trc_cuda_getDeviceCount_exit(thread, count);
+    Trc_cuda_getDeviceCount_exit(thread, count);
 
-	return (jint)count;
+    return (jint)count;
 }
 
 /**
@@ -139,28 +134,26 @@ Java_com_ibm_cuda_Cuda_getDeviceCount
  * @param[in] (unused)  the class pointer
  * @return the driver version number
  */
-jint JNICALL
-Java_com_ibm_cuda_Cuda_getDriverVersion
-  (JNIEnv * env, jclass)
+jint JNICALL Java_com_ibm_cuda_Cuda_getDriverVersion(JNIEnv* env, jclass)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_getDriverVersion_entry(thread);
+    Trc_cuda_getDriverVersion_entry(thread);
 
-	uint32_t version = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    uint32_t version = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_driverGetVersion(&version);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_driverGetVersion(&version);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_getDriverVersion_exit(thread, version);
+    Trc_cuda_getDriverVersion_exit(thread, version);
 
-	return (jint)version;
+    return (jint)version;
 }
 
 /**
@@ -175,38 +168,36 @@ Java_com_ibm_cuda_Cuda_getDriverVersion
  * @param[in] code      the error code
  * @return a string describing the error
  */
-jstring JNICALL
-Java_com_ibm_cuda_Cuda_getErrorMessage
-  (JNIEnv * env, jclass, jint code)
+jstring JNICALL Java_com_ibm_cuda_Cuda_getErrorMessage(JNIEnv* env, jclass, jint code)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_getErrorMessage_entry(thread, code);
+    Trc_cuda_getErrorMessage_entry(thread, code);
 
-	const char * message = NULL;
+    const char* message = NULL;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	message = j9cuda_getErrorString(code);
+    PORT_ACCESS_FROM_ENV(env);
+    message = j9cuda_getErrorString(code);
 #else /* OMR_OPT_CUDA */
-	/* Without CUDA support from OMR, these are the only error codes in use. */
-	switch (code) {
-	case J9CUDA_NO_ERROR:
-		message = "no error";
-		break;
-	case J9CUDA_ERROR_MEMORY_ALLOCATION:
-		message = "memory allocation failed";
-		break;
-	case J9CUDA_ERROR_NO_DEVICE:
-		message = "no CUDA-capable device is detected";
-		break;
-	default:
-		break;
-	}
+    /* Without CUDA support from OMR, these are the only error codes in use. */
+    switch (code) {
+    case J9CUDA_NO_ERROR:
+        message = "no error";
+        break;
+    case J9CUDA_ERROR_MEMORY_ALLOCATION:
+        message = "memory allocation failed";
+        break;
+    case J9CUDA_ERROR_NO_DEVICE:
+        message = "no CUDA-capable device is detected";
+        break;
+    default:
+        break;
+    }
 #endif /* OMR_OPT_CUDA */
 
-	Trc_cuda_getErrorMessage_exit(thread, (NULL == message) ? "(null)" : message);
+    Trc_cuda_getErrorMessage_exit(thread, (NULL == message) ? "(null)" : message);
 
-	return (NULL == message) ? NULL : env->NewStringUTF(message);
+    return (NULL == message) ? NULL : env->NewStringUTF(message);
 }
 
 /**
@@ -220,28 +211,26 @@ Java_com_ibm_cuda_Cuda_getErrorMessage
  * @param[in] (unused)  the class pointer
  * @return the runtime version number
  */
-jint JNICALL
-Java_com_ibm_cuda_Cuda_getRuntimeVersion
-  (JNIEnv * env, jclass)
+jint JNICALL Java_com_ibm_cuda_Cuda_getRuntimeVersion(JNIEnv* env, jclass)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_getRuntimeVersion_entry(thread);
+    Trc_cuda_getRuntimeVersion_entry(thread);
 
-	uint32_t version = 0;
-	int32_t error = J9CUDA_ERROR_NO_DEVICE;
+    uint32_t version = 0;
+    int32_t error = J9CUDA_ERROR_NO_DEVICE;
 #ifdef OMR_OPT_CUDA
-	PORT_ACCESS_FROM_ENV(env);
-	error = j9cuda_runtimeGetVersion(&version);
+    PORT_ACCESS_FROM_ENV(env);
+    error = j9cuda_runtimeGetVersion(&version);
 #endif /* OMR_OPT_CUDA */
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_getRuntimeVersion_exit(thread, version);
+    Trc_cuda_getRuntimeVersion_exit(thread, version);
 
-	return (jint)version;
+    return (jint)version;
 }
 
 /**
@@ -257,76 +246,74 @@ Java_com_ibm_cuda_Cuda_getRuntimeVersion
  * @param[in] runMethod       the method handle for Runnable.run()
  * @return a CUDA error code
  */
-jint JNICALL
-Java_com_ibm_cuda_Cuda_initialize
-  (JNIEnv * env, jclass, jclass exceptionClass, jobject runMethod)
+jint JNICALL Java_com_ibm_cuda_Cuda_initialize(JNIEnv* env, jclass, jclass exceptionClass, jobject runMethod)
 {
-	jint            result  = 0;
-	J9CudaGlobals * globals = NULL;
-	J9VMThread    * thread  = (J9VMThread *)env;
-	J9JavaVM      * javaVM  = thread->javaVM;
+    jint result = 0;
+    J9CudaGlobals* globals = NULL;
+    J9VMThread* thread = (J9VMThread*)env;
+    J9JavaVM* javaVM = thread->javaVM;
 
 #if defined(UT_DIRECT_TRACE_REGISTRATION)
-	UT_MODULE_LOADED(J9_UTINTERFACE_FROM_VM(javaVM));
+    UT_MODULE_LOADED(J9_UTINTERFACE_FROM_VM(javaVM));
 #else
-	UT_MODULE_LOADED(javaVM);
+    UT_MODULE_LOADED(javaVM);
 #endif
 
-	Trc_cuda_initialize_entry(thread);
+    Trc_cuda_initialize_entry(thread);
 
-	Assert_cuda_true(NULL != exceptionClass);
-	Assert_cuda_true(NULL != runMethod);
+    Assert_cuda_true(NULL != exceptionClass);
+    Assert_cuda_true(NULL != runMethod);
 
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	globals = (J9CudaGlobals *)J9CUDA_ALLOCATE_MEMORY(sizeof(J9CudaGlobals));
+    globals = (J9CudaGlobals*)J9CUDA_ALLOCATE_MEMORY(sizeof(J9CudaGlobals));
 
-	if (NULL == globals) {
-		Trc_cuda_initialize_fail(thread, "allocate globals");
-		result = J9CUDA_ERROR_MEMORY_ALLOCATION;
-		goto done;
-	}
+    if (NULL == globals) {
+        Trc_cuda_initialize_fail(thread, "allocate globals");
+        result = J9CUDA_ERROR_MEMORY_ALLOCATION;
+        goto done;
+    }
 
-	memset(globals, 0, sizeof(J9CudaGlobals));
+    memset(globals, 0, sizeof(J9CudaGlobals));
 
-	// Cache handles for classes and methods we use.
+    // Cache handles for classes and methods we use.
 
-	globals->exceptionClass = (jclass)env->NewGlobalRef(exceptionClass);
+    globals->exceptionClass = (jclass)env->NewGlobalRef(exceptionClass);
 
-	if (NULL == globals->exceptionClass) {
-		Trc_cuda_initialize_fail(thread, "create NewGlobalRef for CudaException");
-		result = J9CUDA_ERROR_MEMORY_ALLOCATION;
-		goto error1;
-	}
+    if (NULL == globals->exceptionClass) {
+        Trc_cuda_initialize_fail(thread, "create NewGlobalRef for CudaException");
+        result = J9CUDA_ERROR_MEMORY_ALLOCATION;
+        goto error1;
+    }
 
-	globals->exception_init = env->GetMethodID(globals->exceptionClass, "<init>", "(I)V");
+    globals->exception_init = env->GetMethodID(globals->exceptionClass, "<init>", "(I)V");
 
-	if (NULL == globals->exception_init) {
-		Trc_cuda_initialize_fail(thread, "find CudaException constructor");
-		result = J9CUDA_ERROR_INITIALIZATION_ERROR;
-		goto error2;
-	}
+    if (NULL == globals->exception_init) {
+        Trc_cuda_initialize_fail(thread, "find CudaException constructor");
+        result = J9CUDA_ERROR_INITIALIZATION_ERROR;
+        goto error2;
+    }
 
-	globals->runnable_run = env->FromReflectedMethod(runMethod);
+    globals->runnable_run = env->FromReflectedMethod(runMethod);
 
-	if (NULL == globals->runnable_run) {
-		Trc_cuda_initialize_fail(thread, "get method handle");
-		result = J9CUDA_ERROR_INITIALIZATION_ERROR;
+    if (NULL == globals->runnable_run) {
+        Trc_cuda_initialize_fail(thread, "get method handle");
+        result = J9CUDA_ERROR_INITIALIZATION_ERROR;
 
-error2:
-		env->DeleteGlobalRef(globals->exceptionClass);
+    error2:
+        env->DeleteGlobalRef(globals->exceptionClass);
 
-error1:
-		J9CUDA_FREE_MEMORY(globals);
-		globals = NULL;
-	}
+    error1:
+        J9CUDA_FREE_MEMORY(globals);
+        globals = NULL;
+    }
 
-	javaVM->cudaGlobals = globals;
+    javaVM->cudaGlobals = globals;
 
 done:
-	Trc_cuda_initialize_exit(thread, result);
+    Trc_cuda_initialize_exit(thread, result);
 
-	return result;
+    return result;
 }
 
 #ifdef OMR_OPT_CUDA
@@ -344,19 +331,17 @@ done:
  * @param[in] capacity  the buffer size in bytes
  * @return a direct byte buffer
  */
-jobject JNICALL
-Java_com_ibm_cuda_Cuda_wrapDirectBuffer
-  (JNIEnv * env, jclass, jlong buffer, jlong capacity)
+jobject JNICALL Java_com_ibm_cuda_Cuda_wrapDirectBuffer(JNIEnv* env, jclass, jlong buffer, jlong capacity)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_wrapDirectBuffer_entry(thread, (uintptr_t)buffer, capacity);
+    Trc_cuda_wrapDirectBuffer_entry(thread, (uintptr_t)buffer, capacity);
 
-	jobject wrapper = env->NewDirectByteBuffer((void *)(uintptr_t)buffer, capacity);
+    jobject wrapper = env->NewDirectByteBuffer((void*)(uintptr_t)buffer, capacity);
 
-	Trc_cuda_wrapDirectBuffer_exit(thread, wrapper);
+    Trc_cuda_wrapDirectBuffer_exit(thread, wrapper);
 
-	return wrapper;
+    return wrapper;
 }
 
 /**
@@ -370,23 +355,21 @@ Java_com_ibm_cuda_Cuda_wrapDirectBuffer
  * @param[in] (unused)  the class pointer
  * @param[in] address   the buffer pointer
  */
-void JNICALL
-Java_com_ibm_cuda_Cuda_00024Cleaner_releasePinnedBuffer
-  (JNIEnv * env, jclass, jlong address)
+void JNICALL Java_com_ibm_cuda_Cuda_00024Cleaner_releasePinnedBuffer(JNIEnv* env, jclass, jlong address)
 {
-	J9VMThread * thread = (J9VMThread *)env;
+    J9VMThread* thread = (J9VMThread*)env;
 
-	Trc_cuda_releasePinnedBuffer_entry(thread, (uintptr_t)address);
+    Trc_cuda_releasePinnedBuffer_entry(thread, (uintptr_t)address);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	int32_t error = j9cuda_hostFree((void *)(uintptr_t)address);
+    int32_t error = j9cuda_hostFree((void*)(uintptr_t)address);
 
-	if (0 != error) {
-		throwCudaException(env, error);
-	}
+    if (0 != error) {
+        throwCudaException(env, error);
+    }
 
-	Trc_cuda_releasePinnedBuffer_exit(thread);
+    Trc_cuda_releasePinnedBuffer_exit(thread);
 }
 
 #endif /* OMR_OPT_CUDA */
@@ -394,33 +377,32 @@ Java_com_ibm_cuda_Cuda_00024Cleaner_releasePinnedBuffer
 /**
  * Called immediately before our shared library is unloaded: Release resources we allocated.
  */
-void JNICALL
-JNI_OnUnload(JavaVM * jvm, void *)
+void JNICALL JNI_OnUnload(JavaVM* jvm, void*)
 {
-	J9JavaVM * javaVM = (J9JavaVM *)jvm;
-	J9CudaGlobals * globals = javaVM->cudaGlobals;
+    J9JavaVM* javaVM = (J9JavaVM*)jvm;
+    J9CudaGlobals* globals = javaVM->cudaGlobals;
 
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	if (NULL != globals) {
-		if (NULL != globals->exceptionClass) {
-			JNIEnv * env = NULL;
+    if (NULL != globals) {
+        if (NULL != globals->exceptionClass) {
+            JNIEnv* env = NULL;
 
-			/*
-			 * It's not serious if we can't get the JNIEnv - we're likely shutting down anyway.
-			 */
-			if (JNI_OK == jvm->GetEnv((void **)&env, JNI_VERSION_1_2)) {
-				env->DeleteGlobalRef(globals->exceptionClass);
-			}
-		}
+            /*
+             * It's not serious if we can't get the JNIEnv - we're likely shutting down anyway.
+             */
+            if (JNI_OK == jvm->GetEnv((void**)&env, JNI_VERSION_1_2)) {
+                env->DeleteGlobalRef(globals->exceptionClass);
+            }
+        }
 
-		J9CUDA_FREE_MEMORY(globals);
-		javaVM->cudaGlobals = NULL;
-	}
+        J9CUDA_FREE_MEMORY(globals);
+        javaVM->cudaGlobals = NULL;
+    }
 
 #if defined(UT_DIRECT_TRACE_REGISTRATION)
-	UT_MODULE_UNLOADED(J9_UTINTERFACE_FROM_VM(javaVM));
+    UT_MODULE_UNLOADED(J9_UTINTERFACE_FROM_VM(javaVM));
 #else
-	UT_MODULE_UNLOADED(javaVM);
+    UT_MODULE_UNLOADED(javaVM);
 #endif
 }

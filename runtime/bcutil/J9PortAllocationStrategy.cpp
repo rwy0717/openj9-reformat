@@ -25,10 +25,9 @@
 
 #include "J9PortAllocationStrategy.hpp"
 
-U_8*
-J9PortAllocationStrategy::allocate(UDATA byteAmount)
+U_8* J9PortAllocationStrategy::allocate(UDATA byteAmount)
 {
-	PORT_ACCESS_FROM_PORT(_portLibrary);
+    PORT_ACCESS_FROM_PORT(_portLibrary);
 
-	return (U_8*) j9mem_allocate_memory(byteAmount, J9MEM_CATEGORY_CLASSES);
+    return (U_8*)j9mem_allocate_memory(byteAmount, J9MEM_CATEGORY_CLASSES);
 }

@@ -26,64 +26,54 @@
 
 /* Architecture-specific implementations of runtime instrumentation functions */
 
-void
-j9ri_params_init(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams, void *riControlBlock)
+void j9ri_params_init(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams, void* riControlBlock)
 {
-	Trc_PRT_ri_params_init_Entry();
-	riParams->flags = 0;
-	riParams->controlBlock = riControlBlock;
-	Trc_PRT_ri_params_init_Exit();
+    Trc_PRT_ri_params_init_Entry();
+    riParams->flags = 0;
+    riParams->controlBlock = riControlBlock;
+    Trc_PRT_ri_params_init_Exit();
 }
 
-int32_t
-j9ri_enableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_enableRISupport(struct J9PortLibrary* portLibrary)
 {
-	Trc_PRT_ri_enableSupport_Entry();
+    Trc_PRT_ri_enableSupport_Entry();
 
-	Trc_PRT_ri_enableSupport_Exit();
+    Trc_PRT_ri_enableSupport_Exit();
 
-	return 0;
+    return 0;
 }
 
-int32_t
-j9ri_disableRISupport(struct J9PortLibrary *portLibrary)
+int32_t j9ri_disableRISupport(struct J9PortLibrary* portLibrary)
 {
-	Trc_PRT_ri_disableSupport_Entry();
+    Trc_PRT_ri_disableSupport_Entry();
 
-	Trc_PRT_ri_disableSupport_Exit();
+    Trc_PRT_ri_disableSupport_Exit();
 
-	return 0;
+    return 0;
 }
 
-
-void
-j9ri_initialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_initialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_initialize_Entry();
+    Trc_PRT_ri_initialize_Entry();
 
-	Trc_PRT_ri_initialize_Exit();
-
+    Trc_PRT_ri_initialize_Exit();
 }
 
-void
-j9ri_deinitialize(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_deinitialize(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_deinitialize_Entry();
+    Trc_PRT_ri_deinitialize_Entry();
 
-	Trc_PRT_ri_deinitialize_Exit();
-
+    Trc_PRT_ri_deinitialize_Exit();
 }
 
-void
-j9ri_enable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_enable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_enable_Entry();
-	Trc_PRT_ri_enable_Exit();
+    Trc_PRT_ri_enable_Entry();
+    Trc_PRT_ri_enable_Exit();
 }
 
-void
-j9ri_disable(struct J9PortLibrary *portLibrary, struct J9RIParameters *riParams)
+void j9ri_disable(struct J9PortLibrary* portLibrary, struct J9RIParameters* riParams)
 {
-	Trc_PRT_ri_disable_Entry();
-	Trc_PRT_ri_disable_Exit();
+    Trc_PRT_ri_disable_Entry();
+    Trc_PRT_ri_disable_Exit();
 }

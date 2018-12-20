@@ -35,52 +35,71 @@ extern "C" {
 
 struct OMRPortLibrary;
 typedef struct J9DDRCmdlineOptions {
-	int argc;
-	char** argv;
-	char** envp;
-	struct OMRPortLibrary* portLibrary;
-	BOOLEAN shutdownPortLib;
+    int argc;
+    char** argv;
+    char** envp;
+    struct OMRPortLibrary* portLibrary;
+    BOOLEAN shutdownPortLib;
 } J9DDRCmdlineOptions;
 
 typedef struct J9DDRFieldDeclaration {
-	const char* name;
-	const char* type;
-	U_32 offset;
+    const char* name;
+    const char* type;
+    U_32 offset;
 } J9DDRFieldDeclaration;
 
 typedef struct J9DDRConstantDeclaration {
-	U_64 value;
-	const char* name;
+    U_64 value;
+    const char* name;
 } J9DDRConstantDeclaration;
 
 typedef struct J9DDRStructDefinition {
-	const char* name;
-	const char* superName;
-	const struct J9DDRFieldDeclaration* fields;
-	const struct J9DDRConstantDeclaration* constants;
-	U_32 size;
+    const char* name;
+    const char* superName;
+    const struct J9DDRFieldDeclaration* fields;
+    const struct J9DDRConstantDeclaration* constants;
+    U_32 size;
 } J9DDRStructDefinition;
 
-#define J9DDRFieldTableBegin(name)	static const J9DDRFieldDeclaration J9DDR_##name##_fields [] = {
+#define J9DDRFieldTableBegin(name) static const J9DDRFieldDeclaration J9DDR_##name##_fields[] = {
 /*((U_32)(UDATA)&(((structName*)1)->fieldName)) - 1 pattern avoids compile warnings on Linux */
-#define J9DDRFieldTableEntry(structName, fieldName, fieldType)	{ J9_STR(fieldName), J9_STR(fieldType), ((U_32)(UDATA)&(((structName*)1)->fieldName)) - 1 },
+#define J9DDRFieldTableEntry(structName, fieldName, fieldType) \
+    { J9_STR(fieldName), J9_STR(fieldType), ((U_32)(UDATA) & (((structName*)1)->fieldName)) - 1 },
 #define J9DDRBitFieldTableEntry(fieldName, fieldType) { (fieldName), J9_STR(fieldType), 0 },
-#define J9DDRFieldTableEnd            { 0, 0, 0 } };
+#define J9DDRFieldTableEnd \
+    {                      \
+        0, 0, 0            \
+    }                      \
+    }                      \
+    ;
 
-#define J9DDRConstantTableBegin(name)	static const J9DDRConstantDeclaration J9DDR_##name##_constants [] = {
-#define J9DDRConstantTableEntry(constantName)	{ (U_64) (constantName), J9_STR(constantName) },
-#define J9DDRConstantTableEntryWithValue(constantName, constantValue)	{ (U_64) (constantValue), (constantName) },
-#define J9DDRConstantTableEnd             { 0, 0 } };
+#define J9DDRConstantTableBegin(name) static const J9DDRConstantDeclaration J9DDR_##name##_constants[] = {
+#define J9DDRConstantTableEntry(constantName) { (U_64)(constantName), J9_STR(constantName) },
+#define J9DDRConstantTableEntryWithValue(constantName, constantValue) { (U_64)(constantValue), (constantName) },
+#define J9DDRConstantTableEnd \
+    {                         \
+        0, 0                  \
+    }                         \
+    }                         \
+    ;
 
-#define J9DDRStructTableBegin(name)	const J9DDRStructDefinition J9DDR_##name##_structs [] = {
-#define J9DDRStruct(structName, superStruct)	{ #structName, (superStruct), J9DDR_##structName##_fields, J9DDR_##structName##_constants, (U_32)sizeof(structName) },
-#define J9DDRStructWithName(structName, name, superStruct)	{ #name, (superStruct), J9DDR_##name##_fields, J9DDR_##name##_constants, (U_32)sizeof(structName) },
-#define J9DDREmptyStruct(structName, superStruct)	{ #structName, (superStruct), NULL, J9DDR_##structName##_constants, (U_32)0 },
-#define J9DDRStructTableEnd            { 0, 0, 0, 0, 0 } };
+#define J9DDRStructTableBegin(name) const J9DDRStructDefinition J9DDR_##name##_structs[] = {
+#define J9DDRStruct(structName, superStruct)                                                   \
+    { #structName, (superStruct), J9DDR_##structName##_fields, J9DDR_##structName##_constants, \
+        (U_32)sizeof(structName) },
+#define J9DDRStructWithName(structName, name, superStruct) \
+    { #name, (superStruct), J9DDR_##name##_fields, J9DDR_##name##_constants, (U_32)sizeof(structName) },
+#define J9DDREmptyStruct(structName, superStruct) \
+    { #structName, (superStruct), NULL, J9DDR_##structName##_constants, (U_32)0 },
+#define J9DDRStructTableEnd \
+    {                       \
+        0, 0, 0, 0, 0       \
+    }                       \
+    }                       \
+    ;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif     /* j9ddr_h */
-
+#endif /* j9ddr_h */

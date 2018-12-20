@@ -26,69 +26,36 @@
 #include "j9cfg.h"
 #include "mmhook.h"
 
+void verboseHandlerCycleStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
-void verboseHandlerCycleStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerCycleEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
-void verboseHandlerCycleEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerExclusiveStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
+void verboseHandlerExclusiveEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
-void verboseHandlerExclusiveStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerSystemGCStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
-void verboseHandlerExclusiveEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
-
-void verboseHandlerSystemGCStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
-
-void verboseHandlerSystemGCEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
-
+void verboseHandlerSystemGCEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
 void verboseHandlerAllocationFailureStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	return ;
+    return;
 }
 
 void verboseHandlerAllocationFailureEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	return ;
+    return;
 }
 
-void verboseHandlerMark(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerMark(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
-void verboseHandlerSweep(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerSweep(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 
 #if defined(J9VM_GC_MODRON_COMPACTION)
-void verboseHandlerCompact(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerCompact(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 #endif /* defined(J9VM_GC_MODRON_COMPACTION) */
 
 #if defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING)
-void verboseHandlerClassUnloading(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
-{
-	return ;
-}
+void verboseHandlerClassUnloading(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData) { return; }
 #endif /* defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING) */

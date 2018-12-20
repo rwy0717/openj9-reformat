@@ -23,8 +23,7 @@
 #include <jni.h>
 #include "bcverify_api.h"
 
-typedef I_32 (*nameCheckFunction)(J9CfrConstantPoolInfo * info);
-
+typedef I_32 (*nameCheckFunction)(J9CfrConstantPoolInfo* info);
 
 /**
  * Common helper function to invoke one of the checkName()/checkClassName() validators
@@ -35,55 +34,51 @@ typedef I_32 (*nameCheckFunction)(J9CfrConstantPoolInfo * info);
  * @param checkFunction The validator function to exercise.
  * @return The value to return from the native.
  */
-static jlong nameCheck(JNIEnv *env, jclass clazz, jstring name, nameCheckFunction checkFunction)
+static jlong nameCheck(JNIEnv* env, jclass clazz, jstring name, nameCheckFunction checkFunction)
 {
-	const char* utfBytes;
-	jsize nbyte;
-	jboolean isCopy;
-	J9CfrConstantPoolInfo cpInfo;
-	IDATA rcCheck;
-	
-	if (NULL == name) {
-		return -__LINE__;
-	}
-	
-	nbyte = (*env)->GetStringUTFLength(env, name);
-	utfBytes = (*env)->GetStringUTFChars(env, name, &isCopy);
-	if (NULL == utfBytes) {
-		return -__LINE__;
-	}
-	
-	memset(&cpInfo, 0, sizeof(cpInfo));
-	cpInfo.slot1 = nbyte;
-	cpInfo.bytes = (U_8*)utfBytes;
-	rcCheck = checkFunction(&cpInfo);
+    const char* utfBytes;
+    jsize nbyte;
+    jboolean isCopy;
+    J9CfrConstantPoolInfo cpInfo;
+    IDATA rcCheck;
 
-	(*env)->ReleaseStringUTFChars(env, name, utfBytes);
-	return rcCheck;
+    if (NULL == name) {
+        return -__LINE__;
+    }
+
+    nbyte = (*env)->GetStringUTFLength(env, name);
+    utfBytes = (*env)->GetStringUTFChars(env, name, &isCopy);
+    if (NULL == utfBytes) {
+        return -__LINE__;
+    }
+
+    memset(&cpInfo, 0, sizeof(cpInfo));
+    cpInfo.slot1 = nbyte;
+    cpInfo.bytes = (U_8*)utfBytes;
+    rcCheck = checkFunction(&cpInfo);
+
+    (*env)->ReleaseStringUTFChars(env, name, utfBytes);
+    return rcCheck;
 }
-
 
 /*
  * Class:     com_ibm_j9_test_bcverify_TestNatives
  * Method:    bcvCheckName
  * Signature: (Ljava/lang/String;)J
  */
-jlong JNICALL
-Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckName(JNIEnv *env, jclass clazz, jstring name)
+jlong JNICALL Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckName(JNIEnv* env, jclass clazz, jstring name)
 {
-	return nameCheck(env, clazz, name, bcvCheckName);
+    return nameCheck(env, clazz, name, bcvCheckName);
 }
-
 
 /*
  * Class:     com_ibm_j9_test_bcverify_TestNatives
  * Method:    bcvCheckClassName
  * Signature: (Ljava/lang/String;)J
  */
-jlong JNICALL
-Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckClassName(JNIEnv *env, jclass clazz, jstring name)
+jlong JNICALL Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckClassName(JNIEnv* env, jclass clazz, jstring name)
 {
-	return nameCheck(env, clazz, name, bcvCheckClassName);
+    return nameCheck(env, clazz, name, bcvCheckClassName);
 }
 
 /*
@@ -91,8 +86,7 @@ Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckClassName(JNIEnv *env, jclass 
  * Method:    bcvCheckMethodName
  * Signature: (Ljava/lang/String;)J
  */
-jlong JNICALL
-Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckMethodName(JNIEnv *env, jclass clazz, jstring name)
+jlong JNICALL Java_com_ibm_j9_test_bcverify_TestNatives_bcvCheckMethodName(JNIEnv* env, jclass clazz, jstring name)
 {
-	return nameCheck(env, clazz, name, bcvCheckMethodName);
+    return nameCheck(env, clazz, name, bcvCheckMethodName);
 }

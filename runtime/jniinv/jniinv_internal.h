@@ -24,13 +24,13 @@
 #define jniinv_internal_h
 
 /**
-* @file jniinv_internal.h
-* @brief Internal prototypes used within the JNIINV module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the JNIINV module.
-*
-*/
+ * @file jniinv_internal.h
+ * @brief Internal prototypes used within the JNIINV module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the JNIINV module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,17 +44,15 @@ extern "C" {
 
 struct j9cmdlineOptions;
 /**
-* @brief
-* @param arg
-* @return UDATA
-*/
-UDATA 
-signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
-
+ * @brief
+ * @param arg
+ * @return UDATA
+ */
+UDATA
+signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* jniinv_internal_h */
-

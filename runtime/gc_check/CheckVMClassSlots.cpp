@@ -25,51 +25,47 @@
 #include "ModronTypes.hpp"
 #include "ScanFormatter.hpp"
 
-GC_Check *
-GC_CheckVMClassSlots::newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine)
+GC_Check* GC_CheckVMClassSlots::newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine)
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
-	
-	GC_CheckVMClassSlots *check = (GC_CheckVMClassSlots *) forge->allocate(sizeof(GC_CheckVMClassSlots), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(check) {
-		new(check) GC_CheckVMClassSlots(javaVM, engine);
-	}
-	return check;
+    MM_Forge* forge = MM_GCExtensions::getExtensions(javaVM)->getForge();
+
+    GC_CheckVMClassSlots* check = (GC_CheckVMClassSlots*)forge->allocate(
+        sizeof(GC_CheckVMClassSlots), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (check) {
+        new (check) GC_CheckVMClassSlots(javaVM, engine);
+    }
+    return check;
 }
 
-void
-GC_CheckVMClassSlots::kill()
+void GC_CheckVMClassSlots::kill()
 {
-	MM_Forge *forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
-	forge->free(this);
+    MM_Forge* forge = MM_GCExtensions::getExtensions(_javaVM)->getForge();
+    forge->free(this);
 }
 
-void
-GC_CheckVMClassSlots::check()
+void GC_CheckVMClassSlots::check()
 {
-	GC_VMClassSlotIterator classSlotIterator(_javaVM);
-	J9Class **slotPtr;
+    GC_VMClassSlotIterator classSlotIterator(_javaVM);
+    J9Class** slotPtr;
 
-	while((slotPtr = classSlotIterator.nextSlot()) != NULL) {
-		J9Class *theClazz = *slotPtr;
-		if (theClazz != NULL) {
-			if (_engine->checkJ9ClassPointer(_javaVM, theClazz) != J9MODRON_GCCHK_RC_OK) {
-				return;
-			}
-		}
-	}
+    while ((slotPtr = classSlotIterator.nextSlot()) != NULL) {
+        J9Class* theClazz = *slotPtr;
+        if (theClazz != NULL) {
+            if (_engine->checkJ9ClassPointer(_javaVM, theClazz) != J9MODRON_GCCHK_RC_OK) {
+                return;
+            }
+        }
+    }
 }
 
-void
-GC_CheckVMClassSlots::print()
+void GC_CheckVMClassSlots::print()
 {
-	GC_VMClassSlotIterator classSlotIterator(_javaVM);
-	J9Class **slotPtr;
+    GC_VMClassSlotIterator classSlotIterator(_javaVM);
+    J9Class** slotPtr;
 
-	GC_ScanFormatter formatter(_portLibrary, "VMClass Slot");
-	while((slotPtr = classSlotIterator.nextSlot()) != NULL) {
-		formatter.entry((void *)*slotPtr);
-	}
-	formatter.end("VMClass Slot");
+    GC_ScanFormatter formatter(_portLibrary, "VMClass Slot");
+    while ((slotPtr = classSlotIterator.nextSlot()) != NULL) {
+        formatter.entry((void*)*slotPtr);
+    }
+    formatter.end("VMClass Slot");
 }
-

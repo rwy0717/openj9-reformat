@@ -29,30 +29,31 @@
 
 #include "GlobalAllocationManagerRealtime.hpp"
 
-MM_GlobalAllocationManagerRealtime *
-MM_GlobalAllocationManagerRealtime::newInstance(MM_EnvironmentBase *env, MM_RegionPoolSegregated *regionPool)
+MM_GlobalAllocationManagerRealtime* MM_GlobalAllocationManagerRealtime::newInstance(
+    MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool)
 {
-	MM_GlobalAllocationManagerRealtime *allocationManager = (MM_GlobalAllocationManagerRealtime *)env->getForge()->allocate(sizeof(MM_GlobalAllocationManagerSegregated), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (allocationManager) {
-		allocationManager = new(allocationManager) MM_GlobalAllocationManagerRealtime(env);
-		if (!allocationManager->initialize(env, regionPool)) {
-			allocationManager->kill(env);
-			allocationManager = NULL;
-		}
-	}
-	return allocationManager;
+    MM_GlobalAllocationManagerRealtime* allocationManager
+        = (MM_GlobalAllocationManagerRealtime*)env->getForge()->allocate(
+            sizeof(MM_GlobalAllocationManagerSegregated), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (allocationManager) {
+        allocationManager = new (allocationManager) MM_GlobalAllocationManagerRealtime(env);
+        if (!allocationManager->initialize(env, regionPool)) {
+            allocationManager->kill(env);
+            allocationManager = NULL;
+        }
+    }
+    return allocationManager;
 }
 
-bool
-MM_GlobalAllocationManagerRealtime::initialize(MM_EnvironmentBase *env, MM_RegionPoolSegregated *regionPool)
+bool MM_GlobalAllocationManagerRealtime::initialize(MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool)
 {
-	/* This will call initializeAllocationContexts() */
-	bool result = MM_GlobalAllocationManagerSegregated::initialize(env, regionPool);
-	return result;
+    /* This will call initializeAllocationContexts() */
+    bool result = MM_GlobalAllocationManagerSegregated::initialize(env, regionPool);
+    return result;
 }
 
-MM_AllocationContextSegregated *
-MM_GlobalAllocationManagerRealtime::createAllocationContext(MM_EnvironmentBase * env, MM_RegionPoolSegregated *regionPool)
+MM_AllocationContextSegregated* MM_GlobalAllocationManagerRealtime::createAllocationContext(
+    MM_EnvironmentBase* env, MM_RegionPoolSegregated* regionPool)
 {
-	return MM_AllocationContextRealtime::newInstance(env, this, regionPool);
+    return MM_AllocationContextRealtime::newInstance(env, this, regionPool);
 }

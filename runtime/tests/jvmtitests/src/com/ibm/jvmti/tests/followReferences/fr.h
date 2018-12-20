@@ -25,17 +25,17 @@
 #include "jvmti_test.h"
 
 typedef struct jvmtiTestFollowRefsUserData {
-	jvmtiPrimitiveType primitiveArrayType;
-	jobject arrayObject;
-	jint    arraySize;
-	void *  arrayElements;
+    jvmtiPrimitiveType primitiveArrayType;
+    jobject arrayObject;
+    jint arraySize;
+    void* arrayElements;
 
-	jchar * string;
-	jint    stringLen;
+    jchar* string;
+    jint stringLen;
 
 } jvmtiTestFollowRefsUserData;
 
-void tagManager_initialize(agentEnv * env);
+void tagManager_initialize(agentEnv* env);
 void queueTag(jlong tag);
 
 #endif

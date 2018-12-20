@@ -24,5 +24,6 @@
 #include "jni.h"
 #include "j9port.h"
 
-JavaVMOption *addHarmonyPortLibToVMArgs(J9PortLibrary *portLib, JavaVMOption *optionCursor, JavaVMInitArgs *vm_args, struct HyPortLibrary **hyPortLib);
+JavaVMOption* addHarmonyPortLibToVMArgs(
+    J9PortLibrary* portLib, JavaVMOption* optionCursor, JavaVMInitArgs* vm_args, struct HyPortLibrary** hyPortLib);
 #endif /* harmony_vm_h */

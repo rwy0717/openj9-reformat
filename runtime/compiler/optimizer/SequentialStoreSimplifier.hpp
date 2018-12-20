@@ -23,28 +23,31 @@
 #ifndef SEQUENTIAL_STORE_SIMPLIFIER_INCL
 #define SEQUENTIAL_STORE_SIMPLIFIER_INCL
 
-#include <stdint.h>                           // for int32_t
-#include "optimizer/Optimization.hpp"         // for Optimization
-#include "optimizer/OptimizationManager.hpp"  // for OptimizationManager
+#include <stdint.h> // for int32_t
+#include "optimizer/Optimization.hpp" // for Optimization
+#include "optimizer/OptimizationManager.hpp" // for OptimizationManager
 
-namespace TR { class Node; }
-namespace TR { class TreeTop; }
+namespace TR {
+class Node;
+}
+namespace TR {
+class TreeTop;
+}
 
 class TR_StoreBaseWalker;
 
-class TR_SequentialStoreSimplifier : public TR::Optimization
-   {
-   public:
-   TR_SequentialStoreSimplifier(TR::OptimizationManager *manager)
-      : TR::Optimization(manager)
-      {}
-   static TR::Optimization *create(TR::OptimizationManager *manager)
-      {
-      return new (manager->allocator()) TR_SequentialStoreSimplifier(manager);
-      }
+class TR_SequentialStoreSimplifier : public TR::Optimization {
+public:
+    TR_SequentialStoreSimplifier(TR::OptimizationManager* manager)
+        : TR::Optimization(manager)
+    {}
+    static TR::Optimization* create(TR::OptimizationManager* manager)
+    {
+        return new (manager->allocator()) TR_SequentialStoreSimplifier(manager);
+    }
 
-   virtual int32_t perform();
-   virtual const char * optDetailString() const throw();
-   };
+    virtual int32_t perform();
+    virtual const char* optDetailString() const throw();
+};
 
 #endif

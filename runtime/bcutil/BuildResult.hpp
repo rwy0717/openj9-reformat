@@ -31,22 +31,22 @@
 #include "j9.h"
 
 enum BuildResult {
-	OK = BCT_ERR_NO_ERROR,
-	GenericError = BCT_ERR_GENERIC_ERROR,
-	OutOfROM = BCT_ERR_OUT_OF_ROM,
-	ClassRead = BCT_ERR_CLASS_READ,
-	BytecodeTranslationFailed = BCT_ERR_BYTECODE_TRANSLATION_FAILED,
-	StackMapFailed = BCT_ERR_STACK_MAP_FAILED,
-	InvalidBytecode = BCT_ERR_INVALID_BYTECODE,
-	OutOfMemory = BCT_ERR_OUT_OF_MEMORY,
-	VerifyErrorInlining = BCT_ERR_VERIFY_ERROR_INLINING,
-	NeedWideBranches = BCT_ERR_NEED_WIDE_BRANCHES,
-	UnknownAnnotation = BCT_ERR_UNKNOWN_ANNOTATION,
-	ClassNameMismatch = BCT_ERR_CLASS_NAME_MISMATCH,
-	IllegalPackageName = BCT_ERR_ILLEGAL_PACKAGE_NAME,
-	InvalidAnnotation = BCT_ERR_INVALID_ANNOTATION,
-	LineNumberTableDecompressFailed = BCT_ERR_LINE_NUMBER_TABLE_DECOMPRESS_FAILED,
-	InvalidBytecodeSize = BCT_ERR_INVALID_BYTECODE_SIZE,
+    OK = BCT_ERR_NO_ERROR,
+    GenericError = BCT_ERR_GENERIC_ERROR,
+    OutOfROM = BCT_ERR_OUT_OF_ROM,
+    ClassRead = BCT_ERR_CLASS_READ,
+    BytecodeTranslationFailed = BCT_ERR_BYTECODE_TRANSLATION_FAILED,
+    StackMapFailed = BCT_ERR_STACK_MAP_FAILED,
+    InvalidBytecode = BCT_ERR_INVALID_BYTECODE,
+    OutOfMemory = BCT_ERR_OUT_OF_MEMORY,
+    VerifyErrorInlining = BCT_ERR_VERIFY_ERROR_INLINING,
+    NeedWideBranches = BCT_ERR_NEED_WIDE_BRANCHES,
+    UnknownAnnotation = BCT_ERR_UNKNOWN_ANNOTATION,
+    ClassNameMismatch = BCT_ERR_CLASS_NAME_MISMATCH,
+    IllegalPackageName = BCT_ERR_ILLEGAL_PACKAGE_NAME,
+    InvalidAnnotation = BCT_ERR_INVALID_ANNOTATION,
+    LineNumberTableDecompressFailed = BCT_ERR_LINE_NUMBER_TABLE_DECOMPRESS_FAILED,
+    InvalidBytecodeSize = BCT_ERR_INVALID_BYTECODE_SIZE,
 };
 
 #endif /* BUILDRESULT_HPP_ */

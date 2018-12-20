@@ -24,115 +24,117 @@
 
 #include "RuntimeToolsAgentBase.hpp"
 
-class VMRuntimeStateAgent: public RuntimeToolsAgentBase
-{
+class VMRuntimeStateAgent : public RuntimeToolsAgentBase {
 private:
-	/*
-	 * Data members
-	 */
-	/* pointer to java.lang.Class.getName() */
-	jmethodID _getNameMID;
+    /*
+     * Data members
+     */
+    /* pointer to java.lang.Class.getName() */
+    jmethodID _getNameMID;
 
-	/* name of the main class */
-	char *_appClass;
+    /* name of the main class */
+    char* _appClass;
 
-	/* indicates if J9HOOK_VM_RUNTIME_STATE_CHANGED event is expected to be triggered */
-	BOOLEAN _triggerHook;
+    /* indicates if J9HOOK_VM_RUNTIME_STATE_CHANGED event is expected to be triggered */
+    BOOLEAN _triggerHook;
 
-	/* indicates if J9HOOK_VM_RUNTIME_STATE_CHANGED event has triggered */
-	U_32 _hookTriggered;
+    /* indicates if J9HOOK_VM_RUNTIME_STATE_CHANGED event has triggered */
+    U_32 _hookTriggered;
 
-	/* current VM runtime state */
-	U_32 _currentState;
+    /* current VM runtime state */
+    U_32 _currentState;
 
-	/* number of idle->active transitions */
-	U_32 _idleToActiveCount;
+    /* number of idle->active transitions */
+    U_32 _idleToActiveCount;
 
-	/* number of active->idle transitions */
-	U_32 _activeToIdleCount;
+    /* number of active->idle transitions */
+    U_32 _activeToIdleCount;
 
-	/* expected number of idle->active transitions */
-	U_32 _expectedIdleToActiveCount;
+    /* expected number of idle->active transitions */
+    U_32 _expectedIdleToActiveCount;
 
-	/* expected number of active->idle transitions */
-	U_32 _expectedActiveToIdleCount;
+    /* expected number of active->idle transitions */
+    U_32 _expectedActiveToIdleCount;
 
 protected:
-	/**
-	 * Default constructor
-	 *
-	 * @param vm [in] java vm that can be used by this agent
-	 */
-	VMRuntimeStateAgent(JavaVM * vm) : RuntimeToolsAgentBase(vm) {}
+    /**
+     * Default constructor
+     *
+     * @param vm [in] java vm that can be used by this agent
+     */
+    VMRuntimeStateAgent(JavaVM* vm)
+        : RuntimeToolsAgentBase(vm)
+    {}
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init(void);
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init(void);
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill(void);
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill(void);
 
-	jint setup(char * options);
+    jint setup(char* options);
 
-	/**
-	 * This method is used to create an instance
-	 *
-	 * @param vm [in] java vm that can be used by this class
-	 */
-	static VMRuntimeStateAgent* newInstance(JavaVM * vm);
+    /**
+     * This method is used to create an instance
+     *
+     * @param vm [in] java vm that can be used by this class
+     */
+    static VMRuntimeStateAgent* newInstance(JavaVM* vm);
 
-	/**
-	 * This method gets the reference to the agent given the pointer to where it should
-	 * be stored. If necessary it creates the agent.
-	 *
-	 * @param vm    [in] that can be used by the method
-	 * @param agent [out] pointer to storage where pointer to agent can be stored
-	 */
-	static inline VMRuntimeStateAgent* getAgent(JavaVM * vm, VMRuntimeStateAgent** agent){
-		if (NULL == *agent) {
-			*agent = newInstance(vm);
-		}
-		return *agent;
-	}
+    /**
+     * This method gets the reference to the agent given the pointer to where it should
+     * be stored. If necessary it creates the agent.
+     *
+     * @param vm    [in] that can be used by the method
+     * @param agent [out] pointer to storage where pointer to agent can be stored
+     */
+    static inline VMRuntimeStateAgent* getAgent(JavaVM* vm, VMRuntimeStateAgent** agent)
+    {
+        if (NULL == *agent) {
+            *agent = newInstance(vm);
+        }
+        return *agent;
+    }
 
-	/**
-	 * This is called once for each argument, the agent should parse the arguments
-	 * it supports and pass any that it does not understand to parent classes
-	 *
-	 * @param options [in] string containing the argument
-	 *
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	virtual jint parseArgument(char* option);
+    /**
+     * This is called once for each argument, the agent should parse the arguments
+     * it supports and pass any that it does not understand to parent classes
+     *
+     * @param options [in] string containing the argument
+     *
+     * @returns one of the AGENT_ERROR_ values
+     */
+    virtual jint parseArgument(char* option);
 
-	/**
-	 * Callback for VMInit event
-	 */
-	void JNICALL cbVMInit(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread);
+    /**
+     * Callback for VMInit event
+     */
+    void JNICALL cbVMInit(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread);
 
-	/**
-	 * Callback for ClassPrepare event
-	 */
-	void JNICALL cbClassPrepare(jvmtiEnv *jvmti_env, JNIEnv* jni_env, jthread thread, jclass klass);
+    /**
+     * Callback for ClassPrepare event
+     */
+    void JNICALL cbClassPrepare(jvmtiEnv* jvmti_env, JNIEnv* jni_env, jthread thread, jclass klass);
 
-	/**
-	 * Callback for J9HOOK_VM_RUNTIME_STATE_CHANGED event
-	 */
-	void cbVMRuntimeStateChange(void* eventData);
+    /**
+     * Callback for J9HOOK_VM_RUNTIME_STATE_CHANGED event
+     */
+    void cbVMRuntimeStateChange(void* eventData);
 
-	/**
-	 * Registers hook for J9HOOK_VM_RUNTIME_STATE_CHANGED event
-	 */
-	void registerHook(void);
+    /**
+     * Registers hook for J9HOOK_VM_RUNTIME_STATE_CHANGED event
+     */
+    void registerHook(void);
 
-	/**
-	 * Verifies the results and prints appropriate error/pass messages
-	 */
-	void verifyResult(void);
+    /**
+     * Verifies the results and prints appropriate error/pass messages
+     */
+    void verifyResult(void);
 };
 
 #endif /* RUNTIMETOOLS_VMRUNTIMESTATEAGENT_HPP_ */

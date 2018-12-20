@@ -32,12 +32,12 @@ extern "C" {
 
 class SH_OSCacheTestMisc {
 public:
-	/* Main function to run all the tests */
-	static IDATA runTests(J9JavaVM *vm, struct j9cmdlineOptions *arg, const char *cmdline);
-	
+    /* Main function to run all the tests */
+    static IDATA runTests(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char* cmdline);
+
 private:
-	/* Each test is a private function in the class */
-	static IDATA testGetCacheDir(J9JavaVM *vm);
+    /* Each test is a private function in the class */
+    static IDATA testGetCacheDir(J9JavaVM* vm);
 };
 
 #endif /* OSCACHETESTMISC_HPP_INCLUDED */

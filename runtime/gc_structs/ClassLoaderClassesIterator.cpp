@@ -30,102 +30,95 @@
 
 #include "GCExtensionsBase.hpp"
 
-GC_ClassLoaderClassesIterator::GC_ClassLoaderClassesIterator(MM_GCExtensionsBase *extensions, J9ClassLoader *classLoader) :
-	_javaVM((J9JavaVM* )extensions->getOmrVM()->_language_vm)
-	,_classLoader(classLoader)
-	,_vmSegmentIterator(classLoader, MEMORY_TYPE_RAM_CLASS)
-	,_vmClassSlotIterator((J9JavaVM* )extensions->getOmrVM()->_language_vm)
-	,_mode(TABLE_CLASSES)
+GC_ClassLoaderClassesIterator::GC_ClassLoaderClassesIterator(
+    MM_GCExtensionsBase* extensions, J9ClassLoader* classLoader)
+    : _javaVM((J9JavaVM*)extensions->getOmrVM()->_language_vm)
+    , _classLoader(classLoader)
+    , _vmSegmentIterator(classLoader, MEMORY_TYPE_RAM_CLASS)
+    , _vmClassSlotIterator((J9JavaVM*)extensions->getOmrVM()->_language_vm)
+    , _mode(TABLE_CLASSES)
 {
 
-	if ((classLoader->flags & J9CLASSLOADER_ANON_CLASS_LOADER) != 0) {
-		_mode = ANONYMOUS_CLASSES;
-	}
-	_nextClass = firstClass();
+    if ((classLoader->flags & J9CLASSLOADER_ANON_CLASS_LOADER) != 0) {
+        _mode = ANONYMOUS_CLASSES;
+    }
+    _nextClass = firstClass();
 }
 
-J9Class *
-GC_ClassLoaderClassesIterator::nextSystemClass() 
+J9Class* GC_ClassLoaderClassesIterator::nextSystemClass()
 {
-	J9Class * result = NULL;
-	J9Class ** slot = NULL;
-	while (NULL != (slot = _vmClassSlotIterator.nextSlot())) {
-		result = *slot;
-		if (NULL != result) {
-			break;
-		}
-	}
-	return result;
+    J9Class* result = NULL;
+    J9Class** slot = NULL;
+    while (NULL != (slot = _vmClassSlotIterator.nextSlot())) {
+        result = *slot;
+        if (NULL != result) {
+            break;
+        }
+    }
+    return result;
 }
 
-J9Class *
-GC_ClassLoaderClassesIterator::firstClass()
+J9Class* GC_ClassLoaderClassesIterator::firstClass()
 {
-	J9Class * result;
-	if (ANONYMOUS_CLASSES == _mode) {
-		result = nextAnonymousClass();
-	} else {
-		result = _javaVM->internalVMFunctions->hashClassTableStartDo(_classLoader, &_walkState);
-		if ( (NULL == result) && switchToSystemMode() ) {
-			result = nextSystemClass();
-		}
-	}
-	return result;
+    J9Class* result;
+    if (ANONYMOUS_CLASSES == _mode) {
+        result = nextAnonymousClass();
+    } else {
+        result = _javaVM->internalVMFunctions->hashClassTableStartDo(_classLoader, &_walkState);
+        if ((NULL == result) && switchToSystemMode()) {
+            result = nextSystemClass();
+        }
+    }
+    return result;
 }
 
-J9Class *
-GC_ClassLoaderClassesIterator::nextAnonymousClass()
+J9Class* GC_ClassLoaderClassesIterator::nextAnonymousClass()
 {
-	J9Class * result = NULL;
-	J9MemorySegment *segment;
-	if (NULL != (segment = _vmSegmentIterator.nextSegment())) {
-		GC_ClassHeapIterator classHeapIterator(_javaVM, segment);
-		result = classHeapIterator.nextClass();
-	}
-	return result;
+    J9Class* result = NULL;
+    J9MemorySegment* segment;
+    if (NULL != (segment = _vmSegmentIterator.nextSegment())) {
+        GC_ClassHeapIterator classHeapIterator(_javaVM, segment);
+        result = classHeapIterator.nextClass();
+    }
+    return result;
 }
 
-
-J9Class *
-GC_ClassLoaderClassesIterator::nextTableClass()
+J9Class* GC_ClassLoaderClassesIterator::nextTableClass()
 {
-	J9Class * result = _javaVM->internalVMFunctions->hashClassTableNextDo(&_walkState);
-	if ( (NULL == result) && switchToSystemMode() ) {
-		result = nextSystemClass();
-	}
-	return result;
+    J9Class* result = _javaVM->internalVMFunctions->hashClassTableNextDo(&_walkState);
+    if ((NULL == result) && switchToSystemMode()) {
+        result = nextSystemClass();
+    }
+    return result;
 }
 
-
-bool 
-GC_ClassLoaderClassesIterator::switchToSystemMode()
+bool GC_ClassLoaderClassesIterator::switchToSystemMode()
 {
-	bool isSystemClassLoader = (_classLoader == _javaVM->systemClassLoader);
-	if (isSystemClassLoader) {
-		_mode = SYSTEM_CLASSES;
-	}
-	return isSystemClassLoader;
+    bool isSystemClassLoader = (_classLoader == _javaVM->systemClassLoader);
+    if (isSystemClassLoader) {
+        _mode = SYSTEM_CLASSES;
+    }
+    return isSystemClassLoader;
 }
 
-J9Class *
-GC_ClassLoaderClassesIterator::nextClass()
+J9Class* GC_ClassLoaderClassesIterator::nextClass()
 {
-	J9Class * result = _nextClass;
-	
-	if (NULL != result) {
-		if (ANONYMOUS_CLASSES == _mode) {
-			_nextClass = nextAnonymousClass();
-		} else {
-			if ( (result->classLoader == _classLoader) && (NULL != result->arrayClass) ) {
-				/* this class is defined in the loader, so follow its array classes */
-				_nextClass = result->arrayClass;
-			} else if (TABLE_CLASSES == _mode) {
-				_nextClass = nextTableClass();
-			} else {
-				_nextClass = nextSystemClass();
-			}
-		}
-	}
-	
-	return result;
+    J9Class* result = _nextClass;
+
+    if (NULL != result) {
+        if (ANONYMOUS_CLASSES == _mode) {
+            _nextClass = nextAnonymousClass();
+        } else {
+            if ((result->classLoader == _classLoader) && (NULL != result->arrayClass)) {
+                /* this class is defined in the loader, so follow its array classes */
+                _nextClass = result->arrayClass;
+            } else if (TABLE_CLASSES == _mode) {
+                _nextClass = nextTableClass();
+            } else {
+                _nextClass = nextSystemClass();
+            }
+        }
+    }
+
+    return result;
 }

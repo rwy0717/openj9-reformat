@@ -63,8 +63,8 @@
  ** SEE testFindArgs FOR UNIT TESTS. TO RUN, ADD "#define JVMINIT_UNIT_TEST" TO SOURCE TEMPLATE ***
  */
 IDATA
-findArgInVMArgs(J9PortLibrary *portLibrary, J9VMInitArgs* j9vm_args, UDATA match, const char* optionName, const char* optionValue, UDATA doConsumeArgs);
-
+findArgInVMArgs(J9PortLibrary* portLibrary, J9VMInitArgs* j9vm_args, UDATA match, const char* optionName,
+    const char* optionValue, UDATA doConsumeArgs);
 
 /**
  * This function returns the option string at a given index.  It is important
@@ -74,34 +74,33 @@ findArgInVMArgs(J9PortLibrary *portLibrary, J9VMInitArgs* j9vm_args, UDATA match
  * @param index
  * @return
  **/
-char*
-getOptionString(J9VMInitArgs* j9vm_args, IDATA index);
-
+char* getOptionString(J9VMInitArgs* j9vm_args, IDATA index);
 
 /* Covers the range of operations that can be performed on a given option string.
-	GET_OPTION returns the value of a command-line option. Eg "-Xfoo:bar" returns "bar".
-	GET_OPTION_OPT returns the value of a value. Eg. "-Xfoo:bar:wibble" returns "wibble".
-	GET_OPTIONS returns a list of values separated by NULLs. Eg. "-Xfoo:bar=1,wibble=2" returns "bar=1\0wibble=2"
-	GET_COMPOUND returns all the option values from the command-line for a given option, separated by commas. Based on certain rules.
-	GET_COMPOUND_OPTS returns all the option values from the command-line for a given option, separated by \0s. Based on certain rules.
-	GET_MAPPED_OPTION returns the value of a mapped option. Eg. if -Xsov1 maps to Xj91 then "-Xsov1:foo" returns "foo"
-	GET_MEM_VALUE returns a rounded value of a memory option. Eg. "-Xfoo32k" returns (32 * 1024).
-	GET_INT_VALUE returns the exact integer value of an option. Eg. -Xfoo5 returns 5
-	GET_PRC_VALUE returns the a decimal value between 0 and 1 represented as a percentage. Eg. -Xmaxf1.0 returns 100.
+        GET_OPTION returns the value of a command-line option. Eg "-Xfoo:bar" returns "bar".
+        GET_OPTION_OPT returns the value of a value. Eg. "-Xfoo:bar:wibble" returns "wibble".
+        GET_OPTIONS returns a list of values separated by NULLs. Eg. "-Xfoo:bar=1,wibble=2" returns "bar=1\0wibble=2"
+        GET_COMPOUND returns all the option values from the command-line for a given option, separated by commas. Based
+   on certain rules. GET_COMPOUND_OPTS returns all the option values from the command-line for a given option, separated
+   by \0s. Based on certain rules. GET_MAPPED_OPTION returns the value of a mapped option. Eg. if -Xsov1 maps to Xj91
+   then "-Xsov1:foo" returns "foo" GET_MEM_VALUE returns a rounded value of a memory option. Eg. "-Xfoo32k" returns (32
+   * 1024). GET_INT_VALUE returns the exact integer value of an option. Eg. -Xfoo5 returns 5 GET_PRC_VALUE returns the a
+   decimal value between 0 and 1 represented as a percentage. Eg. -Xmaxf1.0 returns 100.
 
-	For GET_OPTIONS, the function expects to get a string buffer to write to and a buffer size.
-	For GET_OPTION, GET_OPTION_OPT and GET_MAPPED_OPTION, the result is returned either as a pointer in valuesBuffer or, if valuesBuffer is a real buffer, it copies the result.
-	For GET_MEM_VALUE, GET_INT_VALUE and GET_PRC_VALUE the function enters the result in a UDATA provided.
+        For GET_OPTIONS, the function expects to get a string buffer to write to and a buffer size.
+        For GET_OPTION, GET_OPTION_OPT and GET_MAPPED_OPTION, the result is returned either as a pointer in valuesBuffer
+   or, if valuesBuffer is a real buffer, it copies the result. For GET_MEM_VALUE, GET_INT_VALUE and GET_PRC_VALUE the
+   function enters the result in a UDATA provided.
 
-	Unless absolutely necessary, don't call this method directly - use the macros defined in jvminit.h.
+        Unless absolutely necessary, don't call this method directly - use the macros defined in jvminit.h.
 
-	*** SEE testOptionValueOps FOR UNIT TESTS. TO RUN, ADD "#define JVMINIT_UNIT_TEST" TO SOURCE TEMPLATE ***
+        *** SEE testOptionValueOps FOR UNIT TESTS. TO RUN, ADD "#define JVMINIT_UNIT_TEST" TO SOURCE TEMPLATE ***
 */
 IDATA
-optionValueOperations(J9PortLibrary *portLibrary, J9VMInitArgs* j9vm_args, IDATA element, IDATA action, char** valuesBuffer, UDATA bufSize, char delim, char separator, void* reserved);
+optionValueOperations(J9PortLibrary* portLibrary, J9VMInitArgs* j9vm_args, IDATA element, IDATA action,
+    char** valuesBuffer, UDATA bufSize, char delim, char separator, void* reserved);
 
-void
-dumpVmArgumentsList(J9VMInitArgs *argList);
+void dumpVmArgumentsList(J9VMInitArgs* argList);
 
 /*
  * Add -Xoptionsfile=<optionsdirectory>/options.default, plus contents of same.
@@ -113,7 +112,8 @@ dumpVmArgumentsList(J9VMInitArgs *argList);
  * @return 0 on success, negative value on failure
  */
 IDATA
-addOptionsDefaultFile(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, char *optionsDirectory, UDATA verboseFlags);
+addOptionsDefaultFile(
+    J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, char* optionsDirectory, UDATA verboseFlags);
 
 /*
  * Add implied VM argument -Xjcl:
@@ -124,7 +124,7 @@ addOptionsDefaultFile(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsL
  * @return 0 on success, negative value on failure
  */
 IDATA
-addXjcl(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA j2seVersion);
+addXjcl(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, UDATA j2seVersion);
 
 /*
  * Add argument to set com.ibm.oti.vm.bootstrap.library.path or sun.boot.library.path
@@ -137,7 +137,8 @@ addXjcl(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA j2s
  * @return 0 on success, negative value on failure
  */
 IDATA
-addBootLibraryPath(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, char *propertyNameEquals, char *j9binPath, char *jrebinPath);
+addBootLibraryPath(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, char* propertyNameEquals,
+    char* j9binPath, char* jrebinPath);
 
 /**
  * Add argument to set java.library.path
@@ -153,9 +154,8 @@ addBootLibraryPath(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList
  * @return 0 on success, negative value on failure
  */
 IDATA
-addJavaLibraryPath(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA argEncoding,
-		BOOLEAN jvmInSubdir, char *j9binPath, char *jrebinPath,
-		const char *libpathValue, const char *ldLibraryPathValue);
+addJavaLibraryPath(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, UDATA argEncoding, BOOLEAN jvmInSubdir,
+    char* j9binPath, char* jrebinPath, const char* libpathValue, const char* ldLibraryPathValue);
 
 /**
  * Add argument to set java.library.path
@@ -167,7 +167,7 @@ addJavaLibraryPath(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList
  * @return 0 on success, negative value on failure
  */
 IDATA
-addJavaHome(J9PortLibrary *portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA altJavaHomeSpecified, char *jrelibPath);
+addJavaHome(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, UDATA altJavaHomeSpecified, char* jrelibPath);
 
 /**
  * Add argument to set java.ext.dirs
@@ -180,7 +180,8 @@ addJavaHome(J9PortLibrary *portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA 
  * @return 0 on success, negative value on failure
  */
 IDATA
-addExtDir(J9PortLibrary *portLib, J9JavaVMArgInfoList *vmArgumentsList, char *jrelibPath, JavaVMInitArgs *launcherArgs, UDATA j2seVersion);
+addExtDir(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, char* jrelibPath, JavaVMInitArgs* launcherArgs,
+    UDATA j2seVersion);
 
 /**
  * Add argument to set user.dir
@@ -191,7 +192,7 @@ addExtDir(J9PortLibrary *portLib, J9JavaVMArgInfoList *vmArgumentsList, char *jr
  * @return 0 on success, negative value on failure
  */
 IDATA
-addUserDir(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, char *cwd);
+addUserDir(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, char* cwd);
 
 /**
  * Add -D options to define java properties
@@ -201,7 +202,7 @@ addUserDir(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, char *
  * @return 0 on success, negative value on failure
  */
 IDATA
-addJavaPropertiesOptions(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, UDATA verboseFlags);
+addJavaPropertiesOptions(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, UDATA verboseFlags);
 
 /**
  * Open the executable JAR file and add arguments from the manifest file.
@@ -213,7 +214,8 @@ addJavaPropertiesOptions(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumen
  * @return 0 on success, negative value on failure
  */
 IDATA
-addJarArguments(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, const char *jarPath, J9ZipFunctionTable *zipFuncs, UDATA verboseFlags);
+addJarArguments(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, const char* jarPath,
+    J9ZipFunctionTable* zipFuncs, UDATA verboseFlags);
 
 /**
  * Add the arguments coming from environment variables
@@ -224,7 +226,8 @@ addJarArguments(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, c
  * @return 0 on success, negative value on failure
  */
 IDATA
-addEnvironmentVariables(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, J9JavaVMArgInfoList *vmArgumentsList, UDATA verboseFlags);
+addEnvironmentVariables(
+    J9PortLibrary* portLib, JavaVMInitArgs* launcherArgs, J9JavaVMArgInfoList* vmArgumentsList, UDATA verboseFlags);
 
 /**
  * Copy the arguments given by the launching process to new memory and add to the list.
@@ -238,7 +241,8 @@ addEnvironmentVariables(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, J
  * @return 0 on success, negative value on failure
  */
 IDATA
-addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA launcherArgumentsSize, J9JavaVMArgInfoList *vmArgumentsList, char **xServiceBuffer, UDATA argEncoding, UDATA verboseFlags);
+addLauncherArgs(J9PortLibrary* portLib, JavaVMInitArgs* launcherArgs, UDATA launcherArgumentsSize,
+    J9JavaVMArgInfoList* vmArgumentsList, char** xServiceBuffer, UDATA argEncoding, UDATA verboseFlags);
 
 /**
  * Add the arguments given by the launching process
@@ -249,7 +253,7 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
  * @return 0 on success, negative value on failure
  */
 IDATA
-addXserviceArgs(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, char *xServiceBuffer, UDATA verboseFlags);
+addXserviceArgs(J9PortLibrary* portLib, J9JavaVMArgInfoList* vmArgumentsList, char* xServiceBuffer, UDATA verboseFlags);
 
 /**
  * Create the JavaVMInitArgs array and the J9VMInitArgs wrapper from a pool of J9JavaVMArgInfo structs.
@@ -262,16 +266,15 @@ addXserviceArgs(J9PortLibrary * portLib, J9JavaVMArgInfoList *vmArgumentsList, c
  * @param [out] argEncoding update the encoding
  * @return J9VMInitArgs struct on success, NULL value on failure, e.g. memory allocate failed.
  */
-J9VMInitArgs*
-createJvmInitArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, J9JavaVMArgInfoList *vmArgumentsList, UDATA* argEncoding);
+J9VMInitArgs* createJvmInitArgs(
+    J9PortLibrary* portLib, JavaVMInitArgs* launcherArgs, J9JavaVMArgInfoList* vmArgumentsList, UDATA* argEncoding);
 
 /**
- * Free the space for the J9VMInitArgs and JavaVMInitArgs structs, plus the arrays of JavaVMOption and J9CmdLineOption structs.
- * Also walk the array of J9VMInitArgs and free the optionStrings which are marked as being memory allocations.
+ * Free the space for the J9VMInitArgs and JavaVMInitArgs structs, plus the arrays of JavaVMOption and J9CmdLineOption
+ * structs. Also walk the array of J9VMInitArgs and free the optionStrings which are marked as being memory allocations.
  * @param portLib port library
  * @param vmArgumentsList current list of arguments
  */
-void
-destroyJvmInitArgs(J9PortLibrary * portLib, J9VMInitArgs *vmArgumentsList);
+void destroyJvmInitArgs(J9PortLibrary* portLib, J9VMInitArgs* vmArgumentsList);
 
 #endif /* vmargs_api_h */

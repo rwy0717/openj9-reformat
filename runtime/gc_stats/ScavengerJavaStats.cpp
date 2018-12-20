@@ -23,46 +23,41 @@
 
 #include "ScavengerJavaStats.hpp"
 
-MM_ScavengerJavaStats::MM_ScavengerJavaStats() :
-	_unfinalizedCandidates(0)
-	,_unfinalizedEnqueued(0)
-	,_ownableSynchronizerCandidates(0)
-	,_ownableSynchronizerTotalSurvived(0)
-	,_ownableSynchronizerNurserySurvived(0)
-	,_weakReferenceStats()
-	,_softReferenceStats()
-	,_phantomReferenceStats()
+MM_ScavengerJavaStats::MM_ScavengerJavaStats()
+    : _unfinalizedCandidates(0)
+    , _unfinalizedEnqueued(0)
+    , _ownableSynchronizerCandidates(0)
+    , _ownableSynchronizerTotalSurvived(0)
+    , _ownableSynchronizerNurserySurvived(0)
+    , _weakReferenceStats()
+    , _softReferenceStats()
+    , _phantomReferenceStats()
+{}
+
+void MM_ScavengerJavaStats::clear()
 {
-}
+    _unfinalizedCandidates = 0;
+    _unfinalizedEnqueued = 0;
 
-void 
-MM_ScavengerJavaStats::clear()
-{
-	_unfinalizedCandidates = 0;
-	_unfinalizedEnqueued = 0;
+    _ownableSynchronizerCandidates = 0;
+    _ownableSynchronizerTotalSurvived = 0;
+    _ownableSynchronizerNurserySurvived = 0;
 
-	_ownableSynchronizerCandidates = 0;
-	_ownableSynchronizerTotalSurvived = 0;
-	_ownableSynchronizerNurserySurvived = 0;
-
-	_weakReferenceStats.clear();
-	_softReferenceStats.clear();
-	_phantomReferenceStats.clear();
+    _weakReferenceStats.clear();
+    _softReferenceStats.clear();
+    _phantomReferenceStats.clear();
 };
 
-
-void
-MM_ScavengerJavaStats::clearOwnableSynchronizerCounts()
+void MM_ScavengerJavaStats::clearOwnableSynchronizerCounts()
 {
-	_ownableSynchronizerCandidates = 0;
-	_ownableSynchronizerTotalSurvived = 0;
-	_ownableSynchronizerNurserySurvived = 0;
+    _ownableSynchronizerCandidates = 0;
+    _ownableSynchronizerTotalSurvived = 0;
+    _ownableSynchronizerNurserySurvived = 0;
 }
 
-void
-MM_ScavengerJavaStats::mergeOwnableSynchronizerCounts(MM_ScavengerJavaStats *statsToMerge)
+void MM_ScavengerJavaStats::mergeOwnableSynchronizerCounts(MM_ScavengerJavaStats* statsToMerge)
 {
-	_ownableSynchronizerCandidates += statsToMerge->_ownableSynchronizerCandidates;
-	_ownableSynchronizerTotalSurvived += statsToMerge->_ownableSynchronizerTotalSurvived;
-	_ownableSynchronizerNurserySurvived += statsToMerge->_ownableSynchronizerNurserySurvived;
+    _ownableSynchronizerCandidates += statsToMerge->_ownableSynchronizerCandidates;
+    _ownableSynchronizerTotalSurvived += statsToMerge->_ownableSynchronizerTotalSurvived;
+    _ownableSynchronizerNurserySurvived += statsToMerge->_ownableSynchronizerNurserySurvived;
 }

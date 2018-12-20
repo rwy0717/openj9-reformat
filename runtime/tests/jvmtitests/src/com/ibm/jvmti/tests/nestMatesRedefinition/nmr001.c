@@ -24,59 +24,57 @@
 
 #include "jvmti_test.h"
 
-static agentEnv *env;
+static agentEnv* env;
 
-
-jint JNICALL
-nmr001(agentEnv *agent_env, char *args)
+jint JNICALL nmr001(agentEnv* agent_env, char* args)
 {
-	jvmtiError err = JVMTI_ERROR_NONE;
-	jvmtiCapabilities capabilities = {0};
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiError err = JVMTI_ERROR_NONE;
+    jvmtiCapabilities capabilities = { 0 };
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
 
-	env = agent_env; 
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_redefine_classes = 1;
-	/* Following capability is required to enable FSD */
-	capabilities.can_generate_breakpoint_events = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to AddCapabilities");
-		return JNI_ERR;
-	}						
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_redefine_classes = 1;
+    /* Following capability is required to enable FSD */
+    capabilities.can_generate_breakpoint_events = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to AddCapabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-jint JNICALL
-Java_com_ibm_jvmti_tests_nestMatesRedefinition_nmr001_redefineClass(JNIEnv *jni_env, jclass klass, jclass originalClass, jint classBytesSize, jbyteArray redefinedClassByteData)
+jint JNICALL Java_com_ibm_jvmti_tests_nestMatesRedefinition_nmr001_redefineClass(
+    JNIEnv* jni_env, jclass klass, jclass originalClass, jint classBytesSize, jbyteArray redefinedClassByteData)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jbyte *classByteDataRegion = NULL;
-	char *classFileName = env->testArgs;
-	jvmtiClassDefinition classdef = {0};
-	jvmtiError err = JVMTI_ERROR_NONE;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jbyte* classByteDataRegion = NULL;
+    char* classFileName = env->testArgs;
+    jvmtiClassDefinition classdef = { 0 };
+    jvmtiError err = JVMTI_ERROR_NONE;
 
-	err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize, (unsigned char **) &classByteDataRegion);
-	if (err != JVMTI_ERROR_NONE) {
-		goto done;
-	}
+    err = (*jvmti_env)->Allocate(jvmti_env, classBytesSize, (unsigned char**)&classByteDataRegion);
+    if (err != JVMTI_ERROR_NONE) {
+        goto done;
+    }
 
-	(*jni_env)->GetByteArrayRegion(jni_env, redefinedClassByteData, 0, classBytesSize, classByteDataRegion);
-	if ((*jni_env)->ExceptionCheck(jni_env)) {
-		err = JVMTI_ERROR_INTERNAL;
-		goto freeMem;
-	}
+    (*jni_env)->GetByteArrayRegion(jni_env, redefinedClassByteData, 0, classBytesSize, classByteDataRegion);
+    if ((*jni_env)->ExceptionCheck(jni_env)) {
+        err = JVMTI_ERROR_INTERNAL;
+        goto freeMem;
+    }
 
-	classdef.class_bytes = (unsigned char *) classByteDataRegion;
-	classdef.class_byte_count = classBytesSize;
-	classdef.klass = originalClass;
+    classdef.class_bytes = (unsigned char*)classByteDataRegion;
+    classdef.class_byte_count = classBytesSize;
+    classdef.klass = originalClass;
 
-	err = (*jvmti_env)->RedefineClasses(jvmti_env, 1, &classdef);
+    err = (*jvmti_env)->RedefineClasses(jvmti_env, 1, &classdef);
 
 freeMem:
-	(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *) classByteDataRegion);
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)classByteDataRegion);
 done:
-	return (jint) err;
+    return (jint)err;
 }

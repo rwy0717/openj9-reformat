@@ -34,52 +34,52 @@
 #include "HeapMapIterator.hpp"
 #include "PartialMarkingScheme.hpp"
 
-void
-MM_PartialMarkNoGMPCardCleaner::clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+void MM_PartialMarkNoGMPCardCleaner::clean(
+    MM_EnvironmentBase* envModron, void* lowAddress, void* highAddress, Card* cardToClean)
 {
-	MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
-	Assert_MM_true(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
-	Assert_MM_true(NULL != _markingScheme);
-	
-	Card fromState = *cardToClean;
-	Card toState = CARD_INVALID;
-	bool shouldScan = false;
-	bool rememberedOnly = false;
-	switch(fromState) {
-	case CARD_DIRTY:
-	case CARD_PGC_MUST_SCAN:
-		shouldScan = true;
-		toState = CARD_CLEAN;
-		break;
-	case CARD_REMEMBERED_AND_GMP_SCAN:
-		shouldScan = true;
-		rememberedOnly = true;
-		toState = CARD_GMP_MUST_SCAN;
-		break;
-	case CARD_REMEMBERED:
-		shouldScan = true;
-		rememberedOnly = true;
-		toState = CARD_CLEAN;
-		break;
-	case CARD_GMP_MUST_SCAN:
-	    /* GMP is not active, so this state should not be found */
-		Assert_MM_unreachable();
-		break;
-	case CARD_CLEAN:
-		Assert_MM_unreachable();
-		break;
-	default:
-		Assert_MM_unreachable();
-	}
-	/* if we determined a new card state, write it into the card */
-	if (CARD_INVALID != toState) {
-		*cardToClean = toState;
-		
-		/* if this state transition is one which requires that we scan the objects in the card (in this cleaner, 
-		 * that would be to build inter-region remember data) then do so.
-		 */
-		if (shouldScan) {
-			_markingScheme->scanObjectsInRange(env, lowAddress, highAddress, rememberedOnly);
-		}
-	}
+    MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
+    Assert_MM_true(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
+    Assert_MM_true(NULL != _markingScheme);
+
+    Card fromState = *cardToClean;
+    Card toState = CARD_INVALID;
+    bool shouldScan = false;
+    bool rememberedOnly = false;
+    switch (fromState) {
+    case CARD_DIRTY:
+    case CARD_PGC_MUST_SCAN:
+        shouldScan = true;
+        toState = CARD_CLEAN;
+        break;
+    case CARD_REMEMBERED_AND_GMP_SCAN:
+        shouldScan = true;
+        rememberedOnly = true;
+        toState = CARD_GMP_MUST_SCAN;
+        break;
+    case CARD_REMEMBERED:
+        shouldScan = true;
+        rememberedOnly = true;
+        toState = CARD_CLEAN;
+        break;
+    case CARD_GMP_MUST_SCAN:
+        /* GMP is not active, so this state should not be found */
+        Assert_MM_unreachable();
+        break;
+    case CARD_CLEAN:
+        Assert_MM_unreachable();
+        break;
+    default:
+        Assert_MM_unreachable();
+    }
+    /* if we determined a new card state, write it into the card */
+    if (CARD_INVALID != toState) {
+        *cardToClean = toState;
+
+        /* if this state transition is one which requires that we scan the objects in the card (in this cleaner,
+         * that would be to build inter-region remember data) then do so.
+         */
+        if (shouldScan) {
+            _markingScheme->scanObjectsInRange(env, lowAddress, highAddress, rememberedOnly);
+        }
+    }
 }

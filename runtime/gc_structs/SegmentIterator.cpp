@@ -34,17 +34,15 @@
  * @return the next segment in the list
  * @return NULL if there are no more segments
  */
-J9MemorySegment *
-GC_SegmentIterator::nextSegment()
+J9MemorySegment* GC_SegmentIterator::nextSegment()
 {
-	J9MemorySegment *currentMemorySegment;
-	while(_memorySegment) {
-		currentMemorySegment = _memorySegment;
-		_memorySegment = _memorySegment->nextSegment;
-		if((currentMemorySegment->type & _flags) == _flags) {
-			return currentMemorySegment;
-		}
-	}
-	return NULL;
+    J9MemorySegment* currentMemorySegment;
+    while (_memorySegment) {
+        currentMemorySegment = _memorySegment;
+        _memorySegment = _memorySegment->nextSegment;
+        if ((currentMemorySegment->type & _flags) == _flags) {
+            return currentMemorySegment;
+        }
+    }
+    return NULL;
 }
-

@@ -21,16 +21,15 @@
  *******************************************************************************/
 #include "util_api.h"
 
-char*
-strnrchrHelper(const char *str, char c, UDATA len)
+char* strnrchrHelper(const char* str, char c, UDATA len)
 {
-	char* ret = NULL;
-	char* cur = (char*)str + len - 1;
-	for (; cur >= str; cur--) {
-		if (*cur == c) {
-			ret = cur;
-			break;
-		}
-	}
-	return ret;
+    char* ret = NULL;
+    char* cur = (char*)str + len - 1;
+    for (; cur >= str; cur--) {
+        if (*cur == c) {
+            ret = cur;
+            break;
+        }
+    }
+    return ret;
 }

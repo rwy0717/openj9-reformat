@@ -36,11 +36,11 @@ extern "C" {
 #define J9CMDLINE_GENERIC_ERROR 3
 
 struct j9cmdlineOptions {
-	int argc;
-	char** argv;
-	char** envp;
-	J9PortLibrary* portLibrary;
-	BOOLEAN shutdownPortLib;
+    int argc;
+    char** argv;
+    char** envp;
+    J9PortLibrary* portLibrary;
+    BOOLEAN shutdownPortLib;
 };
 
 #ifdef __cplusplus

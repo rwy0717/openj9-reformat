@@ -22,118 +22,112 @@
 #include "HeapIteratorAPIRootIterator.hpp"
 #include "HeapIteratorAPI.h"
 
-void 
-HeapIteratorAPI_RootIterator::scanAllSlots()
-{	
-	if(!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
-		if( _flags & SCAN_CLASSES) {
-			scanClasses();
-		}
-		if( _flags & SCAN_VM_CLASS_SLOTS) {
-			scanVMClassSlots();
-		}			
-	}
-	
-	if(_flags & SCAN_CLASS_LOADERS) {
-		scanClassLoaders();
-	}
-	
-	if(_flags & SCAN_THREADS) {
-		scanThreads();
-	}
+void HeapIteratorAPI_RootIterator::scanAllSlots()
+{
+    if (!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
+        if (_flags & SCAN_CLASSES) {
+            scanClasses();
+        }
+        if (_flags & SCAN_VM_CLASS_SLOTS) {
+            scanVMClassSlots();
+        }
+    }
+
+    if (_flags & SCAN_CLASS_LOADERS) {
+        scanClassLoaders();
+    }
+
+    if (_flags & SCAN_THREADS) {
+        scanThreads();
+    }
 
 #if defined(J9VM_GC_FINALIZATION)
-	if(_flags & SCAN_FINALIZABLE_OBJECTS) {
-		/* TODO: MM_GCExtensionCore does not contain GC_FinalizeListManager, 
-		 * which is required to walk finalizable objects.
-		 */
-		scanFinalizableObjects();
-	}
+    if (_flags & SCAN_FINALIZABLE_OBJECTS) {
+        /* TODO: MM_GCExtensionCore does not contain GC_FinalizeListManager,
+         * which is required to walk finalizable objects.
+         */
+        scanFinalizableObjects();
+    }
 #endif /* J9VM_GC_FINALIZATION */
 
-	if(_flags & SCAN_JNI_GLOBAL) {
-		scanJNIGlobalReferences();
-	}
-	if(!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
-		if(_flags & SCAN_STRING_TABLE) {
-			scanStringTable();
-		}
-	}
+    if (_flags & SCAN_JNI_GLOBAL) {
+        scanJNIGlobalReferences();
+    }
+    if (!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
+        if (_flags & SCAN_STRING_TABLE) {
+            scanStringTable();
+        }
+    }
 
 #if defined(J9VM_GC_FINALIZATION)
-	if(_flags & SCAN_UNFINALIZABLE) {
-		scanUnfinalizedObjects();
-	}
+    if (_flags & SCAN_UNFINALIZABLE) {
+        scanUnfinalizedObjects();
+    }
 #endif /* J9VM_GC_FINALIZATION */
-		
-	if(_flags & SCAN_MONITORS) {
-		scanMonitorReferences();
-	}
 
-	if(_flags & SCAN_JNI_WEAK) {
-		scanJNIWeakGlobalReferences();
-	}
+    if (_flags & SCAN_MONITORS) {
+        scanMonitorReferences();
+    }
+
+    if (_flags & SCAN_JNI_WEAK) {
+        scanJNIWeakGlobalReferences();
+    }
 
 #if defined(J9VM_GC_MODRON_SCAVENGER)
-	if(!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
-		if(_flags & SCAN_REMEBERED_SET) {
-			scanRememberedSet();
-		}
-	}
+    if (!_nurseryReferencesOnly && !_nurseryReferencesPossibly) {
+        if (_flags & SCAN_REMEBERED_SET) {
+            scanRememberedSet();
+        }
+    }
 #endif /* J9VM_GC_MODRON_SCAVENGER */
 
 #if defined(J9VM_OPT_JVMTI)
-	if(_includeJVMTIObjectTagTables) {
-		if(_flags & SCAN_JVMTI_OBJECT_TAG_TABLE) {
-			/* TODO: The J9JVMTI_DATA_FROM_VM is OOP unsafe - convert code when it is. */
-			scanJVMTIObjectTagTables();
-		}
-	}
+    if (_includeJVMTIObjectTagTables) {
+        if (_flags & SCAN_JVMTI_OBJECT_TAG_TABLE) {
+            /* TODO: The J9JVMTI_DATA_FROM_VM is OOP unsafe - convert code when it is. */
+            scanJVMTIObjectTagTables();
+        }
+    }
 #endif /* J9VM_OPT_JVMTI */
 
-	if (_flags & SCAN_OWNABLE_SYNCHRONIZER) {
-		scanOwnableSynchronizerObjects();
-	}
+    if (_flags & SCAN_OWNABLE_SYNCHRONIZER) {
+        scanOwnableSynchronizerObjects();
+    }
 }
 
-
-void
-HeapIteratorAPI_RootIterator::doSlot(J9Object** slotPtr)
+void HeapIteratorAPI_RootIterator::doSlot(J9Object** slotPtr)
 {
-	J9MM_HeapRootSlotDescriptor rootDesc;
-	
-	rootDesc.slotType = _scanningEntity;
-	rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_OBJECT;
-	rootDesc.slotReachability = _scanningEntityReachability;
-			
-	if( NULL != ((void *)*slotPtr) ) {
-		_func((void *)*slotPtr, &rootDesc, _userData);
-	}
+    J9MM_HeapRootSlotDescriptor rootDesc;
+
+    rootDesc.slotType = _scanningEntity;
+    rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_OBJECT;
+    rootDesc.slotReachability = _scanningEntityReachability;
+
+    if (NULL != ((void*)*slotPtr)) {
+        _func((void*)*slotPtr, &rootDesc, _userData);
+    }
 }
 
-void 
-HeapIteratorAPI_RootIterator::doObject(J9Object* slotPtr)
+void HeapIteratorAPI_RootIterator::doObject(J9Object* slotPtr)
 {
-	J9MM_HeapRootSlotDescriptor rootDesc;
-	
-	rootDesc.slotType = _scanningEntity;
-	rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_OBJECT;
-	rootDesc.slotReachability = _scanningEntityReachability;
-	
-	_func( (void *)slotPtr, &rootDesc, _userData);
-	
+    J9MM_HeapRootSlotDescriptor rootDesc;
+
+    rootDesc.slotType = _scanningEntity;
+    rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_OBJECT;
+    rootDesc.slotReachability = _scanningEntityReachability;
+
+    _func((void*)slotPtr, &rootDesc, _userData);
 }
 
-void
-HeapIteratorAPI_RootIterator::doClass(J9Class *clazz)
+void HeapIteratorAPI_RootIterator::doClass(J9Class* clazz)
 {
-	J9MM_HeapRootSlotDescriptor rootDesc;
-	
-	rootDesc.slotType = _scanningEntity;
-	rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_CLASS;
-	rootDesc.slotReachability = _scanningEntityReachability;
+    J9MM_HeapRootSlotDescriptor rootDesc;
 
-	if( NULL != clazz ) {
-		_func( (void *)clazz, &rootDesc, _userData);	
-	}
+    rootDesc.slotType = _scanningEntity;
+    rootDesc.scanType = HEAP_ROOT_SLOT_DESCRIPTOR_CLASS;
+    rootDesc.slotReachability = _scanningEntityReachability;
+
+    if (NULL != clazz) {
+        _func((void*)clazz, &rootDesc, _userData);
+    }
 }

@@ -28,9 +28,9 @@
  * @todo Provide documentation
  */
 typedef struct TgcFreeListExtensions {
-	UDATA gcCount;
+    UDATA gcCount;
 } TgcFreeListExtensions;
 
-bool tgcFreeListInitialize(J9JavaVM *javaVM);
+bool tgcFreeListInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCFREELIST_HPP_ */

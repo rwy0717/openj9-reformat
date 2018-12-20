@@ -32,9 +32,9 @@
  * Structure holding information relating to tgc tracing for concurrent mark.
  */
 typedef struct TgcConcurrentCardCleaningExtensions {
-	UDATA unused;
-} TgcConcurrentCardCleaningExtensions; 
- 
-bool tgcConcurrentCardCleaningInitialize(J9JavaVM *javaVM);
+    UDATA unused;
+} TgcConcurrentCardCleaningExtensions;
+
+bool tgcConcurrentCardCleaningInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCCONCURRENTCARDCLEANING_HPP_ */

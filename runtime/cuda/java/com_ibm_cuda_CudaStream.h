@@ -16,64 +16,56 @@ extern "C" {
  * Method:    create
  * Signature: (I)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaStream_create
-  (JNIEnv *, jclass, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaStream_create(JNIEnv*, jclass, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    createWithPriority
  * Signature: (III)J
  */
-jlong JNICALL Java_com_ibm_cuda_CudaStream_createWithPriority
-  (JNIEnv *, jclass, jint, jint, jint);
+jlong JNICALL Java_com_ibm_cuda_CudaStream_createWithPriority(JNIEnv*, jclass, jint, jint, jint);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    destroy
  * Signature: (IJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaStream_destroy
-  (JNIEnv *, jclass, jint, jlong);
+void JNICALL Java_com_ibm_cuda_CudaStream_destroy(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    getFlags
  * Signature: (IJ)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaStream_getFlags
-  (JNIEnv *, jclass, jint, jlong);
+jint JNICALL Java_com_ibm_cuda_CudaStream_getFlags(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    getPriority
  * Signature: (IJ)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaStream_getPriority
-  (JNIEnv *, jclass, jint, jlong);
+jint JNICALL Java_com_ibm_cuda_CudaStream_getPriority(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    query
  * Signature: (IJ)I
  */
-jint JNICALL Java_com_ibm_cuda_CudaStream_query
-  (JNIEnv *, jclass, jint, jlong);
+jint JNICALL Java_com_ibm_cuda_CudaStream_query(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    synchronize
  * Signature: (IJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaStream_synchronize
-  (JNIEnv *, jclass, jint, jlong);
+void JNICALL Java_com_ibm_cuda_CudaStream_synchronize(JNIEnv*, jclass, jint, jlong);
 
 /*
  * Class:     com_ibm_cuda_CudaStream
  * Method:    waitFor
  * Signature: (IJJ)V
  */
-void JNICALL Java_com_ibm_cuda_CudaStream_waitFor
-  (JNIEnv *, jclass, jint, jlong, jlong);
+void JNICALL Java_com_ibm_cuda_CudaStream_waitFor(JNIEnv*, jclass, jint, jlong, jlong);
 
 #ifdef __cplusplus
 }

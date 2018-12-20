@@ -33,57 +33,57 @@ extern "C" {
 extern "C" {
 
 IDATA
-testOSCache(J9JavaVM* vm, struct j9cmdlineOptions *arg, const char *cmdline)
+testOSCache(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char* cmdline)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	IDATA rc = PASS;
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    IDATA rc = PASS;
 
-	/* Detect children */
-	if(cmdline != NULL) {
-		/* Search cmdline for the right prefix so it can be forwarded appropriately */
-		const char *result;
-		if(NULL != (result = strstr(cmdline, OSCACHETESTSYSV_CMDLINE_PREFIX))) {
-			return SH_OSCacheTestSysv::runTests(vm, arg, result);
-		} else if(NULL != (result = strstr(cmdline, OSCACHETESTMMAP_CMDLINE_PREFIX))) {
-			return SH_OSCacheTestMmap::runTests(vm, arg, result);
-		} else if(NULL != (result = strstr(cmdline, OSCACHETESTMISC_CMDLINE_PREFIX))) {
-			return SH_OSCacheTestMisc::runTests(vm, arg, result);
-		}
-		return -1;
-	}
+    /* Detect children */
+    if (cmdline != NULL) {
+        /* Search cmdline for the right prefix so it can be forwarded appropriately */
+        const char* result;
+        if (NULL != (result = strstr(cmdline, OSCACHETESTSYSV_CMDLINE_PREFIX))) {
+            return SH_OSCacheTestSysv::runTests(vm, arg, result);
+        } else if (NULL != (result = strstr(cmdline, OSCACHETESTMMAP_CMDLINE_PREFIX))) {
+            return SH_OSCacheTestMmap::runTests(vm, arg, result);
+        } else if (NULL != (result = strstr(cmdline, OSCACHETESTMISC_CMDLINE_PREFIX))) {
+            return SH_OSCacheTestMisc::runTests(vm, arg, result);
+        }
+        return -1;
+    }
 
-	j9tty_printf(PORTLIB,"OSCacheTests started\n");
+    j9tty_printf(PORTLIB, "OSCacheTests started\n");
 
-	/* Run the sysv tests */
-	rc |= SH_OSCacheTestSysv::runTests(vm, arg, cmdline);
+    /* Run the sysv tests */
+    rc |= SH_OSCacheTestSysv::runTests(vm, arg, cmdline);
 
 #if !defined(J9ZOS390)
-	/* Run the mmap tests */
-	rc |= SH_OSCacheTestMmap::runTests(vm, arg, cmdline);
+    /* Run the mmap tests */
+    rc |= SH_OSCacheTestMmap::runTests(vm, arg, cmdline);
 #endif
 
-	if (rc == PASS) {
-		j9tty_printf(PORTLIB, "OSCacheTest: PASSED\n");
-	} else {
-		j9tty_printf(PORTLIB, "OSCacheTest: FAILURE(S) DETECTED - rc = %zi\n", rc);
-	}
-	return rc;
+    if (rc == PASS) {
+        j9tty_printf(PORTLIB, "OSCacheTest: PASSED\n");
+    } else {
+        j9tty_printf(PORTLIB, "OSCacheTest: FAILURE(S) DETECTED - rc = %zi\n", rc);
+    }
+    return rc;
 }
 
 IDATA
-testOSCacheMisc(J9JavaVM *vm, struct j9cmdlineOptions *arg, const char *cmdline)
+testOSCacheMisc(J9JavaVM* vm, struct j9cmdlineOptions* arg, const char* cmdline)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
-	IDATA rc = PASS;
-	j9tty_printf(PORTLIB,"testOSCacheMisc started\n");
-	/* Run the misc tests */
-	rc |= SH_OSCacheTestMisc::runTests(vm, arg, cmdline);
-	if (rc == PASS) {
-		j9tty_printf(PORTLIB, "testOSCacheMisc: PASSED\n");
-	} else {
-		j9tty_printf(PORTLIB, "testOSCacheMisc: FAILURE(S) DETECTED - rc = %zi\n", rc);
-	}
-	return rc;
+    PORT_ACCESS_FROM_JAVAVM(vm);
+    IDATA rc = PASS;
+    j9tty_printf(PORTLIB, "testOSCacheMisc started\n");
+    /* Run the misc tests */
+    rc |= SH_OSCacheTestMisc::runTests(vm, arg, cmdline);
+    if (rc == PASS) {
+        j9tty_printf(PORTLIB, "testOSCacheMisc: PASSED\n");
+    } else {
+        j9tty_printf(PORTLIB, "testOSCacheMisc: FAILURE(S) DETECTED - rc = %zi\n", rc);
+    }
+    return rc;
 }
 
 } /* extern "C" */

@@ -34,34 +34,31 @@
  * Stores the data relating to the end of a system garbage collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventSystemGCEnd : public MM_VerboseEventGCEnd
-{
+class MM_VerboseEventSystemGCEnd : public MM_VerboseEventGCEnd {
 private:
-	/**
-	 * Passed Data
-	 * @{ 
-	 */
-	U_64 _exclusiveAccessTime; /**< time taken to get exclusive access */
-	/** @} */
-	
-	/**
-	 * Consumed Data
-	 * @{ 
-	 */
-	U_64 _systemGCStartTime; /**< the start time of the system gc */
-	/** @} */
+    /**
+     * Passed Data
+     * @{
+     */
+    U_64 _exclusiveAccessTime; /**< time taken to get exclusive access */
+    /** @} */
+
+    /**
+     * Consumed Data
+     * @{
+     */
+    U_64 _systemGCStartTime; /**< the start time of the system gc */
+    /** @} */
 
 public:
+    static MM_VerboseEvent* newInstance(MM_SystemGCEndEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_SystemGCEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventSystemGCEnd(MM_SystemGCEndEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface),
-	_exclusiveAccessTime(event->exclusiveAccessTime)
-	{};
+    MM_VerboseEventSystemGCEnd(MM_SystemGCEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCEnd(event->currentThread, event->timestamp, event->eventid, event->gcEndData, hookInterface)
+        , _exclusiveAccessTime(event->exclusiveAccessTime) {};
 };
 
 #endif /* EVENT_SYSTEM_GC_END_HPP_ */

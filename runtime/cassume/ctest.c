@@ -26,48 +26,48 @@
 #include "vatest.h"
 #include "cassume_internal.h"
 
-J9PortLibrary *cTestPortLib = NULL;
+J9PortLibrary* cTestPortLib = NULL;
 UDATA passCount = 0, failCount = 0;
 
-UDATA signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg)
+UDATA signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg)
 {
-	struct j9cmdlineOptions * args = arg;
-	int argc = args->argc;
-	char **argv = args->argv;
-	PORT_ACCESS_FROM_PORT(args->portLibrary);
-	cTestPortLib = args->portLibrary;
+    struct j9cmdlineOptions* args = arg;
+    int argc = args->argc;
+    char** argv = args->argv;
+    PORT_ACCESS_FROM_PORT(args->portLibrary);
+    cTestPortLib = args->portLibrary;
 
 #ifdef J9VM_OPT_REMOTE_CONSOLE_SUPPORT
-	remoteConsole_parseCmdLine( cTestPortLib, argc - 1, argv );
+    remoteConsole_parseCmdLine(cTestPortLib, argc - 1, argv);
 #endif
 
 #ifdef J9VM_OPT_MEMORY_CHECK_SUPPORT
-	/* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
-	memoryCheck_parseCmdLine( cTestPortLib, argc-1, argv );
+    /* This should happen before anybody allocates memory!  Otherwise, shutdown will not work properly. */
+    memoryCheck_parseCmdLine(cTestPortLib, argc - 1, argv);
 #endif /* J9VM_OPT_MEMORY_CHECK_SUPPORT */
 
-	j9tty_printf(PORTLIB, "C Assumptions Test Start\n");
+    j9tty_printf(PORTLIB, "C Assumptions Test Start\n");
 
-	verifyJNISizes();
-	verifyVAList();
-	verifyUDATASizes();
+    verifyJNISizes();
+    verifyVAList();
+    verifyUDATASizes();
 
-	/* Ensure floatTemp1 is 8-aligned */
-	j9_assume(offsetof(J9VMThread, floatTemp1) % 8, 0);
+    /* Ensure floatTemp1 is 8-aligned */
+    j9_assume(offsetof(J9VMThread, floatTemp1) % 8, 0);
 #if defined(J9VM_JIT_TRANSACTION_DIAGNOSTIC_THREAD_BLOCK)
-	/* Ensure transactionDiagBlock is 8-aligned */
-	j9_assume(offsetof(J9VMThread, transactionDiagBlock) % 8, 0);
+    /* Ensure transactionDiagBlock is 8-aligned */
+    j9_assume(offsetof(J9VMThread, transactionDiagBlock) % 8, 0);
 #endif /* J9VM_JIT_TRANSACTION_DIAGNOSTIC_THREAD_BLOCK */
 
-	/* Ensure J9ROMClass, J9ROMArrayClass, and J9ROMReflectClass are 64-bit aligned. 64 bits = 8 bytes */
-	j9_assume(sizeof(J9ROMClass) % 8, 0);
-	j9_assume(sizeof(J9ROMArrayClass) % 8, 0);
-	j9_assume(sizeof(J9ROMReflectClass) % 8, 0);
+    /* Ensure J9ROMClass, J9ROMArrayClass, and J9ROMReflectClass are 64-bit aligned. 64 bits = 8 bytes */
+    j9_assume(sizeof(J9ROMClass) % 8, 0);
+    j9_assume(sizeof(J9ROMArrayClass) % 8, 0);
+    j9_assume(sizeof(J9ROMReflectClass) % 8, 0);
 
-	j9tty_printf(PORTLIB, "C Assumptions Test Finished\n");
-	j9tty_printf(PORTLIB, "total tests: %d\n", passCount + failCount);
-	j9tty_printf(PORTLIB, "total passes: %d\n", passCount);
-	j9tty_printf(PORTLIB, "total failures: %d\n", failCount);
+    j9tty_printf(PORTLIB, "C Assumptions Test Finished\n");
+    j9tty_printf(PORTLIB, "total tests: %d\n", passCount + failCount);
+    j9tty_printf(PORTLIB, "total passes: %d\n", passCount);
+    j9tty_printf(PORTLIB, "total failures: %d\n", failCount);
 
-	return 0;
+    return 0;
 }

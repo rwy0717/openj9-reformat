@@ -27,7 +27,7 @@
 
 VMINLINE_ALWAYS ROMClassCreationPhase& operator++(ROMClassCreationPhase& phase)
 {
-	return phase = (ROMClassCreationPhaseCount == phase) ? ROMClassCreation : ROMClassCreationPhase(phase + 1);
+    return phase = (ROMClassCreationPhaseCount == phase) ? ROMClassCreation : ROMClassCreationPhase(phase + 1);
 }
 
 #endif /* ROMCLASSCREATIONPHASE_HPP_ */

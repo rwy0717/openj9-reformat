@@ -24,24 +24,15 @@
 #include "arm/codegen/ARMInstruction.hpp"
 #include "arm/codegen/ARMAOTRelocation.hpp"
 
-void TR::ARMPairedRelocation::mapRelocation(TR::CodeGenerator *cg)
-   {
-   //if(isSmall()) return;
-   
-   if (TR::comp()->getOption(TR_AOT))
-      {
-      cg->addExternalRelocation(
-         new (cg->trHeapMemory()) TR::ExternalOrderedPair32BitRelocation(
-            getSourceInstruction()->getBinaryEncoding(),
-            NULL,
-   /*         getSource2Instruction()->getBinaryEncoding(),*/
-            getRelocationTarget(),
-            getKind(),
-            cg),
-         __FILE__,
-         __LINE__,
-         getNode());
-      }
-   }
+void TR::ARMPairedRelocation::mapRelocation(TR::CodeGenerator* cg)
+{
+    // if(isSmall()) return;
 
-
+    if (TR::comp()->getOption(TR_AOT)) {
+        cg->addExternalRelocation(new (cg->trHeapMemory()) TR::ExternalOrderedPair32BitRelocation(
+                                      getSourceInstruction()->getBinaryEncoding(), NULL,
+                                      /*         getSource2Instruction()->getBinaryEncoding(),*/
+                                      getRelocationTarget(), getKind(), cg),
+            __FILE__, __LINE__, getNode());
+    }
+}

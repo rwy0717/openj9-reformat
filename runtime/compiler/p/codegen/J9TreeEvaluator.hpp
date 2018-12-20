@@ -28,77 +28,86 @@
  */
 #ifndef J9_TREE_EVALUATOR_CONNECTOR
 #define J9_TREE_EVALUATOR_CONNECTOR
-namespace J9 { namespace Power { class TreeEvaluator; } }
-namespace J9 { typedef J9::Power::TreeEvaluator TreeEvaluatorConnector; }
+namespace J9 {
+namespace Power {
+class TreeEvaluator;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::Power::TreeEvaluator TreeEvaluatorConnector;
+}
 #else
 #error J9::Power::TreeEvaluator expected to be a primary connector, but a J9 connector is already defined
 #endif
 
+#include "compiler/codegen/J9TreeEvaluator.hpp" // include parent
 
-#include "compiler/codegen/J9TreeEvaluator.hpp"  // include parent
+namespace J9 {
 
-namespace J9
-{
+namespace Power {
 
-namespace Power
-{
+class OMR_EXTENSIBLE TreeEvaluator : public J9::TreeEvaluator {
+public:
+    static TR::Register* awrtbarEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* awrtbariEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* monentEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* monexitEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* monexitfenceEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* asynccheckEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* instanceofEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* checkcastEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* checkcastAndNULLCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* newObjectEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* newArrayEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* anewArrayEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* multianewArrayEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* arraylengthEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* resolveCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* DIVCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* BNDCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* ArrayCopyBNDCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* BNDCHKwithSpineCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* ArrayStoreCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* ArrayCHKEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* conditionalHelperEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* flushEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* directCallEvaluator(TR::Node* node, TR::CodeGenerator* cg);
 
-class OMR_EXTENSIBLE TreeEvaluator: public J9::TreeEvaluator
-   {
-   public:
+    static TR::Register* VMcheckcastEvaluator2(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMcheckcastEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMinstanceOfEvaluator2(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMinstanceOfEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* tstartEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* tfinishEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* tabortEvaluator(TR::Node* node, TR::CodeGenerator* cg);
 
-   static TR::Register *awrtbarEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *awrtbariEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *monentEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *monexitEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *monexitfenceEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *asynccheckEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *instanceofEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *checkcastEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *checkcastAndNULLCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *newObjectEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *newArrayEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *anewArrayEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *multianewArrayEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *arraylengthEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *resolveCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *DIVCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *BNDCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *ArrayCopyBNDCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *BNDCHKwithSpineCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *ArrayStoreCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *ArrayCHKEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *conditionalHelperEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *flushEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *directCallEvaluator(TR::Node *node, TR::CodeGenerator *cg);
+    static void restoreTOCRegister(
+        TR::Node* node, TR::CodeGenerator* cg, TR::RegisterDependencyConditions* dependencies);
+    static void buildArgsProcessFEDependencies(
+        TR::Node* node, TR::CodeGenerator* cg, TR::RegisterDependencyConditions* dependencies);
+    static TR::Register* retrieveTOCRegister(
+        TR::Node* node, TR::CodeGenerator* cg, TR::RegisterDependencyConditions* dependencies);
+    static TR::Register* VMifInstanceOfEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* ifInstanceOfEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static void genArrayCopyWithArrayStoreCHK(TR::Node* node, TR::CodeGenerator* cg);
+    static void genWrtbarForArrayCopy(
+        TR::Node* node, TR::Register* srcObjReg, TR::Register* dstObjReg, TR::CodeGenerator* cg);
+    static TR::Instruction* generateVFTMaskInstruction(
+        TR::CodeGenerator* cg, TR::Node* node, TR::Register* dstReg, TR::Register* srcReg, TR::Instruction* preced = 0);
+    static TR::Instruction* generateVFTMaskInstruction(
+        TR::CodeGenerator* cg, TR::Node* node, TR::Register* reg, TR::Instruction* preced = 0);
+    static TR::Register* VMgenCoreInstanceofEvaluator(TR::Node* node, TR::CodeGenerator* cg, bool isVMifInstanceOf,
+        int32_t depIndex, int32_t numDep, TR::Node* depNode, bool needResult, bool needHelperCall, bool testEqualClass,
+        bool testCache, bool testCastClassIsSuper, TR::LabelSymbol* doneLabel, TR::LabelSymbol* res0Label,
+        TR::LabelSymbol* res1Label, bool branchOn1);
+    static TR::Register* VMmonentEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMmonexitEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMnewEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+    static TR::Register* VMarrayCheckEvaluator(TR::Node* node, TR::CodeGenerator* cg);
+};
 
-   static TR::Register *VMcheckcastEvaluator2(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMcheckcastEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMinstanceOfEvaluator2(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMinstanceOfEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *tstartEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *tfinishEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *tabortEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   
-   static void restoreTOCRegister(TR::Node *node, TR::CodeGenerator *cg, TR::RegisterDependencyConditions *dependencies);
-   static void buildArgsProcessFEDependencies(TR::Node *node, TR::CodeGenerator *cg, TR::RegisterDependencyConditions *dependencies);
-   static TR::Register *retrieveTOCRegister(TR::Node *node, TR::CodeGenerator *cg, TR::RegisterDependencyConditions *dependencies);
-   static TR::Register *VMifInstanceOfEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *ifInstanceOfEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static void genArrayCopyWithArrayStoreCHK(TR::Node *node, TR::CodeGenerator *cg);
-   static void genWrtbarForArrayCopy(TR::Node *node, TR::Register *srcObjReg, TR::Register *dstObjReg, TR::CodeGenerator *cg);
-   static TR::Instruction *generateVFTMaskInstruction(TR::CodeGenerator *cg, TR::Node *node, TR::Register *dstReg, TR::Register *srcReg, TR::Instruction *preced=0);
-   static TR::Instruction *generateVFTMaskInstruction(TR::CodeGenerator *cg, TR::Node *node, TR::Register *reg, TR::Instruction *preced=0);
-   static TR::Register *VMgenCoreInstanceofEvaluator(TR::Node * node, TR::CodeGenerator * cg, bool isVMifInstanceOf, int32_t depIndex, int32_t numDep, TR::Node *depNode, bool needResult, bool needHelperCall, bool testEqualClass, bool testCache, bool testCastClassIsSuper, TR::LabelSymbol *doneLabel, TR::LabelSymbol *res0Label, TR::LabelSymbol *res1Label, bool branchOn1);
-   static TR::Register *VMmonentEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMmonexitEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMnewEvaluator(TR::Node *node, TR::CodeGenerator *cg);
-   static TR::Register *VMarrayCheckEvaluator(TR::Node *node, TR::CodeGenerator *cg);
+} // namespace Power
 
-   };
-
-}
-
-}
+} // namespace J9
 
 #endif

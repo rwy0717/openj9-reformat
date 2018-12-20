@@ -20,10 +20,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(EVENT_AF_START_HPP_)
 #define EVENT_AF_START_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -34,40 +34,39 @@
  * Stores the data relating to the start of an allocation failure.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventAFStart : public MM_VerboseEventGCStart
-{
-private:	
-	/**
-	 * Passed Data
-	 * @{ 
-	 */
-	UDATA _requestedBytes; /**< the minimum number of bytes requested */
-	UDATA _subSpaceType; /**< the type of subspace, old or new */
-	/** @} */
- 	
-	/**
-	 * External Data
-	 * @{ 
-	 */
-	U_64 _lastAFTime; /**< the timestamp of the last AF of the same subspace type */
-	UDATA _AFCount; /**< the allocation failure count */
-	/** @} */
-	
+class MM_VerboseEventAFStart : public MM_VerboseEventGCStart {
+private:
+    /**
+     * Passed Data
+     * @{
+     */
+    UDATA _requestedBytes; /**< the minimum number of bytes requested */
+    UDATA _subSpaceType; /**< the type of subspace, old or new */
+    /** @} */
+
+    /**
+     * External Data
+     * @{
+     */
+    U_64 _lastAFTime; /**< the timestamp of the last AF of the same subspace type */
+    UDATA _AFCount; /**< the allocation failure count */
+    /** @} */
+
 public:
+    static MM_VerboseEvent* newInstance(MM_AllocationFailureStartEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_AllocationFailureStartEvent *event, J9HookInterface** hookInterface);
-	
-	UDATA getSubSpaceType(void)		{	return _subSpaceType;	};
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    UDATA getSubSpaceType(void) { return _subSpaceType; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventAFStart(MM_AllocationFailureStartEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEventGCStart(event->currentThread, event->timestamp, event->eventid, event->gcStartData, hookInterface),
-		_requestedBytes(event->requestedBytes),
-		_subSpaceType(event->subSpaceType),
-		_lastAFTime(0),
-		_AFCount(0)
-	{}
+    MM_VerboseEventAFStart(MM_AllocationFailureStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCStart(
+              event->currentThread, event->timestamp, event->eventid, event->gcStartData, hookInterface)
+        , _requestedBytes(event->requestedBytes)
+        , _subSpaceType(event->subSpaceType)
+        , _lastAFTime(0)
+        , _AFCount(0)
+    {}
 };
 
 #endif /* EVENT_AF_START_HPP_ */

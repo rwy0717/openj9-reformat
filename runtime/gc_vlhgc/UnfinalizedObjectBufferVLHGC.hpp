@@ -32,41 +32,38 @@
 class MM_HeapRegionDescriptorVLHGC;
 /**
  * A per-thread buffer of recently allocated unfinalized objects.
- * The buffer is periodically flushed to the global list. 
+ * The buffer is periodically flushed to the global list.
  */
-class MM_UnfinalizedObjectBufferVLHGC : public MM_UnfinalizedObjectBuffer
-{
+class MM_UnfinalizedObjectBufferVLHGC : public MM_UnfinalizedObjectBuffer {
 private:
 protected:
 public:
-	
 private:
 protected:
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    /**
+     * Flush the contents of the buffer to the appropriate global buffers.
+     * Subclasses must override.
+     * @param env[in] the current thread
+     */
+    virtual void flushImpl(MM_EnvironmentBase* env);
 
-	/**
-	 * Flush the contents of the buffer to the appropriate global buffers.
-	 * Subclasses must override.
-	 * @param env[in] the current thread
-	 */
-	virtual void flushImpl(MM_EnvironmentBase* env);
-	
 public:
-	static MM_UnfinalizedObjectBufferVLHGC *newInstance(MM_EnvironmentBase *env);
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 * @param maxObjectCount the maximum number of objects permitted before a forced flush 
-	 */
-	MM_UnfinalizedObjectBufferVLHGC(MM_GCExtensions *extensions, UDATA maxObjectCount);
+    static MM_UnfinalizedObjectBufferVLHGC* newInstance(MM_EnvironmentBase* env);
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     * @param maxObjectCount the maximum number of objects permitted before a forced flush
+     */
+    MM_UnfinalizedObjectBufferVLHGC(MM_GCExtensions* extensions, UDATA maxObjectCount);
 
-	/**
-	 * Returns this buffer's _region which is declared in the parent class.
-	 * @return @ref _region
-	 */
-	MM_HeapRegionDescriptorVLHGC *getRegion();
+    /**
+     * Returns this buffer's _region which is declared in the parent class.
+     * @return @ref _region
+     */
+    MM_HeapRegionDescriptorVLHGC* getRegion();
 };
 
 #endif /* UNFINALIZEDOBJECTBUFFERVLHGC_HPP_ */

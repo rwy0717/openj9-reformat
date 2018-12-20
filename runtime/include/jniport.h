@@ -33,7 +33,7 @@ typedef __int64 jlong;
 
 #else
 
-#define JNIEXPORT 
+#define JNIEXPORT
 
 typedef signed char jbyte;
 typedef long long jlong;
@@ -65,4 +65,4 @@ typedef int jint;
 #define _JNI_IMPORT_OR_EXPORT_ JNIIMPORT
 #endif
 
-#endif     /* jniport_h */
+#endif /* jniport_h */

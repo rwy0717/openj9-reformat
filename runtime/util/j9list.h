@@ -20,7 +20,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef j9list_h
 #define j9list_h
 
@@ -35,6 +34,4 @@ extern "C" {
 }
 #endif
 
-#endif     /* j9list_h */
-
-
+#endif /* j9list_h */

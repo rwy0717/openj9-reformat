@@ -43,228 +43,213 @@ class MM_HeapRegionDescriptorStandard;
  * @copydoc MM_RootScanner
  * @ingroup GC_Modron_Standard
  */
-class MM_ScavengerRootClearer : public MM_RootScanner
-{
+class MM_ScavengerRootClearer : public MM_RootScanner {
 private:
-	MM_Scavenger *_scavenger;
+    MM_Scavenger* _scavenger;
 
-	void processReferenceList(MM_EnvironmentStandard *env, MM_HeapRegionDescriptorStandard* region, omrobjectptr_t headOfList, MM_ReferenceStats *referenceStats);
-	void scavengeReferenceObjects(MM_EnvironmentStandard *env, uintptr_t referenceObjectType);
+    void processReferenceList(MM_EnvironmentStandard* env, MM_HeapRegionDescriptorStandard* region,
+        omrobjectptr_t headOfList, MM_ReferenceStats* referenceStats);
+    void scavengeReferenceObjects(MM_EnvironmentStandard* env, uintptr_t referenceObjectType);
 #if defined(J9VM_GC_FINALIZATION)
-	void scavengeUnfinalizedObjects(MM_EnvironmentStandard *env);
+    void scavengeUnfinalizedObjects(MM_EnvironmentStandard* env);
 #endif /* defined(J9VM_GC_FINALIZATION) */
 
 public:
-	MM_ScavengerRootClearer(MM_EnvironmentBase *env, MM_Scavenger *scavenger) :
-	MM_RootScanner(env),
-	_scavenger(scavenger)
-	{
-		_typeId = __FUNCTION__;
-		setNurseryReferencesOnly(true);
+    MM_ScavengerRootClearer(MM_EnvironmentBase* env, MM_Scavenger* scavenger)
+        : MM_RootScanner(env)
+        , _scavenger(scavenger)
+    {
+        _typeId = __FUNCTION__;
+        setNurseryReferencesOnly(true);
 
-		/*
-		 * JNI Weak Global References table can be skipped in Clearable phase
-		 * if it has been scanned as a hard root for Concurrent Scavenger already
-		 */
-		_jniWeakGlobalReferencesTableAsRoot = _extensions->isConcurrentScavengerEnabled();
-	};
+        /*
+         * JNI Weak Global References table can be skipped in Clearable phase
+         * if it has been scanned as a hard root for Concurrent Scavenger already
+         */
+        _jniWeakGlobalReferencesTableAsRoot = _extensions->isConcurrentScavengerEnabled();
+    };
 
-	virtual void
-	doSlot(omrobjectptr_t *slotPtr)
-	{
-		_scavenger->copyObjectSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
-	}
+    virtual void doSlot(omrobjectptr_t* slotPtr)
+    {
+        _scavenger->copyObjectSlot(MM_EnvironmentStandard::getEnvironment(_env), slotPtr);
+    }
 
-	virtual void
-	doClass(J9Class *clazz)
-	{
-		/* we do not process classes in the scavenger */
-		assume0(0);
-	}
+    virtual void doClass(J9Class* clazz)
+    {
+        /* we do not process classes in the scavenger */
+        assume0(0);
+    }
 
-	virtual void
-	scanSoftReferenceObjects(MM_EnvironmentBase *env)
-	{
-		if (_clij->scavenger_getShouldScavengeSoftReferenceObjects()) {
-			reportScanningStarted(RootScannerEntity_SoftReferenceObjects);
-			scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_SOFT);
-			reportScanningEnded(RootScannerEntity_SoftReferenceObjects);
-		}
-	}
+    virtual void scanSoftReferenceObjects(MM_EnvironmentBase* env)
+    {
+        if (_clij->scavenger_getShouldScavengeSoftReferenceObjects()) {
+            reportScanningStarted(RootScannerEntity_SoftReferenceObjects);
+            scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_SOFT);
+            reportScanningEnded(RootScannerEntity_SoftReferenceObjects);
+        }
+    }
 
-	virtual CompletePhaseCode
-	scanSoftReferencesComplete(MM_EnvironmentBase *env)
-	{
-		/* do nothing -- no new objects could have been discovered by soft reference processing */
-		return complete_phase_OK;
-	}
+    virtual CompletePhaseCode scanSoftReferencesComplete(MM_EnvironmentBase* env)
+    {
+        /* do nothing -- no new objects could have been discovered by soft reference processing */
+        return complete_phase_OK;
+    }
 
-	virtual void
-	scanWeakReferenceObjects(MM_EnvironmentBase *env)
-	{
-		if (_clij->scavenger_getShouldScavengeWeakReferenceObjects()) {
-			reportScanningStarted(RootScannerEntity_WeakReferenceObjects);
-			scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_WEAK);
-			reportScanningEnded(RootScannerEntity_WeakReferenceObjects);
-		}
-	}
+    virtual void scanWeakReferenceObjects(MM_EnvironmentBase* env)
+    {
+        if (_clij->scavenger_getShouldScavengeWeakReferenceObjects()) {
+            reportScanningStarted(RootScannerEntity_WeakReferenceObjects);
+            scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_WEAK);
+            reportScanningEnded(RootScannerEntity_WeakReferenceObjects);
+        }
+    }
 
-	virtual CompletePhaseCode
-	scanWeakReferencesComplete(MM_EnvironmentBase *env)
-	{
-		/* No new objects could have been discovered by soft / weak reference processing,
-		 * but we must complete this phase prior to unfinalized processing to ensure that
-		 * finalizable referents get cleared */
-		if (_clij->scavenger_getShouldScavengeSoftReferenceObjects() || _clij->scavenger_getShouldScavengeWeakReferenceObjects()) {
-			env->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);
-		}
-		return complete_phase_OK;
-	}
+    virtual CompletePhaseCode scanWeakReferencesComplete(MM_EnvironmentBase* env)
+    {
+        /* No new objects could have been discovered by soft / weak reference processing,
+         * but we must complete this phase prior to unfinalized processing to ensure that
+         * finalizable referents get cleared */
+        if (_clij->scavenger_getShouldScavengeSoftReferenceObjects()
+            || _clij->scavenger_getShouldScavengeWeakReferenceObjects()) {
+            env->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);
+        }
+        return complete_phase_OK;
+    }
 
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void
-	scanUnfinalizedObjects(MM_EnvironmentBase *env)
-	{
-		/* allow the scavenger to handle this */
-		if (_clij->scavenger_getShouldScavengeUnfinalizedObjects()) {
-			reportScanningStarted(RootScannerEntity_UnfinalizedObjects);
-			scavengeUnfinalizedObjects(MM_EnvironmentStandard::getEnvironment(env));
-			reportScanningEnded(RootScannerEntity_UnfinalizedObjects);
-		}
-	}
+    virtual void scanUnfinalizedObjects(MM_EnvironmentBase* env)
+    {
+        /* allow the scavenger to handle this */
+        if (_clij->scavenger_getShouldScavengeUnfinalizedObjects()) {
+            reportScanningStarted(RootScannerEntity_UnfinalizedObjects);
+            scavengeUnfinalizedObjects(MM_EnvironmentStandard::getEnvironment(env));
+            reportScanningEnded(RootScannerEntity_UnfinalizedObjects);
+        }
+    }
 
-	virtual CompletePhaseCode
-	scanUnfinalizedObjectsComplete(MM_EnvironmentBase *env)
-	{
-		CompletePhaseCode result = complete_phase_OK;
-		if (_clij->scavenger_getShouldScavengeUnfinalizedObjects()) {
-			reportScanningStarted(RootScannerEntity_UnfinalizedObjectsComplete);
-			/* ensure that all unfinalized processing is complete before we start marking additional objects */
-			env->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);
-			if(!_scavenger->completeScan(MM_EnvironmentStandard::getEnvironment(env))) {
-				result = complete_phase_ABORT;
-			}
-			reportScanningEnded(RootScannerEntity_UnfinalizedObjectsComplete);
-		}
-		return result;
-	}
+    virtual CompletePhaseCode scanUnfinalizedObjectsComplete(MM_EnvironmentBase* env)
+    {
+        CompletePhaseCode result = complete_phase_OK;
+        if (_clij->scavenger_getShouldScavengeUnfinalizedObjects()) {
+            reportScanningStarted(RootScannerEntity_UnfinalizedObjectsComplete);
+            /* ensure that all unfinalized processing is complete before we start marking additional objects */
+            env->_currentTask->synchronizeGCThreads(env, UNIQUE_ID);
+            if (!_scavenger->completeScan(MM_EnvironmentStandard::getEnvironment(env))) {
+                result = complete_phase_ABORT;
+            }
+            reportScanningEnded(RootScannerEntity_UnfinalizedObjectsComplete);
+        }
+        return result;
+    }
 #endif /* J9VM_GC_FINALIZATION */
 
-	/* empty, move ownable synchronizer processing in main scan phase */
-	virtual void scanOwnableSynchronizerObjects(MM_EnvironmentBase *env) {}
+    /* empty, move ownable synchronizer processing in main scan phase */
+    virtual void scanOwnableSynchronizerObjects(MM_EnvironmentBase* env) {}
 
-	virtual void
-	scanPhantomReferenceObjects(MM_EnvironmentBase *env)
-	{
-		if (_clij->scavenger_getShouldScavengePhantomReferenceObjects()) {
-			reportScanningStarted(RootScannerEntity_PhantomReferenceObjects);
-			scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_PHANTOM);
-			reportScanningEnded(RootScannerEntity_PhantomReferenceObjects);
-		}
-	}
+    virtual void scanPhantomReferenceObjects(MM_EnvironmentBase* env)
+    {
+        if (_clij->scavenger_getShouldScavengePhantomReferenceObjects()) {
+            reportScanningStarted(RootScannerEntity_PhantomReferenceObjects);
+            scavengeReferenceObjects(MM_EnvironmentStandard::getEnvironment(env), J9_JAVA_CLASS_REFERENCE_PHANTOM);
+            reportScanningEnded(RootScannerEntity_PhantomReferenceObjects);
+        }
+    }
 
-	virtual CompletePhaseCode
-	scanPhantomReferencesComplete(MM_EnvironmentBase *env)
-	{
-		CompletePhaseCode result = complete_phase_OK;
-		if (_clij->scavenger_getShouldScavengePhantomReferenceObjects()) {
-			reportScanningStarted(RootScannerEntity_PhantomReferenceObjectsComplete);
-			if (env->_currentTask->synchronizeGCThreadsAndReleaseSingleThread(env, UNIQUE_ID)) {
-				env->_cycleState->_referenceObjectOptions |= MM_CycleState::references_clear_phantom;
-				env->_currentTask->releaseSynchronizedGCThreads(env);
-			}
-			/* phantom reference processing may resurrect objects - scan them now */
-			if(!_scavenger->completeScan(MM_EnvironmentStandard::getEnvironment(env))) {
-				result = complete_phase_ABORT;
-			}
+    virtual CompletePhaseCode scanPhantomReferencesComplete(MM_EnvironmentBase* env)
+    {
+        CompletePhaseCode result = complete_phase_OK;
+        if (_clij->scavenger_getShouldScavengePhantomReferenceObjects()) {
+            reportScanningStarted(RootScannerEntity_PhantomReferenceObjectsComplete);
+            if (env->_currentTask->synchronizeGCThreadsAndReleaseSingleThread(env, UNIQUE_ID)) {
+                env->_cycleState->_referenceObjectOptions |= MM_CycleState::references_clear_phantom;
+                env->_currentTask->releaseSynchronizedGCThreads(env);
+            }
+            /* phantom reference processing may resurrect objects - scan them now */
+            if (!_scavenger->completeScan(MM_EnvironmentStandard::getEnvironment(env))) {
+                result = complete_phase_ABORT;
+            }
 
-			reportScanningEnded(RootScannerEntity_PhantomReferenceObjectsComplete);
-		}
-		return result;
-	}
+            reportScanningEnded(RootScannerEntity_PhantomReferenceObjectsComplete);
+        }
+        return result;
+    }
 
-	virtual void
-	doMonitorReference(J9ObjectMonitor *objectMonitor, GC_HashTableIterator *monitorReferenceIterator)
-	{
-		J9ThreadAbstractMonitor * monitor = (J9ThreadAbstractMonitor*)objectMonitor->monitor;
-		omrobjectptr_t objectPtr = (omrobjectptr_t )monitor->userData;
-		if(_scavenger->isObjectInEvacuateMemory(objectPtr)) {
-			MM_ForwardedHeader forwardedHeader(objectPtr);
-			omrobjectptr_t forwardPtr = forwardedHeader.getForwardedObject();
-			if(NULL != forwardPtr) {
-				monitor->userData = (uintptr_t)forwardPtr;
-			} else {
-				monitorReferenceIterator->removeSlot();
-				/* We must call objectMonitorDestroy (as opposed to omrthread_monitor_destroy) when the
-				 * monitor is not internal to the GC
-				 */
-				static_cast<J9JavaVM*>(_omrVM->_language_vm)->internalVMFunctions->objectMonitorDestroy(static_cast<J9JavaVM*>(_omrVM->_language_vm), (J9VMThread *)_env->getLanguageVMThread(), (omrthread_monitor_t)monitor);
-			}
-		}
-	}
+    virtual void doMonitorReference(J9ObjectMonitor* objectMonitor, GC_HashTableIterator* monitorReferenceIterator)
+    {
+        J9ThreadAbstractMonitor* monitor = (J9ThreadAbstractMonitor*)objectMonitor->monitor;
+        omrobjectptr_t objectPtr = (omrobjectptr_t)monitor->userData;
+        if (_scavenger->isObjectInEvacuateMemory(objectPtr)) {
+            MM_ForwardedHeader forwardedHeader(objectPtr);
+            omrobjectptr_t forwardPtr = forwardedHeader.getForwardedObject();
+            if (NULL != forwardPtr) {
+                monitor->userData = (uintptr_t)forwardPtr;
+            } else {
+                monitorReferenceIterator->removeSlot();
+                /* We must call objectMonitorDestroy (as opposed to omrthread_monitor_destroy) when the
+                 * monitor is not internal to the GC
+                 */
+                static_cast<J9JavaVM*>(_omrVM->_language_vm)
+                    ->internalVMFunctions->objectMonitorDestroy(static_cast<J9JavaVM*>(_omrVM->_language_vm),
+                        (J9VMThread*)_env->getLanguageVMThread(), (omrthread_monitor_t)monitor);
+            }
+        }
+    }
 
-	virtual CompletePhaseCode
-	scanMonitorReferencesComplete(MM_EnvironmentBase *env)
-	{
-		reportScanningStarted(RootScannerEntity_MonitorReferenceObjectsComplete);
-		static_cast<J9JavaVM*>(_omrVM->_language_vm)->internalVMFunctions->objectMonitorDestroyComplete(static_cast<J9JavaVM*>(_omrVM->_language_vm), (J9VMThread *)env->getOmrVMThread()->_language_vmthread);
-		reportScanningEnded(RootScannerEntity_MonitorReferenceObjectsComplete);
-		return complete_phase_OK;
-	}
+    virtual CompletePhaseCode scanMonitorReferencesComplete(MM_EnvironmentBase* env)
+    {
+        reportScanningStarted(RootScannerEntity_MonitorReferenceObjectsComplete);
+        static_cast<J9JavaVM*>(_omrVM->_language_vm)
+            ->internalVMFunctions->objectMonitorDestroyComplete(
+                static_cast<J9JavaVM*>(_omrVM->_language_vm), (J9VMThread*)env->getOmrVMThread()->_language_vmthread);
+        reportScanningEnded(RootScannerEntity_MonitorReferenceObjectsComplete);
+        return complete_phase_OK;
+    }
 
-	virtual void
-	scanJNIWeakGlobalReferences(MM_EnvironmentBase *env)
-	{
+    virtual void scanJNIWeakGlobalReferences(MM_EnvironmentBase* env)
+    {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-		/*
-		 * Currently Concurrent Scavenger replaces STW Scavenger, so this check is not necessary
-		 * (Concurrent Scavenger is always in progress)
-		 * However Concurrent Scavenger runs might be interlaced with STW Scavenger time to time
-		 * (for example for reducing amount of floating garbage)
-		 */
-		if (!_scavenger->isConcurrentInProgress())
+        /*
+         * Currently Concurrent Scavenger replaces STW Scavenger, so this check is not necessary
+         * (Concurrent Scavenger is always in progress)
+         * However Concurrent Scavenger runs might be interlaced with STW Scavenger time to time
+         * (for example for reducing amount of floating garbage)
+         */
+        if (!_scavenger->isConcurrentInProgress())
 #endif /* defined(OMR_GC_CONCURRENT_SCAVENGER) */
-		{
-			MM_RootScanner::scanJNIWeakGlobalReferences(env);
-		}
-	}
+        {
+            MM_RootScanner::scanJNIWeakGlobalReferences(env);
+        }
+    }
 
-	virtual void
-	doJNIWeakGlobalReference(omrobjectptr_t *slotPtr)
-	{
-		omrobjectptr_t objectPtr = *slotPtr;
-		if(objectPtr && _scavenger->isObjectInEvacuateMemory(objectPtr)) {
-			MM_ForwardedHeader forwardedHeader(objectPtr);
-			*slotPtr = forwardedHeader.getForwardedObject();
-		}
-	}
+    virtual void doJNIWeakGlobalReference(omrobjectptr_t* slotPtr)
+    {
+        omrobjectptr_t objectPtr = *slotPtr;
+        if (objectPtr && _scavenger->isObjectInEvacuateMemory(objectPtr)) {
+            MM_ForwardedHeader forwardedHeader(objectPtr);
+            *slotPtr = forwardedHeader.getForwardedObject();
+        }
+    }
 
 #if defined(J9VM_OPT_JVMTI)
-	virtual void
-	doJVMTIObjectTagSlot(omrobjectptr_t *slotPtr, GC_JVMTIObjectTagTableIterator *objectTagTableIterator)
-	{
-		omrobjectptr_t objectPtr = *slotPtr;
-		if(objectPtr && _scavenger->isObjectInEvacuateMemory(objectPtr)) {
-			MM_ForwardedHeader forwardedHeader(objectPtr);
-			*slotPtr = forwardedHeader.getForwardedObject();
-		}
-	}
+    virtual void doJVMTIObjectTagSlot(omrobjectptr_t* slotPtr, GC_JVMTIObjectTagTableIterator* objectTagTableIterator)
+    {
+        omrobjectptr_t objectPtr = *slotPtr;
+        if (objectPtr && _scavenger->isObjectInEvacuateMemory(objectPtr)) {
+            MM_ForwardedHeader forwardedHeader(objectPtr);
+            *slotPtr = forwardedHeader.getForwardedObject();
+        }
+    }
 #endif /* J9VM_OPT_JVMTI */
 #if defined(J9VM_GC_FINALIZATION)
-	virtual void
-	doFinalizableObject(omrobjectptr_t object)
-	{
-		Assert_MM_unreachable();
-	}
+    virtual void doFinalizableObject(omrobjectptr_t object) { Assert_MM_unreachable(); }
 #endif /* J9VM_GC_FINALIZATION */
 
-	void
-	pruneRememberedSet(MM_EnvironmentBase *env)
-	{
-		reportScanningStarted(RootScannerEntity_RememberedSet);
-		_scavenger->pruneRememberedSet(MM_EnvironmentStandard::getEnvironment(env));
-		reportScanningEnded(RootScannerEntity_RememberedSet);
-	}
+    void pruneRememberedSet(MM_EnvironmentBase* env)
+    {
+        reportScanningStarted(RootScannerEntity_RememberedSet);
+        _scavenger->pruneRememberedSet(MM_EnvironmentStandard::getEnvironment(env));
+        reportScanningEnded(RootScannerEntity_RememberedSet);
+    }
 };
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */
 #endif /* SCAVENGERROOTCLEARER_HPP_ */

@@ -38,9 +38,9 @@
 #define WINBASEAPI DECLSPEC_IMPORT
 WINBASEAPI HLOCAL WINAPI LocalAlloc(UINT uFlags, SIZE_T uBytes);
 WINBASEAPI HLOCAL WINAPI LocalFree(HLOCAL hMem);
-#define LMEM_FIXED          0x0000
-#define LMEM_ZEROINIT       0x0040
-#define LPTR                (LMEM_FIXED | LMEM_ZEROINIT)
+#define LMEM_FIXED 0x0000
+#define LMEM_ZEROINIT 0x0040
+#define LPTR (LMEM_FIXED | LMEM_ZEROINIT)
 
 #define CopyMemory RtlCopyMemory
 #define ZeroMemory RtlZeroMemory
@@ -63,52 +63,52 @@ extern EXT_API_VERSION Version;
 // here, but it's hard to specify on the INCLUDE path.
 //
 // KPROCESSOR_STATE is the structure of memory accessible with the
-// ReadControlSpace() API.  DBGKD_GET_VERSION is the structure 
+// ReadControlSpace() API.  DBGKD_GET_VERSION is the structure
 // returned by the IG_GET_KERNEL_VERSION Ioctl().
 typedef struct _DESCRIPTOR {
-	WORD    Pad;
-	WORD    Limit;
-	DWORD   Base;
+    WORD Pad;
+    WORD Limit;
+    DWORD Base;
 } KDESCRIPTOR, *PKDESCRIPTOR;
 typedef struct _KSPECIAL_REGISTERS {
-	DWORD Cr0;
-	DWORD Cr2;
-	DWORD Cr3;
-	DWORD Cr4;
-	DWORD KernelDr0;
-	DWORD KernelDr1;
-	DWORD KernelDr2;
-	DWORD KernelDr3;
-	DWORD KernelDr6;
-	DWORD KernelDr7;
-	KDESCRIPTOR Gdtr;
-	KDESCRIPTOR Idtr;
-	WORD   Tr;
-	WORD   Ldtr;
-	DWORD Reserved[6];
+    DWORD Cr0;
+    DWORD Cr2;
+    DWORD Cr3;
+    DWORD Cr4;
+    DWORD KernelDr0;
+    DWORD KernelDr1;
+    DWORD KernelDr2;
+    DWORD KernelDr3;
+    DWORD KernelDr6;
+    DWORD KernelDr7;
+    KDESCRIPTOR Gdtr;
+    KDESCRIPTOR Idtr;
+    WORD Tr;
+    WORD Ldtr;
+    DWORD Reserved[6];
 } KSPECIAL_REGISTERS, *PKSPECIAL_REGISTERS;
 typedef struct _KPROCESSOR_STATE {
-	struct _CONTEXT ContextFrame;
-	struct _KSPECIAL_REGISTERS SpecialRegisters;
+    struct _CONTEXT ContextFrame;
+    struct _KSPECIAL_REGISTERS SpecialRegisters;
 } KPROCESSOR_STATE, *PKPROCESSOR_STATE;
 
 typedef struct _DBGKD_GET_VERSION {
-	WORD    MajorVersion;   // 0xF == Free, 0xC == Checked
-	WORD    MinorVersion;   // 1381 for NT4.0, 1057 for NT3.51
-	WORD    ProtocolVersion;
-	WORD    Flags;          // DBGKD_VERS_FLAG_XXX
-	DWORD   KernBase;       // load address of ntoskrnl.exe
-	DWORD   PsLoadedModuleList;
-	WORD    MachineType;
-	WORD    ThCallbackStack;
-	WORD    NextCallback;
-	WORD    FramePointer;
-	DWORD   KiCallUserMode;
-	DWORD   KeUserCallbackDispatcher;
-	DWORD   BreakpointWithStatus;
-	DWORD   Reserved4;
+    WORD MajorVersion; // 0xF == Free, 0xC == Checked
+    WORD MinorVersion; // 1381 for NT4.0, 1057 for NT3.51
+    WORD ProtocolVersion;
+    WORD Flags; // DBGKD_VERS_FLAG_XXX
+    DWORD KernBase; // load address of ntoskrnl.exe
+    DWORD PsLoadedModuleList;
+    WORD MachineType;
+    WORD ThCallbackStack;
+    WORD NextCallback;
+    WORD FramePointer;
+    DWORD KiCallUserMode;
+    DWORD KeUserCallbackDispatcher;
+    DWORD BreakpointWithStatus;
+    DWORD Reserved4;
 } DBGKD_GET_VERSION, *PDBGKD_GET_VERSION;
-#define DBGKD_VERS_FLAG_MP      0x0001
+#define DBGKD_VERS_FLAG_MP 0x0001
 
 #undef DECLARE_API
 #include "j9dbgext.h"
@@ -117,8 +117,6 @@ typedef struct _DBGKD_GET_VERSION {
 #include "dbgext_api.h"
 
 LPEXT_API_VERSION WDBGAPI ExtensionApiVersion();
-void WDBGAPI WinDbgExtensionDllInit( PWINDBG_EXTENSION_APIS lpExtensionApis, USHORT MajorVersion, USHORT MinorVersion );
+void WDBGAPI WinDbgExtensionDllInit(PWINDBG_EXTENSION_APIS lpExtensionApis, USHORT MajorVersion, USHORT MinorVersion);
 
-
-#endif     /* wdbgext_h */
-
+#endif /* wdbgext_h */

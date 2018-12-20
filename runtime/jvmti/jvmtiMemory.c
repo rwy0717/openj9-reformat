@@ -24,60 +24,52 @@
 #include "jvmti_internal.h"
 #include "j9port.h"
 
-jvmtiError JNICALL
-jvmtiAllocate(jvmtiEnv* env,
-	jlong size,
-	unsigned char** mem_ptr)
+jvmtiError JNICALL jvmtiAllocate(jvmtiEnv* env, jlong size, unsigned char** mem_ptr)
 {
-	unsigned char *rv_mem = NULL;
-	jvmtiError rc;
+    unsigned char* rv_mem = NULL;
+    jvmtiError rc;
 
-	Trc_JVMTI_jvmtiAllocate_Entry(env, mem_ptr);
+    Trc_JVMTI_jvmtiAllocate_Entry(env, mem_ptr);
 
-	ENSURE_NON_NEGATIVE(size);
-	ENSURE_NON_NULL(mem_ptr);
+    ENSURE_NON_NEGATIVE(size);
+    ENSURE_NON_NULL(mem_ptr);
 
 #ifndef J9VM_ENV_DATA64
-	if (size > (jlong)0xFFFFFFFF) {
-		JVMTI_ERROR(JVMTI_ERROR_OUT_OF_MEMORY);
-	}
+    if (size > (jlong)0xFFFFFFFF) {
+        JVMTI_ERROR(JVMTI_ERROR_OUT_OF_MEMORY);
+    }
 #endif
 
-	if (size != 0) {
-		PORT_ACCESS_FROM_JVMTI(env);
+    if (size != 0) {
+        PORT_ACCESS_FROM_JVMTI(env);
 
-		rv_mem = j9mem_allocate_memory((UDATA) size, J9MEM_CATEGORY_JVMTI_ALLOCATE);
-		if (rv_mem == NULL) {
-			JVMTI_ERROR(JVMTI_ERROR_OUT_OF_MEMORY);
-		}
-	}
+        rv_mem = j9mem_allocate_memory((UDATA)size, J9MEM_CATEGORY_JVMTI_ALLOCATE);
+        if (rv_mem == NULL) {
+            JVMTI_ERROR(JVMTI_ERROR_OUT_OF_MEMORY);
+        }
+    }
 
-	rc = JVMTI_ERROR_NONE;
+    rc = JVMTI_ERROR_NONE;
 done:
 
-	if (NULL != mem_ptr) {
-		*mem_ptr = rv_mem;
-	}
-	Trc_JVMTI_jvmtiAllocate_Exit(rc, rv_mem);
-	return rc;
+    if (NULL != mem_ptr) {
+        *mem_ptr = rv_mem;
+    }
+    Trc_JVMTI_jvmtiAllocate_Exit(rc, rv_mem);
+    return rc;
 }
 
-
-jvmtiError JNICALL
-jvmtiDeallocate(jvmtiEnv* env,
-	unsigned char* mem)
+jvmtiError JNICALL jvmtiDeallocate(jvmtiEnv* env, unsigned char* mem)
 {
-	jvmtiError rc = JVMTI_ERROR_NONE;
+    jvmtiError rc = JVMTI_ERROR_NONE;
 
-	Trc_JVMTI_jvmtiDeallocate_Entry(env, mem);
+    Trc_JVMTI_jvmtiDeallocate_Entry(env, mem);
 
-	if (mem != NULL) {
-		PORT_ACCESS_FROM_JVMTI(env);
+    if (mem != NULL) {
+        PORT_ACCESS_FROM_JVMTI(env);
 
-		j9mem_free_memory(mem);
-	}
+        j9mem_free_memory(mem);
+    }
 
-	TRACE_JVMTI_RETURN(jvmtiDeallocate);
+    TRACE_JVMTI_RETURN(jvmtiDeallocate);
 }
-
-

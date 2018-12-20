@@ -24,13 +24,13 @@
 #define thrtrace_api_h
 
 /**
-* @file thrtrace_api.h
-* @brief Public API for the THRTRACE module.
-*
-* This file contains public function prototypes and
-* type definitions for the THRTRACE module.
-*
-*/
+ * @file thrtrace_api.h
+ * @brief Public API for the THRTRACE module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the THRTRACE module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* thrtrace_api_h */
-

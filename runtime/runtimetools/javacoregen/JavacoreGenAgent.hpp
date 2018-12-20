@@ -24,58 +24,59 @@
 
 #include "RuntimeToolsIntervalAgent.hpp"
 
-class JavacoreGenAgent : public RuntimeToolsIntervalAgent
-{
+class JavacoreGenAgent : public RuntimeToolsIntervalAgent {
 private:
+    /* class used to call method to dump a javacore */
+    jclass _cls;
 
-	/* class used to call method to dump a javacore */
-	jclass _cls;
-
-	/* method used to call method to dump a javacore */
-	jmethodID _method;
+    /* method used to call method to dump a javacore */
+    jmethodID _method;
 
 protected:
-	/**
-	 * Default constructor
-	 *
+    /**
+     * Default constructor
+     *
      * @param vm java vm that can be used by this manager
-	 */
-	JavacoreGenAgent(JavaVM * vm) : RuntimeToolsIntervalAgent(vm) {}
+     */
+    JavacoreGenAgent(JavaVM* vm)
+        : RuntimeToolsIntervalAgent(vm)
+    {}
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init();
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init();
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill();
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill();
 
-	/**
-	 * This method is used to create an instance
+    /**
+     * This method is used to create an instance
      * @param vm java vm that can be used by this manager
-	 */
-	static JavacoreGenAgent* newInstance(JavaVM * vm);
+     */
+    static JavacoreGenAgent* newInstance(JavaVM* vm);
 
-	/**
-	 * This get gets the reference to the agent given the pointer to where it should
-	 * be stored.  If necessary it creates the agent
-	 * @param vm that can be used by the method
-	 * @param agent pointer to storage where pointer to agent can be stored
-	 */
-	static inline JavacoreGenAgent* getAgent(JavaVM * vm, JavacoreGenAgent** agent){
-		if (*agent == NULL){
-			*agent = newInstance(vm);
-		}
-		return *agent;
-	}
+    /**
+     * This get gets the reference to the agent given the pointer to where it should
+     * be stored.  If necessary it creates the agent
+     * @param vm that can be used by the method
+     * @param agent pointer to storage where pointer to agent can be stored
+     */
+    static inline JavacoreGenAgent* getAgent(JavaVM* vm, JavacoreGenAgent** agent)
+    {
+        if (*agent == NULL) {
+            *agent = newInstance(vm);
+        }
+        return *agent;
+    }
 
-	/**
-	 * Method called at the interval specified in the options for the agent
-	 */
-	virtual void runAction();
+    /**
+     * Method called at the interval specified in the options for the agent
+     */
+    virtual void runAction();
 };
 
 #endif /*RUNTIMETOOLS_JAVACOREGENAGENT_HPP_*/

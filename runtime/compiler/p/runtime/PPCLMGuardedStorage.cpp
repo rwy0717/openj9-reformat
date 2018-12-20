@@ -23,15 +23,14 @@
 #include "p/runtime/PPCLMGuardedStorage.hpp"
 #include "p/runtime/PPCHWProfilerPrivate.hpp"
 
-int32_t lmEventHandler(TR_PPCHWProfilerEBBContext *context)
-   {
-   // Then clear BESCR[LMEO] and set BESCR[LME]
-   //MTSPR(BESCRR, BESCR_LMEO);
-   //MTSPR(BESCRSU, BESCRU_LME);
-   return 0;
-   }
+int32_t lmEventHandler(TR_PPCHWProfilerEBBContext* context)
+{
+    // Then clear BESCR[LMEO] and set BESCR[LME]
+    // MTSPR(BESCRR, BESCR_LMEO);
+    // MTSPR(BESCRSU, BESCRU_LME);
+    return 0;
+}
 
-TR_PPCLMGuardedStorage::TR_PPCLMGuardedStorage(J9JITConfig *jitConfig)
-   : TR_LMGuardedStorage(jitConfig)
-   {}
-
+TR_PPCLMGuardedStorage::TR_PPCLMGuardedStorage(J9JITConfig* jitConfig)
+    : TR_LMGuardedStorage(jitConfig)
+{}

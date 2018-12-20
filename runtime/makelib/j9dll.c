@@ -23,12 +23,11 @@
 #include <windows.h>
 #include "j9cfg.h"
 
-BOOL APIENTRY 
-DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) 
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		/* Disable DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications for WIN32*/
-		DisableThreadLibraryCalls(hModule);
-	}
-	return TRUE;
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+        /* Disable DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications for WIN32*/
+        DisableThreadLibraryCalls(hModule);
+    }
+    return TRUE;
 }

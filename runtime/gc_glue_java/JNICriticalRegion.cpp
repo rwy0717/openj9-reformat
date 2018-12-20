@@ -33,36 +33,36 @@
  * @param vmThread  the J9VMThread requesting access
  * @param accessMask  the types of access that were held
  */
-void
-MM_JNICriticalRegion::reacquireAccess(J9VMThread* vmThread, UDATA accessMask)
+void MM_JNICriticalRegion::reacquireAccess(J9VMThread* vmThread, UDATA accessMask)
 {
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-	// Current thread must have entered the VM before acquiring exclusive
-	Assert_MM_false(vmThread->inNative);
+    // Current thread must have entered the VM before acquiring exclusive
+    Assert_MM_false(vmThread->inNative);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-	if (J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_DEBUG_VM_ACCESS)) {
-		Assert_MM_true(J9_VM_FUNCTION(vmThread, currentVMThread)(vmThread->javaVM) == vmThread);
-	}
+    if (J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_DEBUG_VM_ACCESS)) {
+        Assert_MM_true(J9_VM_FUNCTION(vmThread, currentVMThread)(vmThread->javaVM) == vmThread);
+    }
 
-	Assert_MM_true(0 != (accessMask & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
-	Assert_MM_true(0 == (accessMask & ~(J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
-	omrthread_monitor_enter(vmThread->publicFlagsMutex);
-	Assert_MM_true(0 == (vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
-	while (vmThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_ANY) {
-		omrthread_monitor_wait(vmThread->publicFlagsMutex);
-	}
+    Assert_MM_true(0 != (accessMask & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
+    Assert_MM_true(0 == (accessMask & ~(J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
+    omrthread_monitor_enter(vmThread->publicFlagsMutex);
+    Assert_MM_true(0 == (vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
+    while (vmThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_ANY) {
+        omrthread_monitor_wait(vmThread->publicFlagsMutex);
+    }
 
-	if (0 != (accessMask & J9_PUBLIC_FLAGS_VM_ACCESS)) {
-		TRIGGER_J9HOOK_VM_ACQUIREVMACCESS(vmThread->javaVM->hookInterface, vmThread);
+    if (0 != (accessMask & J9_PUBLIC_FLAGS_VM_ACCESS)) {
+        TRIGGER_J9HOOK_VM_ACQUIREVMACCESS(vmThread->javaVM->hookInterface, vmThread);
 
-		/* Now that the hook has been invoked, allow inline VM access acquire */
-		if((vmThread->publicFlags & J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE) == J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE) {
-			clearEventFlag(vmThread, J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE);
-		}
-	}
+        /* Now that the hook has been invoked, allow inline VM access acquire */
+        if ((vmThread->publicFlags & J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE)
+            == J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE) {
+            clearEventFlag(vmThread, J9_PUBLIC_FLAGS_DISABLE_INLINE_VM_ACCESS_ACQUIRE);
+        }
+    }
 
-	VM_VMAccess::setPublicFlags(vmThread, accessMask);
-	omrthread_monitor_exit(vmThread->publicFlagsMutex);
+    VM_VMAccess::setPublicFlags(vmThread, accessMask);
+    omrthread_monitor_exit(vmThread->publicFlagsMutex);
 }
 
 /**
@@ -74,52 +74,52 @@ MM_JNICriticalRegion::reacquireAccess(J9VMThread* vmThread, UDATA accessMask)
  * @param vmThread  the J9VMThread requesting access
  * @param accessMask  the types of access to re-acquire
  */
-void
-MM_JNICriticalRegion::releaseAccess(J9VMThread* vmThread, UDATA* accessMask)
+void MM_JNICriticalRegion::releaseAccess(J9VMThread* vmThread, UDATA* accessMask)
 {
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-	// Current thread must have entered the VM before acquiring exclusive
-	Assert_MM_false(vmThread->inNative);
+    // Current thread must have entered the VM before acquiring exclusive
+    Assert_MM_false(vmThread->inNative);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-	if (J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_DEBUG_VM_ACCESS)) {
-		Assert_MM_true(J9_VM_FUNCTION(vmThread, currentVMThread)(vmThread->javaVM) == vmThread);
-	}
+    if (J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_DEBUG_VM_ACCESS)) {
+        Assert_MM_true(J9_VM_FUNCTION(vmThread, currentVMThread)(vmThread->javaVM) == vmThread);
+    }
 
-	omrthread_monitor_enter(vmThread->publicFlagsMutex);
-	Assert_MM_true(0 != (vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
-	UDATA currentAccess = vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS);
-	Assert_MM_true(0 != currentAccess);
-	VM_VMAccess::clearPublicFlags(vmThread, currentAccess);
+    omrthread_monitor_enter(vmThread->publicFlagsMutex);
+    Assert_MM_true(0 != (vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)));
+    UDATA currentAccess = vmThread->publicFlags & (J9_PUBLIC_FLAGS_VM_ACCESS | J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS);
+    Assert_MM_true(0 != currentAccess);
+    VM_VMAccess::clearPublicFlags(vmThread, currentAccess);
 
-	if(0 != (vmThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_EXCLUSIVE)) {
-		J9JavaVM* vm = vmThread->javaVM;
-		PORT_ACCESS_FROM_JAVAVM(vm);
-		UDATA shouldRespond = FALSE;
+    if (0 != (vmThread->publicFlags & J9_PUBLIC_FLAGS_HALT_THREAD_EXCLUSIVE)) {
+        J9JavaVM* vm = vmThread->javaVM;
+        PORT_ACCESS_FROM_JAVAVM(vm);
+        UDATA shouldRespond = FALSE;
 
-		omrthread_monitor_enter(vm->exclusiveAccessMutex);
+        omrthread_monitor_enter(vm->exclusiveAccessMutex);
 
-		U_64 timeNow = VM_VMAccess::updateExclusiveVMAccessStats(vmThread, vm, PORTLIB);
+        U_64 timeNow = VM_VMAccess::updateExclusiveVMAccessStats(vmThread, vm, PORTLIB);
 
-		if(0 != (currentAccess & J9_PUBLIC_FLAGS_VM_ACCESS)) {
-			if (!J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_NOT_COUNTED_BY_EXCLUSIVE)) {
-				--vm->exclusiveAccessResponseCount;
-				if(0 == vm->exclusiveAccessResponseCount) {
-					shouldRespond = TRUE;
-				}
-			}
-		}
-		if(0 != (currentAccess & J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)) {
-			--vm->jniCriticalResponseCount;
-			if(0 == vm->jniCriticalResponseCount) {
-				shouldRespond = TRUE;
-			}
-		}
-		if(shouldRespond) {
-			VM_VMAccess::respondToExclusiveRequest(vmThread, vm, PORTLIB, timeNow, J9_EXCLUSIVE_SLOW_REASON_JNICRITICAL);
-		}
-		omrthread_monitor_exit(vm->exclusiveAccessMutex);
-	}
+        if (0 != (currentAccess & J9_PUBLIC_FLAGS_VM_ACCESS)) {
+            if (!J9_ARE_ANY_BITS_SET(vmThread->publicFlags, J9_PUBLIC_FLAGS_NOT_COUNTED_BY_EXCLUSIVE)) {
+                --vm->exclusiveAccessResponseCount;
+                if (0 == vm->exclusiveAccessResponseCount) {
+                    shouldRespond = TRUE;
+                }
+            }
+        }
+        if (0 != (currentAccess & J9_PUBLIC_FLAGS_JNI_CRITICAL_ACCESS)) {
+            --vm->jniCriticalResponseCount;
+            if (0 == vm->jniCriticalResponseCount) {
+                shouldRespond = TRUE;
+            }
+        }
+        if (shouldRespond) {
+            VM_VMAccess::respondToExclusiveRequest(
+                vmThread, vm, PORTLIB, timeNow, J9_EXCLUSIVE_SLOW_REASON_JNICRITICAL);
+        }
+        omrthread_monitor_exit(vm->exclusiveAccessMutex);
+    }
 
-	*accessMask = currentAccess;
-	omrthread_monitor_exit(vmThread->publicFlagsMutex);
+    *accessMask = currentAccess;
+    omrthread_monitor_exit(vmThread->publicFlagsMutex);
 }

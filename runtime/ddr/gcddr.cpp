@@ -40,46 +40,34 @@
 #include "SweepPoolManagerVLHGC.hpp"
 
 #if defined(J9VM_GC_FINALIZATION)
-# include "FinalizeListManager.hpp"
+#include "FinalizeListManager.hpp"
 #endif /* J9VM_GC_FINALIZATION */
 
 #if defined(OMR_GC_SEGREGATED_HEAP)
-# include "MemoryPoolSegregated.hpp"
-# include "MemorySubSpaceSegregated.hpp"
-# include "SegregatedGC.hpp"
+#include "MemoryPoolSegregated.hpp"
+#include "MemorySubSpaceSegregated.hpp"
+#include "SegregatedGC.hpp"
 #endif /* OMR_GC_SEGREGATED_HEAP */
 
 #include "ddrhelp.h"
 
 #define GC_DdrDebugLink(type) DdrDebugLink(gc, type)
 
-GC_DdrDebugLink(J9ModronAllocateHint)
-GC_DdrDebugLink(MM_AllocateDescription)
-GC_DdrDebugLink(MM_AllocationCategory)
-GC_DdrDebugLink(MM_ConcurrentCardTable)
-GC_DdrDebugLink(MM_CopyScanCacheStandard)
-GC_DdrDebugLink(MM_FreeHeapRegionList)
-GC_DdrDebugLink(MM_GCExtensions)
-GC_DdrDebugLink(MM_HeapLinkedFreeHeader)
-GC_DdrDebugLink(MM_HeapMap)
-GC_DdrDebugLink(MM_HeapRegionDescriptor)
-GC_DdrDebugLink(MM_IncrementalCardTable)
-GC_DdrDebugLink(MM_LargeObjectAllocateStats)
-GC_DdrDebugLink(MM_MemoryPoolAddressOrderedList)
-GC_DdrDebugLink(MM_MemoryPoolHybrid)
-GC_DdrDebugLink(MM_MemoryPoolSplitAddressOrderedList)
-GC_DdrDebugLink(MM_RealtimeMarkingScheme)
-GC_DdrDebugLink(MM_ScavengerForwardedHeader)
-GC_DdrDebugLink(MM_StringTable)
-GC_DdrDebugLink(MM_SweepPoolManagerVLHGC)
-GC_DdrDebugLink(MM_HeapRegionDescriptor::RegionType)
+GC_DdrDebugLink(J9ModronAllocateHint) GC_DdrDebugLink(MM_AllocateDescription) GC_DdrDebugLink(MM_AllocationCategory)
+    GC_DdrDebugLink(MM_ConcurrentCardTable) GC_DdrDebugLink(MM_CopyScanCacheStandard) GC_DdrDebugLink(
+        MM_FreeHeapRegionList) GC_DdrDebugLink(MM_GCExtensions) GC_DdrDebugLink(MM_HeapLinkedFreeHeader)
+        GC_DdrDebugLink(MM_HeapMap) GC_DdrDebugLink(MM_HeapRegionDescriptor) GC_DdrDebugLink(MM_IncrementalCardTable)
+            GC_DdrDebugLink(MM_LargeObjectAllocateStats) GC_DdrDebugLink(MM_MemoryPoolAddressOrderedList)
+                GC_DdrDebugLink(MM_MemoryPoolHybrid) GC_DdrDebugLink(MM_MemoryPoolSplitAddressOrderedList)
+                    GC_DdrDebugLink(MM_RealtimeMarkingScheme) GC_DdrDebugLink(MM_ScavengerForwardedHeader)
+                        GC_DdrDebugLink(MM_StringTable) GC_DdrDebugLink(MM_SweepPoolManagerVLHGC)
+                            GC_DdrDebugLink(MM_HeapRegionDescriptor::RegionType)
 
 #if defined(J9VM_GC_FINALIZATION)
-GC_DdrDebugLink(GC_FinalizeListManager)
+                                GC_DdrDebugLink(GC_FinalizeListManager)
 #endif /* J9VM_GC_FINALIZATION */
 
 #if defined(OMR_GC_SEGREGATED_HEAP)
-GC_DdrDebugLink(MM_MemoryPoolSegregated)
-GC_DdrDebugLink(MM_MemorySubSpaceSegregated)
-GC_DdrDebugLink(MM_SegregatedGC)
+                                    GC_DdrDebugLink(MM_MemoryPoolSegregated)
+                                        GC_DdrDebugLink(MM_MemorySubSpaceSegregated) GC_DdrDebugLink(MM_SegregatedGC)
 #endif /* OMR_GC_SEGREGATED_HEAP */

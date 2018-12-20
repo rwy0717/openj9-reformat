@@ -24,99 +24,100 @@
 
 #include "RuntimeToolsIntervalAgent.hpp"
 
-class SoftMxTest : public RuntimeToolsIntervalAgent
-{
+class SoftMxTest : public RuntimeToolsIntervalAgent {
 
     /*
      * Data members
      */
 private:
+    /* used to indicate what kind of callback testing we are going */
+    bool _testCallbackOOM;
+    bool _testCallbackExpand;
 
-	/* used to indicate what kind of callback testing we are going */
-	bool _testCallbackOOM;
-	bool _testCallbackExpand;
+    /* pointer to gc hooks */
+    J9HookInterface** _gcOmrHooks;
 
-	/* pointer to gc hooks */
-	J9HookInterface** _gcOmrHooks;
-
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 protected:
-	/**
-	 * Default constructor
-	 *
+    /**
+     * Default constructor
+     *
      * @param vm java vm that can be used by this manager
-	 */
-	SoftMxTest(JavaVM * vm) : RuntimeToolsIntervalAgent(vm) {}
+     */
+    SoftMxTest(JavaVM* vm)
+        : RuntimeToolsIntervalAgent(vm)
+    {}
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init(void);
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init(void);
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill(void);
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill(void);
 
-	/**
-	 * This method is used to create an instance
+    /**
+     * This method is used to create an instance
      * @param vm java vm that can be used by this manager
-	 */
-	static SoftMxTest* newInstance(JavaVM * vm);
+     */
+    static SoftMxTest* newInstance(JavaVM* vm);
 
-	/**
-	 * This get gets the reference to the agent given the pointer to where it should
-	 * be stored.  If necessary it creates the agent
-	 * @param vm that can be used by the method
-	 * @param agent pointer to storage where pointer to agent can be stored
-	 */
-	static inline SoftMxTest* getAgent(JavaVM * vm, SoftMxTest** agent){
-		if (*agent == NULL){
-			*agent = newInstance(vm);
-		}
-		return *agent;
-	}
+    /**
+     * This get gets the reference to the agent given the pointer to where it should
+     * be stored.  If necessary it creates the agent
+     * @param vm that can be used by the method
+     * @param agent pointer to storage where pointer to agent can be stored
+     */
+    static inline SoftMxTest* getAgent(JavaVM* vm, SoftMxTest** agent)
+    {
+        if (*agent == NULL) {
+            *agent = newInstance(vm);
+        }
+        return *agent;
+    }
 
-	/**
-	 * Method called at the interval specified in the options for the agent
-	 */
-	virtual void runAction(void);
+    /**
+     * Method called at the interval specified in the options for the agent
+     */
+    virtual void runAction(void);
 
-	/**
-	 * This method should be called when Agent_OnLoad is invoked by the JVM.  After calling the setup for
-	 * the class it subclasses it does the setup required for this class.
-	 *
-	 * @param options the options passed to the agent in Agent_OnLoad
-	 *
-	 * @returns 0 on succes, and error value otherwise
-	 */
-	virtual jint setup(char * options);
+    /**
+     * This method should be called when Agent_OnLoad is invoked by the JVM.  After calling the setup for
+     * the class it subclasses it does the setup required for this class.
+     *
+     * @param options the options passed to the agent in Agent_OnLoad
+     *
+     * @returns 0 on succes, and error value otherwise
+     */
+    virtual jint setup(char* options);
 
-	/**
-	 * This is called once for each argument, the agent should parse the arguments
-	 * it supports and pass any that it does not understand to parent classes
-	 *
-	 * @param options string containing the argument
-	 *
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	virtual jint parseArgument(char* option);
+    /**
+     * This is called once for each argument, the agent should parse the arguments
+     * it supports and pass any that it does not understand to parent classes
+     *
+     * @param options string containing the argument
+     *
+     * @returns one of the AGENT_ERROR_ values
+     */
+    virtual jint parseArgument(char* option);
 
-	/**
-	 * This method is called if an OOM is about to occur due to the softmx value set.
-	 * It gives us a chance to adjust the softmx value upwards and try again
-	 *
-	 * @param timestamp time of the callback
-	 * @param maxHeapSize -Xmx value specified when jvm was started
-	 * @param currentHeapSize current size of memory committed for the heap
-	 * @param currentSoftMx current softMx value
-	 * @param bytesRequired bytes required to satisfy allocation
-	 */
-	void adjustSoftmxForOOM(U_64 timestamp, UDATA maxHeapSize, UDATA currentHeapSize, UDATA currentSoftMx, UDATA bytesRequired);
-
+    /**
+     * This method is called if an OOM is about to occur due to the softmx value set.
+     * It gives us a chance to adjust the softmx value upwards and try again
+     *
+     * @param timestamp time of the callback
+     * @param maxHeapSize -Xmx value specified when jvm was started
+     * @param currentHeapSize current size of memory committed for the heap
+     * @param currentSoftMx current softMx value
+     * @param bytesRequired bytes required to satisfy allocation
+     */
+    void adjustSoftmxForOOM(
+        U_64 timestamp, UDATA maxHeapSize, UDATA currentHeapSize, UDATA currentSoftMx, UDATA bytesRequired);
 };
 
 #endif /*RUNTIMETOOLS_SOFTMXTEST_HPP_*/

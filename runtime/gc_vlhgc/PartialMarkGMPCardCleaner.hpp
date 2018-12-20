@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Modron_Standard
@@ -29,7 +28,6 @@
 
 #if !defined(PARTIALMARKGMPCARDCLEANER_HPP_)
 #define PARTIALMARKGMPCARDCLEANER_HPP_
-
 
 #include "j9.h"
 #include "j9cfg.h"
@@ -46,42 +44,40 @@ class MM_PartialMarkingScheme;
  * @ingroup GC_Modron_Standard
  */
 
-class MM_PartialMarkGMPCardCleaner : public MM_CardCleaner 
-{
-	/* Data Members */
+class MM_PartialMarkGMPCardCleaner : public MM_CardCleaner {
+    /* Data Members */
 private:
-	MM_PartialMarkingScheme *const _markingScheme;	/**< The marking scheme to use for scanning objects which have been modified since they were last scanned */
+    MM_PartialMarkingScheme* const _markingScheme; /**< The marking scheme to use for scanning objects which have been
+                                                      modified since they were last scanned */
 protected:
 public:
-
-	/* Member Functions */
+    /* Member Functions */
 private:
 protected:
-	/**
-	 * Clean a range of addresses (typically within a span of a card).
-	 * This class is used for updating the RSM based on the previous mark map and scanning modified objects in the next mark map
-	 * (note that next is always a subset of previous so anything not marked in next but marked in previous only requires RSM
-	 * inter-region reference updating while objects marked in both require RSM updates and object scanning to update the next
-	 * mark map).
-	 *
-	 * @param[in] env A thread (typically the thread initializing the GC)
-	 * @param[in] lowAddress low address of the range to be cleaned
-	 * @param[in] highAddress high address of the range to be cleaned 
-	 * @param cardToClean[in/out] The card which we are cleaning
-	 */		
-	virtual void clean(MM_EnvironmentBase *env, void *lowAddress, void *highAddress, Card *cardToClean);
+    /**
+     * Clean a range of addresses (typically within a span of a card).
+     * This class is used for updating the RSM based on the previous mark map and scanning modified objects in the next
+     * mark map (note that next is always a subset of previous so anything not marked in next but marked in previous
+     * only requires RSM inter-region reference updating while objects marked in both require RSM updates and object
+     * scanning to update the next mark map).
+     *
+     * @param[in] env A thread (typically the thread initializing the GC)
+     * @param[in] lowAddress low address of the range to be cleaned
+     * @param[in] highAddress high address of the range to be cleaned
+     * @param cardToClean[in/out] The card which we are cleaning
+     */
+    virtual void clean(MM_EnvironmentBase* env, void* lowAddress, void* highAddress, Card* cardToClean);
 
-	/**
-	 * @see MM_CardCleaner::getVMStateID()
-	 */
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_PARTIAL_MARK_GMP_CARD_CLEANER; }
+    /**
+     * @see MM_CardCleaner::getVMStateID()
+     */
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_PARTIAL_MARK_GMP_CARD_CLEANER; }
 
-public:	
-	
-	/**
-	 * Create a CardCleaner object for updating RSM and next mark map.
-	 */
-	MM_PartialMarkGMPCardCleaner(MM_PartialMarkingScheme *markingScheme);
+public:
+    /**
+     * Create a CardCleaner object for updating RSM and next mark map.
+     */
+    MM_PartialMarkGMPCardCleaner(MM_PartialMarkingScheme* markingScheme);
 };
 
 #endif /* PARTIALMARKGMPCARDCLEANER_HPP_ */

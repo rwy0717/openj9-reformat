@@ -32,19 +32,16 @@
 
 extern "C" {
 
-void
-memoryManagerAsyncCallbackHandler(J9VMThread *vmThread, IDATA handlerKey, void *userData)
+void memoryManagerAsyncCallbackHandler(J9VMThread* vmThread, IDATA handlerKey, void* userData)
 {
-	memorySubSpaceAsyncCallbackHandler(vmThread->omrVMThread);
+    memorySubSpaceAsyncCallbackHandler(vmThread->omrVMThread);
 }
 
 } /* extern "C" */
 
-void
-MM_AsyncCallbackHandler::signalThreadForCallback(J9VMThread *vmThread)
+void MM_AsyncCallbackHandler::signalThreadForCallback(J9VMThread* vmThread)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(vmThread);
-	J9JavaVM *vm = vmThread->javaVM;
-	vm->internalVMFunctions->J9SignalAsyncEvent(vm, vmThread, extensions->_asyncCallbackKey);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(vmThread);
+    J9JavaVM* vm = vmThread->javaVM;
+    vm->internalVMFunctions->J9SignalAsyncEvent(vm, vmThread, extensions->_asyncCallbackKey);
 }
-

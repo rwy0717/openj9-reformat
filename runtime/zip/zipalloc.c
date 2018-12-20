@@ -26,7 +26,7 @@
 
 #ifdef J9VM_OPT_ZLIB_SUPPORT
 
-#ifdef AIXPPC	/* hack for zlib/AIX problem */
+#ifdef AIXPPC /* hack for zlib/AIX problem */
 #define STDC
 #endif
 
@@ -34,38 +34,33 @@
 
 #endif
 
-#if (defined(J9VM_OPT_ZLIB_SUPPORT)) 
-void* zalloc (void* opaque, U_32 items, U_32 size);
+#if (defined(J9VM_OPT_ZLIB_SUPPORT))
+void* zalloc(void* opaque, U_32 items, U_32 size);
 #endif /* J9VM_OPT_ZLIB_SUPPORT */
-#if (defined(J9VM_OPT_ZLIB_SUPPORT)) 
-void zfree (void* opaque, void* address);
+#if (defined(J9VM_OPT_ZLIB_SUPPORT))
+void zfree(void* opaque, void* address);
 #endif /* J9VM_OPT_ZLIB_SUPPORT */
 
-#if (defined(J9VM_OPT_ZLIB_SUPPORT)) 
+#if (defined(J9VM_OPT_ZLIB_SUPPORT))
 /*
-	ZLib interface to j9mem_allocate_memory.
+        ZLib interface to j9mem_allocate_memory.
 */
 void* zalloc(void* opaque, U_32 items, U_32 size)
 {
-	PORT_ACCESS_FROM_PORT(((J9PortLibrary*)opaque));
-	
-	return j9mem_allocate_memory(items * size, J9MEM_CATEGORY_VM_JCL);
+    PORT_ACCESS_FROM_PORT(((J9PortLibrary*)opaque));
+
+    return j9mem_allocate_memory(items * size, J9MEM_CATEGORY_VM_JCL);
 }
 #endif /* J9VM_OPT_ZLIB_SUPPORT */
 
-
-#if (defined(J9VM_OPT_ZLIB_SUPPORT)) 
+#if (defined(J9VM_OPT_ZLIB_SUPPORT))
 /*
-	ZLib interface to j9mem_free_memory.
+        ZLib interface to j9mem_free_memory.
 */
 void zfree(void* opaque, void* address)
 {
-	PORT_ACCESS_FROM_PORT((J9PortLibrary*)opaque);
+    PORT_ACCESS_FROM_PORT((J9PortLibrary*)opaque);
 
-	j9mem_free_memory(address);
+    j9mem_free_memory(address);
 }
 #endif /* J9VM_OPT_ZLIB_SUPPORT */
-
-
-
-

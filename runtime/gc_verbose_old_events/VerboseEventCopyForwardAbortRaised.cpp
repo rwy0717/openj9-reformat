@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "VerboseEventCopyForwardAbortRaised.hpp"
 #include "GCExtensions.hpp"
 #include "VerboseEventStream.hpp"
@@ -32,12 +32,14 @@
  * Create an new instance of a MM_VerboseCopyForwardAbortRaised event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventCopyForwardAbortRaised::newInstance(MM_CopyForwardAbortEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventCopyForwardAbortRaised::newInstance(
+    MM_CopyForwardAbortEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventCopyForwardAbortRaised *eventObject = (MM_VerboseEventCopyForwardAbortRaised *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventCopyForwardAbortRaised));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventCopyForwardAbortRaised(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventCopyForwardAbortRaised* eventObject
+        = (MM_VerboseEventCopyForwardAbortRaised*)MM_VerboseEvent::create(
+            event->currentThread, sizeof(MM_VerboseEventCopyForwardAbortRaised));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventCopyForwardAbortRaised(event, hookInterface);
+    }
+    return eventObject;
 }

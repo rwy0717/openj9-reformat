@@ -25,43 +25,19 @@
  * Only enum values defined in CodeGenPhaseEnum.hpp are allowed.
  */
 
+ReserveCodeCachePhase,
 
+    InliningReportPhase, LateSequentialConstantStoreSimplificationPhase,
 
-    ReserveCodeCachePhase,
-
-
-    InliningReportPhase,
-    LateSequentialConstantStoreSimplificationPhase,
-
-    InMemoryLoadStoreMarkingPhase,
-    PopulateOSRBufferPhase,
-    MoveUpArrayLengthStoresPhase,
-    InsertEpilogueYieldPointsPhase,
-    CleanUpFlagsPhase,
-    SetBranchOnCountFlagPhase,
-    LowerTreesPhase,
-    InsertDebugCountersPhase,
-    CompressedReferenceRematerializationPhase,
-    SplitWarmAndColdBlocksPhase,
-    AllocateLinkageRegisters,
+    InMemoryLoadStoreMarkingPhase, PopulateOSRBufferPhase, MoveUpArrayLengthStoresPhase, InsertEpilogueYieldPointsPhase,
+    CleanUpFlagsPhase, SetBranchOnCountFlagPhase, LowerTreesPhase, InsertDebugCountersPhase,
+    CompressedReferenceRematerializationPhase, SplitWarmAndColdBlocksPhase, AllocateLinkageRegisters,
 
     markLoadAsZeroOrSignExtension,
 
-    FindAndFixCommonedReferencesPhase,
-    UncommonCallConstNodesPhase,
-    SetupForInstructionSelectionPhase,
-    RemoveUnusedLocalsPhase,
-    ReduceSynchronizedFieldLoadPhase,
-    UncommonBCDCHKAddressNodePhase,
-    InstructionSelectionPhase,
-    CreateStackAtlasPhase,
+    FindAndFixCommonedReferencesPhase, UncommonCallConstNodesPhase, SetupForInstructionSelectionPhase,
+    RemoveUnusedLocalsPhase, ReduceSynchronizedFieldLoadPhase, UncommonBCDCHKAddressNodePhase,
+    InstructionSelectionPhase, CreateStackAtlasPhase,
 
-    PreRAPeepholePhase,
-    RegisterAssigningPhase,
-    MapStackPhase,
-    PeepholePhase,
-    BinaryEncodingPhase,
-    EmitSnippetsPhase,
+    PreRAPeepholePhase, RegisterAssigningPhase, MapStackPhase, PeepholePhase, BinaryEncodingPhase, EmitSnippetsPhase,
     ProcessRelocationsPhase
-
-

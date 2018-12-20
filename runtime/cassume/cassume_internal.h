@@ -24,13 +24,13 @@
 #define cassume_internal_h
 
 /**
-* @file cassume_internal.h
-* @brief Internal prototypes used within the CASSUME module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the CASSUME module.
-*
-*/
+ * @file cassume_internal.h
+ * @brief Internal prototypes used within the CASSUME module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the CASSUME module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,16 +44,14 @@ extern "C" {
 
 struct j9cmdlineOptions;
 /**
-* @brief
-* @param arg
-* @return UDATA
-*/
-UDATA signalProtectedMain(struct J9PortLibrary *portLibrary, void *arg);
-
+ * @brief
+ * @param arg
+ * @return UDATA
+ */
+UDATA signalProtectedMain(struct J9PortLibrary* portLibrary, void* arg);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* cassume_internal_h */
-

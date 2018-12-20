@@ -33,10 +33,13 @@
 
 #define JAVAHOMEDIR "-Djava.home="
 #define JAVAHOMEDIR_LEN strlen(JAVAHOMEDIR)
-UDATA buildChildCmdlineOption(int argc, char **argv, const char *options, char * newargv[SHRTEST_MAX_CMD_OPTS]);
+UDATA buildChildCmdlineOption(int argc, char** argv, const char* options, char* newargv[SHRTEST_MAX_CMD_OPTS]);
 
 #define REPORT_START(name) j9tty_printf(PORTLIB, "\n%s test begin...\n\n", name)
-#define SHC_TEST_ASSERT(name, test, success, rc) if ((success |= (rc = test)) | 1) j9tty_printf(PORTLIB, "%s test %s. RC=%d\n\n", name, (rc ? "FAILED" : "PASSED"), rc)
-#define REPORT_SUMMARY(name, success) j9tty_printf(PORTLIB, "\nResult of test %s: %s\n\n", name, (success ? "FAILED" : "PASSED"))
+#define SHC_TEST_ASSERT(name, test, success, rc) \
+    if ((success |= (rc = test)) | 1)            \
+    j9tty_printf(PORTLIB, "%s test %s. RC=%d\n\n", name, (rc ? "FAILED" : "PASSED"), rc)
+#define REPORT_SUMMARY(name, success) \
+    j9tty_printf(PORTLIB, "\nResult of test %s: %s\n\n", name, (success ? "FAILED" : "PASSED"))
 
 #endif /* main_h */

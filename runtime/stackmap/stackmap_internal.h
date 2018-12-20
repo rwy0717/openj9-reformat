@@ -24,13 +24,13 @@
 #define stackmap_internal_h
 
 /**
-* @file stackmap_internal.h
-* @brief Internal prototypes used within the STACKMAP module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the STACKMAP module.
-*
-*/
+ * @file stackmap_internal.h
+ * @brief Internal prototypes used within the STACKMAP module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the STACKMAP module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,7 +39,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #ifdef __cplusplus
 }

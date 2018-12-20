@@ -31,7 +31,6 @@
 
 #include "j9port.h"
 
-intptr_t
-detect_hypervisor_i386(struct J9PortLibrary *portLibrary);
+intptr_t detect_hypervisor_i386(struct J9PortLibrary* portLibrary);
 
 #endif /* J9HYPERVISOR_I386_H_ */

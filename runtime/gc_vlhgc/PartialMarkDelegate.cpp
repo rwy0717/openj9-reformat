@@ -49,73 +49,66 @@
 #include "PartialMarkingScheme.hpp"
 #include "WorkPacketsVLHGC.hpp"
 
-
-bool
-MM_PartialMarkDelegate::initialize(MM_EnvironmentVLHGC *env)
+bool MM_PartialMarkDelegate::initialize(MM_EnvironmentVLHGC* env)
 {
-	_javaVM = (J9JavaVM *)env->getLanguageVM();
-	_extensions = MM_GCExtensions::getExtensions(env);
+    _javaVM = (J9JavaVM*)env->getLanguageVM();
+    _extensions = MM_GCExtensions::getExtensions(env);
 
-	if(NULL == (_markingScheme = MM_PartialMarkingScheme::newInstance(env))) {
-		goto error_no_memory;
-	}
+    if (NULL == (_markingScheme = MM_PartialMarkingScheme::newInstance(env))) {
+        goto error_no_memory;
+    }
 
-	_dispatcher = _extensions->dispatcher;
+    _dispatcher = _extensions->dispatcher;
 
-	return true;
+    return true;
 
 error_no_memory:
-	return false;
+    return false;
 }
 
-void
-MM_PartialMarkDelegate::tearDown(MM_EnvironmentVLHGC *env)
+void MM_PartialMarkDelegate::tearDown(MM_EnvironmentVLHGC* env)
 {
-	_dispatcher = NULL;
+    _dispatcher = NULL;
 
-	if(NULL != _markingScheme) {
-		_markingScheme->kill(env);
-		_markingScheme = NULL;
-	}
+    if (NULL != _markingScheme) {
+        _markingScheme->kill(env);
+        _markingScheme = NULL;
+    }
 }
 
-bool
-MM_PartialMarkDelegate::heapAddRange(MM_EnvironmentVLHGC *env, MM_MemorySubSpace *subspace, UDATA size, void *lowAddress, void *highAddress)
+bool MM_PartialMarkDelegate::heapAddRange(
+    MM_EnvironmentVLHGC* env, MM_MemorySubSpace* subspace, UDATA size, void* lowAddress, void* highAddress)
 {
-	return _markingScheme->heapAddRange(env, subspace, size, lowAddress, highAddress);
+    return _markingScheme->heapAddRange(env, subspace, size, lowAddress, highAddress);
 }
 
-bool
-MM_PartialMarkDelegate::heapRemoveRange(MM_EnvironmentVLHGC *env, MM_MemorySubSpace *subspace, UDATA size, void *lowAddress, void *highAddress, void *lowValidAddress, void *highValidAddress)
+bool MM_PartialMarkDelegate::heapRemoveRange(MM_EnvironmentVLHGC* env, MM_MemorySubSpace* subspace, UDATA size,
+    void* lowAddress, void* highAddress, void* lowValidAddress, void* highValidAddress)
 {
-	return _markingScheme->heapRemoveRange(env, subspace, size, lowAddress, highAddress, lowValidAddress, highValidAddress);
+    return _markingScheme->heapRemoveRange(
+        env, subspace, size, lowAddress, highAddress, lowValidAddress, highValidAddress);
 }
 
-void 
-MM_PartialMarkDelegate::performMarkForPartialGC(MM_EnvironmentVLHGC *env)
+void MM_PartialMarkDelegate::performMarkForPartialGC(MM_EnvironmentVLHGC* env)
 {
-	Assert_MM_true(MM_CycleState::state_mark_idle == env->_cycleState->_markDelegateState);
+    Assert_MM_true(MM_CycleState::state_mark_idle == env->_cycleState->_markDelegateState);
 
-	/* provide complete mark operation */
-	markAll(env);
+    /* provide complete mark operation */
+    markAll(env);
 
-	env->_cycleState->_markDelegateState = MM_CycleState::state_mark_idle;
+    env->_cycleState->_markDelegateState = MM_CycleState::state_mark_idle;
 }
 
-void
-MM_PartialMarkDelegate::markAll(MM_EnvironmentVLHGC *env)
+void MM_PartialMarkDelegate::markAll(MM_EnvironmentVLHGC* env)
 {
-	_markingScheme->masterSetupForGC(env);
+    _markingScheme->masterSetupForGC(env);
 
-	/* run the mark */
-	MM_ParallelPartialMarkTask markTask(env, _dispatcher, _markingScheme, env->_cycleState);
-	_dispatcher->run(env, &markTask);
+    /* run the mark */
+    MM_ParallelPartialMarkTask markTask(env, _dispatcher, _markingScheme, env->_cycleState);
+    _dispatcher->run(env, &markTask);
 
-	/* Do any post mark checks */
-	_markingScheme->masterCleanupAfterGC(env);
+    /* Do any post mark checks */
+    _markingScheme->masterCleanupAfterGC(env);
 }
 
-void 
-MM_PartialMarkDelegate::postMarkCleanup(MM_EnvironmentVLHGC *env)
-{
-}
+void MM_PartialMarkDelegate::postMarkCleanup(MM_EnvironmentVLHGC* env) {}

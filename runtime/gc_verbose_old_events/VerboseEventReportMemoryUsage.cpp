@@ -26,69 +26,70 @@
 
 #include "VerboseManagerOld.hpp"
 
-MM_VerboseEvent*
-MM_VerboseEventReportMemoryUsage::newInstance(MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventReportMemoryUsage::newInstance(
+    MM_ReportMemoryUsageEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventReportMemoryUsage *eventObject;
-	
-	eventObject = (MM_VerboseEventReportMemoryUsage *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventReportMemoryUsage));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventReportMemoryUsage(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventReportMemoryUsage* eventObject;
+
+    eventObject = (MM_VerboseEventReportMemoryUsage*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventReportMemoryUsage));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventReportMemoryUsage(event, hookInterface);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventReportMemoryUsage::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventReportMemoryUsage::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	const char* categoryName;
-	UDATA indentLevel = _manager->getIndentLevel();
+    const char* categoryName;
+    UDATA indentLevel = _manager->getIndentLevel();
 
-	/* Print report header */
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<memory>");
-	
-	/* Print statistics for each allocation category */
-	indentLevel++;
-	
-	MM_MemoryStatistics* statistics = _statistics;
-	for (UDATA i = 0; i < MM_AllocationCategory::CATEGORY_COUNT; i++) {
-		switch (statistics->category) {
-			case MM_AllocationCategory::FIXED:
-				categoryName = "fixed";
-				break;
-			case MM_AllocationCategory::WORK_PACKETS:
-				categoryName = "workpackets";
-				break;
-			case MM_AllocationCategory::REFERENCES:
-				categoryName = "references";
-				break;
-			case MM_AllocationCategory::FINALIZE:
-				categoryName = "finalize";
-				break;
-			case MM_AllocationCategory::DIAGNOSTIC:
-				categoryName = "diagnostic";
-				break;
-			case MM_AllocationCategory::REMEMBERED_SET:
-				categoryName = "rememberedset";
-				break;
-			case MM_AllocationCategory::JAVA_HEAP:
-				categoryName = "javaheap";
-				break;
-			case MM_AllocationCategory::OTHER:
-				categoryName = "other";
-				break;
-			default:
-				categoryName = "unknown";
-		}
-		
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<category type=\"%s\" allocatedbytes=\"%zu\" highwater=\"%zu\"/>", 
-				categoryName, statistics->allocated, statistics->highwater);
+    /* Print report header */
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<memory>");
 
-		// Move to the next memory statistics
-		statistics++;
-	}
-	indentLevel--;
-	
-	/* Print report footer */
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</memory>");
+    /* Print statistics for each allocation category */
+    indentLevel++;
+
+    MM_MemoryStatistics* statistics = _statistics;
+    for (UDATA i = 0; i < MM_AllocationCategory::CATEGORY_COUNT; i++) {
+        switch (statistics->category) {
+        case MM_AllocationCategory::FIXED:
+            categoryName = "fixed";
+            break;
+        case MM_AllocationCategory::WORK_PACKETS:
+            categoryName = "workpackets";
+            break;
+        case MM_AllocationCategory::REFERENCES:
+            categoryName = "references";
+            break;
+        case MM_AllocationCategory::FINALIZE:
+            categoryName = "finalize";
+            break;
+        case MM_AllocationCategory::DIAGNOSTIC:
+            categoryName = "diagnostic";
+            break;
+        case MM_AllocationCategory::REMEMBERED_SET:
+            categoryName = "rememberedset";
+            break;
+        case MM_AllocationCategory::JAVA_HEAP:
+            categoryName = "javaheap";
+            break;
+        case MM_AllocationCategory::OTHER:
+            categoryName = "other";
+            break;
+        default:
+            categoryName = "unknown";
+        }
+
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<category type=\"%s\" allocatedbytes=\"%zu\" highwater=\"%zu\"/>", categoryName, statistics->allocated,
+            statistics->highwater);
+
+        // Move to the next memory statistics
+        statistics++;
+    }
+    indentLevel--;
+
+    /* Print report footer */
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</memory>");
 }

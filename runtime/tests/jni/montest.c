@@ -26,78 +26,68 @@
 
 static jint lastReturnCode;
 
-jint JNICALL
-Java_j9vm_test_monitor_Helpers_getLastReturnCode(JNIEnv * env, jclass clazz)
+jint JNICALL Java_j9vm_test_monitor_Helpers_getLastReturnCode(JNIEnv* env, jclass clazz) { return lastReturnCode; }
+
+jint JNICALL Java_j9vm_test_monitor_Helpers_monitorEnter(JNIEnv* env, jclass clazz, jobject obj)
 {
-	return lastReturnCode;
+    lastReturnCode = (*env)->MonitorEnter(env, obj);
+    return lastReturnCode;
 }
 
-jint JNICALL
-Java_j9vm_test_monitor_Helpers_monitorEnter(JNIEnv * env, jclass clazz, jobject obj)
+jint JNICALL Java_j9vm_test_monitor_Helpers_monitorExit(JNIEnv* env, jclass clazz, jobject obj)
 {
-	lastReturnCode = (*env)->MonitorEnter(env, obj);
-	return lastReturnCode;
+    lastReturnCode = (*env)->MonitorExit(env, obj);
+    return lastReturnCode;
 }
 
-jint JNICALL 
-Java_j9vm_test_monitor_Helpers_monitorExit(JNIEnv * env, jclass clazz, jobject obj)
+jint JNICALL Java_j9vm_test_monitor_Helpers_monitorExitWithException(
+    JNIEnv* env, jclass clazz, jobject obj, jobject throwable)
 {
-	lastReturnCode = (*env)->MonitorExit(env, obj);
-	return lastReturnCode;
+    (*env)->Throw(env, throwable);
+
+    lastReturnCode = (*env)->MonitorExit(env, obj);
+
+    return lastReturnCode;
 }
 
-jint JNICALL 
-Java_j9vm_test_monitor_Helpers_monitorExitWithException(JNIEnv * env, jclass clazz, jobject obj, jobject throwable)
-{
-	(*env)->Throw(env, throwable);
-
-	lastReturnCode = (*env)->MonitorExit(env, obj);
-
-	return lastReturnCode;
-}
-
-void JNICALL 
-Java_j9vm_test_monitor_Helpers_monitorReserve(JNIEnv * env, jclass clazz, jobject objRef)
+void JNICALL Java_j9vm_test_monitor_Helpers_monitorReserve(JNIEnv* env, jclass clazz, jobject objRef)
 {
 #ifdef J9VM_THR_LOCK_RESERVATION
 
-	J9VMThread* vmThread = (J9VMThread*)env;
-	j9object_t obj;
-	j9objectmonitor_t lock;
-	j9objectmonitor_t* lockEA;
-	jclass errorClazz;
+    J9VMThread* vmThread = (J9VMThread*)env;
+    j9object_t obj;
+    j9objectmonitor_t lock;
+    j9objectmonitor_t* lockEA;
+    jclass errorClazz;
 
-	vmThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(vmThread);
+    vmThread->javaVM->internalVMFunctions->internalEnterVMFromJNI(vmThread);
 
-	obj = *(j9object_t*)objRef;
-	lockEA = J9OBJECT_MONITOR_EA(vmThread, obj);
+    obj = *(j9object_t*)objRef;
+    lockEA = J9OBJECT_MONITOR_EA(vmThread, obj);
 
-	if (lockEA == NULL) {
-		vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);		
-		errorClazz = (*env)->FindClass(env, "java/lang/Error");
-		if (errorClazz != NULL) {
-			(*env)->ThrowNew(env, errorClazz, "Object has no lock word");
-		}
-		return;
-	}
+    if (lockEA == NULL) {
+        vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
+        errorClazz = (*env)->FindClass(env, "java/lang/Error");
+        if (errorClazz != NULL) {
+            (*env)->ThrowNew(env, errorClazz, "Object has no lock word");
+        }
+        return;
+    }
 
-	lock = *lockEA;
+    lock = *lockEA;
 
-	if (lock != 0) {
-		vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);		
-		errorClazz = (*env)->FindClass(env, "java/lang/Error");
-		if (errorClazz != NULL) {
-			(*env)->ThrowNew(env, errorClazz, "Object's lock word is not 0");
-		}
-		return;
-	}
+    if (lock != 0) {
+        vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
+        errorClazz = (*env)->FindClass(env, "java/lang/Error");
+        if (errorClazz != NULL) {
+            (*env)->ThrowNew(env, errorClazz, "Object's lock word is not 0");
+        }
+        return;
+    }
 
-	*lockEA = (j9objectmonitor_t)(UDATA)vmThread | OBJECT_HEADER_LOCK_RESERVED;
+    *lockEA = (j9objectmonitor_t)(UDATA)vmThread | OBJECT_HEADER_LOCK_RESERVED;
 
-	vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
+    vmThread->javaVM->internalVMFunctions->internalExitVMToJNI(vmThread);
 
 #endif
 }
-
-
-

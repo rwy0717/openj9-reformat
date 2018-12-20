@@ -34,21 +34,18 @@
  * Stores the data relating to the start of a marking phase.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventMarkStart : public MM_VerboseEvent
-{
+class MM_VerboseEventMarkStart : public MM_VerboseEvent {
 public:
+    static MM_VerboseEvent* newInstance(MM_MarkStartEvent* event, J9HookInterface** hookInterface);
 
-	static MM_VerboseEvent *newInstance(MM_MarkStartEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return false; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-		
-	MM_VerboseEventMarkStart(MM_MarkStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return false; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventMarkStart(MM_MarkStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface) {};
 };
 
 #endif /* EVENT_MARK_START_HPP_ */

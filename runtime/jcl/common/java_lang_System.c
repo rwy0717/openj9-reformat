@@ -25,15 +25,15 @@
 #include "jclprots.h"
 #include "jcl_internal.h"
 
-void JNICALL
-Java_java_lang_System_registerNatives(JNIEnv *env, jclass jlClass)
+void JNICALL Java_java_lang_System_registerNatives(JNIEnv* env, jclass jlClass)
 {
-	/*
-	 * If left alone the Oracle code would do this:
-	 	register(currentTimeMillis()J) -> 0x6FC5C5C0
-		register(nanoTime()J) -> 0x6FC5C5BA
-		register(arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V) -> 0x6FC5C5B4
-	 */
-	PORT_ACCESS_FROM_ENV(env);
-	j9tty_printf(PORTLIB,"HACK @ %s.%d: Oracle Java_java_lang_System_registerNatives() stubbed out.", __FILE__, __LINE__);
+    /*
+     * If left alone the Oracle code would do this:
+            register(currentTimeMillis()J) -> 0x6FC5C5C0
+            register(nanoTime()J) -> 0x6FC5C5BA
+            register(arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V) -> 0x6FC5C5B4
+     */
+    PORT_ACCESS_FROM_ENV(env);
+    j9tty_printf(
+        PORTLIB, "HACK @ %s.%d: Oracle Java_java_lang_System_registerNatives() stubbed out.", __FILE__, __LINE__);
 }

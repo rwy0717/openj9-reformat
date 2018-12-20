@@ -31,49 +31,41 @@
 #include "ReferenceObjectList.hpp"
 
 MM_ReferenceObjectBufferRealtime::MM_ReferenceObjectBufferRealtime(UDATA maxObjectCount)
-	: MM_ReferenceObjectBuffer(maxObjectCount)
-	,_referenceObjectListIndex(0)
+    : MM_ReferenceObjectBuffer(maxObjectCount)
+    , _referenceObjectListIndex(0)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-MM_ReferenceObjectBufferRealtime *
-MM_ReferenceObjectBufferRealtime::newInstance(MM_EnvironmentBase *env)
+MM_ReferenceObjectBufferRealtime* MM_ReferenceObjectBufferRealtime::newInstance(MM_EnvironmentBase* env)
 {
-	MM_ReferenceObjectBufferRealtime *referenceObjectBuffer = NULL;
+    MM_ReferenceObjectBufferRealtime* referenceObjectBuffer = NULL;
 
-	referenceObjectBuffer = (MM_ReferenceObjectBufferRealtime *)env->getForge()->allocate(sizeof(MM_ReferenceObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (NULL != referenceObjectBuffer) {
-		new(referenceObjectBuffer) MM_ReferenceObjectBufferRealtime(MM_GCExtensions::getExtensions(env)->objectListFragmentCount);
-		if (!referenceObjectBuffer->initialize(env)) {
-			referenceObjectBuffer->kill(env);
-			referenceObjectBuffer = NULL;
-		}
-	}
+    referenceObjectBuffer = (MM_ReferenceObjectBufferRealtime*)env->getForge()->allocate(
+        sizeof(MM_ReferenceObjectBufferRealtime), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (NULL != referenceObjectBuffer) {
+        new (referenceObjectBuffer)
+            MM_ReferenceObjectBufferRealtime(MM_GCExtensions::getExtensions(env)->objectListFragmentCount);
+        if (!referenceObjectBuffer->initialize(env)) {
+            referenceObjectBuffer->kill(env);
+            referenceObjectBuffer = NULL;
+        }
+    }
 
-	return referenceObjectBuffer;
+    return referenceObjectBuffer;
 }
 
-bool
-MM_ReferenceObjectBufferRealtime::initialize(MM_EnvironmentBase *base)
-{
-	return true;
-}
+bool MM_ReferenceObjectBufferRealtime::initialize(MM_EnvironmentBase* base) { return true; }
 
-void
-MM_ReferenceObjectBufferRealtime::tearDown(MM_EnvironmentBase *base)
-{
+void MM_ReferenceObjectBufferRealtime::tearDown(MM_EnvironmentBase* base) {}
 
-}
-
-void 
-MM_ReferenceObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
+void MM_ReferenceObjectBufferRealtime::flushImpl(MM_EnvironmentBase* env)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	MM_ReferenceObjectList *referenceObjectList = &extensions->referenceObjectLists[_referenceObjectListIndex];
-	referenceObjectList->addAll(env, _referenceObjectType, _head, _tail);
-	_referenceObjectListIndex += 1;
-	if (MM_HeapRegionDescriptorRealtime::getReferenceObjectListCount(env) == _referenceObjectListIndex) {
-		_referenceObjectListIndex = 0;
-	}
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    MM_ReferenceObjectList* referenceObjectList = &extensions->referenceObjectLists[_referenceObjectListIndex];
+    referenceObjectList->addAll(env, _referenceObjectType, _head, _tail);
+    _referenceObjectListIndex += 1;
+    if (MM_HeapRegionDescriptorRealtime::getReferenceObjectListCount(env) == _referenceObjectListIndex) {
+        _referenceObjectListIndex = 0;
+    }
 }

@@ -29,54 +29,49 @@ extern "C" {
 #endif
 
 /* ---------------- getstacktrace.c ---------------- */
-j9object_t
-createStackTraceThrowable(J9VMThread *currentThread,  const UDATA *frames, UDATA maxFrames);
-
-
+j9object_t createStackTraceThrowable(J9VMThread* currentThread, const UDATA* frames, UDATA maxFrames);
 
 /* ---------------- mgmtthread.c ---------------- */
 
-U_64
-checkedTimeInterval(U_64 endNS, U_64 startNS);
-
+U_64 checkedTimeInterval(U_64 endNS, U_64 startNS);
 
 /* ---------------- reflecthelp.c ---------------- */
-void
-initializeReflection(J9JavaVM *javaVM);
+void initializeReflection(J9JavaVM* javaVM);
 
-void
-preloadReflectWrapperClasses(J9JavaVM *javaVM);
+void preloadReflectWrapperClasses(J9JavaVM* javaVM);
 
-j9object_t getClassAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass);
+j9object_t getClassAnnotationData(struct J9VMThread* vmThread, struct J9Class* declaringClass);
 
-jbyteArray getClassTypeAnnotationsAsByteArray(JNIEnv *env, jclass jlClass);
+jbyteArray getClassTypeAnnotationsAsByteArray(JNIEnv* env, jclass jlClass);
 
-j9object_t getFieldAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9JNIFieldID *j9FieldID);
+j9object_t getFieldAnnotationData(struct J9VMThread* vmThread, struct J9Class* declaringClass, J9JNIFieldID* j9FieldID);
 
-jbyteArray getFieldTypeAnnotationsAsByteArray(JNIEnv *env, jobject jlrField);
+jbyteArray getFieldTypeAnnotationsAsByteArray(JNIEnv* env, jobject jlrField);
 
-j9object_t getMethodAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9Method *ramMethod);
+j9object_t getMethodAnnotationData(struct J9VMThread* vmThread, struct J9Class* declaringClass, J9Method* ramMethod);
 
-j9object_t getMethodParametersAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9Method *ramMethod);
+j9object_t getMethodParametersAnnotationData(
+    struct J9VMThread* vmThread, struct J9Class* declaringClass, J9Method* ramMethod);
 
-j9object_t getMethodTypeAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9Method *ramMethod);
+j9object_t getMethodTypeAnnotationData(
+    struct J9VMThread* vmThread, struct J9Class* declaringClass, J9Method* ramMethod);
 
-jbyteArray getMethodTypeAnnotationsAsByteArray(JNIEnv *env, jobject jlrMethod);
+jbyteArray getMethodTypeAnnotationsAsByteArray(JNIEnv* env, jobject jlrMethod);
 
-j9object_t getMethodDefaultAnnotationData(struct J9VMThread *vmThread, struct J9Class *declaringClass, J9Method *ramMethod);
+j9object_t getMethodDefaultAnnotationData(
+    struct J9VMThread* vmThread, struct J9Class* declaringClass, J9Method* ramMethod);
 
-jobjectArray getMethodParametersAsArray(JNIEnv *env, jobject jlrMethod);
+jobjectArray getMethodParametersAsArray(JNIEnv* env, jobject jlrMethod);
 
 /**
- * The caller must have VM access. 
+ * The caller must have VM access.
  * Build a java.lang.reflect.Field object for a field specified with a name and a declaring class.
  * @param[in] vmThread The current vmThread.
  * @param[in] declaringClass The declaring class. Must be non-null.
  * @param[in] fieldName The name of the field.
  * @return j9object_t a java.lang.reflect.Field
  */
-j9object_t
-getFieldObjHelper(J9VMThread *vmThread, jclass declaringClass, jstring fieldName);
+j9object_t getFieldObjHelper(J9VMThread* vmThread, jclass declaringClass, jstring fieldName);
 
 /**
  * Build a java.lang.reflect.Field for a specified declared field.
@@ -85,8 +80,7 @@ getFieldObjHelper(J9VMThread *vmThread, jclass declaringClass, jstring fieldName
  * @param[in] fieldName The name of the field.
  * @return jobject a java.lang.reflect.Field
  */
-jobject
-getDeclaredFieldHelper(JNIEnv *env, jobject declaringClass, jstring fieldName);
+jobject getDeclaredFieldHelper(JNIEnv* env, jobject declaringClass, jstring fieldName);
 
 /**
  * Build an array of java.lang.reflect.Field for the fields declared by a class.
@@ -94,8 +88,7 @@ getDeclaredFieldHelper(JNIEnv *env, jobject declaringClass, jstring fieldName);
  * @param[in] declaringClass The declaring class.  Must be non-null.
  * @return jarray an array of java.lang.reflect.Field
  */
-jarray
-getDeclaredFieldsHelper(JNIEnv *env, jobject declaringClass);
+jarray getDeclaredFieldsHelper(JNIEnv* env, jobject declaringClass);
 
 /**
  * Build a java.lang.reflect.Field for a specified field.
@@ -104,8 +97,7 @@ getDeclaredFieldsHelper(JNIEnv *env, jobject declaringClass);
  * @param[in] fieldName The name of the field.
  * @return jobject a java.lang.reflect.Field
  */
-jobject
-getFieldHelper(JNIEnv *env, jobject cls, jstring fieldName);
+jobject getFieldHelper(JNIEnv* env, jobject cls, jstring fieldName);
 
 /**
  * Build an array of java.lang.reflect.Field for the public fields of a class.
@@ -113,8 +105,7 @@ getFieldHelper(JNIEnv *env, jobject cls, jstring fieldName);
  * @param[in] cls A class.  Must be non-null.
  * @return jarray an array of java.lang.reflect.Field
  */
-jarray
-getFieldsHelper(JNIEnv *env, jobject cls);
+jarray getFieldsHelper(JNIEnv* env, jobject cls);
 
 /**
  * Get the array class for an element class.
@@ -127,22 +118,16 @@ getFieldsHelper(JNIEnv *env, jobject cls);
  * @pre has VM access
  * @todo There is a duplicate copy of this function in j9vm/j7vmi.c
  */
-J9Class *
-fetchArrayClass(struct J9VMThread *vmThread, J9Class *elementTypeClass);
-
+J9Class* fetchArrayClass(struct J9VMThread* vmThread, J9Class* elementTypeClass);
 
 /* ---------------- sigquit.c ---------------- */
-void
-J9SigQuitShutdown(J9JavaVM * vm);
-
+void J9SigQuitShutdown(J9JavaVM* vm);
 
 /* ---------------- unsafe_mem.c ---------------- */
 UDATA
 initializeUnsafeMemoryTracking(J9JavaVM* vm);
 
-void
-freeUnsafeMemory(J9JavaVM* vm);
-
+void freeUnsafeMemory(J9JavaVM* vm);
 
 #ifdef __cplusplus
 }

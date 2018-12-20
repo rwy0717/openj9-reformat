@@ -23,7 +23,7 @@
 #define STDIO_H
 
 typedef int FILE;
-FILE *stderr;
-int fprintf(FILE *stream, const char *format, ...);
+FILE* stderr;
+int fprintf(FILE* stream, const char* format, ...);
 
 #endif /* STDIO_H */

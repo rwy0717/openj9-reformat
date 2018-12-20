@@ -44,4 +44,4 @@
 #define acquireVMAccess(vmThread) (vmThread)->javaVM->internalVMFunctions->internalAcquireVMAccess(vmThread)
 #endif
 
-#endif     /* vmaccess_h */
+#endif /* vmaccess_h */

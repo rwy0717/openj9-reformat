@@ -35,11 +35,12 @@ typedef LanguageSegregatedAllocationCacheEntryStruct LanguageSegregatedAllocatio
 class MM_LanguageSegregatedAllocationCache {
 
 public:
-	MMINLINE LanguageSegregatedAllocationCacheEntryStruct *
-	getLanguageSegregatedAllocationCacheStruct(MM_EnvironmentBase *env)
-	{
-		return reinterpret_cast<LanguageSegregatedAllocationCacheEntryStruct*>((UDATA)env->getLanguageVMThread() + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET);
-	}
+    MMINLINE LanguageSegregatedAllocationCacheEntryStruct* getLanguageSegregatedAllocationCacheStruct(
+        MM_EnvironmentBase* env)
+    {
+        return reinterpret_cast<LanguageSegregatedAllocationCacheEntryStruct*>(
+            (UDATA)env->getLanguageVMThread() + J9_VMTHREAD_SEGREGATED_ALLOCATION_CACHE_OFFSET);
+    }
 };
 
 #endif /* LANGUAGESEGREGATEDALLOCATIONCACHE_HPP_ */

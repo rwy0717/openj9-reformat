@@ -29,7 +29,7 @@
 #if !defined(TGCINTERREGIONREMEMBEREDSET_HPP_)
 #define TGCINTERREGIONREMEMBEREDSET_HPP_
 
-bool tgcInterRegionRememberedSetInitialize(J9JavaVM *javaVM);
-void tgcInterRegionRememberedSetTearDown(J9JavaVM *javaVM);
+bool tgcInterRegionRememberedSetInitialize(J9JavaVM* javaVM);
+void tgcInterRegionRememberedSetTearDown(J9JavaVM* javaVM);
 
 #endif /* TGCINTERREGIONREMEMBEREDSET_HPP_ */

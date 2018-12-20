@@ -33,30 +33,26 @@ extern "C" {
  * Method:    bytesPerPointer
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_bytesPerPointer
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_bytesPerPointer(JNIEnv*, jobject);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniProcess
  * Method:    getSignalNumber
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getSignalNumber
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getSignalNumber(JNIEnv*, jobject);
 
 /*
  * Class:     com_ibm_j9ddr_corereaders_debugger_JniProcess
  * Method:    getProcessId
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getProcessId
-  (JNIEnv *, jobject);
+JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getProcessId(JNIEnv*, jobject);
 
-JNIEXPORT jlongArray JNICALL
-Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getThreadIds(JNIEnv * env, jobject self);
+JNIEXPORT jlongArray JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getThreadIds(JNIEnv* env, jobject self);
 
-JNIEXPORT jint JNICALL
-Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getTargetArchitecture(JNIEnv * env, jobject self);
+JNIEXPORT jint JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniProcess_getTargetArchitecture(
+    JNIEnv* env, jobject self);
 
 #ifdef __cplusplus
 }

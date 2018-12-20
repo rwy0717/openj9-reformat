@@ -34,32 +34,31 @@
  * Stores the data relating to the concurrent completion of the sweep phase.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventConcurrentlyCompletedSweepPhase : public MM_VerboseEvent
-{
+class MM_VerboseEventConcurrentlyCompletedSweepPhase : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	U_64 _timeElapsed;  /**< Time elapsed during phase */
-	UDATA _bytesSwept;  /**< Total heap bytes processed during phase */
-	
-	I_64 _timeInMilliSeconds;
-	
-	void initialize(void);
-	
-public:
-	static MM_VerboseEvent *newInstance(MM_ConcurrentlyCompletedSweepPhase *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    /* Passed Data */
+    U_64 _timeElapsed; /**< Time elapsed during phase */
+    UDATA _bytesSwept; /**< Total heap bytes processed during phase */
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return true; };
-	
-	MM_VerboseEventConcurrentlyCompletedSweepPhase(MM_ConcurrentlyCompletedSweepPhase *event, J9HookInterface** hookInterface) :
-		MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface),
-		_timeElapsed(event->timeElapsed),
-		_bytesSwept(event->bytesSwept)
-	{}
+    I_64 _timeInMilliSeconds;
+
+    void initialize(void);
+
+public:
+    static MM_VerboseEvent* newInstance(MM_ConcurrentlyCompletedSweepPhase* event, J9HookInterface** hookInterface);
+
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
+
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return true; };
+
+    MM_VerboseEventConcurrentlyCompletedSweepPhase(
+        MM_ConcurrentlyCompletedSweepPhase* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _timeElapsed(event->timeElapsed)
+        , _bytesSwept(event->bytesSwept)
+    {}
 };
 
 #endif /* EVENT_CONCURRENTLY_COMPLETED_SWEEP_PHASE_HPP_ */
-

@@ -20,10 +20,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-/* This file provides a means to supply vendor specific version info such as 
+/* This file provides a means to supply vendor specific version info such as
  * short name, SHA, and version string.
  * These vendor version info can be defined either in this file or other places.
- * 
+ *
  * Example usage for inclusion of a vendor name and repository sha.  These values
  * will be inserted into the java.fullversion and java.vm.info system properties
  * and in a generated javacore file.
@@ -52,4 +52,4 @@
 #define JAVA_VENDOR_URL "http://www.eclipse.org/openj9"
 #define JAVA_VM_NAME "Eclipse OpenJ9 VM"
 
-#endif     /* vendor_version_h */
+#endif /* vendor_version_h */

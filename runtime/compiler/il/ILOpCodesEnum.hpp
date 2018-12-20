@@ -25,7 +25,6 @@
 
 #include "il/J9ILOpCodesEnum.hpp"
 
-   FirstTROp = FirstOMROp,
-   LastTROp = LastJ9Op,
+FirstTROp = FirstOMROp, LastTROp = LastJ9Op,
 
 #endif

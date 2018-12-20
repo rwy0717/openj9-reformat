@@ -28,31 +28,32 @@
  */
 #ifndef J9_TREE_EVALUATOR_CONNECTOR
 #define J9_TREE_EVALUATOR_CONNECTOR
-namespace J9 { namespace ARM { class TreeEvaluator; } }
-namespace J9 { typedef J9::ARM::TreeEvaluator TreeEvaluatorConnector; }
+namespace J9 {
+namespace ARM {
+class TreeEvaluator;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::ARM::TreeEvaluator TreeEvaluatorConnector;
+}
 #else
 #error J9::ARM::TreeEvaluator expected to be a primary connector, but a J9 connector is already defined
 #endif
 
+#include "compiler/codegen/J9TreeEvaluator.hpp" // include parent
 
-#include "compiler/codegen/J9TreeEvaluator.hpp"  // include parent
+namespace J9 {
 
-namespace J9
-{
+namespace ARM {
 
-namespace ARM
-{
+class OMR_EXTENSIBLE TreeEvaluator : public J9::TreeEvaluator {
+public:
+    static void genWrtbarForArrayCopy(
+        TR::Node* node, TR::Register* srcObjReg, TR::Register* dstObjReg, TR::CodeGenerator* cg);
+};
 
-class OMR_EXTENSIBLE TreeEvaluator: public J9::TreeEvaluator
-   {
-   public:
+} // namespace ARM
 
-   static void genWrtbarForArrayCopy(TR::Node *node, TR::Register *srcObjReg, TR::Register *dstObjReg, TR::CodeGenerator *cg);
-
-   };
-
-}
-
-}
+} // namespace J9
 
 #endif

@@ -30,75 +30,74 @@
 
 extern "C" {
 
-jboolean JNICALL Java_java_lang_ClassLoader_isVerboseImpl(JNIEnv *env, jclass clazz)
+jboolean JNICALL Java_java_lang_ClassLoader_isVerboseImpl(JNIEnv* env, jclass clazz)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
 
-	return ( (javaVM->verboseLevel & VERBOSE_CLASS) == VERBOSE_CLASS );
+    return ((javaVM->verboseLevel & VERBOSE_CLASS) == VERBOSE_CLASS);
 }
 
-
-jclass JNICALL 
-Java_java_lang_ClassLoader_defineClassImpl(JNIEnv *env, jobject receiver, jstring className, jbyteArray classRep, jint offset, jint length, jobject protectionDomain)
+jclass JNICALL Java_java_lang_ClassLoader_defineClassImpl(JNIEnv* env, jobject receiver, jstring className,
+    jbyteArray classRep, jint offset, jint length, jobject protectionDomain)
 {
 #ifdef J9VM_OPT_DYNAMIC_LOAD_SUPPORT
-	if (className != NULL) {
-		J9VMThread *currentThread = (J9VMThread *)env;
-		J9JavaVM *vm = currentThread->javaVM;
-		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
+    if (className != NULL) {
+        J9VMThread* currentThread = (J9VMThread*)env;
+        J9JavaVM* vm = currentThread->javaVM;
+        J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
 
-		vmFuncs->internalEnterVMFromJNI(currentThread);
+        vmFuncs->internalEnterVMFromJNI(currentThread);
 
-		if (CLASSNAME_INVALID == vmFuncs->verifyQualifiedName(currentThread, J9_JNI_UNWRAP_REFERENCE(className))) {
-			vmFuncs->setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGNOCLASSDEFFOUNDERROR, (UDATA *)*(j9object_t*)className);
-			vmFuncs->internalExitVMToJNI(currentThread);
-			return NULL;
-		}
+        if (CLASSNAME_INVALID == vmFuncs->verifyQualifiedName(currentThread, J9_JNI_UNWRAP_REFERENCE(className))) {
+            vmFuncs->setCurrentException(
+                currentThread, J9VMCONSTANTPOOL_JAVALANGNOCLASSDEFFOUNDERROR, (UDATA*)*(j9object_t*)className);
+            vmFuncs->internalExitVMToJNI(currentThread);
+            return NULL;
+        }
 
-		vmFuncs->internalExitVMToJNI(currentThread);
-	}
+        vmFuncs->internalExitVMToJNI(currentThread);
+    }
 #endif
 
-	return defineClassCommon(env, receiver, className, classRep, offset, length, protectionDomain, 0, NULL);
+    return defineClassCommon(env, receiver, className, classRep, offset, length, protectionDomain, 0, NULL);
 }
 
-jboolean JNICALL
-Java_java_lang_ClassLoader_foundJavaAssertOption(JNIEnv *env, jclass ignored)
+jboolean JNICALL Java_java_lang_ClassLoader_foundJavaAssertOption(JNIEnv* env, jclass ignored)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
 
-	return J9_ARE_ALL_BITS_SET(javaVM->extendedRuntimeFlags, J9_EXTENDED_RUNTIME_FOUND_JAVA_ASSERT_OPTION);
+    return J9_ARE_ALL_BITS_SET(javaVM->extendedRuntimeFlags, J9_EXTENDED_RUNTIME_FOUND_JAVA_ASSERT_OPTION);
 }
 
-jint JNICALL
-Java_com_ibm_oti_vm_BootstrapClassLoader_addJar(JNIEnv *env, jobject receiver, jbyteArray jarPath)
+jint JNICALL Java_com_ibm_oti_vm_BootstrapClassLoader_addJar(JNIEnv* env, jobject receiver, jbyteArray jarPath)
 {
-	jint newCount = 0;
-	J9VMThread * currentThread = (J9VMThread *) env;
-	J9JavaVM * vm = currentThread->javaVM;
-	J9InternalVMFunctions * vmFuncs = vm->internalVMFunctions;
+    jint newCount = 0;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
 
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	UDATA jarPathSize = (UDATA)env->GetArrayLength(jarPath);
-	char *jarPathBuffer = (char *)j9mem_allocate_memory(jarPathSize + 1, J9MEM_CATEGORY_CLASSES);
+    UDATA jarPathSize = (UDATA)env->GetArrayLength(jarPath);
+    char* jarPathBuffer = (char*)j9mem_allocate_memory(jarPathSize + 1, J9MEM_CATEGORY_CLASSES);
 
-	if (NULL != jarPathBuffer) {
-		/* Use exclusive access to modify the array */
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-		vmFuncs->acquireExclusiveVMAccess(currentThread);
-		VM_ArrayCopyHelpers::memcpyFromArray(currentThread, J9_JNI_UNWRAP_REFERENCE(jarPath), (UDATA)0, (UDATA)0, jarPathSize, (void*)jarPathBuffer);
-		jarPathBuffer[jarPathSize] = 0; /* null character terminated */
-		newCount = (jint)addJarToSystemClassLoaderClassPathEntries(vm, jarPathBuffer);
-		j9mem_free_memory(jarPathBuffer);
-		vmFuncs->releaseExclusiveVMAccess(currentThread);
-		vmFuncs->internalExitVMToJNI(currentThread);
-	}
-	/* If any error occcurred, throw OutOfMemoryError */
-	if (0 == newCount) {
-		vmFuncs->throwNativeOOMError(env, J9NLS_JCL_UNABLE_TO_CREATE_CLASS_PATH_ENTRY);
-	}
-	return newCount;
+    if (NULL != jarPathBuffer) {
+        /* Use exclusive access to modify the array */
+        vmFuncs->internalEnterVMFromJNI(currentThread);
+        vmFuncs->acquireExclusiveVMAccess(currentThread);
+        VM_ArrayCopyHelpers::memcpyFromArray(
+            currentThread, J9_JNI_UNWRAP_REFERENCE(jarPath), (UDATA)0, (UDATA)0, jarPathSize, (void*)jarPathBuffer);
+        jarPathBuffer[jarPathSize] = 0; /* null character terminated */
+        newCount = (jint)addJarToSystemClassLoaderClassPathEntries(vm, jarPathBuffer);
+        j9mem_free_memory(jarPathBuffer);
+        vmFuncs->releaseExclusiveVMAccess(currentThread);
+        vmFuncs->internalExitVMToJNI(currentThread);
+    }
+    /* If any error occcurred, throw OutOfMemoryError */
+    if (0 == newCount) {
+        vmFuncs->throwNativeOOMError(env, J9NLS_JCL_UNABLE_TO_CREATE_CLASS_PATH_ENTRY);
+    }
+    return newCount;
 }
 
 } /* extern "C" */

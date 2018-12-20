@@ -25,28 +25,11 @@
 
 extern "C" {
 
-void
-clearEventFlag(J9VMThread *vmThread, UDATA flag)
-{
-	VM_VMAccess::clearPublicFlags(vmThread, flag);
-}
+void clearEventFlag(J9VMThread* vmThread, UDATA flag) { VM_VMAccess::clearPublicFlags(vmThread, flag); }
 
-void
-clearHaltFlag(J9VMThread *vmThread, UDATA flag)
-{
-	VM_VMAccess::clearPublicFlags(vmThread, flag, true);
-}
+void clearHaltFlag(J9VMThread* vmThread, UDATA flag) { VM_VMAccess::clearPublicFlags(vmThread, flag, true); }
 
-void
-setEventFlag(J9VMThread *vmThread, UDATA flag)
-{
-	VM_VMAccess::setPublicFlags(vmThread, flag);
-}
+void setEventFlag(J9VMThread* vmThread, UDATA flag) { VM_VMAccess::setPublicFlags(vmThread, flag); }
 
-void
-setHaltFlag(J9VMThread *vmThread, UDATA flag)
-{
-	VM_VMAccess::setPublicFlags(vmThread, flag, true);
-}
-
+void setHaltFlag(J9VMThread* vmThread, UDATA flag) { VM_VMAccess::setPublicFlags(vmThread, flag, true); }
 }

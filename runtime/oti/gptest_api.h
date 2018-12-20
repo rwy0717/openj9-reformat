@@ -24,13 +24,13 @@
 #define gptest_api_h
 
 /**
-* @file gptest_api.h
-* @brief Public API for the GPTEST module.
-*
-* This file contains public function prototypes and
-* type definitions for the GPTEST module.
-*
-*/
+ * @file gptest_api.h
+ * @brief Public API for the GPTEST module.
+ *
+ * This file contains public function prototypes and
+ * type definitions for the GPTEST module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -39,10 +39,8 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* gptest_api_h */
-

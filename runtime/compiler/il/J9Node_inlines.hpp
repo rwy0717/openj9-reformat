@@ -26,61 +26,60 @@
 #include "il/J9Node.hpp"
 #include "il/OMRNode_inlines.hpp"
 
-void
-J9::Node::setBCDNodeOverflow()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   _unionPropertyB._bcdFlags |= 0x01;
-   }
+void J9::Node::setBCDNodeOverflow()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    _unionPropertyB._bcdFlags |= 0x01;
+}
 
-void
-J9::Node::resetBCDNodeOverflow()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   _unionPropertyB._bcdFlags &= 0xFE;
-   }
+void J9::Node::resetBCDNodeOverflow()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    _unionPropertyB._bcdFlags &= 0xFE;
+}
 
-bool
-J9::Node::getBCDNodeOverflow()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   return _unionPropertyB._bcdFlags & 0x01;
-   }
+bool J9::Node::getBCDNodeOverflow()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    return _unionPropertyB._bcdFlags & 0x01;
+}
 
-void
-J9::Node::setBCDNodeRounding()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   _unionPropertyB._bcdFlags |= 0x02;
-   }
+void J9::Node::setBCDNodeRounding()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    _unionPropertyB._bcdFlags |= 0x02;
+}
 
-void
-J9::Node::resetBCDNodeRounding()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   _unionPropertyB._bcdFlags &= 0xFD;
-   }
+void J9::Node::resetBCDNodeRounding()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    _unionPropertyB._bcdFlags &= 0xFD;
+}
 
-bool
-J9::Node::getBCDNodeRounding()
-   {
-   TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it", self()->getOpCode().getName(), this);
-   return (_unionPropertyB._bcdFlags & 0x02) == 0 ? false : true;
-   }
+bool J9::Node::getBCDNodeRounding()
+{
+    TR_ASSERT(self()->hasBCDFlags(), "attempting to access _bcdFlags field for node %s %p that does not have it",
+        self()->getOpCode().getName(), this);
+    return (_unionPropertyB._bcdFlags & 0x02) == 0 ? false : true;
+}
 
-float
-J9::Node::getFloat()
-   {
-   TR_ASSERT(self()->getOpCodeValue() == TR::fconst || self()->getOpCodeValue() == TR::dfconst, "TR::Node::getFloat: used for a non fconst node");
-   return OMR::Node::getFloat();
-   }
+float J9::Node::getFloat()
+{
+    TR_ASSERT(self()->getOpCodeValue() == TR::fconst || self()->getOpCodeValue() == TR::dfconst,
+        "TR::Node::getFloat: used for a non fconst node");
+    return OMR::Node::getFloat();
+}
 
-float
-J9::Node::setFloat(float f)
-   {
-   TR_ASSERT(self()->getOpCodeValue() == TR::fconst || self()->getOpCodeValue() == TR::dfconst, "TR::Node::setFloat: used for a non fconst node");
-   return OMR::Node::setFloat(f);
-   }
+float J9::Node::setFloat(float f)
+{
+    TR_ASSERT(self()->getOpCodeValue() == TR::fconst || self()->getOpCodeValue() == TR::dfconst,
+        "TR::Node::setFloat: used for a non fconst node");
+    return OMR::Node::setFloat(f);
+}
 
 #endif
-

@@ -40,34 +40,34 @@
 #include "ut_j9scar.h"
 #include "j9vmnls.h"
 
-jbyteArray JNICALL
-JVM_GetClassTypeAnnotations(JNIEnv *env, jclass jlClass) {
-	ENSURE_VMI();
-	return g_VMI->JVM_GetClassTypeAnnotations(env, jlClass);
+jbyteArray JNICALL JVM_GetClassTypeAnnotations(JNIEnv* env, jclass jlClass)
+{
+    ENSURE_VMI();
+    return g_VMI->JVM_GetClassTypeAnnotations(env, jlClass);
 }
 
-jbyteArray JNICALL
-JVM_GetFieldTypeAnnotations(JNIEnv *env, jobject jlrField) {
-	ENSURE_VMI();
-	return g_VMI->JVM_GetFieldTypeAnnotations(env, jlrField);
+jbyteArray JNICALL JVM_GetFieldTypeAnnotations(JNIEnv* env, jobject jlrField)
+{
+    ENSURE_VMI();
+    return g_VMI->JVM_GetFieldTypeAnnotations(env, jlrField);
 }
 
-jobjectArray JNICALL
-JVM_GetMethodParameters(JNIEnv *env, jobject jlrExecutable) {
-	ENSURE_VMI();
-	return g_VMI->JVM_GetMethodParameters(env, jlrExecutable);
+jobjectArray JNICALL JVM_GetMethodParameters(JNIEnv* env, jobject jlrExecutable)
+{
+    ENSURE_VMI();
+    return g_VMI->JVM_GetMethodParameters(env, jlrExecutable);
 }
 
-jbyteArray JNICALL
-JVM_GetMethodTypeAnnotations(JNIEnv *env, jobject jlrMethod) {
-	ENSURE_VMI();
-	return g_VMI->JVM_GetMethodTypeAnnotations(env, jlrMethod);
+jbyteArray JNICALL JVM_GetMethodTypeAnnotations(JNIEnv* env, jobject jlrMethod)
+{
+    ENSURE_VMI();
+    return g_VMI->JVM_GetMethodTypeAnnotations(env, jlrMethod);
 }
 
-jboolean JNICALL
-JVM_IsVMGeneratedMethodIx(JNIEnv *env, jclass cb, jint index) {
-	assert(!"JVM_IsVMGeneratedMethodIx unimplemented"); /* Jazz 63527: Stub in APIs for Java 8 */
-	return FALSE;
+jboolean JNICALL JVM_IsVMGeneratedMethodIx(JNIEnv* env, jclass cb, jint index)
+{
+    assert(!"JVM_IsVMGeneratedMethodIx unimplemented"); /* Jazz 63527: Stub in APIs for Java 8 */
+    return FALSE;
 }
 
 /**
@@ -78,24 +78,22 @@ JVM_IsVMGeneratedMethodIx(JNIEnv *env, jclass cb, jint index) {
  *
  * @return String object representing the platform specific temporary directory.
  */
-jstring JNICALL
-JVM_GetTemporaryDirectory(JNIEnv *env)
+jstring JNICALL JVM_GetTemporaryDirectory(JNIEnv* env)
 {
-	PORT_ACCESS_FROM_ENV(env);
-	jstring result = NULL;
-	IDATA size = j9sysinfo_get_tmp(NULL, 0, TRUE);
-	if (0 <= size) {
-		char *buffer = (char *)j9mem_allocate_memory(size, OMRMEM_CATEGORY_VM);
-		if (NULL == buffer) {
-			return NULL;
-		}
-		if (0 == j9sysinfo_get_tmp(buffer, size, TRUE)) {
-			result = (*env)->NewStringUTF(env, buffer);
-		}
+    PORT_ACCESS_FROM_ENV(env);
+    jstring result = NULL;
+    IDATA size = j9sysinfo_get_tmp(NULL, 0, TRUE);
+    if (0 <= size) {
+        char* buffer = (char*)j9mem_allocate_memory(size, OMRMEM_CATEGORY_VM);
+        if (NULL == buffer) {
+            return NULL;
+        }
+        if (0 == j9sysinfo_get_tmp(buffer, size, TRUE)) {
+            result = (*env)->NewStringUTF(env, buffer);
+        }
 
-		j9mem_free_memory(buffer);
-	}
+        j9mem_free_memory(buffer);
+    }
 
-	return result;
+    return result;
 }
-

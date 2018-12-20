@@ -43,15 +43,15 @@ extern "C" {
 #include "j9protos.h"
 #include "j9port.h"
 
-#define TARGET_ARCH_UNKNOWN           0
-#define TARGET_ARCH_X86_32            1
-#define TARGET_ARCH_X86_64            2
-#define TARGET_ARCH_S390_31           3
-#define TARGET_ARCH_S390_64           4
-#define TARGET_ARCH_PPC_32            5
-#define TARGET_ARCH_PPC_64            6
-#define TARGET_ARCH_ARM               7
-#define TARGET_ARCH_IA64              8
+#define TARGET_ARCH_UNKNOWN 0
+#define TARGET_ARCH_X86_32 1
+#define TARGET_ARCH_X86_64 2
+#define TARGET_ARCH_S390_31 3
+#define TARGET_ARCH_S390_64 4
+#define TARGET_ARCH_PPC_32 5
+#define TARGET_ARCH_PPC_64 6
+#define TARGET_ARCH_ARM 7
+#define TARGET_ARCH_IA64 8
 
 #define STRING_MATCHED 0
 
@@ -62,38 +62,37 @@ extern "C" {
 #define DDREXT_REGIONS_UNEXPECTED_BAD_RETURN_CODE -4
 
 typedef struct ddrExtEnv {
-	JavaVM		* jvm;
-	JNIEnv		* env;
-	jobject		  ddrContext;
+    JavaVM* jvm;
+    JNIEnv* env;
+    jobject ddrContext;
 } ddrExtEnv;
 
 typedef struct ddrRegister {
-	char * name;
-	unsigned long long value;
+    char* name;
+    unsigned long long value;
 } ddrRegister;
 
-
-ddrExtEnv *  ddrGetEnv();
-JavaVM *     ddrStart();
-void         ddrStop();
-void* dbgFindPatternInRange(U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom, UDATA bytesToSearch, UDATA* bytesSearched);
-BOOLEAN      ddrHasExited();
+ddrExtEnv* ddrGetEnv();
+JavaVM* ddrStart();
+void ddrStop();
+void* dbgFindPatternInRange(U_8* pattern, UDATA patternLength, UDATA patternAlignment, U_8* startSearchFrom,
+    UDATA bytesToSearch, UDATA* bytesSearched);
+BOOLEAN ddrHasExited();
 
 /**
  * Stop JVM that runs DDR
  */
-void dbgext_stopddr(const char *args);
+void dbgext_stopddr(const char* args);
 
 /**
  * Start JVM and initialize DDR
  */
-void dbgext_startddr(const char *args);
- 
+void dbgext_startddr(const char* args);
+
 /**
  * DDR Command wrapper
  */
-void dbgext_ddr(const char *args);
-
+void dbgext_ddr(const char* args);
 
 #ifdef __cplusplus
 }

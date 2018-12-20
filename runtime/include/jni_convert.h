@@ -28,19 +28,16 @@
 extern "C" {
 #endif
 
-#define JNI_GetStringPlatform(e, inst, outst, outlen, encode) \
-	GetStringPlatform(e, inst, outst, outlen, encode)
+#define JNI_GetStringPlatform(e, inst, outst, outlen, encode) GetStringPlatform(e, inst, outst, outlen, encode)
 
-#define JNI_GetStringPlatformLength(e, inst, outlen, encode) \
-	GetStringPlatformLength(e, inst, outlen, encode)
+#define JNI_GetStringPlatformLength(e, inst, outlen, encode) GetStringPlatformLength(e, inst, outlen, encode)
 
-#define JNI_NewStringPlatform(e, inst, outst, encode) \
-	NewStringPlatform(e, inst, outst, encode)
+#define JNI_NewStringPlatform(e, inst, outst, encode) NewStringPlatform(e, inst, outst, encode)
 
 jint GetStringPlatform(JNIEnv* env, jstring instr, char* outstr, jint outlen, const char* encoding);
 jint GetStringPlatformLength(JNIEnv* env, jstring instr, jint* outlen, const char* encoding);
 jint NewStringPlatform(JNIEnv* env, const char* instr, jstring* outstr, const char* encoding);
-jint JNI_a2e_vsprintf(char *target, const char *format, va_list args);
+jint JNI_a2e_vsprintf(char* target, const char* format, va_list args);
 
 #ifdef __cplusplus
 }

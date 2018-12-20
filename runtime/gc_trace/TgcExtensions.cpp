@@ -31,68 +31,63 @@
 
 #include "GCExtensions.hpp"
 
-MM_TgcExtensions * 
-MM_TgcExtensions::newInstance(MM_GCExtensions *extensions)
+MM_TgcExtensions* MM_TgcExtensions::newInstance(MM_GCExtensions* extensions)
 {
-	MM_TgcExtensions * tgcExtensions = (MM_TgcExtensions *) extensions->getForge()->allocate(sizeof(MM_TgcExtensions), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if (NULL != tgcExtensions) {
-		memset((void *)tgcExtensions, 0, sizeof(MM_TgcExtensions));
-		new(tgcExtensions) MM_TgcExtensions(extensions);
-	}
-	return tgcExtensions;
+    MM_TgcExtensions* tgcExtensions = (MM_TgcExtensions*)extensions->getForge()->allocate(
+        sizeof(MM_TgcExtensions), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (NULL != tgcExtensions) {
+        memset((void*)tgcExtensions, 0, sizeof(MM_TgcExtensions));
+        new (tgcExtensions) MM_TgcExtensions(extensions);
+    }
+    return tgcExtensions;
 }
 
-void
-MM_TgcExtensions::tearDown(MM_GCExtensions *extensions)
+void MM_TgcExtensions::tearDown(MM_GCExtensions* extensions)
 {
-	if (J9PORT_TTY_ERR != _outputFile) {
-		PORT_ACCESS_FROM_PORT(getPortLibrary());
-		j9file_close(_outputFile);
-		_outputFile = J9PORT_TTY_ERR;
-	}
+    if (J9PORT_TTY_ERR != _outputFile) {
+        PORT_ACCESS_FROM_PORT(getPortLibrary());
+        j9file_close(_outputFile);
+        _outputFile = J9PORT_TTY_ERR;
+    }
 }
 
-void
-MM_TgcExtensions::kill(MM_GCExtensions *extensions)
+void MM_TgcExtensions::kill(MM_GCExtensions* extensions)
 {
-	tearDown(extensions);
-	extensions->getForge()->free(this);
+    tearDown(extensions);
+    extensions->getForge()->free(this);
 }
 
-MM_TgcExtensions::MM_TgcExtensions(MM_GCExtensions *extensions) 
-	: MM_BaseNonVirtual()
-	, _portLibrary(((J9JavaVM *)(extensions->getOmrVM()->_language_vm))->portLibrary)
-	, _outputFile(J9PORT_TTY_ERR)
+MM_TgcExtensions::MM_TgcExtensions(MM_GCExtensions* extensions)
+    : MM_BaseNonVirtual()
+    , _portLibrary(((J9JavaVM*)(extensions->getOmrVM()->_language_vm))->portLibrary)
+    , _outputFile(J9PORT_TTY_ERR)
 {
-	_typeId = __FUNCTION__;
+    _typeId = __FUNCTION__;
 }
 
-void
-MM_TgcExtensions::vprintf(const char *format, va_list args) 
+void MM_TgcExtensions::vprintf(const char* format, va_list args)
 {
-	PORT_ACCESS_FROM_PORT(getPortLibrary());
-	j9file_vprintf(_outputFile, format, args);
+    PORT_ACCESS_FROM_PORT(getPortLibrary());
+    j9file_vprintf(_outputFile, format, args);
 }
 
-void
-MM_TgcExtensions::printf(const char *format, ...) 
+void MM_TgcExtensions::printf(const char* format, ...)
 {
-	va_list args;
-	va_start(args, format);
-	vprintf(format, args);
-	va_end(args);
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
 }
 
-bool 
-MM_TgcExtensions::setOutputFile(const char* filename)
+bool MM_TgcExtensions::setOutputFile(const char* filename)
 {
-	bool result = true;
-	PORT_ACCESS_FROM_PORT(getPortLibrary());
-	IDATA fd = j9file_open(filename, EsOpenCreate | EsOpenTruncate | EsOpenWrite, 0666);
-	if (-1 == fd) {
-		result = false;
-	} else {
-		_outputFile = fd;
-	}
-	return result;
+    bool result = true;
+    PORT_ACCESS_FROM_PORT(getPortLibrary());
+    IDATA fd = j9file_open(filename, EsOpenCreate | EsOpenTruncate | EsOpenWrite, 0666);
+    if (-1 == fd) {
+        result = false;
+    } else {
+        _outputFile = fd;
+    }
+    return result;
 }

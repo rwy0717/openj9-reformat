@@ -23,11 +23,11 @@
  * @file
  * @ingroup PortTest
  * @brief Verify port library core file creation.
- * 
- * Exercise the API for port library virtual memory management operations.  These functions 
- * can be found in the file @ref j9osdump.c  
- * 
- * 
+ *
+ * Exercise the API for port library virtual memory management operations.  These functions
+ * can be found in the file @ref j9osdump.c
+ *
+ *
  */
 #include <stdlib.h>
 #include <string.h>
@@ -55,302 +55,287 @@
 static UDATA simpleHandlerFunction(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* handler_arg);
 
 typedef struct simpleHandlerInfo {
-	char *coreFileName;
-	const char* testName;
+    char* coreFileName;
+    const char* testName;
 } simpleHandlerInfo;
 
 /**
  * Verify port library memory management.
- * 
+ *
  * Ensure the port library is properly setup to run core file generation operations.
- * 
+ *
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return TEST_PASS on success, TEST_FAIL on error
  */
-int
-j9dump_verify_functiontable_slots(struct J9PortLibrary *portLibrary)
+int j9dump_verify_functiontable_slots(struct J9PortLibrary* portLibrary)
 {
-	const char* testName = "j9dump_verify_functiontable_slots";
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	reportTestEntry(portLibrary, testName);
-	 
+    const char* testName = "j9dump_verify_functiontable_slots";
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    reportTestEntry(portLibrary, testName);
 
-	/* j9mem_test2 */
-	if (NULL == OMRPORT_FROM_J9PORT(PORTLIB)->dump_create) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->dump_create is NULL\n");
-	}
+    /* j9mem_test2 */
+    if (NULL == OMRPORT_FROM_J9PORT(PORTLIB)->dump_create) {
+        outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->dump_create is NULL\n");
+    }
 
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
 
-/** call j9dump_create() without passing in core file name. This does not actually test that a core file was actually created.
-  
+/** call j9dump_create() without passing in core file name. This does not actually test that a core file was actually
+ created.
+
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return TEST_PASS on success, TEST_FAIL on error
  *
  */
-int
-j9dump_test_create_dump_with_NO_name(struct J9PortLibrary *portLibrary)
-{	
-	const char* testName = "j9dump_test_create_dump_with_NO_name";
-	UDATA rc = 99;
-	char coreFileName[EsMaxPath];
-	BOOLEAN doFileVerification = FALSE;
-	PORT_ACCESS_FROM_PORT(portLibrary);
+int j9dump_test_create_dump_with_NO_name(struct J9PortLibrary* portLibrary)
+{
+    const char* testName = "j9dump_test_create_dump_with_NO_name";
+    UDATA rc = 99;
+    char coreFileName[EsMaxPath];
+    BOOLEAN doFileVerification = FALSE;
+    PORT_ACCESS_FROM_PORT(portLibrary);
 #if defined(AIXPPC)
-	struct vario myvar;
-	int sys_parmRC;
+    struct vario myvar;
+    int sys_parmRC;
 #endif
-	
-	reportTestEntry(portLibrary, testName);
-	
-	coreFileName[0] = '\0';
+
+    reportTestEntry(portLibrary, testName);
+
+    coreFileName[0] = '\0';
 
 #if 0	
 	/* try out a NULL test (turns out this crashes) */
 	rc = j9dump_create(NULL, NULL, NULL); /* this crashes */
 #endif
-	
-	/* try out a more sane NULL test */
-	outputComment(portLibrary, "calling j9dump_create with empty filename\n");
-	
+
+    /* try out a more sane NULL test */
+    outputComment(portLibrary, "calling j9dump_create with empty filename\n");
+
 #if defined(J9ZOS390)
-	rc = j9dump_create(coreFileName, "CEEDUMP", NULL);
+    rc = j9dump_create(coreFileName, "CEEDUMP", NULL);
 #else
-	rc = j9dump_create(coreFileName, NULL, NULL);
+    rc = j9dump_create(coreFileName, NULL, NULL);
 #endif
-	
-	if (rc == 0) {
-		UDATA verifyFileRC = 99;
-		
-		outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", coreFileName);
 
+    if (rc == 0) {
+        UDATA verifyFileRC = 99;
 
-#if defined(AIXPPC)	
-		/* We defer to fork abort on AIX machines that don't have "Enable full CORE dump" enabled in smit,
-		 * in which case j9dump_create will not return the filename.
-		 * So, only check for a specific filename if we are getting full core dumps */
-		sys_parmRC = sys_parm(SYSP_GET, SYSP_V_FULLCORE, &myvar);
-		
-		if ((sys_parmRC == 0) && (myvar.v.v_fullcore.value == 1) ) {
+        outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", coreFileName);
 
-			doFileVerification = TRUE;
-		}
+#if defined(AIXPPC)
+        /* We defer to fork abort on AIX machines that don't have "Enable full CORE dump" enabled in smit,
+         * in which case j9dump_create will not return the filename.
+         * So, only check for a specific filename if we are getting full core dumps */
+        sys_parmRC = sys_parm(SYSP_GET, SYSP_V_FULLCORE, &myvar);
+
+        if ((sys_parmRC == 0) && (myvar.v.v_fullcore.value == 1)) {
+
+            doFileVerification = TRUE;
+        }
 #elif defined(LINUX)
-		doFileVerification = TRUE;
+        doFileVerification = TRUE;
 #endif
-		if (doFileVerification) {
-			verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, coreFileName);
-			if (verifyFileRC == 0) {
-				/* delete the file */
-				remove(coreFileName);			
-				outputComment(portLibrary, "\tremoved: %s\n", coreFileName);
-			}
-		}
-	} else {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s", rc, coreFileName);
-	}
+        if (doFileVerification) {
+            verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, coreFileName);
+            if (verifyFileRC == 0) {
+                /* delete the file */
+                remove(coreFileName);
+                outputComment(portLibrary, "\tremoved: %s\n", coreFileName);
+            }
+        }
+    } else {
+        outputErrorMessage(PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s", rc, coreFileName);
+    }
 
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
-
 
 /** Test j9dump_create(), this time passing in core file name
  * Verify that the returned core file name actually exists.
- * 
+ *
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return TEST_PASS on success, TEST_FAIL on error
  *
  * @note this only tests CEEDUMP generation on z/OS
  */
-int
-j9dump_test_create_dump_with_name(struct J9PortLibrary *portLibrary)
+int j9dump_test_create_dump_with_name(struct J9PortLibrary* portLibrary)
 {
-	const char *testName = "j9dump_test_create_dump_with_name";
-	UDATA rc = 99;
-	char *cwd = NULL;
-	char coreFileName[EsMaxPath + 1];
+    const char* testName = "j9dump_test_create_dump_with_name";
+    UDATA rc = 99;
+    char* cwd = NULL;
+    char coreFileName[EsMaxPath + 1];
 
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	
-	reportTestEntry(portLibrary, testName);
-	
+    PORT_ACCESS_FROM_PORT(portLibrary);
+
+    reportTestEntry(portLibrary, testName);
+
 #if defined(J9ZOS390)
-	cwd = atoe_getcwd(coreFileName, EsMaxPath);
+    cwd = atoe_getcwd(coreFileName, EsMaxPath);
 #else
-	cwd = getcwd(coreFileName, EsMaxPath);
+    cwd = getcwd(coreFileName, EsMaxPath);
 #endif
 
-	if (NULL == cwd) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "failed to get current directory\n");
-		goto done;
-	}
+    if (NULL == cwd) {
+        outputErrorMessage(PORTTEST_ERROR_ARGS, "failed to get current directory\n");
+        goto done;
+    }
 
-	strncat(coreFileName, "/", EsMaxPath);	/* make sure the directory ends with a slash */
-	strncat(coreFileName, testName, EsMaxPath);	
+    strncat(coreFileName, "/", EsMaxPath); /* make sure the directory ends with a slash */
+    strncat(coreFileName, testName, EsMaxPath);
 
-	outputComment(portLibrary, "calling j9dump_create with filename: %s\n", coreFileName);
+    outputComment(portLibrary, "calling j9dump_create with filename: %s\n", coreFileName);
 #if !defined(J9ZOS390)
-	rc = j9dump_create(coreFileName, NULL, NULL);
+    rc = j9dump_create(coreFileName, NULL, NULL);
 #else
-	rc = j9dump_create(coreFileName, "CEEDUMP", NULL);
+    rc = j9dump_create(coreFileName, "CEEDUMP", NULL);
 #endif
-	if (rc == 0) {
-		UDATA verifyFileRC = 99;
-		
-		outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", coreFileName);
-		verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, coreFileName);
-		if (verifyFileRC == 0) {
-			/* delete the file */
-			remove(coreFileName);
-			outputComment(portLibrary, "\tremoved: %s\n", coreFileName);
-		}
-			
-	} else {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s\n", rc, coreFileName);
-	}
+    if (rc == 0) {
+        UDATA verifyFileRC = 99;
+
+        outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", coreFileName);
+        verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, coreFileName);
+        if (verifyFileRC == 0) {
+            /* delete the file */
+            remove(coreFileName);
+            outputComment(portLibrary, "\tremoved: %s\n", coreFileName);
+        }
+
+    } else {
+        outputErrorMessage(PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s\n", rc, coreFileName);
+    }
 
 done:
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
 
-
-
-/** 
+/**
  * Test calling j9dump_create() from a signal handler.
- * 
+ *
  * Verify that the returned core file name actually exists.
- * 
+ *
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return TEST_PASS on success, TEST_FAIL on error
  */
-int
-j9dump_test_create_dump_from_signal_handler(struct J9PortLibrary *portLibrary)
+int j9dump_test_create_dump_from_signal_handler(struct J9PortLibrary* portLibrary)
 {
-	const char *testName = "j9dump_test_create_dump_from_signal_handler";
-	char *cwd = NULL;
-	char coreFileName[EsMaxPath + 1];
-	UDATA rc = 99;
-	UDATA result;
-	U_32 protectResult;
-	simpleHandlerInfo handlerInfo;
-	U_32 sig_protectFlags;
+    const char* testName = "j9dump_test_create_dump_from_signal_handler";
+    char* cwd = NULL;
+    char coreFileName[EsMaxPath + 1];
+    UDATA rc = 99;
+    UDATA result;
+    U_32 protectResult;
+    simpleHandlerInfo handlerInfo;
+    U_32 sig_protectFlags;
 
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	
+    PORT_ACCESS_FROM_PORT(portLibrary);
+
 #if defined(J9ZOS390)
-	cwd = atoe_getcwd(coreFileName, EsMaxPath);
+    cwd = atoe_getcwd(coreFileName, EsMaxPath);
 #else
-	cwd = getcwd(coreFileName, EsMaxPath);
+    cwd = getcwd(coreFileName, EsMaxPath);
 #endif
 
-	if (NULL == cwd) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "failed to get current directory\n");
-		goto done;
-	}
+    if (NULL == cwd) {
+        outputErrorMessage(PORTTEST_ERROR_ARGS, "failed to get current directory\n");
+        goto done;
+    }
 
-	strncat(coreFileName, "/", EsMaxPath);	/* make sure the directory ends with a slash */
-	strncat(coreFileName, testName, EsMaxPath);	
+    strncat(coreFileName, "/", EsMaxPath); /* make sure the directory ends with a slash */
+    strncat(coreFileName, testName, EsMaxPath);
 
-	sig_protectFlags = J9PORT_SIG_FLAG_SIGSEGV | J9PORT_SIG_FLAG_MAY_RETURN;
+    sig_protectFlags = J9PORT_SIG_FLAG_SIGSEGV | J9PORT_SIG_FLAG_MAY_RETURN;
 
-	reportTestEntry(portLibrary, testName);
-	
-	if (!j9sig_can_protect(sig_protectFlags)) {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect does not offer adequate protection for test\n");
-	} else {
-		handlerInfo.coreFileName = coreFileName;
-		handlerInfo.testName = testName;
-		protectResult = j9sig_protect(
-			raiseSEGV, NULL, 
-			simpleHandlerFunction, &handlerInfo, 
-			sig_protectFlags,
-			&result);
-		
-		if (protectResult != J9PORT_SIG_EXCEPTION_OCCURRED) {
-			outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 return value\n");
-		}
-	}
+    reportTestEntry(portLibrary, testName);
+
+    if (!j9sig_can_protect(sig_protectFlags)) {
+        outputErrorMessage(
+            PORTTEST_ERROR_ARGS, "portLibrary->sig_protect does not offer adequate protection for test\n");
+    } else {
+        handlerInfo.coreFileName = coreFileName;
+        handlerInfo.testName = testName;
+        protectResult = j9sig_protect(raiseSEGV, NULL, simpleHandlerFunction, &handlerInfo, sig_protectFlags, &result);
+
+        if (protectResult != J9PORT_SIG_EXCEPTION_OCCURRED) {
+            outputErrorMessage(PORTTEST_ERROR_ARGS, "portLibrary->sig_protect -- expected 0 return value\n");
+        }
+    }
 
 done:
-	return reportTestExit(portLibrary, testName);
+    return reportTestExit(portLibrary, testName);
 }
 
-
-static UDATA 
-simpleHandlerFunction(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* handler_arg)
+static UDATA simpleHandlerFunction(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* handler_arg)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	simpleHandlerInfo* info = handler_arg;
-	const char* testName = info->testName;
-	UDATA rc;
-	
-	outputComment(portLibrary, "calling j9dump_create with filename: %s\n", info->coreFileName);
-	
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    simpleHandlerInfo* info = handler_arg;
+    const char* testName = info->testName;
+    UDATA rc;
+
+    outputComment(portLibrary, "calling j9dump_create with filename: %s\n", info->coreFileName);
+
 #if defined(J9ZOS390)
-	rc = j9dump_create(info->coreFileName, "CEEDUMP", NULL);
+    rc = j9dump_create(info->coreFileName, "CEEDUMP", NULL);
 #else
-	rc = j9dump_create(info->coreFileName, NULL, NULL);
+    rc = j9dump_create(info->coreFileName, NULL, NULL);
 #endif
 
-	if (rc == 0) {
-		UDATA verifyFileRC = 99;
-		
-		outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", info->coreFileName);
-		verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, info->coreFileName);
-		if (verifyFileRC == 0) {
-			/* delete the file */
-			remove(info->coreFileName);
-			outputComment(portLibrary, "\tremoved: %s\n", info->coreFileName);
-		}
-	} else {
-		outputErrorMessage(PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s", rc, info->coreFileName);
-	}
-	
-	return J9PORT_SIG_EXCEPTION_RETURN;
-}
+    if (rc == 0) {
+        UDATA verifyFileRC = 99;
 
+        outputComment(portLibrary, "j9dump_create claims to have written a core file to: %s\n", info->coreFileName);
+        verifyFileRC = verifyFileExists(PORTTEST_ERROR_ARGS, info->coreFileName);
+        if (verifyFileRC == 0) {
+            /* delete the file */
+            remove(info->coreFileName);
+            outputComment(portLibrary, "\tremoved: %s\n", info->coreFileName);
+        }
+    } else {
+        outputErrorMessage(
+            PORTTEST_ERROR_ARGS, "j9dump_create returned: %u, with filename: %s", rc, info->coreFileName);
+    }
+
+    return J9PORT_SIG_EXCEPTION_RETURN;
+}
 
 /* test calling j9dump_create from a signal handler */
 
 /**
  * Verify port library memory management.
- * 
+ *
  * Exercise all API related to port library memory management found in
  * @ref j9osdump.c
- * 
+ *
  * @param[in] portLibrary The port library under test
- * 
+ *
  * @return 0 on success, -1 on failure
  */
-I_32 
-j9dump_runTests(struct J9PortLibrary *portLibrary)
+I_32 j9dump_runTests(struct J9PortLibrary* portLibrary)
 {
-	PORT_ACCESS_FROM_PORT(portLibrary);
-	int rc;
+    PORT_ACCESS_FROM_PORT(portLibrary);
+    int rc;
 
-	/* Display unit under test */
-	HEADING(portLibrary, "dump tests");
+    /* Display unit under test */
+    HEADING(portLibrary, "dump tests");
 
-	/* verify sanity of port library for these tests.  If this fails there is no
-	 * point in continuing
-	 */
-	rc = j9dump_verify_functiontable_slots(portLibrary);
-	j9tty_printf(PORTLIB, "\n");
-	if (TEST_PASS == rc) {
-		rc |= j9dump_test_create_dump_with_name(portLibrary);
-		j9tty_printf(PORTLIB, "\n");
-		rc |= j9dump_test_create_dump_from_signal_handler(portLibrary);
-		j9tty_printf(PORTLIB, "\n");
-		rc |= j9dump_test_create_dump_with_NO_name(portLibrary);
+    /* verify sanity of port library for these tests.  If this fails there is no
+     * point in continuing
+     */
+    rc = j9dump_verify_functiontable_slots(portLibrary);
+    j9tty_printf(PORTLIB, "\n");
+    if (TEST_PASS == rc) {
+        rc |= j9dump_test_create_dump_with_name(portLibrary);
+        j9tty_printf(PORTLIB, "\n");
+        rc |= j9dump_test_create_dump_from_signal_handler(portLibrary);
+        j9tty_printf(PORTLIB, "\n");
+        rc |= j9dump_test_create_dump_with_NO_name(portLibrary);
+    }
 
-	}
-
-	/* Output results */
-	j9tty_printf(PORTLIB, "\nDump test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
-	return TEST_PASS == rc ? 0 : -1;
+    /* Output results */
+    j9tty_printf(PORTLIB, "\nDump test done%s\n\n", rc == TEST_PASS ? "." : ", failures detected.");
+    return TEST_PASS == rc ? 0 : -1;
 }

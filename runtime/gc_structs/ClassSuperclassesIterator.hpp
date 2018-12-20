@@ -38,32 +38,26 @@
  * Iterate over the superclasses references of a class
  * @ingroup GC_Structs
  */
-class GC_ClassSuperclassesIterator
-{
-	UDATA _classDepth;
-	IDATA _index;
-	J9Class **_superclassPtr;
+class GC_ClassSuperclassesIterator {
+    UDATA _classDepth;
+    IDATA _index;
+    J9Class** _superclassPtr;
 
 public:
-	GC_ClassSuperclassesIterator(J9Class *clazz) :
-		_classDepth(J9CLASS_DEPTH(clazz)),
-		_index(-1),
-		_superclassPtr(clazz->superclasses)
-	{};
+    GC_ClassSuperclassesIterator(J9Class* clazz)
+        : _classDepth(J9CLASS_DEPTH(clazz))
+        , _index(-1)
+        , _superclassPtr(clazz->superclasses) {};
 
-	J9Class **nextSlot();
-	
-	/**
-	 * Gets the current superclass index.
-	 * The high index is at the end of the superclass chain, with 0 being the direct superclass.
-	 * @return index of the last superclass returned by nextSlot.
-	 * @return -1 if nextSlot has yet to be called.
-	 */
-	MMINLINE IDATA getIndex() {
-		return _index;
-	}
+    J9Class** nextSlot();
 
+    /**
+     * Gets the current superclass index.
+     * The high index is at the end of the superclass chain, with 0 being the direct superclass.
+     * @return index of the last superclass returned by nextSlot.
+     * @return -1 if nextSlot has yet to be called.
+     */
+    MMINLINE IDATA getIndex() { return _index; }
 };
 
 #endif /* CLASSSUPERCLASSESITERATOR_HPP_ */
-

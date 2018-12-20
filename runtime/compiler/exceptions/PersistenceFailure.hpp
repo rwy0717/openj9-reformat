@@ -34,22 +34,19 @@ namespace J9 {
  *
  * General Persistence Failure exception type.
  */
-struct PersistenceFailure : public virtual TR::CompilationException
-   {
-   virtual const char* what() const throw() { return "Persistence failure"; }
-   };
+struct PersistenceFailure : public virtual TR::CompilationException {
+    virtual const char* what() const throw() { return "Persistence failure"; }
+};
 
 /**
  * Class Chain persistence Failure exception type.
  *
  * Thrown when an error related to Class Chains occurs.
  */
-struct ClassChainPersistenceFailure : public virtual PersistenceFailure
-   {
-   virtual const char* what() const throw() { return "Class chain persistence failure"; }
-   };
+struct ClassChainPersistenceFailure : public virtual PersistenceFailure {
+    virtual const char* what() const throw() { return "Class chain persistence failure"; }
+};
 
-}
+} // namespace J9
 
 #endif // PERSISTENCE_FAILURE
-

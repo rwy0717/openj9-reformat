@@ -23,25 +23,21 @@
 #include "env/CompilerEnv.hpp"
 #include "env/CPU.hpp"
 
-namespace J9
+namespace J9 {
+
+namespace ARM {
+
+TR_ProcessorFeatureFlags CPU::getProcessorFeatureFlags()
 {
-
-namespace ARM 
-{
-
-TR_ProcessorFeatureFlags
-CPU::getProcessorFeatureFlags()
-   {
-   TR_ProcessorFeatureFlags processorFeatureFlags = { {0} };
-   return processorFeatureFlags;
-   }
-
-bool
-CPU::isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags)
-   {
-   return self()->is(processorSignature);
-   }
-   
+    TR_ProcessorFeatureFlags processorFeatureFlags = { { 0 } };
+    return processorFeatureFlags;
 }
 
+bool CPU::isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags)
+{
+    return self()->is(processorSignature);
 }
+
+} // namespace ARM
+
+} // namespace J9

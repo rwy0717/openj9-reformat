@@ -27,287 +27,299 @@
 #include "thrstatetest.h"
 
 /*
- * sleeping states 
+ * sleeping states
  */
 UDATA
-test_vS_nSt(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nSt(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED, NULL, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED, NULL, NULL, 0);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nBMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nBMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
-	PORT_ACCESS_FROM_ENV(env);
+    UDATA rc = 0;
+    PORT_ACCESS_FROM_ENV(env);
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
-					 TESTDATA(rawMonitor)->monitor, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(
+        TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
-	j9tty_printf(PORTLIB, "The thread should not be blocked if its blocking monitor is unowned.\n");
-	if (ignoreExpectedFailures) {
-		rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
-	}
-	return rc;
+    j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
+    j9tty_printf(PORTLIB, "The thread should not be blocked if its blocking monitor is unowned.\n");
+    if (ignoreExpectedFailures) {
+        rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
+    }
+    return rc;
 }
 
 UDATA
-test_vS_nBMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nBMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
-	PORT_ACCESS_FROM_ENV(env);
+    UDATA rc = 0;
+    PORT_ACCESS_FROM_ENV(env);
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
-	j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
-	if (ignoreExpectedFailures) {
-		rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
-	}
-	return rc;
+    j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
+    j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
+    if (ignoreExpectedFailures) {
+        rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
+    }
+    return rc;
 }
 
 UDATA
-test_vS_nBMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nBMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, NULL, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, NULL, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nWMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
-					 TESTDATA(rawMonitor)->monitor, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(
+        TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor,
-						NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor, NULL, 0);
+    rc |= checkOldAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nWMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
-	PORT_ACCESS_FROM_ENV(env);
+    UDATA rc = 0;
+    PORT_ACCESS_FROM_ENV(env);
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
-	j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
-	if (ignoreExpectedFailures) {
-		rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
-	}
-	return rc;
+    j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
+    j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
+    if (ignoreExpectedFailures) {
+        rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
+    }
+    return rc;
 }
 
 UDATA
-test_vS_nWMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor,
-						TESTDATA(otherVmthread), 1);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor,
-						TESTDATA(otherVmthread), 1);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nWTMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWTMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
-					 TESTDATA(rawMonitor)->monitor, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
+        TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, NULL,
-						TESTDATA(rawMonitor)->monitor, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, TESTDATA(rawMonitor)->monitor,
-						NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, NULL, TESTDATA(rawMonitor)->monitor, NULL, 0);
+    rc |= checkOldAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nWTMOC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWTMOC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
-	PORT_ACCESS_FROM_ENV(env);
+    UDATA rc = 0;
+    PORT_ACCESS_FROM_ENV(env);
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(selfOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
-	j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
-	if (ignoreExpectedFailures) {
-		rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
-	}
-	return rc;
+    j9tty_printf(PORTLIB, "Expected failure in getVMThreadStatus:\n");
+    j9tty_printf(PORTLIB, "It fails to ignore the monitor enter count.\n");
+    if (ignoreExpectedFailures) {
+        rc = IGNORE_FAILURES(rc, FAILED_OLDSTATE);
+    }
+    return rc;
 }
 
 UDATA
-test_vS_nWTMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nWTMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
-					 TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING | J9THREAD_FLAG_TIMER_SET,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, NULL,
-						TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, TESTDATA(rawMonitor)->monitor,
-						TESTDATA(otherVmthread), 1);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, NULL,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING_TIMED, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vS_nST(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vS_nST(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_SLEEPING | J9THREAD_FLAG_TIMER_SET,
-					 NULL, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_THREAD_SLEEPING, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_SLEEPING | J9THREAD_FLAG_TIMER_SET,
+        NULL, NULL, 0);
 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, 0);
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SLEEPING, NULL, NULL, 0);
 
-	return rc;
+    return rc;
 }
 
 /* suspended threads */
 UDATA
-test_vZ_nSt(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vZ_nSt(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED, NULL, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED, NULL, NULL, 0);
 
-	/* 
-	 * We should probably report suspended, rather than running. 
-	 * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
-	 */ 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
+    /*
+     * We should probably report suspended, rather than running.
+     * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
+     */
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, NULL, 0);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_RUNNING, NULL, NULL, 0);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vZ_nBMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vZ_nBMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED|J9THREAD_FLAG_BLOCKED, TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_BLOCKED,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
 
-	/* 
-	 * We should probably report suspended, rather than running. 
-	 * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
-	 */ 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, NULL, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
+    /*
+     * We should probably report suspended, rather than running.
+     * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
+     */
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, NULL, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_BLOCKED, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vZ_nWMVC(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vZ_nWMVC(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED|J9THREAD_FLAG_WAITING, TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
+    setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING,
+        TESTDATA(rawMonitor)->monitor, TESTDATA(otherOsthread), 1);
 
-	/* 
-	 * We should probably report suspended, rather than running. 
-	 * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
-	 */ 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor, TESTDATA(otherVmthread), 1);
+    /*
+     * We should probably report suspended, rather than running.
+     * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
+     */
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
+    rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
+    rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor,
+        TESTDATA(otherVmthread), 1);
 
-	return rc;
+    return rc;
 }
 
 UDATA
-test_vZ_nWMoc(JNIEnv *env, BOOLEAN ignoreExpectedFailures)
+test_vZ_nWMoc(JNIEnv* env, BOOLEAN ignoreExpectedFailures)
 {
-	UDATA rc = 0;
+    UDATA rc = 0;
 
-	setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
-	setJ9ThreadState(TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED|J9THREAD_FLAG_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
+    setVMThreadState(TESTDATA(selfVmthread), TESTDATA(selfOsthread), J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND, NULL, 0);
+    setJ9ThreadState(
+        TESTDATA(selfOsthread), J9THREAD_FLAG_STARTED | J9THREAD_FLAG_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	/* 
-	 * We should probably report suspended, rather than running. 
-	 * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
-	 */ 
-	rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
-	rc |= checkRawAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor, NULL, 0);
-	rc |= checkOldAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor,  NULL, 0);
+    /*
+     * We should probably report suspended, rather than running.
+     * However, public APIs consider SUSPENDED==RUNNING, so I don't consider this a regression.
+     */
+    rc |= checkObjAnswers(env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_SUSPENDED, NULL, NULL, 0);
+    rc |= checkRawAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, NULL, TESTDATA(rawMonitor)->monitor, NULL, 0);
+    rc |= checkOldAnswers(
+        env, TESTDATA(selfVmthread), J9VMTHREAD_STATE_WAITING, TESTDATA(rawMonitor)->monitor, NULL, 0);
 
-	return rc;
+    return rc;
 }

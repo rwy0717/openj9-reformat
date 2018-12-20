@@ -30,9 +30,9 @@
 #define TGCBACKTRACE_HPP_
 
 typedef struct TgcBacktraceExtensions {
-	UDATA unused;
+    UDATA unused;
 } TgcBacktraceExtensions;
-	
-bool tgcBacktraceInitialize(J9JavaVM *javaVM);
+
+bool tgcBacktraceInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCBACKTRACE_HPP_ */

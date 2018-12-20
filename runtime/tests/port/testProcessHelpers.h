@@ -23,18 +23,21 @@
 #define TESTPROCESSHELPER_H_INCLUDED
 #include "j9port.h"
 
-IDATA openLaunchSemaphore (J9PortLibrary* portLibrary, const char* name, UDATA nProcess);
-IDATA SetLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
-IDATA ReleaseLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
-IDATA WaitForLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore);
-IDATA CloseLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore);
+IDATA openLaunchSemaphore(J9PortLibrary* portLibrary, const char* name, UDATA nProcess);
+IDATA SetLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
+IDATA ReleaseLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
+IDATA WaitForLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore);
+IDATA CloseLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore);
 
-J9ProcessHandle launchChildProcess (J9PortLibrary* portLibrary, const char* testname, const char* argv0, const char* options);
-IDATA waitForTestProcess (J9PortLibrary *portLibrary, J9ProcessHandle processHandle);
+J9ProcessHandle launchChildProcess(
+    J9PortLibrary* portLibrary, const char* testname, const char* argv0, const char* options);
+IDATA waitForTestProcess(J9PortLibrary* portLibrary, J9ProcessHandle processHandle);
 void SleepFor(IDATA second);
 
-IDATA writeToProcess(J9PortLibrary *portLibrary, char *testName, J9ProcessHandle processHandle, char *message, UDATA lenByteMessage);
-IDATA pollProcessForComplete(J9PortLibrary *portLibrary, char *testName, J9ProcessHandle processHandle, I_64 timeoutMillis);
-IDATA readFromProcess(J9PortLibrary *portLibrary, char *testName, J9ProcessHandle processHandle, UDATA stream, char *buffer, UDATA lenBytesBuffer);
+IDATA writeToProcess(
+    J9PortLibrary* portLibrary, char* testName, J9ProcessHandle processHandle, char* message, UDATA lenByteMessage);
+IDATA pollProcessForComplete(
+    J9PortLibrary* portLibrary, char* testName, J9ProcessHandle processHandle, I_64 timeoutMillis);
+IDATA readFromProcess(J9PortLibrary* portLibrary, char* testName, J9ProcessHandle processHandle, UDATA stream,
+    char* buffer, UDATA lenBytesBuffer);
 #endif /* !defined(TESTPROCESSHELPER_H_INCLUDED) */
-

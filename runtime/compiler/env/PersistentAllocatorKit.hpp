@@ -25,8 +25,12 @@
 
 #pragma once
 
-namespace J9 { struct PersistentAllocatorKit; }
-namespace TR { using J9::PersistentAllocatorKit; }
+namespace J9 {
+struct PersistentAllocatorKit;
+}
+namespace TR {
+using J9::PersistentAllocatorKit;
+}
 
 #include <stddef.h>
 
@@ -34,21 +38,18 @@ extern "C" {
 struct J9JavaVM;
 }
 
-namespace J9
-{
+namespace J9 {
 
-struct PersistentAllocatorKit
-   {
-   PersistentAllocatorKit(size_t const minimumSegmentSize, J9JavaVM &javaVM) :
-      minimumSegmentSize(minimumSegmentSize),
-      javaVM(javaVM)
-      {
-      }
+struct PersistentAllocatorKit {
+    PersistentAllocatorKit(size_t const minimumSegmentSize, J9JavaVM& javaVM)
+        : minimumSegmentSize(minimumSegmentSize)
+        , javaVM(javaVM)
+    {}
 
-   size_t const minimumSegmentSize;
-   J9JavaVM &javaVM;
-   };
+    size_t const minimumSegmentSize;
+    J9JavaVM& javaVM;
+};
 
-}
+} // namespace J9
 
 #endif // PERSISTENTALLOCATORKIT_HPP

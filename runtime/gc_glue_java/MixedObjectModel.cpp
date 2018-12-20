@@ -20,17 +20,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #include "MixedObjectModel.hpp"
 #include "GCExtensionsBase.hpp"
 
-bool
-GC_MixedObjectModel::initialize(MM_GCExtensionsBase *extensions)
-{
-	return true;
-}
+bool GC_MixedObjectModel::initialize(MM_GCExtensionsBase* extensions) { return true; }
 
-void
-GC_MixedObjectModel::tearDown(MM_GCExtensionsBase *extensions)
-{
-}
+void GC_MixedObjectModel::tearDown(MM_GCExtensionsBase* extensions) {}

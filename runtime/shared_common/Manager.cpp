@@ -37,116 +37,112 @@
  * Constructor
  */
 SH_Manager::SH_Manager()
- : _hashTable(0),
-   _cache(0),
-   _htMutex(0),
-   _htMutexName("hllTableMutex"),
-   _portlib(0),
-   _htEntries(0),
-   _runtimeFlagsPtr(0),
-   _verboseFlags(0),
+    : _hashTable(0)
+    , _cache(0)
+    , _htMutex(0)
+    , _htMutexName("hllTableMutex")
+    , _portlib(0)
+    , _htEntries(0)
+    , _runtimeFlagsPtr(0)
+    , _verboseFlags(0)
+    ,
 #if defined(J9SHR_CACHELET_SUPPORT)
-   _cacheletListHead(0),
-   _cacheletListTail(0),
-   _cacheletListPool(0),
-   _shareNewCacheletsWithOtherManagers(true),
-   _isRunningNested(false),
+    _cacheletListHead(0)
+    , _cacheletListTail(0)
+    , _cacheletListPool(0)
+    , _shareNewCacheletsWithOtherManagers(true)
+    , _isRunningNested(false)
+    ,
 #endif
-   _state(0)
+    _state(0)
 #if defined(J9SHR_CACHELET_SUPPORT)
-	,_allCacheletsStarted(false)
+    , _allCacheletsStarted(false)
 #endif
-{
-}
+{}
 
 /**
  * Destructor
  */
-SH_Manager::~SH_Manager()
-{
-	_state = 0;
-}
+SH_Manager::~SH_Manager() { _state = 0; }
 
 /* Initialize a new HashLinkedListImpl */
-void
-SH_Manager::HashLinkedListImpl::initialize(const J9UTF8* key_, const ShcItem* item_, SH_CompositeCache* cachelet_, UDATA hashValue_)
+void SH_Manager::HashLinkedListImpl::initialize(
+    const J9UTF8* key_, const ShcItem* item_, SH_CompositeCache* cachelet_, UDATA hashValue_)
 {
-	Trc_SHR_M_HashLinkedListImpl_initialize_Entry();
+    Trc_SHR_M_HashLinkedListImpl_initialize_Entry();
 
-	_key = key_? (U_8*)J9UTF8_DATA(key_): NULL;
-	_keySize = key_? (U_16)J9UTF8_LENGTH(key_): 0;
-	_item = item_;
-	/* Create the required circular link during initialization so
-	 * it will be there when the entry is added to the hashtable under
-	 * synchronization.
-	 */
-	_next = this;
+    _key = key_ ? (U_8*)J9UTF8_DATA(key_) : NULL;
+    _keySize = key_ ? (U_16)J9UTF8_LENGTH(key_) : 0;
+    _item = item_;
+    /* Create the required circular link during initialization so
+     * it will be there when the entry is added to the hashtable under
+     * synchronization.
+     */
+    _next = this;
 #if defined(J9SHR_CACHELET_SUPPORT)
-	_cachelet = cachelet_;
+    _cachelet = cachelet_;
 #endif
-	_hashValue = hashValue_;
-	localInit(key_, item_, cachelet_, hashValue_);
+    _hashValue = hashValue_;
+    localInit(key_, item_, cachelet_, hashValue_);
 
-	Trc_SHR_M_HashLinkedListImpl_initialize_Exit();
+    Trc_SHR_M_HashLinkedListImpl_initialize_Exit();
 }
 
-/** 
+/**
  * Static function to create a new link
- * 
+ *
  * @param[in] key Name of item to use as a hash key
  * @param[in] item ShcItem in cache
  * @param[in] allocationPool Pool to allocate new object from
  *
  * @return new HashLinkedListImpl created
  */
-SH_Manager::HashLinkedListImpl* 
-SH_Manager::createLink(const J9UTF8* key, const ShcItem* item, SH_CompositeCache* cachelet, UDATA hashPrimeValue, const J9Pool* allocationPool)
+SH_Manager::HashLinkedListImpl* SH_Manager::createLink(const J9UTF8* key, const ShcItem* item,
+    SH_CompositeCache* cachelet, UDATA hashPrimeValue, const J9Pool* allocationPool)
 {
-	HashLinkedListImpl *newLink, *memPtr;
+    HashLinkedListImpl *newLink, *memPtr;
 
-	Trc_SHR_Assert_True(key != NULL);
-	Trc_SHR_M_HashLinkedListImpl_createLink_Entry(J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
-		
-	if (!(memPtr = (HashLinkedListImpl*)pool_newElement((J9Pool*)allocationPool))) {
-		Trc_SHR_M_HashLinkedListImpl_createLink_Exit1();
-		return NULL;
-	}
-	newLink = localHLLNewInstance(memPtr);
-	newLink->initialize(key, item, cachelet, hashPrimeValue);
+    Trc_SHR_Assert_True(key != NULL);
+    Trc_SHR_M_HashLinkedListImpl_createLink_Entry(J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
 
-	Trc_SHR_M_HashLinkedListImpl_createLink_Exit2(newLink);
-	return newLink;
+    if (!(memPtr = (HashLinkedListImpl*)pool_newElement((J9Pool*)allocationPool))) {
+        Trc_SHR_M_HashLinkedListImpl_createLink_Exit1();
+        return NULL;
+    }
+    newLink = localHLLNewInstance(memPtr);
+    newLink->initialize(key, item, cachelet, hashPrimeValue);
+
+    Trc_SHR_M_HashLinkedListImpl_createLink_Exit2(newLink);
+    return newLink;
 }
 
 /* THREADING: Should only be called single-threaded */
-void
-SH_Manager::notifyManagerInitialized(SH_Managers* managers, const char* managerType)
+void SH_Manager::notifyManagerInitialized(SH_Managers* managers, const char* managerType)
 {
-	if (_state != MANAGER_STATE_SHUTDOWN) {
-		_managerType = managerType;
-		_state = MANAGER_STATE_INITIALIZED;
-		managers->addManager(this);
-	}
+    if (_state != MANAGER_STATE_SHUTDOWN) {
+        _managerType = managerType;
+        _state = MANAGER_STATE_INITIALIZED;
+        managers->addManager(this);
+    }
 }
 
 /* Destroy the hashtable and linked list entries */
 /* THREADING: Must be protected by hashtable mutex */
-void
-SH_Manager::tearDownHashTable(J9VMThread* currentThread)
+void SH_Manager::tearDownHashTable(J9VMThread* currentThread)
 {
-	Trc_SHR_M_tearDownHashTable_Entry(currentThread, _managerType);
+    Trc_SHR_M_tearDownHashTable_Entry(currentThread, _managerType);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	_hints.destroy();
+    _hints.destroy();
 #endif
-	
-	localTearDownPools(currentThread);
-	if (_hashTable) {
-		hashTableFree(_hashTable);
-		_hashTable = NULL;
-	}
 
-	Trc_SHR_M_tearDownHashTable_Exit(currentThread);
+    localTearDownPools(currentThread);
+    if (_hashTable) {
+        hashTableFree(_hashTable);
+        _hashTable = NULL;
+    }
+
+    Trc_SHR_M_tearDownHashTable_Exit(currentThread);
 }
 
 /**
@@ -158,47 +154,47 @@ SH_Manager::tearDownHashTable(J9VMThread* currentThread)
 IDATA
 SH_Manager::initializeHashTable(J9VMThread* currentThread)
 {
-	IDATA returnVal = 0;
-	PORT_ACCESS_FROM_PORT(_portlib);
+    IDATA returnVal = 0;
+    PORT_ACCESS_FROM_PORT(_portlib);
 
-	Trc_SHR_M_initializeHashTable_Entry(currentThread, _managerType);
+    Trc_SHR_M_initializeHashTable_Entry(currentThread, _managerType);
 
 #if defined(J9SHR_CACHELET_SUPPORT)
-	if (!_hints.initialize(_portlib)) {
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HINTTABLE);
-		returnVal = -1;
-		goto _exit;
-	}
+    if (!_hints.initialize(_portlib)) {
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HINTTABLE);
+        returnVal = -1;
+        goto _exit;
+    }
 #endif
-	
-	_hashTableGetNumItemsDoFn = (J9HashTableDoFn)SH_Manager::countItemsInList;
-	_hashTable = localHashTableCreate(currentThread, _htEntries);
-	if (!_hashTable) {
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HASHTABLE);
-		returnVal = -1;
-		goto _exit;
-	}
 
-	if (localInitializePools(currentThread) == -1) {
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_POOLS);
-		tearDownHashTable(currentThread);
-		returnVal = -1;
-		goto _exit;
-	}
+    _hashTableGetNumItemsDoFn = (J9HashTableDoFn)SH_Manager::countItemsInList;
+    _hashTable = localHashTableCreate(currentThread, _htEntries);
+    if (!_hashTable) {
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HASHTABLE);
+        returnVal = -1;
+        goto _exit;
+    }
 
-_exit :
+    if (localInitializePools(currentThread) == -1) {
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_POOLS);
+        tearDownHashTable(currentThread);
+        returnVal = -1;
+        goto _exit;
+    }
+
+_exit:
 #if defined(J9SHR_CACHELET_SUPPORT)
-	if (returnVal != 0) {
-		_hints.destroy();
-	}
+    if (returnVal != 0) {
+        _hints.destroy();
+    }
 #endif
-	Trc_SHR_M_initializeHashTable_Exit(currentThread, returnVal);
-	return returnVal;
+    Trc_SHR_M_initializeHashTable_Exit(currentThread, returnVal);
+    return returnVal;
 }
 
 /**
  * Start the initialized SH_Manager
- * 
+ *
  * @see Manager.hpp
  * @note should be called only after initialize
  * @param[in] currentThread The current thread
@@ -212,54 +208,56 @@ _exit :
 IDATA
 SH_Manager::startup(J9VMThread* currentThread, U_64* runtimeFlags_, UDATA verboseFlags_, UDATA cacheSizeBytes)
 {
-	UDATA actualState;
+    UDATA actualState;
 
-	/* Only valid state for entry to this function is MANAGER_STATE_INITIALIZED */
-	if (_state != MANAGER_STATE_INITIALIZED) {
-		return _state;
-	}
-	
-	Trc_SHR_M_startup_Entry(currentThread, _managerType);
+    /* Only valid state for entry to this function is MANAGER_STATE_INITIALIZED */
+    if (_state != MANAGER_STATE_INITIALIZED) {
+        return _state;
+    }
 
-	/* It's possible (albeit unlikely) that multiple threads could have got here. Resolve the race to start up. */
-	if ((actualState = VM_AtomicSupport::lockCompareExchange(&(_state), MANAGER_STATE_INITIALIZED, MANAGER_STATE_STARTING)) != MANAGER_STATE_INITIALIZED) {
-		Trc_SHR_M_startup_Exit5(currentThread, actualState);
-		return actualState;
-	}
+    Trc_SHR_M_startup_Entry(currentThread, _managerType);
 
-	_runtimeFlagsPtr = runtimeFlags_;
-	_verboseFlags = verboseFlags_;
-	_htEntries = getHashTableEntriesFromCacheSize(cacheSizeBytes);
+    /* It's possible (albeit unlikely) that multiple threads could have got here. Resolve the race to start up. */
+    if ((actualState
+            = VM_AtomicSupport::lockCompareExchange(&(_state), MANAGER_STATE_INITIALIZED, MANAGER_STATE_STARTING))
+        != MANAGER_STATE_INITIALIZED) {
+        Trc_SHR_M_startup_Exit5(currentThread, actualState);
+        return actualState;
+    }
 
-	if (omrthread_monitor_init(&_htMutex, 0)) {
-		PORT_ACCESS_FROM_PORT(_portlib);
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_MUTEX);
-		Trc_SHR_M_startup_Exit2(currentThread);
-		goto _startupFailed;
-	}
+    _runtimeFlagsPtr = runtimeFlags_;
+    _verboseFlags = verboseFlags_;
+    _htEntries = getHashTableEntriesFromCacheSize(cacheSizeBytes);
 
-	if (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "startup")==0) {
-		if (initializeHashTable(currentThread) == -1) {
-			Trc_SHR_M_startup_Exit1(currentThread);
-			goto _startupFailedWithMutex;
-		}
-		if (localPostStartup(currentThread) == -1) {
-			Trc_SHR_M_startup_Exit3(currentThread);
-			goto _startupFailedWithMutex;
-		}
-		_cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "startup");
-	}
+    if (omrthread_monitor_init(&_htMutex, 0)) {
+        PORT_ACCESS_FROM_PORT(_portlib);
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_MUTEX);
+        Trc_SHR_M_startup_Exit2(currentThread);
+        goto _startupFailed;
+    }
 
-	_state = MANAGER_STATE_STARTED;
-	Trc_SHR_M_startup_Exit4(currentThread);
-	return 0;
+    if (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "startup") == 0) {
+        if (initializeHashTable(currentThread) == -1) {
+            Trc_SHR_M_startup_Exit1(currentThread);
+            goto _startupFailedWithMutex;
+        }
+        if (localPostStartup(currentThread) == -1) {
+            Trc_SHR_M_startup_Exit3(currentThread);
+            goto _startupFailedWithMutex;
+        }
+        _cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "startup");
+    }
 
-_startupFailedWithMutex :
-	_cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "startup");
-_startupFailed :
-	cleanup(currentThread);
-	_state = MANAGER_STATE_INITIALIZED;
-	return -1;	
+    _state = MANAGER_STATE_STARTED;
+    Trc_SHR_M_startup_Exit4(currentThread);
+    return 0;
+
+_startupFailedWithMutex:
+    _cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "startup");
+_startupFailed:
+    cleanup(currentThread);
+    _state = MANAGER_STATE_INITIALIZED;
+    return -1;
 }
 
 /**
@@ -269,13 +267,12 @@ _startupFailed :
  * @param[in] currentThread The current thread
  */
 /* THREADING: Must only be called single-threaded and not concurrent with any other functions */
-void
-SH_Manager::shutDown(J9VMThread* currentThread)
+void SH_Manager::shutDown(J9VMThread* currentThread)
 {
-	Trc_SHR_M_shutDown_Entry(currentThread, _managerType);
-	cleanup(currentThread);
-	_state = MANAGER_STATE_SHUTDOWN;
-	Trc_SHR_M_shutDown_Entry(currentThread, _managerType);
+    Trc_SHR_M_shutDown_Entry(currentThread, _managerType);
+    cleanup(currentThread);
+    _state = MANAGER_STATE_SHUTDOWN;
+    Trc_SHR_M_shutDown_Entry(currentThread, _managerType);
 }
 /**
  * Clean-up the SH_Manager on shutdown
@@ -284,32 +281,31 @@ SH_Manager::shutDown(J9VMThread* currentThread)
  * @param[in] currentThread The current thread
  */
 /* THREADING: Must only be called single-threaded and not concurrent with any other functions */
-void
-SH_Manager::cleanup(J9VMThread* currentThread)
+void SH_Manager::cleanup(J9VMThread* currentThread)
 {
-	Trc_SHR_M_cleanup_Entry(currentThread, _managerType);
+    Trc_SHR_M_cleanup_Entry(currentThread, _managerType);
 
-	if ((_state == MANAGER_STATE_STARTED) || (_state == MANAGER_STATE_STARTING)) {
-		if (!_htMutex || (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "cleanup")==0)) {
-			tearDownHashTable(currentThread);
+    if ((_state == MANAGER_STATE_STARTED) || (_state == MANAGER_STATE_STARTING)) {
+        if (!_htMutex || (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "cleanup") == 0)) {
+            tearDownHashTable(currentThread);
 #if defined(J9SHR_CACHELET_SUPPORT)
-			if (_cacheletListPool) {
-				pool_kill(_cacheletListPool);
-				_cacheletListPool = NULL;
-			}
+            if (_cacheletListPool) {
+                pool_kill(_cacheletListPool);
+                _cacheletListPool = NULL;
+            }
 #endif
-			localPostCleanup(currentThread);
-			_cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "cleanup");
-		}
+            localPostCleanup(currentThread);
+            _cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "cleanup");
+        }
 
-		if (_htMutex) {
-			omrthread_monitor_destroy(_htMutex);
-			_htMutex = NULL;
-		}
-	}
+        if (_htMutex) {
+            omrthread_monitor_destroy(_htMutex);
+            _htMutex = NULL;
+        }
+    }
 
-	_state = MANAGER_STATE_INITIALIZED;
-	Trc_SHR_M_cleanup_Exit(currentThread);
+    _state = MANAGER_STATE_INITIALIZED;
+    Trc_SHR_M_cleanup_Exit(currentThread);
 }
 
 /**
@@ -322,26 +318,26 @@ SH_Manager::cleanup(J9VMThread* currentThread)
  * @return 0 for success, -1 for failure
  */
 /* THREADING: Must only be called single-threaded and not concurrent with any other functions */
-IDATA 
+IDATA
 SH_Manager::reset(J9VMThread* currentThread)
 {
-	IDATA returnVal = 0;
-	
-	Trc_SHR_M_reset_Entry(currentThread, _managerType);
+    IDATA returnVal = 0;
 
-	if (_state == MANAGER_STATE_STARTED) {
-		if (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "reset")==0) {
-			tearDownHashTable(currentThread);
-			if (initializeHashTable(currentThread) == -1) {
-				returnVal = -1;
-			}
-			_cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "reset");
-		}
-	}
+    Trc_SHR_M_reset_Entry(currentThread, _managerType);
 
-	Trc_SHR_M_reset_Exit(currentThread, returnVal);
+    if (_state == MANAGER_STATE_STARTED) {
+        if (_cache->enterLocalMutex(currentThread, _htMutex, "_htMutex", "reset") == 0) {
+            tearDownHashTable(currentThread);
+            if (initializeHashTable(currentThread) == -1) {
+                returnVal = -1;
+            }
+            _cache->exitLocalMutex(currentThread, _htMutex, "_htMutex", "reset");
+        }
+    }
 
-	return returnVal;
+    Trc_SHR_M_reset_Exit(currentThread, returnVal);
+
+    return returnVal;
 }
 
 /**
@@ -349,315 +345,310 @@ SH_Manager::reset(J9VMThread* currentThread)
  *
  * @see Manager.hpp
  */
-U_8
-SH_Manager::getState()
-{
-	return (U_8)_state;
-} 
+U_8 SH_Manager::getState() { return (U_8)_state; }
 
 /* Stored new entry in circular linked list */
 /* THREADING: Completely thread-safe */
-SH_Manager::LinkedListImpl* 
-SH_Manager::LinkedListImpl::link(LinkedListImpl* addToList, LinkedListImpl* newLink)
+SH_Manager::LinkedListImpl* SH_Manager::LinkedListImpl::link(LinkedListImpl* addToList, LinkedListImpl* newLink)
 {
-	Trc_SHR_M_LinkListImpl_link_Entry(newLink, addToList);
+    Trc_SHR_M_LinkListImpl_link_Entry(newLink, addToList);
 
-	if (!addToList || (addToList==newLink)) {
-		/* no action required here since newLink is initialized with a circular _next link */
-		Trc_SHR_M_LinkListImpl_link_Exit1(newLink);
-		return newLink;
-	}
-	newLink->_next = addToList->_next;
-	VM_AtomicSupport::writeBarrier();
-	addToList->_next = newLink;
+    if (!addToList || (addToList == newLink)) {
+        /* no action required here since newLink is initialized with a circular _next link */
+        Trc_SHR_M_LinkListImpl_link_Exit1(newLink);
+        return newLink;
+    }
+    newLink->_next = addToList->_next;
+    VM_AtomicSupport::writeBarrier();
+    addToList->_next = newLink;
 
-	Trc_SHR_M_LinkListImpl_link_Exit2(newLink, addToList);
-	return newLink;
+    Trc_SHR_M_LinkListImpl_link_Exit2(newLink, addToList);
+    return newLink;
 }
 
 /* Creates a new link and adds it to the list specified in addToList
  * Returns new link if successfully added, otherwise NULL.
- * Sets addToList as the list to link the new link to 
+ * Sets addToList as the list to link the new link to
  */
-SH_Manager::HashLinkedListImpl* 
-SH_Manager::hllTableAdd(J9VMThread* currentThread, const J9Pool* linkPool, const J9UTF8* key, const ShcItem* item, UDATA hashPrimeValue, SH_CompositeCache* cachelet, HashLinkedListImpl** addToList)
+SH_Manager::HashLinkedListImpl* SH_Manager::hllTableAdd(J9VMThread* currentThread, const J9Pool* linkPool,
+    const J9UTF8* key, const ShcItem* item, UDATA hashPrimeValue, SH_CompositeCache* cachelet,
+    HashLinkedListImpl** addToList)
 {
-	HashLinkedListImpl* newItem;
-	IDATA retryCount = 0;
-	PORT_ACCESS_FROM_PORT(_portlib);
-	
-	Trc_SHR_Assert_True(key != NULL);
-	Trc_SHR_M_hllTableAdd_Entry(currentThread, J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
-	
-	if ((key != NULL) || (item != NULL)) {
-		/* Just to be certain */
-		hashPrimeValue = 0;
-	}
-	if (!(newItem = createLink(key, item, cachelet, hashPrimeValue, linkPool))) {
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_LINKEDLISTITEM);
-		Trc_SHR_M_hllTableAdd_Exit1(currentThread);
-		return NULL;
-	}
+    HashLinkedListImpl* newItem;
+    IDATA retryCount = 0;
+    PORT_ACCESS_FROM_PORT(_portlib);
 
-	while (retryCount < MONITOR_ENTER_RETRY_TIMES) {
-		if (_cache->enterLocalMutex(currentThread, _htMutex, "hllTableMutex", "hllTableAdd")==0) {
-			HashLinkedListImpl** rc;
+    Trc_SHR_Assert_True(key != NULL);
+    Trc_SHR_M_hllTableAdd_Entry(currentThread, J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
 
-			/* This call will not actually add the new item if there is already an entry of the same key in the hashtable. Instead, the value returned
-				by hashTableAdd is passed back as the addToList parameter. The value returned by this function should then be linked to addToList */
-			if ((rc = (HashLinkedListImpl**)hashTableAdd(_hashTable, &newItem))==NULL) {
-				Trc_SHR_M_hllTableAdd_Exception1(currentThread);
-				M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HASHTABLE_ENTRY);
-				newItem = NULL;		/* Return null, but must exit mutex first */
-			} else {
-				Trc_SHR_M_hllTableAdd_HashtableAdd(currentThread, rc);
-				*addToList = *rc;
-			}
+    if ((key != NULL) || (item != NULL)) {
+        /* Just to be certain */
+        hashPrimeValue = 0;
+    }
+    if (!(newItem = createLink(key, item, cachelet, hashPrimeValue, linkPool))) {
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_LINKEDLISTITEM);
+        Trc_SHR_M_hllTableAdd_Exit1(currentThread);
+        return NULL;
+    }
 
-			_cache->exitLocalMutex(currentThread, _htMutex, "hllTableMutex", "hllTableAdd");
-			break;
-		}
-		retryCount++;
-	}
-	if (retryCount==MONITOR_ENTER_RETRY_TIMES) {
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_ENTER_HTMUTEX);
-		Trc_SHR_M_hllTableAdd_Exit3(currentThread, retryCount);
-		return NULL;
-	}
-	Trc_SHR_M_hllTableAdd_Exit4(currentThread, newItem);
-	return newItem;
+    while (retryCount < MONITOR_ENTER_RETRY_TIMES) {
+        if (_cache->enterLocalMutex(currentThread, _htMutex, "hllTableMutex", "hllTableAdd") == 0) {
+            HashLinkedListImpl** rc;
+
+            /* This call will not actually add the new item if there is already an entry of the same key in the
+               hashtable. Instead, the value returned by hashTableAdd is passed back as the addToList parameter. The
+               value returned by this function should then be linked to addToList */
+            if ((rc = (HashLinkedListImpl**)hashTableAdd(_hashTable, &newItem)) == NULL) {
+                Trc_SHR_M_hllTableAdd_Exception1(currentThread);
+                M_ERR_TRACE(J9NLS_SHRC_M_FAILED_CREATE_HASHTABLE_ENTRY);
+                newItem = NULL; /* Return null, but must exit mutex first */
+            } else {
+                Trc_SHR_M_hllTableAdd_HashtableAdd(currentThread, rc);
+                *addToList = *rc;
+            }
+
+            _cache->exitLocalMutex(currentThread, _htMutex, "hllTableMutex", "hllTableAdd");
+            break;
+        }
+        retryCount++;
+    }
+    if (retryCount == MONITOR_ENTER_RETRY_TIMES) {
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_ENTER_HTMUTEX);
+        Trc_SHR_M_hllTableAdd_Exit3(currentThread, retryCount);
+        return NULL;
+    }
+    Trc_SHR_M_hllTableAdd_Exit4(currentThread, newItem);
+    return newItem;
 }
 
-/* Hashtable lookup function. Returns value if found, otherwise returns NULL 
+/* Hashtable lookup function. Returns value if found, otherwise returns NULL
  * TODO: allowCacheletStart is a way to prevent recursive calls to hllTableLookup by reuniteOrphan.
  * However, it's possible for an orphan to be in a different cachelet to a ROMClass pointer, so need to work this out.
  */
-SH_Manager::HashLinkedListImpl* 
-SH_Manager::hllTableLookup(J9VMThread* currentThread, const char* name, U_16 nameLen, bool allowCacheletStartup)
+SH_Manager::HashLinkedListImpl* SH_Manager::hllTableLookup(
+    J9VMThread* currentThread, const char* name, U_16 nameLen, bool allowCacheletStartup)
 {
-	HashLinkedListImpl* result = NULL;
+    HashLinkedListImpl* result = NULL;
 
-	Trc_SHR_M_hllTableLookup_Entry(currentThread, nameLen, name);
+    Trc_SHR_M_hllTableLookup_Entry(currentThread, nameLen, name);
 
-	if (lockHashTable(currentThread, "hllTableLookup")) {
+    if (lockHashTable(currentThread, "hllTableLookup")) {
 #if defined(J9SHR_CACHELET_SUPPORT)
-		if (_isRunningNested && allowCacheletStartup) {
-			UDATA hint = generateHash(currentThread->javaVM->internalVMFunctions, (U_8*)name, nameLen);
+        if (_isRunningNested && allowCacheletStartup) {
+            UDATA hint = generateHash(currentThread->javaVM->internalVMFunctions, (U_8*)name, nameLen);
 
-			if (startupHintCachelets(currentThread, hint) == -1) {
-				goto exit_lockFailed;
-			}
-		}
+            if (startupHintCachelets(currentThread, hint) == -1) {
+                goto exit_lockFailed;
+            }
+        }
 #endif
-		result = hllTableLookupHelper(currentThread, (U_8*)name, nameLen, 0, NULL);
-		unlockHashTable(currentThread, "hllTableLookup");
-	} else {
+        result = hllTableLookupHelper(currentThread, (U_8*)name, nameLen, 0, NULL);
+        unlockHashTable(currentThread, "hllTableLookup");
+    } else {
 #if defined(J9SHR_CACHELET_SUPPORT)
-exit_lockFailed:
+    exit_lockFailed:
 #endif
-		PORT_ACCESS_FROM_PORT(_portlib);
-		M_ERR_TRACE(J9NLS_SHRC_M_FAILED_ENTER_HTMUTEX);
-		Trc_SHR_M_hllTableLookup_Exit1(currentThread, MONITOR_ENTER_RETRY_TIMES);
-		return NULL;
-	}
+        PORT_ACCESS_FROM_PORT(_portlib);
+        M_ERR_TRACE(J9NLS_SHRC_M_FAILED_ENTER_HTMUTEX);
+        Trc_SHR_M_hllTableLookup_Exit1(currentThread, MONITOR_ENTER_RETRY_TIMES);
+        return NULL;
+    }
 
-	Trc_SHR_M_hllTableLookup_Exit2(currentThread, result);
-	return result;
+    Trc_SHR_M_hllTableLookup_Exit2(currentThread, result);
+    return result;
 }
 
 /**
  * Construct a search entry and do hashTableFind()
  */
-SH_Manager::HashLinkedListImpl*
-SH_Manager::hllTableLookupHelper(J9VMThread* currentThread, U_8* key, U_16 keySize, UDATA hashValue, SH_CompositeCache* cachelet)
+SH_Manager::HashLinkedListImpl* SH_Manager::hllTableLookupHelper(
+    J9VMThread* currentThread, U_8* key, U_16 keySize, UDATA hashValue, SH_CompositeCache* cachelet)
 {
-	HashLinkedListImpl dummy;
-	HashLinkedListImpl* dummyPtr = &dummy;
-	HashLinkedListImpl** p_result;
+    HashLinkedListImpl dummy;
+    HashLinkedListImpl* dummyPtr = &dummy;
+    HashLinkedListImpl** p_result;
 
-	dummyPtr->_key = key;
-	dummyPtr->_keySize = keySize;
-	dummyPtr->_hashValue = hashValue; 
+    dummyPtr->_key = key;
+    dummyPtr->_keySize = keySize;
+    dummyPtr->_hashValue = hashValue;
 #if defined(J9SHR_CACHELET_SUPPORT)
-	dummyPtr->_cachelet = cachelet;
+    dummyPtr->_cachelet = cachelet;
 #endif
-	
-	p_result = (HashLinkedListImpl**)hashTableFind(_hashTable, (void*)&dummyPtr);
 
-	return (p_result? *p_result : NULL);
+    p_result = (HashLinkedListImpl**)hashTableFind(_hashTable, (void*)&dummyPtr);
+
+    return (p_result ? *p_result : NULL);
 }
 
 #if defined(J9SHR_CACHELET_SUPPORT)
 
 /**
  * Ensure that all cachelets for a hint value are started.
- * 
+ *
  * @param[in] currentThread
  * @param[in] hint the hint value
  * @returns number of cachelets started
  * @retval >= 0 number of cachelets started
  * @retval -1 unable to re-obtain hashtable lock
- * 
+ *
  * @pre Owns the hashtable mutex
  * @post Owns the hashtable mutex, if successful
  */
 IDATA
 SH_Manager::startupHintCachelets(J9VMThread* currentThread, UDATA hint)
 {
-	SH_CompositeCacheImpl* hintCachelet = NULL;
-	IDATA cacheletsStarted = 0;
-	
-	Trc_SHR_M_startupHintCachelets_Entry(currentThread, hint);
-	
-	while (NULL != (hintCachelet = (SH_CompositeCacheImpl*)_hints.findHint(currentThread, hint))) {
-		IDATA rc;
-		
-		unlockHashTable(currentThread, "startupHintCachelets");
-		/**
-		 * @bug _startupMonitor IS A HORRIBLE HACK FOR CMVC 141328. 
-		 * THIS WILL NOT WORK FOR NON-READONLY CACHES.
-		 * @see SH_CompositeCacheImpl::_startupMonitor
-		 */
-		if (0 == (rc = hintCachelet->lockStartupMonitor(currentThread))) {
-			if (!hintCachelet->isStarted()) { 
-				
-				Trc_SHR_M_startupHintCachelets_startingCacheletForHint(currentThread, hintCachelet, hint, hint);
-				rc = _cache->startupCachelet(currentThread, hintCachelet);
-				if (rc == CC_STARTUP_OK) {
-					++cacheletsStarted;
-				} else {
-					Trc_SHR_M_startupHintCachelets_startupCacheletFailed(currentThread, rc, hintCachelet, hint, hint);
-				}
-			}
-			hintCachelet->unlockStartupMonitor(currentThread);
-		} else {
-			Trc_SHR_M_startupHintCachelets_lockStartupMonitorFailed(currentThread, rc, hintCachelet, hint, hint);
-		}
-		if (!lockHashTable(currentThread, "startupHintCachelets")) {
-			Trc_SHR_M_startupHintCachelets_Exit(currentThread, -1);
-			return -1;
-		}
-		_hints.removeHint(currentThread, hint, hintCachelet);
-	}
-	Trc_SHR_M_startupHintCachelets_Exit(currentThread, cacheletsStarted);
-	return cacheletsStarted;
+    SH_CompositeCacheImpl* hintCachelet = NULL;
+    IDATA cacheletsStarted = 0;
+
+    Trc_SHR_M_startupHintCachelets_Entry(currentThread, hint);
+
+    while (NULL != (hintCachelet = (SH_CompositeCacheImpl*)_hints.findHint(currentThread, hint))) {
+        IDATA rc;
+
+        unlockHashTable(currentThread, "startupHintCachelets");
+        /**
+         * @bug _startupMonitor IS A HORRIBLE HACK FOR CMVC 141328.
+         * THIS WILL NOT WORK FOR NON-READONLY CACHES.
+         * @see SH_CompositeCacheImpl::_startupMonitor
+         */
+        if (0 == (rc = hintCachelet->lockStartupMonitor(currentThread))) {
+            if (!hintCachelet->isStarted()) {
+
+                Trc_SHR_M_startupHintCachelets_startingCacheletForHint(currentThread, hintCachelet, hint, hint);
+                rc = _cache->startupCachelet(currentThread, hintCachelet);
+                if (rc == CC_STARTUP_OK) {
+                    ++cacheletsStarted;
+                } else {
+                    Trc_SHR_M_startupHintCachelets_startupCacheletFailed(currentThread, rc, hintCachelet, hint, hint);
+                }
+            }
+            hintCachelet->unlockStartupMonitor(currentThread);
+        } else {
+            Trc_SHR_M_startupHintCachelets_lockStartupMonitorFailed(currentThread, rc, hintCachelet, hint, hint);
+        }
+        if (!lockHashTable(currentThread, "startupHintCachelets")) {
+            Trc_SHR_M_startupHintCachelets_Exit(currentThread, -1);
+            return -1;
+        }
+        _hints.removeHint(currentThread, hint, hintCachelet);
+    }
+    Trc_SHR_M_startupHintCachelets_Exit(currentThread, cacheletsStarted);
+    return cacheletsStarted;
 }
 
 #endif /* J9SHR_CACHELET_SUPPORT */
 
 /* Creates a new link, adds it to the hashtable and links it to the correct list.
  * Returns the newly created link or NULL if there was an error */
-SH_Manager::HashLinkedListImpl* 
-SH_Manager::hllTableUpdate(J9VMThread* currentThread, const J9Pool* linkPool, const J9UTF8* key, const ShcItem* item, SH_CompositeCache* cachelet)
+SH_Manager::HashLinkedListImpl* SH_Manager::hllTableUpdate(J9VMThread* currentThread, const J9Pool* linkPool,
+    const J9UTF8* key, const ShcItem* item, SH_CompositeCache* cachelet)
 {
-	HashLinkedListImpl* newLink = NULL;
-	HashLinkedListImpl* addToList = NULL;
-	HashLinkedListImpl* returnVal = NULL;
-	
-	Trc_SHR_M_hllTableUpdate_Entry(currentThread, J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
+    HashLinkedListImpl* newLink = NULL;
+    HashLinkedListImpl* addToList = NULL;
+    HashLinkedListImpl* returnVal = NULL;
 
-	/**
-	 * @bug Incorrect synchronization of hashtable. Another thread could walk the linked list 
-	 * as we're modifying it. Unlikely to occur because most callers require the VM class segment mutex.
-	 */
-	if (!(newLink = hllTableAdd(currentThread, linkPool, key, item, 0, cachelet, &addToList))) {
-		Trc_SHR_M_hllTableUpdate_Exit1(currentThread);
-		return NULL;
-	}
+    Trc_SHR_M_hllTableUpdate_Entry(currentThread, J9UTF8_LENGTH(key), J9UTF8_DATA(key), item);
 
-	returnVal = (HashLinkedListImpl*)SH_Manager::LinkedListImpl::link(addToList, newLink);
-	Trc_SHR_M_hllTableUpdate_Exit2(currentThread, returnVal);
-	return returnVal;
+    /**
+     * @bug Incorrect synchronization of hashtable. Another thread could walk the linked list
+     * as we're modifying it. Unlikely to occur because most callers require the VM class segment mutex.
+     */
+    if (!(newLink = hllTableAdd(currentThread, linkPool, key, item, 0, cachelet, &addToList))) {
+        Trc_SHR_M_hllTableUpdate_Exit1(currentThread);
+        return NULL;
+    }
+
+    returnVal = (HashLinkedListImpl*)SH_Manager::LinkedListImpl::link(addToList, newLink);
+    Trc_SHR_M_hllTableUpdate_Exit2(currentThread, returnVal);
+    return returnVal;
 }
 
 /**
  * @param currentThread - the currentThread or NULL when called to collect javacore data
  */
-bool
-SH_Manager::lockHashTable(J9VMThread* currentThread, const char* funcName)
+bool SH_Manager::lockHashTable(J9VMThread* currentThread, const char* funcName)
 {
-	IDATA retryCount = MONITOR_ENTER_RETRY_TIMES;
-	
-	while (retryCount-- > 0) {
-		/* WARNING - currentThread can be NULL */
-		if (_cache->enterLocalMutex(currentThread, _htMutex, _htMutexName, funcName) == 0) {
-			return true;
-		}
-	}
-	return false;
+    IDATA retryCount = MONITOR_ENTER_RETRY_TIMES;
+
+    while (retryCount-- > 0) {
+        /* WARNING - currentThread can be NULL */
+        if (_cache->enterLocalMutex(currentThread, _htMutex, _htMutexName, funcName) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
  * @param currentThread - the currentThread or NULL when called to collect javacore data
  */
-void
-SH_Manager::unlockHashTable(J9VMThread* currentThread, const char* funcName)
+void SH_Manager::unlockHashTable(J9VMThread* currentThread, const char* funcName)
 {
-	/* WARNING - currentThread can be NULL */
-	_cache->exitLocalMutex(currentThread, _htMutex, _htMutexName, funcName);
+    /* WARNING - currentThread can be NULL */
+    _cache->exitLocalMutex(currentThread, _htMutex, _htMutexName, funcName);
 }
 
 UDATA
 SH_Manager::generateHash(J9InternalVMFunctions* internalFunctionTable, U_8* key, U_16 keySize)
 {
-	UDATA hashValue = 0;
+    UDATA hashValue = 0;
 
-	/* Longer class names will have very common package names, so optimize these out */
-	if (keySize < 16) {
-		hashValue = internalFunctionTable->computeHashForUTF8(key, keySize);
-	} else if (keySize < 24) {
-		hashValue = internalFunctionTable->computeHashForUTF8(key+10, keySize-10);
-	} else {
-		hashValue = internalFunctionTable->computeHashForUTF8(key+18, keySize-18);
-	}
-	return hashValue;
+    /* Longer class names will have very common package names, so optimize these out */
+    if (keySize < 16) {
+        hashValue = internalFunctionTable->computeHashForUTF8(key, keySize);
+    } else if (keySize < 24) {
+        hashValue = internalFunctionTable->computeHashForUTF8(key + 10, keySize - 10);
+    } else {
+        hashValue = internalFunctionTable->computeHashForUTF8(key + 18, keySize - 18);
+    }
+    return hashValue;
 }
 
 /* Hash function for hashtable */
 UDATA
-SH_Manager::hllHashFn(void* item, void *userData)
+SH_Manager::hllHashFn(void* item, void* userData)
 {
-	HashLinkedListImpl* itemValue = *((HashLinkedListImpl**)item);
-	J9InternalVMFunctions* internalFunctionTable = (J9InternalVMFunctions*)userData;
-	UDATA hashValue = 0;
+    HashLinkedListImpl* itemValue = *((HashLinkedListImpl**)item);
+    J9InternalVMFunctions* internalFunctionTable = (J9InternalVMFunctions*)userData;
+    UDATA hashValue = 0;
 
-	Trc_SHR_M_hllHashFn_Entry(item);
-	if (itemValue->_hashValue) {
-		hashValue = itemValue->_hashValue;
-	} else { 
-		hashValue = generateHash(internalFunctionTable, itemValue->_key, itemValue->_keySize);
-		itemValue->_hashValue = hashValue;
-	}
-	Trc_SHR_M_hllHashFn_Exit(hashValue);
-	return hashValue;
+    Trc_SHR_M_hllHashFn_Entry(item);
+    if (itemValue->_hashValue) {
+        hashValue = itemValue->_hashValue;
+    } else {
+        hashValue = generateHash(internalFunctionTable, itemValue->_key, itemValue->_keySize);
+        itemValue->_hashValue = hashValue;
+    }
+    Trc_SHR_M_hllHashFn_Exit(hashValue);
+    return hashValue;
 }
 
 /**
  * HashEqual function for hashtable
  * @param[in] left a match candidate from the hashtable
- * @param[in] right search key 
+ * @param[in] right search key
  */
 UDATA
-SH_Manager::hllHashEqualFn(void* left, void* right, void *userData)
+SH_Manager::hllHashEqualFn(void* left, void* right, void* userData)
 {
-	HashLinkedListImpl* leftItem = *((HashLinkedListImpl**)left);
-	HashLinkedListImpl* rightItem = *((HashLinkedListImpl**)right);
-	UDATA result;
+    HashLinkedListImpl* leftItem = *((HashLinkedListImpl**)left);
+    HashLinkedListImpl* rightItem = *((HashLinkedListImpl**)right);
+    UDATA result;
 
-	Trc_SHR_M_hllHashEqualFn_Entry(leftItem, rightItem);
+    Trc_SHR_M_hllHashEqualFn_Entry(leftItem, rightItem);
 
-	/* PERFORMANCE: Compare key size first as this is the most likely cause for exit */
-	if (leftItem->_keySize != rightItem->_keySize) {
-		Trc_SHR_M_hllHashEqualFn_Exit2();
-		return 0;
-	}
-	if (leftItem->_key == NULL || rightItem->_key == NULL) {
-		Trc_SHR_M_hllHashEqualFn_Exit1();
-		return 0;
-	}
-	result = J9UTF8_DATA_EQUALS(leftItem->_key, leftItem->_keySize, rightItem->_key, rightItem->_keySize);
-	Trc_SHR_M_hllHashEqualFn_Exit3(result);
-	return result;
+    /* PERFORMANCE: Compare key size first as this is the most likely cause for exit */
+    if (leftItem->_keySize != rightItem->_keySize) {
+        Trc_SHR_M_hllHashEqualFn_Exit2();
+        return 0;
+    }
+    if (leftItem->_key == NULL || rightItem->_key == NULL) {
+        Trc_SHR_M_hllHashEqualFn_Exit1();
+        return 0;
+    }
+    result = J9UTF8_DATA_EQUALS(leftItem->_key, leftItem->_keySize, rightItem->_key, rightItem->_keySize);
+    Trc_SHR_M_hllHashEqualFn_Exit3(result);
+    return result;
 }
 
 #if defined(J9SHR_CACHELET_SUPPORT)
@@ -668,14 +659,14 @@ SH_Manager::hllHashEqualFn(void* left, void* right, void *userData)
 UDATA
 SH_Manager::hllCollectHashOfEntry(void* entry, void* userData)
 {
-	HashLinkedListImpl* node = *(HashLinkedListImpl**)entry;
-	CacheletHintHashData* data = (CacheletHintHashData*)userData;
+    HashLinkedListImpl* node = *(HashLinkedListImpl**)entry;
+    CacheletHintHashData* data = (CacheletHintHashData*)userData;
 
-	if (data->cachelet == node->_cachelet) {
-		*data->hashSlot++ = (UDATA)node->_hashValue;
-		/* TODO trace hint written */
-	}
-	return FALSE; /* don't remove entry */
+    if (data->cachelet == node->_cachelet) {
+        *data->hashSlot++ = (UDATA)node->_hashValue;
+        /* TODO trace hint written */
+    }
+    return FALSE; /* don't remove entry */
 }
 
 /**
@@ -684,13 +675,13 @@ SH_Manager::hllCollectHashOfEntry(void* entry, void* userData)
 UDATA
 SH_Manager::hllCountCacheletHashes(void* entry, void* userData)
 {
-	HashLinkedListImpl* node = *(HashLinkedListImpl**)entry;
-	CacheletHintCountData* data = (CacheletHintCountData*)userData;
+    HashLinkedListImpl* node = *(HashLinkedListImpl**)entry;
+    CacheletHintCountData* data = (CacheletHintCountData*)userData;
 
-	if (data->cachelet == node->_cachelet) {
-		data->hashCount++;
-	}
-	return FALSE; /* don't remove entry */
+    if (data->cachelet == node->_cachelet) {
+        data->hashCount++;
+    }
+    return FALSE; /* don't remove entry */
 }
 
 /**
@@ -699,36 +690,36 @@ SH_Manager::hllCountCacheletHashes(void* entry, void* userData)
 IDATA
 SH_Manager::hllCollectHashes(J9VMThread* currentThread, SH_CompositeCache* cachelet, CacheletHints* hints)
 {
-	PORT_ACCESS_FROM_VMC(currentThread);
-	CacheletHintHashData hashes;
-	CacheletHintCountData counts;
+    PORT_ACCESS_FROM_VMC(currentThread);
+    CacheletHintHashData hashes;
+    CacheletHintCountData counts;
 
-	/* count hashes in this cachelet */
-	counts.cachelet = cachelet;
-	counts.hashCount = 0;
-	hashTableForEachDo(_hashTable, hllCountCacheletHashes, (void*)&counts);
-	/* TODO trace hints written. Note this runs after trace engine has shut down. */
-	
-	/* allocate hash array */
-	hints->length = counts.hashCount * sizeof(UDATA);
-	if (hints->length == 0) {
-		hints->data = NULL;
-		return 0;
-	}
-	hints->data = (U_8*)j9mem_allocate_memory(hints->length, J9MEM_CATEGORY_CLASSES);
-	if (!hints->data) {
-		/* TODO trace alloc failure */
-		hints->length = 0;
-		return -1;
-	}
+    /* count hashes in this cachelet */
+    counts.cachelet = cachelet;
+    counts.hashCount = 0;
+    hashTableForEachDo(_hashTable, hllCountCacheletHashes, (void*)&counts);
+    /* TODO trace hints written. Note this runs after trace engine has shut down. */
 
-	/* collect hashes */
-	hashes.cachelet = cachelet;
-	hashes.hashSlot = (UDATA*)hints->data;
-	hashTableForEachDo(_hashTable, hllCollectHashOfEntry, (void*)&hashes);
-	/* TODO trace hints written */
+    /* allocate hash array */
+    hints->length = counts.hashCount * sizeof(UDATA);
+    if (hints->length == 0) {
+        hints->data = NULL;
+        return 0;
+    }
+    hints->data = (U_8*)j9mem_allocate_memory(hints->length, J9MEM_CATEGORY_CLASSES);
+    if (!hints->data) {
+        /* TODO trace alloc failure */
+        hints->length = 0;
+        return -1;
+    }
 
-	return 0;
+    /* collect hashes */
+    hashes.cachelet = cachelet;
+    hashes.hashSlot = (UDATA*)hints->data;
+    hashTableForEachDo(_hashTable, hllCollectHashOfEntry, (void*)&hashes);
+    /* TODO trace hints written */
+
+    return 0;
 }
 
 #endif /* J9SHR_CACHELET_SUPPORT */
@@ -736,207 +727,202 @@ SH_Manager::hllCollectHashes(J9VMThread* currentThread, SH_CompositeCache* cache
 /**
  * @param currentThread - the currentThread or NULL when called to collect javacore data
  */
-void 
-SH_Manager::getNumItems(J9VMThread* currentThread, UDATA* nonStaleItems, UDATA* staleItems)
+void SH_Manager::getNumItems(J9VMThread* currentThread, UDATA* nonStaleItems, UDATA* staleItems)
 {
-	if (_hashTable && _hashTableGetNumItemsDoFn) {
-		CountData countData(_cache);
+    if (_hashTable && _hashTableGetNumItemsDoFn) {
+        CountData countData(_cache);
 
-		/* WARNING - currentThread can be NULL */
-		if (lockHashTable(currentThread, "getNumItems")) {
-			hashTableForEachDo(_hashTable, _hashTableGetNumItemsDoFn, &countData);
-			unlockHashTable(currentThread, "getNumItems");
-		}
-		*nonStaleItems = countData._nonStaleItems;
-		*staleItems = countData._staleItems;
-	} else {
-		*nonStaleItems = *staleItems = 0;
-	}
+        /* WARNING - currentThread can be NULL */
+        if (lockHashTable(currentThread, "getNumItems")) {
+            hashTableForEachDo(_hashTable, _hashTableGetNumItemsDoFn, &countData);
+            unlockHashTable(currentThread, "getNumItems");
+        }
+        *nonStaleItems = countData._nonStaleItems;
+        *staleItems = countData._staleItems;
+    } else {
+        *nonStaleItems = *staleItems = 0;
+    }
 }
 
 /**
  * Default hashtable item counter.
- * Default implementation works only for managers with one entry per key 
+ * Default implementation works only for managers with one entry per key
  * To force a different implementation, replace _hashTableGetNumItemsDoFn
  */
 UDATA
 SH_Manager::countItemsInList(void* entry, void* opaque)
 {
-	SH_Manager::LinkedListImpl* node = *(SH_Manager::LinkedListImpl**)entry;
-	SH_Manager::CountData* countData = (SH_Manager::CountData*)opaque;
-	
-	if (countData->_cache->isStale(node->_item)) {
-		++(countData->_staleItems);
-	} else {
-		++(countData->_nonStaleItems);
-	}
-	return 0;
+    SH_Manager::LinkedListImpl* node = *(SH_Manager::LinkedListImpl**)entry;
+    SH_Manager::CountData* countData = (SH_Manager::CountData*)opaque;
+
+    if (countData->_cache->isStale(node->_item)) {
+        ++(countData->_staleItems);
+    } else {
+        ++(countData->_nonStaleItems);
+    }
+    return 0;
 }
 
 #if defined(J9SHR_CACHELET_SUPPORT)
 
 /**
  * Looks for an existing cachelet, that is known by this manager, with enough free space for a data element.
- * 
+ *
  * @param[in] dataType Data type. Currently unused.
  * @param[in] dataLength Size, in bytes, of data element. Used to determine number of free bytes needed.
  * @returns an existing cachelet or NULL
  * @retval NULL No cachelet has enough free space
- * 
+ *
  * TODO: Protect these cache area calls with a mutex
  */
-SH_CompositeCacheImpl* 
-SH_Manager::getCacheAreaForData(SH_CacheMap * cm, J9VMThread* currentThread, UDATA dataType, UDATA dataLength)
+SH_CompositeCacheImpl* SH_Manager::getCacheAreaForData(
+    SH_CacheMap* cm, J9VMThread* currentThread, UDATA dataType, UDATA dataLength)
 {
-	if (_cacheletListHead != NULL) {
-		CacheletListItem* walk = _cacheletListHead;
-		
-		while (walk) {
-			if (walk->cachelet->isStarted() == false) {
-				cm->startupCachelet(currentThread, walk->cachelet);
-			}
-			if ((false == walk->cachelet->isCacheMarkedFull(currentThread)) && (walk->cachelet->getFreeBytes() >= dataLength)) {
-				return walk->cachelet;
-			}
-			walk = walk->next;
-		}
-	}
-	return NULL;
+    if (_cacheletListHead != NULL) {
+        CacheletListItem* walk = _cacheletListHead;
+
+        while (walk) {
+            if (walk->cachelet->isStarted() == false) {
+                cm->startupCachelet(currentThread, walk->cachelet);
+            }
+            if ((false == walk->cachelet->isCacheMarkedFull(currentThread))
+                && (walk->cachelet->getFreeBytes() >= dataLength)) {
+                return walk->cachelet;
+            }
+            walk = walk->next;
+        }
+    }
+    return NULL;
 }
 
 /* Assumes that the caller has checked that the cachelet is not already in list */
-void 
-SH_Manager::addNewCacheArea(SH_CompositeCacheImpl* newCache)
+void SH_Manager::addNewCacheArea(SH_CompositeCacheImpl* newCache)
 {
-	CacheletListItem* newListEntry;
-	J9Pool* clp;
-	
-	if (!(clp = getCacheletListPool())) {
-		return;
-	}
-	if (isCacheletInList(newCache)) {
-		return;
-	}
-	newListEntry = (CacheletListItem*)pool_newElement(clp);
-	if (newListEntry) {
-		newListEntry->cachelet = newCache;
-		if (_cacheletListHead == NULL) {
-			_cacheletListHead = _cacheletListTail = newListEntry;
-			newListEntry->next = NULL;
-		} else {
-			_cacheletListTail->next = newListEntry;
-			_cacheletListTail = newListEntry;
-		}
-	}
+    CacheletListItem* newListEntry;
+    J9Pool* clp;
+
+    if (!(clp = getCacheletListPool())) {
+        return;
+    }
+    if (isCacheletInList(newCache)) {
+        return;
+    }
+    newListEntry = (CacheletListItem*)pool_newElement(clp);
+    if (newListEntry) {
+        newListEntry->cachelet = newCache;
+        if (_cacheletListHead == NULL) {
+            _cacheletListHead = _cacheletListTail = newListEntry;
+            newListEntry->next = NULL;
+        } else {
+            _cacheletListTail->next = newListEntry;
+            _cacheletListTail = newListEntry;
+        }
+    }
 }
 
-bool
-SH_Manager::isCacheletInList(SH_CompositeCache* cachelet)
+bool SH_Manager::isCacheletInList(SH_CompositeCache* cachelet)
 {
-	if (_cacheletListHead != NULL) {
-		CacheletListItem* walk = _cacheletListHead;
-		
-		while (walk) {
-			if (walk->cachelet == cachelet) {
-				return true;
-			}
-			walk = walk->next;
-		}
-	}
-	return false;
+    if (_cacheletListHead != NULL) {
+        CacheletListItem* walk = _cacheletListHead;
+
+        while (walk) {
+            if (walk->cachelet == cachelet) {
+                return true;
+            }
+            walk = walk->next;
+        }
+    }
+    return false;
 }
 
-bool
-SH_Manager::canShareNewCacheletsWithOtherManagers()
-{
-	return _shareNewCacheletsWithOtherManagers;
-}
+bool SH_Manager::canShareNewCacheletsWithOtherManagers() { return _shareNewCacheletsWithOtherManagers; }
 
 /* Default implementation does nothing. Managers wanting to create hints should override */
 IDATA
 SH_Manager::primeHashtables(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength)
 {
-	return 0;
+    return 0;
 }
 
 IDATA
 SH_Manager::primeFromHints(J9VMThread* vmthread, SH_CompositeCache* cachelet, U_8* hintsData, UDATA datalength)
 {
-	if (_state != MANAGER_STATE_STARTED) {
-		Trc_SHR_Assert_ShouldNeverHappen();
-		return -1;
-	}
-	addNewCacheArea((SH_CompositeCacheImpl*)cachelet);
-	if (hintsData != NULL) {
-		return primeHashtables(vmthread, cachelet, hintsData, datalength);
-	}
-	return 0;
+    if (_state != MANAGER_STATE_STARTED) {
+        Trc_SHR_Assert_ShouldNeverHappen();
+        return -1;
+    }
+    addNewCacheArea((SH_CompositeCacheImpl*)cachelet);
+    if (hintsData != NULL) {
+        return primeHashtables(vmthread, cachelet, hintsData, datalength);
+    }
+    return 0;
 }
 
 IDATA
 SH_Manager::generateHints(J9VMThread* vmthread, CacheletMetadataArray* metadataArray)
 {
-	UDATA i, j;
-	CacheletMetadata* current;  
-	
-	if (_state != MANAGER_STATE_STARTED) {
-		Trc_SHR_Assert_ShouldNeverHappen();
-		return -1;
-	}
-	
-	for (i=0; i<metadataArray->numMetas; i++) {
-		current = &metadataArray->metadataArray[i];
-		/* If we have written data into the cachelet, make hints for it */
-		if (isCacheletInList(current->cachelet)) {
-			/* Find the next free hints slot */
-			for (j=0; j<current->numHints; j++) {
-				if (current->hintsArray[j].dataType == TYPE_UNINITIALIZED) {
-					break;
-				}
-			}
-			/* No free hints slots - oops! */
-			if (j == current->numHints) {
-				Trc_SHR_Assert_ShouldNeverHappen();
-				return -1;
-			}
-			/* Even if no detailed hints are written, note for each cachelet that this Manager has written stuff into it */
-			current->hintsArray[j].dataType = _dataTypesRepresented[0];	/* Main datatype only is required */
-			if (canCreateHints()) {
-				createHintsForCachelet(vmthread, current->cachelet, &current->hintsArray[j]);
-			}
-		}
-	}
-	return 0;
+    UDATA i, j;
+    CacheletMetadata* current;
+
+    if (_state != MANAGER_STATE_STARTED) {
+        Trc_SHR_Assert_ShouldNeverHappen();
+        return -1;
+    }
+
+    for (i = 0; i < metadataArray->numMetas; i++) {
+        current = &metadataArray->metadataArray[i];
+        /* If we have written data into the cachelet, make hints for it */
+        if (isCacheletInList(current->cachelet)) {
+            /* Find the next free hints slot */
+            for (j = 0; j < current->numHints; j++) {
+                if (current->hintsArray[j].dataType == TYPE_UNINITIALIZED) {
+                    break;
+                }
+            }
+            /* No free hints slots - oops! */
+            if (j == current->numHints) {
+                Trc_SHR_Assert_ShouldNeverHappen();
+                return -1;
+            }
+            /* Even if no detailed hints are written, note for each cachelet that this Manager has written stuff into it
+             */
+            current->hintsArray[j].dataType = _dataTypesRepresented[0]; /* Main datatype only is required */
+            if (canCreateHints()) {
+                createHintsForCachelet(vmthread, current->cachelet, &current->hintsArray[j]);
+            }
+        }
+    }
+    return 0;
 }
 
 IDATA
 SH_Manager::freeHintData(J9VMThread* vmthread, CacheletMetadataArray* metadataArray)
 {
-	UDATA i, j;
-	CacheletMetadata* current;
-	
-	PORT_ACCESS_FROM_VMC(vmthread);
+    UDATA i, j;
+    CacheletMetadata* current;
 
-	if (!canCreateHints()) {
-		Trc_SHR_Assert_ShouldNeverHappen();
-		return -1;
-	}
-	for (i=0; i<metadataArray->numMetas; i++) {
-		current = &metadataArray->metadataArray[i];
-		for (j=0; j<current->numHints; j++) {
-			if (current->hintsArray[j].dataType == _dataTypesRepresented[0]) {
-				j9mem_free_memory(current->hintsArray[j].data);
-				current->hintsArray[j].data = NULL;
-			}
-		}
-	}
-	return 0;	
+    PORT_ACCESS_FROM_VMC(vmthread);
+
+    if (!canCreateHints()) {
+        Trc_SHR_Assert_ShouldNeverHappen();
+        return -1;
+    }
+    for (i = 0; i < metadataArray->numMetas; i++) {
+        current = &metadataArray->metadataArray[i];
+        for (j = 0; j < current->numHints; j++) {
+            if (current->hintsArray[j].dataType == _dataTypesRepresented[0]) {
+                j9mem_free_memory(current->hintsArray[j].data);
+                current->hintsArray[j].data = NULL;
+            }
+        }
+    }
+    return 0;
 }
 
 /**
  * Walk the managed items in this cachelet. Allocate and populate
  * an array of hints, one for each hash item.
- * This default implementation does nothing. Managers wanting to create hints 
+ * This default implementation does nothing. Managers wanting to create hints
  * should override.
  * @param[in] self a data type manager
  * @param[in] vmthread the current VMThread
@@ -946,47 +932,41 @@ SH_Manager::freeHintData(J9VMThread* vmthread, CacheletMetadataArray* metadataAr
  * @retval 0 success
  * @retval -1 failure
  */
-IDATA 
+IDATA
 SH_Manager::createHintsForCachelet(J9VMThread* vmthread, SH_CompositeCache* cachelet, CacheletHints* hints)
 {
-	if (!canCreateHints()) {
-		Trc_SHR_Assert_ShouldNeverHappen();
-		return -1;
-	}
-	return 0;
+    if (!canCreateHints()) {
+        Trc_SHR_Assert_ShouldNeverHappen();
+        return -1;
+    }
+    return 0;
 }
 
-/* Should be overridden if the manager can create cachelet hints */ 
-bool 
-SH_Manager::canCreateHints()
-{
-	return false;
-}
+/* Should be overridden if the manager can create cachelet hints */
+bool SH_Manager::canCreateHints() { return false; }
 
 #endif /* J9SHR_CACHELET_SUPPORT */
 
 #if defined(J9SHR_CACHELET_SUPPORT)
 
-J9Pool*
-SH_Manager::getCacheletListPool() 
+J9Pool* SH_Manager::getCacheletListPool()
 {
-	if (_cacheletListPool) {
-		return _cacheletListPool;
-	}
-	_isRunningNested = true;
-	return (_cacheletListPool = pool_new(sizeof(SH_Manager::CacheletListItem),  0, 0, 0, J9_GET_CALLSITE(), J9MEM_CATEGORY_CLASSES, POOL_FOR_PORT(_portlib)));
+    if (_cacheletListPool) {
+        return _cacheletListPool;
+    }
+    _isRunningNested = true;
+    return (_cacheletListPool = pool_new(sizeof(SH_Manager::CacheletListItem), 0, 0, 0, J9_GET_CALLSITE(),
+                J9MEM_CATEGORY_CLASSES, POOL_FOR_PORT(_portlib)));
 }
 
 #endif /* J9SHR_CACHELET_SUPPORT */
 
-bool
-SH_Manager::isDataTypeRepresended(UDATA type)
+bool SH_Manager::isDataTypeRepresended(UDATA type)
 {
-	for (int i=0; i<MAX_TYPES_PER_MANAGER; i+=1) {
-		if (_dataTypesRepresented[i] == type) {
-			return true;
-		}
-	}
-	return false;
+    for (int i = 0; i < MAX_TYPES_PER_MANAGER; i += 1) {
+        if (_dataTypesRepresented[i] == type) {
+            return true;
+        }
+    }
+    return false;
 }
-

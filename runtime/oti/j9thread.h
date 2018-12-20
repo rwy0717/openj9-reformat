@@ -69,7 +69,7 @@ extern "C" {
 #define j9thread_get_self_cpu_time omrthread_get_self_cpu_time
 
 omrthread_t j9thread_self(void);
-void *j9thread_tls_get(omrthread_t thread, omrthread_tls_key_t key);
+void* j9thread_tls_get(omrthread_t thread, omrthread_tls_key_t key);
 
 #ifdef __cplusplus
 }

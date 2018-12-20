@@ -38,50 +38,45 @@ class MM_VerboseWriterChain;
 /**
  * @ingroup GC_verbose_engine
  */
-class MM_VerboseManagerJava : public MM_VerboseManager
-{
-	/*
-	 * Data members
-	 */
+class MM_VerboseManagerJava : public MM_VerboseManager {
+    /*
+     * Data members
+     */
 private:
-	/* Pointers to the Hook interface */
-	J9HookInterface** _mmHooks;
+    /* Pointers to the Hook interface */
+    J9HookInterface** _mmHooks;
 
 protected:
-
 public:
-	
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
-
 protected:
+    virtual MM_VerboseWriter* createWriter(
+        MM_EnvironmentBase* env, WriterType type, char* filename, UDATA fileCount, UDATA iterations);
 
-	virtual MM_VerboseWriter *createWriter(MM_EnvironmentBase *env, WriterType type, char *filename, UDATA fileCount, UDATA iterations);
-
-	/**
-	 * Create the output handler specific to the kind of collector currently running.
-	 * @param env[in] The master GC thread
-	 * @return An instance of a sub-class of the MM_VerboseHandlerOutput abstract class which can handle output of verbose data for the collector currently running
-	 */
-	virtual MM_VerboseHandlerOutput *createVerboseHandlerOutputObject(MM_EnvironmentBase *env);
+    /**
+     * Create the output handler specific to the kind of collector currently running.
+     * @param env[in] The master GC thread
+     * @return An instance of a sub-class of the MM_VerboseHandlerOutput abstract class which can handle output of
+     * verbose data for the collector currently running
+     */
+    virtual MM_VerboseHandlerOutput* createVerboseHandlerOutputObject(MM_EnvironmentBase* env);
 
 public:
+    static MM_VerboseManager* newInstance(MM_EnvironmentBase* env, OMR_VM* vm);
 
-	static MM_VerboseManager *newInstance(MM_EnvironmentBase *env, OMR_VM* vm);
+    virtual bool initialize(MM_EnvironmentBase* env);
 
-	virtual bool initialize(MM_EnvironmentBase *env);
+    J9HookInterface** getHookInterface() { return _mmHooks; }
 
-	J9HookInterface** getHookInterface(){ return _mmHooks; }
+    virtual void handleFileOpenError(MM_EnvironmentBase* env, char* fileName);
 
-	virtual void handleFileOpenError(MM_EnvironmentBase *env, char *fileName);
-
-	MM_VerboseManagerJava(OMR_VM *omrVM)
-		: MM_VerboseManager(omrVM)
-		, _mmHooks(NULL)
-	{
-	}
+    MM_VerboseManagerJava(OMR_VM* omrVM)
+        : MM_VerboseManager(omrVM)
+        , _mmHooks(NULL)
+    {}
 };
 
 #endif /* VERBOSEMANAGERJAVA_HPP_ */

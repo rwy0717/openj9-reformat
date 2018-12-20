@@ -28,8 +28,14 @@
  */
 #ifndef TRJ9_CODEGENERATORBASE_CONNECTOR
 #define TRJ9_CODEGENERATORBASE_CONNECTOR
-namespace J9 { namespace Power { class CodeGenerator; } }
-namespace J9 { typedef J9::Power::CodeGenerator CodeGeneratorConnector; }
+namespace J9 {
+namespace Power {
+class CodeGenerator;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::Power::CodeGenerator CodeGeneratorConnector;
+}
 #else
 #error J9::Power::CodeGenerator expected to be a primary connector, but a J9 connector is already defined
 #endif
@@ -41,64 +47,52 @@ namespace J9 { typedef J9::Power::CodeGenerator CodeGeneratorConnector; }
 #include "codegen/LinkageConventionsEnum.hpp"
 #include "env/jittypes.h"
 
-namespace TR { class Recompilation; }
+namespace TR {
+class Recompilation;
+}
 
-extern TR::Instruction *loadAddressRAM32(TR::CodeGenerator *cg,
-                                    TR::Node * node,
-                                    int32_t value,
-                                    TR::Register *trgReg);
+extern TR::Instruction* loadAddressRAM32(TR::CodeGenerator* cg, TR::Node* node, int32_t value, TR::Register* trgReg);
 
-extern TR::Instruction *loadAddressRAM(TR::CodeGenerator *cg,
-                                    TR::Node        *node,
-                                    intptrj_t         value,
-                                    TR::Register    *targetRegister);
+extern TR::Instruction* loadAddressRAM(
+    TR::CodeGenerator* cg, TR::Node* node, intptrj_t value, TR::Register* targetRegister);
 
-extern TR::Instruction *loadAddressJNI32(TR::CodeGenerator *cg,
-                                    TR::Node * node,
-                                    int32_t value,
-                                    TR::Register *trgReg);
+extern TR::Instruction* loadAddressJNI32(TR::CodeGenerator* cg, TR::Node* node, int32_t value, TR::Register* trgReg);
 
-extern TR::Instruction *loadAddressJNI(TR::CodeGenerator *cg,
-                                    TR::Node        *node,
-                                    intptrj_t         value,
-                                    TR::Register    *targetRegister);
+extern TR::Instruction* loadAddressJNI(
+    TR::CodeGenerator* cg, TR::Node* node, intptrj_t value, TR::Register* targetRegister);
 
-namespace J9
-{
+namespace J9 {
 
-namespace Power
-{
+namespace Power {
 
-class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator
-   {
-   public:
+class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator {
+public:
+    CodeGenerator();
 
-   CodeGenerator();
+    TR::Recompilation* allocateRecompilationInfo();
 
-   TR::Recompilation *allocateRecompilationInfo();
+    TR::Linkage* createLinkage(TR_LinkageConventions lc);
 
-   TR::Linkage *createLinkage(TR_LinkageConventions lc);
+    void generateBinaryEncodingPrologue(TR_PPCBinaryEncodingData* data);
 
-   void generateBinaryEncodingPrologue(TR_PPCBinaryEncodingData *data);
+    void lowerTreeIfNeeded(TR::Node* node, int32_t childNumber, TR::Node* parent, TR::TreeTop* tt);
 
-   void lowerTreeIfNeeded(TR::Node *node, int32_t childNumber, TR::Node *parent, TR::TreeTop *tt);
+    bool inlineDirectCall(TR::Node* node, TR::Register*& resultReg);
 
-   bool inlineDirectCall(TR::Node *node, TR::Register *&resultReg);
+    bool suppressInliningOfRecognizedMethod(TR::RecognizedMethod method);
 
-   bool suppressInliningOfRecognizedMethod(TR::RecognizedMethod method);
+    bool enableAESInHardwareTransformations();
 
-   bool enableAESInHardwareTransformations();
-
-   void insertPrefetchIfNecessary(TR::Node *node, TR::Register *targetRegister);
+    void insertPrefetchIfNecessary(TR::Node* node, TR::Register* targetRegister);
 
 #ifdef J9VM_OPT_JAVA_CRYPTO_ACCELERATION
-   bool suppressInliningOfCryptoMethod(TR::RecognizedMethod method);
-   bool inlineCryptoMethod(TR::Node *node, TR::Register *&resultReg);
+    bool suppressInliningOfCryptoMethod(TR::RecognizedMethod method);
+    bool inlineCryptoMethod(TR::Node* node, TR::Register*& resultReg);
 #endif
-   };
+};
 
-}
+} // namespace Power
 
-}
+} // namespace J9
 
 #endif

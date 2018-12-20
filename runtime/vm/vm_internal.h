@@ -26,13 +26,13 @@
 /* @ddr_namespace: map_to_type=VmInternalConstants */
 
 /**
-* @file vm_internal.h
-* @brief Internal prototypes used within the VM module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the VM module.
-*
-*/
+ * @file vm_internal.h
+ * @brief Internal prototypes used within the VM module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the VM module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -43,7 +43,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /* ---------------- KeyHashTable.c ---------------- */
 /* Tags for struct classTableEntry:
@@ -64,126 +63,110 @@ extern "C" {
  *  10100 Unicode query
  *  11100 Package UTF query
  */
-#define MASK_RAM_CLASS			7
-#define TAG_RAM_CLASS			0
-#define	MASK_ROM_CLASS			3
-#define	TAG_ROM_CLASS			1
-#define MASK_PACKED				3
-#define	TAG_PACKED_YES			3
-#define TAG_GENERATED_PACKAGE		2
-#define MASK_QUERY 				31
-#define TAG_UTF_QUERY			4
-#define TAG_PACKAGE_UTF_QUERY	28
-#define TAG_PACKED_QUERY 		12
-#define TAG_UNICODE_QUERY 		20
+#define MASK_RAM_CLASS 7
+#define TAG_RAM_CLASS 0
+#define MASK_ROM_CLASS 3
+#define TAG_ROM_CLASS 1
+#define MASK_PACKED 3
+#define TAG_PACKED_YES 3
+#define TAG_GENERATED_PACKAGE 2
+#define MASK_QUERY 31
+#define TAG_UTF_QUERY 4
+#define TAG_PACKAGE_UTF_QUERY 28
+#define TAG_PACKED_QUERY 12
+#define TAG_UNICODE_QUERY 20
 
 /* ---------------- resolvefield.c ---------------- */
 
 /**
-* @brief
-* @param *vm
-* @param *portLibrary
-* @return J9HashTable *
-*/
-J9HashTable *
-fieldIndexTableNew(J9JavaVM* vm, J9PortLibrary *portLib);
-
+ * @brief
+ * @param *vm
+ * @param *portLibrary
+ * @return J9HashTable *
+ */
+J9HashTable* fieldIndexTableNew(J9JavaVM* vm, J9PortLibrary* portLib);
 
 /**
-* @brief
-* @param *vm
-* @return void
-*/
-void
-fieldIndexTableFree(J9JavaVM* vm);
+ * @brief
+ * @param *vm
+ * @return void
+ */
+void fieldIndexTableFree(J9JavaVM* vm);
 
 /* ---------------- jniinv.c ---------------- */
 
 /**
-* @brief
-* @param p_vm
-* @param p_env
-* @param *vm_args
-* @return jint
-*/
-jint JNICALL
-JNI_CreateJavaVM(JavaVM ** p_vm, void ** p_env, void *vm_args);
-
+ * @brief
+ * @param p_vm
+ * @param p_env
+ * @param *vm_args
+ * @return jint
+ */
+jint JNICALL JNI_CreateJavaVM(JavaVM** p_vm, void** p_env, void* vm_args);
 
 /**
-* @brief
-* @param vm_buf
-* @param bufLen
-* @param nVMs
-* @return jint
-*/
-jint JNICALL
-JNI_GetCreatedJavaVMs(JavaVM ** vm_buf, jsize bufLen, jsize * nVMs);
-
+ * @brief
+ * @param vm_buf
+ * @param bufLen
+ * @param nVMs
+ * @return jint
+ */
+jint JNICALL JNI_GetCreatedJavaVMs(JavaVM** vm_buf, jsize bufLen, jsize* nVMs);
 
 /**
-* @brief
-* @param vm_args
-* @return jint
-*/
-jint JNICALL
-JNI_GetDefaultJavaVMInitArgs(void * vm_args);
-
+ * @brief
+ * @param vm_args
+ * @return jint
+ */
+jint JNICALL JNI_GetDefaultJavaVMInitArgs(void* vm_args);
 
 #if (defined(J9VM_OPT_SIDECAR))
 /**
-* @brief
-* @param shutdownThread
-* @return void
-*/
-void
-sidecarShutdown(J9VMThread* shutdownThread);
+ * @brief
+ * @param shutdownThread
+ * @return void
+ */
+void sidecarShutdown(J9VMThread* shutdownThread);
 #endif /* J9VM_OPT_SIDECAR */
-
 
 /* ---------------- vmifunc.c ---------------- */
 
 /**
-* @brief
-* @param vm
-* @return vmiError
-*/
-vmiError
-J9VMI_Initialize(J9JavaVM* vm);
+ * @brief
+ * @param vm
+ * @return vmiError
+ */
+vmiError J9VMI_Initialize(J9JavaVM* vm);
 
 /* ---------------- xcheck.c ---------------- */
 /**
-* @brief
-* Modify the DLL load table for shared libraries used by -Xcheck: options.
-* @param vm
-* @param loadTable
-* @param j9vm_args
-* @return void
-*/
-jint
-processXCheckOptions(J9JavaVM * vm, J9Pool* loadTable, J9VMInitArgs* j9vm_args);
+ * @brief
+ * Modify the DLL load table for shared libraries used by -Xcheck: options.
+ * @param vm
+ * @param loadTable
+ * @param j9vm_args
+ * @return void
+ */
+jint processXCheckOptions(J9JavaVM* vm, J9Pool* loadTable, J9VMInitArgs* j9vm_args);
 
 /* ---------------- statistics.c ---------------- */
 /**
-* @brief
-* @param *javaVM
-* @return void
-*/
-void
-deleteStatistics (J9JavaVM* javaVM);
-
+ * @brief
+ * @param *javaVM
+ * @return void
+ */
+void deleteStatistics(J9JavaVM* javaVM);
 
 /* ---------------- jnicsup.c ---------------- */
 /**
-* @brief
-* parse -Xjni: options
-* @param vm
-* @param optArg
-* @return IDATA
-*/
+ * @brief
+ * parse -Xjni: options
+ * @param vm
+ * @param optArg
+ * @return IDATA
+ */
 IDATA
-jniParseArguments(J9JavaVM *vm, char *optArg);
-
+jniParseArguments(J9JavaVM* vm, char* optArg);
 
 /**
  * Look up a JNI native in the specified \c nativeLibrary, if found then
@@ -197,18 +180,17 @@ jniParseArguments(J9JavaVM *vm, char *optArg);
  * \return 0 on success, any other value on failure.
  */
 UDATA
-lookupJNINative(J9VMThread *currentThread, J9NativeLibrary *nativeLibrary, J9Method *nativeMethod, char * symbolName, char* argSignature);
+lookupJNINative(J9VMThread* currentThread, J9NativeLibrary* nativeLibrary, J9Method* nativeMethod, char* symbolName,
+    char* argSignature);
 
 /* ---------------- logsupport.c ---------------- */
 /**
-* @brief
-* Process the -Xlog: options.
-* @param vm
-* @return JNI_ERR on error, JNI_OK on success.
-*/
-jint
-processXLogOptions(J9JavaVM * vm);
-
+ * @brief
+ * Process the -Xlog: options.
+ * @param vm
+ * @return JNI_ERR on error, JNI_OK on success.
+ */
+jint processXLogOptions(J9JavaVM* vm);
 
 /* ---------------- lockwordconfig.c ---------------- */
 #if defined(J9VM_THR_LOCK_NURSERY)
@@ -217,8 +199,7 @@ processXLogOptions(J9JavaVM * vm);
  *
  * @param jvm pointer to J9JavaVM that can be used by the method
  */
-void
-cleanupLockwordConfig(J9JavaVM* jvm);
+void cleanupLockwordConfig(J9JavaVM* jvm);
 
 /**
  * This method parses a string containing lockword options
@@ -236,8 +217,7 @@ parseLockwordConfig(J9JavaVM* jvm, char* options, BOOLEAN* what);
  *
  * @param jvm pointer to J9JavaVM that can be used by the method
  */
-void
-printLockwordWhat(J9JavaVM* jvm);
+void printLockwordWhat(J9JavaVM* jvm);
 
 #if defined(J9VM_OUT_OF_PROCESS)
 /**
@@ -250,7 +230,6 @@ J9HashTable* readLocknurseryHashtable(J9HashTable* lockwordExceptions);
 #endif /* J9VM_OUT_OF_PROCESS */
 #endif /* J9VM_THR_LOCK_NURSERY */
 
-
 /* ------------------- stringhelpers.c ----------------- */
 /**
  * Check that each UTF8 character is well-formed.
@@ -260,7 +239,7 @@ J9HashTable* readLocknurseryHashtable(J9HashTable* lockwordExceptions);
  */
 
 UDATA
-isValidUtf8(const U_8 * utf8Data, size_t length);
+isValidUtf8(const U_8* utf8Data, size_t length);
 
 /**
  *  copies original to corrected, replacing bad characters with '?'.  Also add a terminating null byte.
@@ -269,8 +248,7 @@ isValidUtf8(const U_8 * utf8Data, size_t length);
  * @param corrected pointer to a buffer to receive the corrected string.
  */
 
-void
-fixBadUtf8(const U_8 * original, U_8 *corrected, size_t length);
+void fixBadUtf8(const U_8* original, U_8* corrected, size_t length);
 
 /* ------------------- NativeHelpers.cpp ----------------- */
 /**
@@ -284,8 +262,7 @@ fixBadUtf8(const U_8 * original, U_8 *corrected, size_t length);
  *
  * @returns the array of interfaces, or NULL on failure (in which case an exception will be pending)
  */
-j9object_t   
-getInterfacesHelper(J9VMThread *currentThread, j9object_t clazz);
+j9object_t getInterfacesHelper(J9VMThread* currentThread, j9object_t clazz);
 
 /**
  * Iterate on stack to obtain the immediate caller class of the native method invoking
@@ -297,10 +274,11 @@ getInterfacesHelper(J9VMThread *currentThread, j9object_t clazz);
  * @param currentThread[in] the current J9VMThread
  * @param walkState[in] the current J9StackWalkState pointer
  *
- * @returns J9_STACKWALK_KEEP_ITERATING with depth greater than 0, or J9_STACKWALK_STOP_ITERATING once the caller is detected at depth 0
+ * @returns J9_STACKWALK_KEEP_ITERATING with depth greater than 0, or J9_STACKWALK_STOP_ITERATING once the caller is
+ * detected at depth 0
  */
 UDATA
-cInterpGetStackClassJEP176Iterator(J9VMThread * currentThread, J9StackWalkState * walkState);
+cInterpGetStackClassJEP176Iterator(J9VMThread* currentThread, J9StackWalkState* walkState);
 
 /**
  * Allocate native memory and copy the bytearray to it.
@@ -310,8 +288,7 @@ cInterpGetStackClassJEP176Iterator(J9VMThread * currentThread, J9StackWalkState 
  *
  * @returns the newly-allocated memory, or NULL on failure (no exception is set pending)
  */
-char*
-convertByteArrayToCString(J9VMThread *currentThread, j9object_t byteArray);
+char* convertByteArrayToCString(J9VMThread* currentThread, j9object_t byteArray);
 
 /**
  * Allocate a ByteArray and copy the C string into it, without the terminator.
@@ -323,8 +300,7 @@ convertByteArrayToCString(J9VMThread *currentThread, j9object_t byteArray);
  *
  * @returns the newly-allocated object, or NULL on failure (no exception is set pending)
  */
-j9object_t
-convertCStringToByteArray(J9VMThread *currentThread, const char *byteArray);
+j9object_t convertCStringToByteArray(J9VMThread* currentThread, const char* byteArray);
 
 /* ------------------- romclasses.c ----------------- */
 
@@ -333,8 +309,7 @@ convertCStringToByteArray(J9VMThread *currentThread, const char *byteArray);
  *
  * @param vm[in] the J9JavaVM
  */
-void
-initializeROMClasses(J9JavaVM *vm);
+void initializeROMClasses(J9JavaVM* vm);
 
 /* ------------------- visible.c ----------------- */
 
@@ -369,7 +344,8 @@ initializeROMClasses(J9JavaVM *vm);
  */
 
 IDATA
-checkModuleAccess(J9VMThread *currentThread, J9JavaVM* vm, J9ROMClass* srcRomClass, J9Module* srcModule, J9ROMClass* destRomClass, J9Module* destModule, UDATA destPackageID, UDATA lookupOptions);
+checkModuleAccess(J9VMThread* currentThread, J9JavaVM* vm, J9ROMClass* srcRomClass, J9Module* srcModule,
+    J9ROMClass* destRomClass, J9Module* destModule, UDATA destPackageID, UDATA lookupOptions);
 
 /* ------------------- guardedstorage.c ----------------- */
 
@@ -396,8 +372,7 @@ J9_EXTERN_BUILDER_SYMBOL(handleSoftwareReadBarrier);
  *
  * @param currentThread[in] the current J9VMThread
  */
-void
-invokeJ9ReadBarrier(struct J9VMThread *currentThread);
+void invokeJ9ReadBarrier(struct J9VMThread* currentThread);
 
 /**
  * Initialize a thread to execute H/W Guarded Storage Instructions
@@ -408,8 +383,7 @@ invokeJ9ReadBarrier(struct J9VMThread *currentThread);
  *
  * @returns 1 if successful, 0 otherwise
  */
-int32_t
-j9gs_initializeThread(struct J9VMThread *vmThread);
+int32_t j9gs_initializeThread(struct J9VMThread* vmThread);
 
 /**
  * Deinitialize a thread to execute H/W Guarded Storage Instructions
@@ -420,14 +394,13 @@ j9gs_initializeThread(struct J9VMThread *vmThread);
  *
  * @returns 1 if successful, 0 otherwise
  */
-int32_t
-j9gs_deinitializeThread(struct J9VMThread *vmThread);
+int32_t j9gs_deinitializeThread(struct J9VMThread* vmThread);
 #endif
 
 /* FlushProcessWriteBuffers.cpp */
 
-UDATA initializeExclusiveAccess(J9JavaVM *vm);
-void shutDownExclusiveAccess(J9JavaVM *vm);
+UDATA initializeExclusiveAccess(J9JavaVM* vm);
+void shutDownExclusiveAccess(J9JavaVM* vm);
 
 #ifdef __cplusplus
 }

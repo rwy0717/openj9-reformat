@@ -34,67 +34,66 @@
 #include "OMRVMInterface.hpp"
 #include "Heap.hpp"
 
-MM_IdleGCManager *
-MM_IdleGCManager::newInstance(MM_EnvironmentBase* env)
+MM_IdleGCManager* MM_IdleGCManager::newInstance(MM_EnvironmentBase* env)
 {
-	MM_IdleGCManager* idleGCMgr = (MM_IdleGCManager*)env->getForge()->allocate(sizeof(MM_IdleGCManager), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
-	if (idleGCMgr) {
-		new(idleGCMgr) MM_IdleGCManager(env);
-		if (!idleGCMgr->initialize(env)) {
-			idleGCMgr->kill(env);
-			idleGCMgr = NULL;
-		}
-	}
-	return idleGCMgr;
+    MM_IdleGCManager* idleGCMgr = (MM_IdleGCManager*)env->getForge()->allocate(
+        sizeof(MM_IdleGCManager), MM_AllocationCategory::FIXED, J9_GET_CALLSITE());
+    if (idleGCMgr) {
+        new (idleGCMgr) MM_IdleGCManager(env);
+        if (!idleGCMgr->initialize(env)) {
+            idleGCMgr->kill(env);
+            idleGCMgr = NULL;
+        }
+    }
+    return idleGCMgr;
 }
 
-void
-MM_IdleGCManager::kill(MM_EnvironmentBase* env)
+void MM_IdleGCManager::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-void
-MM_IdleGCManager::tearDown(MM_EnvironmentBase* env)
+void MM_IdleGCManager::tearDown(MM_EnvironmentBase* env)
 {
-	J9HookInterface** hookInterface = _javaVM->internalVMFunctions->getVMHookInterface(_javaVM);
-	if (NULL != hookInterface) {
-		(*hookInterface)->J9HookUnregister(hookInterface, J9HOOK_VM_RUNTIME_STATE_CHANGED, idleGCManagerVMStateHook, this);
-	}
+    J9HookInterface** hookInterface = _javaVM->internalVMFunctions->getVMHookInterface(_javaVM);
+    if (NULL != hookInterface) {
+        (*hookInterface)
+            ->J9HookUnregister(hookInterface, J9HOOK_VM_RUNTIME_STATE_CHANGED, idleGCManagerVMStateHook, this);
+    }
 }
 
-bool
-MM_IdleGCManager::initialize(MM_EnvironmentBase* env)
+bool MM_IdleGCManager::initialize(MM_EnvironmentBase* env)
 {
-	J9HookInterface** hookInterface = _javaVM->internalVMFunctions->getVMHookInterface(_javaVM);
-	if (NULL != hookInterface && (*hookInterface)->J9HookRegister(hookInterface, J9HOOK_VM_RUNTIME_STATE_CHANGED, idleGCManagerVMStateHook, this)) {
-		return false;
-	}
-	return true;
+    J9HookInterface** hookInterface = _javaVM->internalVMFunctions->getVMHookInterface(_javaVM);
+    if (NULL != hookInterface
+        && (*hookInterface)
+               ->J9HookRegister(hookInterface, J9HOOK_VM_RUNTIME_STATE_CHANGED, idleGCManagerVMStateHook, this)) {
+        return false;
+    }
+    return true;
 }
 
-void
-MM_IdleGCManager::manageFreeHeap(J9VMThread* currentThread)
+void MM_IdleGCManager::manageFreeHeap(J9VMThread* currentThread)
 {
-	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(currentThread->omrVMThread);
-	MM_GCExtensions* _extensions = MM_GCExtensions::getExtensions(env);
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(currentThread->omrVMThread);
+    MM_GCExtensions* _extensions = MM_GCExtensions::getExtensions(env);
 
-	_javaVM->internalVMFunctions->internalAcquireVMAccess(currentThread);
-	_extensions->heap->systemGarbageCollect(env, J9MMCONSTANT_EXPLICIT_GC_IDLE_GC);
-	_javaVM->internalVMFunctions->internalReleaseVMAccess(currentThread);
+    _javaVM->internalVMFunctions->internalAcquireVMAccess(currentThread);
+    _extensions->heap->systemGarbageCollect(env, J9MMCONSTANT_EXPLICIT_GC_IDLE_GC);
+    _javaVM->internalVMFunctions->internalReleaseVMAccess(currentThread);
 }
 
 extern "C" {
 void idleGCManagerVMStateHook(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
 {
-	J9VMRuntimeStateChanged* j9VMState = (J9VMRuntimeStateChanged*)eventData;
-	MM_IdleGCManager* idleMgr = (MM_IdleGCManager*)userData;
+    J9VMRuntimeStateChanged* j9VMState = (J9VMRuntimeStateChanged*)eventData;
+    MM_IdleGCManager* idleMgr = (MM_IdleGCManager*)userData;
 
-	/* idle gc manager currently handles only ACTIVE -> IDLE transition*/
-	if (j9VMState->state == J9VM_RUNTIME_STATE_IDLE) {
-		idleMgr->manageFreeHeap(j9VMState->vmThread);
-	}
+    /* idle gc manager currently handles only ACTIVE -> IDLE transition*/
+    if (j9VMState->state == J9VM_RUNTIME_STATE_IDLE) {
+        idleMgr->manageFreeHeap(j9VMState->vmThread);
+    }
 }
 } /*end extern "C"  */
 #endif /* defined(J9VM_GC_IDLE_HEAP_MANAGER) */

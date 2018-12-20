@@ -23,6 +23,6 @@
 #ifndef argcount_h
 #define argcount_h
 
-extern const U_8 argCountCharConversion[]; 
+extern const U_8 argCountCharConversion[];
 
-#endif     /* argcount_h */
+#endif /* argcount_h */

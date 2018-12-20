@@ -20,20 +20,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-extern "C"
-   {
+extern "C" {
 
-   /* Do nothing, just define dummy symbols */
-   void MTUnresolvedInt32Load() {}
-   void MTUnresolvedInt64Load() {}
-   void MTUnresolvedFloatLoad() {}
-   void MTUnresolvedDoubleLoad() {}
-   void MTUnresolvedAddressLoad() {}
+/* Do nothing, just define dummy symbols */
+void MTUnresolvedInt32Load() {}
+void MTUnresolvedInt64Load() {}
+void MTUnresolvedFloatLoad() {}
+void MTUnresolvedDoubleLoad() {}
+void MTUnresolvedAddressLoad() {}
 
-   void MTUnresolvedInt32Store() {}
-   void MTUnresolvedInt64Store() {}
-   void MTUnresolvedFloatStore() {}
-   void MTUnresolvedDoubleStore() {}
-   void MTUnresolvedAddressStore() {}
-
-   }
+void MTUnresolvedInt32Store() {}
+void MTUnresolvedInt64Store() {}
+void MTUnresolvedFloatStore() {}
+void MTUnresolvedDoubleStore() {}
+void MTUnresolvedAddressStore() {}
+}

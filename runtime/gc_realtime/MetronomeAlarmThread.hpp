@@ -37,63 +37,58 @@
 
 class MM_Timer;
 
-class MM_MetronomeAlarmThread : public MM_BaseVirtual
-{
-	/*
-	 * Data members
-	 */
+class MM_MetronomeAlarmThread : public MM_BaseVirtual {
+    /*
+     * Data members
+     */
 private:
-	MM_Alarm *_alarm;
-	omrthread_monitor_t _mutex;
-	volatile bool _shutdown;
-	enum AlarmThradActive {
-			ALARM_THREAD_INACTIVE,
-			ALARM_THREAD_ACTIVE,
-			ALARM_THREAD_SHUTDOWN
-	};
-	volatile  AlarmThradActive _alarmThreadActive;
-	MM_Scheduler *_scheduler;
+    MM_Alarm* _alarm;
+    omrthread_monitor_t _mutex;
+    volatile bool _shutdown;
+    enum AlarmThradActive { ALARM_THREAD_INACTIVE, ALARM_THREAD_ACTIVE, ALARM_THREAD_SHUTDOWN };
+    volatile AlarmThradActive _alarmThreadActive;
+    MM_Scheduler* _scheduler;
 
 protected:
 public:
-	omrthread_t _thread; /**< Underlying port-library thread */
-	
-	/*
-	 * Function members
-	 */
+    omrthread_t _thread; /**< Underlying port-library thread */
+
+    /*
+     * Function members
+     */
 private:
-	static int J9THREAD_PROC metronomeAlarmThreadWrapper(void* userData);
-	static UDATA signalProtectedFunction(J9PortLibrary* portLib, void* userData);
+    static int J9THREAD_PROC metronomeAlarmThreadWrapper(void* userData);
+    static UDATA signalProtectedFunction(J9PortLibrary* portLib, void* userData);
 
 protected:
-	void tearDown(MM_EnvironmentBase *env);
-	bool initialize (MM_EnvironmentBase *env);
+    void tearDown(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env);
 
 public:
-	static MM_MetronomeAlarmThread *newInstance(MM_EnvironmentBase *env); 
-	virtual void kill(MM_EnvironmentBase *env);
+    static MM_MetronomeAlarmThread* newInstance(MM_EnvironmentBase* env);
+    virtual void kill(MM_EnvironmentBase* env);
 
-	MM_Scheduler* getScheduler() const { return _scheduler; }
+    MM_Scheduler* getScheduler() const { return _scheduler; }
 
-	bool startThread(MM_EnvironmentBase *env);
-	virtual void run(MM_EnvironmentRealtime *env);
-	
-	MM_MetronomeAlarmThread(MM_EnvironmentBase *env)
-		: MM_BaseVirtual()
-		, _alarm(NULL)
-		, _mutex(NULL)
-		, _shutdown(false)
-		, _alarmThreadActive(ALARM_THREAD_INACTIVE)
-		, _scheduler((MM_Scheduler *)(MM_GCExtensions::getExtensions(env)->dispatcher))
-		, _thread(NULL)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
-	/*
-	 * Friends
-	 */
-	friend class MM_Scheduler;
+    bool startThread(MM_EnvironmentBase* env);
+    virtual void run(MM_EnvironmentRealtime* env);
+
+    MM_MetronomeAlarmThread(MM_EnvironmentBase* env)
+        : MM_BaseVirtual()
+        , _alarm(NULL)
+        , _mutex(NULL)
+        , _shutdown(false)
+        , _alarmThreadActive(ALARM_THREAD_INACTIVE)
+        , _scheduler((MM_Scheduler*)(MM_GCExtensions::getExtensions(env)->dispatcher))
+        , _thread(NULL)
+    {
+        _typeId = __FUNCTION__;
+    }
+
+    /*
+     * Friends
+     */
+    friend class MM_Scheduler;
 };
 
 #endif /* METRONOMEALARMTHREAD_HPP_ */

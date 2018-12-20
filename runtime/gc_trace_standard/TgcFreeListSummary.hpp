@@ -29,6 +29,6 @@
 #if !defined(TGCFREELISTSUMMARY_HPP_)
 #define TGCFREELISTSUMMARY_HPP_
 
-bool tgcFreeListSummaryInitialize(J9JavaVM *javaVM);
+bool tgcFreeListSummaryInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCFREELISTSUMMARY_HPP_ */

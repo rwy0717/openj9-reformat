@@ -38,8 +38,8 @@
 
 /* required for the J9VMTHREAD_JAVAVM and J9VMJAVALANGCLASS_VMREF macros */
 #include "j9cp.h"
- 
-#define PORT_ACCESS_FROM_ENVIRONMENT(env) PORT_ACCESS_FROM_JAVAVM((J9JavaVM *)env->getLanguageVM())
+
+#define PORT_ACCESS_FROM_ENVIRONMENT(env) PORT_ACCESS_FROM_JAVAVM((J9JavaVM*)env->getLanguageVM())
 
 /**
  * @ingroup GC_Base
@@ -50,10 +50,10 @@
 #define J9GC_HEAP_EXPAND_FLAGS_FREE_LIST 2
 #define J9GC_HEAP_EXPAND_FLAGS_NO_MINIMUM 4
 /** @} */
- 
+
 /**
  * @ingroup GC_Base
- * @name Return codes for heap expansion 
+ * @name Return codes for heap expansion
  * @{
  */
 #define J9GC_HEAP_EXPAND_RESULT_OK 0
@@ -70,13 +70,13 @@
 /* We may eventually want to have separate getter and setter macros for
  * each field, like the regular VM field access macros. The single-macro
  * per field approach was chosen for simplicity.
- * 
+ *
  * When using these macros as an R-value, you may need to cast the result,
  * e.g. J9Class *clazz = (J9Class *)J9GC_OBJECT_CLAZZ(object);
  */
 
-#define	J9GC_J9OBJECT_CLAZZ_FLAGS_MASK	((UDATA)(J9_REQUIRED_CLASS_ALIGNMENT - 1))
-#define	J9GC_J9OBJECT_CLAZZ_ADDRESS_MASK (~((UDATA)J9GC_J9OBJECT_CLAZZ_FLAGS_MASK))
+#define J9GC_J9OBJECT_CLAZZ_FLAGS_MASK ((UDATA)(J9_REQUIRED_CLASS_ALIGNMENT - 1))
+#define J9GC_J9OBJECT_CLAZZ_ADDRESS_MASK (~((UDATA)J9GC_J9OBJECT_CLAZZ_FLAGS_MASK))
 
 #define J9GC_J9OBJECT_CLAZZ(object) ((J9Class*)((UDATA)((object)->clazz) & J9GC_J9OBJECT_CLAZZ_ADDRESS_MASK))
 #define J9GC_J9OBJECT_CLAZZ_WITH_FLAGS(object) ((J9Class*)(UDATA)(object)->clazz)
@@ -84,32 +84,37 @@
 
 #define J9GC_J9OBJECT_FLAGS_FROM_CLAZZ(object) ((U_32)((UDATA)((object)->clazz) & J9GC_J9OBJECT_CLAZZ_FLAGS_MASK))
 
-#define J9GC_J9OBJECT_FIRST_HEADER_SLOT(object) (*((j9objectclass_t *)(object)))
+#define J9GC_J9OBJECT_FIRST_HEADER_SLOT(object) (*((j9objectclass_t*)(object)))
 
-/* 
+/*
  * NOTE: since these macros use getOmrVM() they only work in-process (not out-of-process).
  * They may not be used in gccheck.
  */
-#define J9GC_J9VMJAVALANGREFERENCE_REFERENT(env, object) (*(fj9object_t*)((U_8*)(object) + J9VMJAVALANGREFREFERENCE_REFERENT_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
-#define J9GC_J9VMJAVALANGREFERENCE_QUEUE(env, object) (*(fj9object_t*)((U_8*)(object) + J9VMJAVALANGREFREFERENCE_QUEUE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
-#define J9GC_J9VMJAVALANGREFERENCE_STATE(env, object) (*(I_32*)((U_8*)(object) + J9VMJAVALANGREFREFERENCE_STATE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
-#define J9GC_J9VMJAVALANGSOFTREFERENCE_AGE(env, object) (*(I_32*)((U_8*)(object) + J9VMJAVALANGREFSOFTREFERENCE_AGE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
+#define J9GC_J9VMJAVALANGREFERENCE_REFERENT(env, object) \
+    (*(fj9object_t*)((U_8*)(object)                      \
+        + J9VMJAVALANGREFREFERENCE_REFERENT_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
+#define J9GC_J9VMJAVALANGREFERENCE_QUEUE(env, object) \
+    (*(fj9object_t*)((U_8*)(object) + J9VMJAVALANGREFREFERENCE_QUEUE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
+#define J9GC_J9VMJAVALANGREFERENCE_STATE(env, object) \
+    (*(I_32*)((U_8*)(object) + J9VMJAVALANGREFREFERENCE_STATE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
+#define J9GC_J9VMJAVALANGSOFTREFERENCE_AGE(env, object) \
+    (*(I_32*)((U_8*)(object) + J9VMJAVALANGREFSOFTREFERENCE_AGE_OFFSET((J9VMThread*)(env)->getLanguageVMThread())))
 
-#define J9GC_J9OBJECT_FIELD_EA(object, byteOffset) ((fj9object_t*)((U_8 *)(object) + (byteOffset) + sizeof(J9Object)))
+#define J9GC_J9OBJECT_FIELD_EA(object, byteOffset) ((fj9object_t*)((U_8*)(object) + (byteOffset) + sizeof(J9Object)))
 
 #define J9GC_J9CLASSLOADER_CLASSLOADEROBJECT(classLoader) ((j9object_t)(classLoader)->classLoaderObject)
 #define J9GC_J9CLASSLOADER_CLASSLOADEROBJECT_EA(classLoader) (&(classLoader)->classLoaderObject)
 
-#define J9GC_CLASS_SHAPE(ramClass)		(J9CLASS_SHAPE(ramClass))
-#define J9GC_CLASS_IS_ARRAY(ramClass)	(J9CLASS_IS_ARRAY(ramClass))
+#define J9GC_CLASS_SHAPE(ramClass) (J9CLASS_SHAPE(ramClass))
+#define J9GC_CLASS_IS_ARRAY(ramClass) (J9CLASS_IS_ARRAY(ramClass))
 
-#if defined (J9VM_GC_COMPRESSED_POINTERS)
+#if defined(J9VM_GC_COMPRESSED_POINTERS)
 
-extern "C" mm_j9object_t j9gc_objaccess_pointerFromToken(J9VMThread *vmThread, fj9object_t token);
-extern "C" fj9object_t j9gc_objaccess_tokenFromPointer(J9VMThread *vmThread, mm_j9object_t object);
+extern "C" mm_j9object_t j9gc_objaccess_pointerFromToken(J9VMThread* vmThread, fj9object_t token);
+extern "C" fj9object_t j9gc_objaccess_tokenFromPointer(J9VMThread* vmThread, mm_j9object_t object);
 
-#define mmPointerFromToken(vmThread, token) (j9gc_objaccess_pointerFromToken((vmThread), (token) ))
-#define mmTokenFromPointer(vmThread, object) (j9gc_objaccess_tokenFromPointer((vmThread), (object) ))
+#define mmPointerFromToken(vmThread, token) (j9gc_objaccess_pointerFromToken((vmThread), (token)))
+#define mmTokenFromPointer(vmThread, object) (j9gc_objaccess_tokenFromPointer((vmThread), (object)))
 
 /* The size of the reserved area at the beginning of the compressed pointer heap */
 #define J9GC_COMPRESSED_POINTER_NULL_REGION_SIZE 4096
@@ -126,7 +131,7 @@ extern "C" fj9object_t j9gc_objaccess_tokenFromPointer(J9VMThread *vmThread, mm_
  * sATBBarrierRememberedSet:
  * 1) As a per-thread flag indicating the double barrier is on.
  * 2) As a global flag indicating the barrier is disabled.
- * 
+ *
  * If the global or local fragment indexes must be preserved for any other
  * reason and the JIT relies on the (localFragmentIndex == globalFragmentIndex)
  * check, we must ensure that both indexes aren't preserved at the same time.
@@ -140,14 +145,10 @@ extern "C" fj9object_t j9gc_objaccess_tokenFromPointer(J9VMThread *vmThread, mm_
  * This differs from J9VM_IS_INITIALIZED_HEAPCLASS in that it goes through the back door to avoid access barriers.
  * It is only to be used from inside the GC.
  */
-#define J9GC_IS_INITIALIZED_HEAPCLASS(vmThread, _clazzObject) \
-		(\
-				(_clazzObject) && \
-				(J9GC_J9OBJECT_CLAZZ(_clazzObject) == J9VMJAVALANGCLASS_OR_NULL(J9VMTHREAD_JAVAVM(vmThread))) && \
-				(0 != ((J9Class *)J9VMJAVALANGCLASS_VMREF((vmThread), (j9object_t)(_clazzObject)))) \
-		)
+#define J9GC_IS_INITIALIZED_HEAPCLASS(vmThread, _clazzObject)                                                        \
+    ((_clazzObject) && (J9GC_J9OBJECT_CLAZZ(_clazzObject) == J9VMJAVALANGCLASS_OR_NULL(J9VMTHREAD_JAVAVM(vmThread))) \
+        && (0 != ((J9Class*)J9VMJAVALANGCLASS_VMREF((vmThread), (j9object_t)(_clazzObject)))))
 
 /** @} */
 
 #endif /* MODRON_H_ */
-

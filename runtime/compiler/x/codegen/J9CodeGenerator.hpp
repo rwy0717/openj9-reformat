@@ -25,69 +25,64 @@
 
 #include "compiler/codegen/J9CodeGenerator.hpp"
 
-namespace TR { class Recompilation; }
+namespace TR {
+class Recompilation;
+}
 
-namespace J9
-{
+namespace J9 {
 
-namespace X86
-{
+namespace X86 {
 
-class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator
-   {
-   public:
+class OMR_EXTENSIBLE CodeGenerator : public J9::CodeGenerator {
+public:
+    CodeGenerator();
 
-   CodeGenerator();
+    TR::Recompilation* allocateRecompilationInfo();
 
-   TR::Recompilation *allocateRecompilationInfo();
+    void beginInstructionSelection();
 
-   void beginInstructionSelection();
+    void endInstructionSelection();
 
-   void endInstructionSelection();
+    TR::Instruction* generateSwitchToInterpreterPrePrologue(
+        TR::Instruction* prev, uint8_t alignment, uint8_t alignmentMargin);
 
-   TR::Instruction *generateSwitchToInterpreterPrePrologue(
-         TR::Instruction *prev,
-         uint8_t alignment,
-         uint8_t alignmentMargin);
+    // Stack frame padding
+    int32_t getStackFramePaddingSizeInBytes() { return _stackFramePaddingSizeInBytes; }
+    int32_t setStackFramePaddingSizeInBytes(int32_t s) { return (_stackFramePaddingSizeInBytes = s); }
+    int32_t _stackFramePaddingSizeInBytes;
 
-   // Stack frame padding
-   int32_t getStackFramePaddingSizeInBytes() {return _stackFramePaddingSizeInBytes;}
-   int32_t setStackFramePaddingSizeInBytes(int32_t s) {return (_stackFramePaddingSizeInBytes = s);}
-   int32_t _stackFramePaddingSizeInBytes;
+    bool allowGuardMerging();
 
-   bool allowGuardMerging();
-
-   bool nopsAlsoProcessedByRelocations();
+    bool nopsAlsoProcessedByRelocations();
 
 #ifdef J9VM_OPT_JAVA_CRYPTO_ACCELERATION
-   bool inlineCryptoMethod(TR::Node *node, TR::Register *&resultReg);
+    bool inlineCryptoMethod(TR::Node* node, TR::Register*& resultReg);
 #endif
 
-   bool enableAESInHardwareTransformations();
+    bool enableAESInHardwareTransformations();
 
-   bool suppressInliningOfRecognizedMethod(TR::RecognizedMethod method);
+    bool suppressInliningOfRecognizedMethod(TR::RecognizedMethod method);
 
-   /** \brief
-    *     Determines whether the code generator supports inlining of java/lang/Class.isAssignableFrom
-    */
-   bool supportsInliningOfIsAssignableFrom();
+    /** \brief
+     *     Determines whether the code generator supports inlining of java/lang/Class.isAssignableFrom
+     */
+    bool supportsInliningOfIsAssignableFrom();
 
-   /*
-    * \brief Reserve space in the code cache for a specified number of trampolines.
-    *        This is useful for inline caches where the methods are not yet known at
-    *        compile-time but for which trampolines may be required for compiled
-    *        bodies in the future.
-    *
-    * \param[in] numTrampolines : number of trampolines to reserve
-    *
-    * \return : none
-    */
-   void reserveNTrampolines(int32_t numTrampolines);
+    /*
+     * \brief Reserve space in the code cache for a specified number of trampolines.
+     *        This is useful for inline caches where the methods are not yet known at
+     *        compile-time but for which trampolines may be required for compiled
+     *        bodies in the future.
+     *
+     * \param[in] numTrampolines : number of trampolines to reserve
+     *
+     * \return : none
+     */
+    void reserveNTrampolines(int32_t numTrampolines);
+};
 
-   };
+} // namespace X86
 
-}
-
-}
+} // namespace J9
 
 #endif

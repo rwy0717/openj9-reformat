@@ -29,15 +29,11 @@
 void __pure_virtual();
 void __cxa_pure_virtual();
 
-
 void __pure_virtual()
 {
-        printf("\nError pure virtual function called!!\n");
-        abort();
+    printf("\nError pure virtual function called!!\n");
+    abort();
 }
-void __cxa_pure_virtual()
-{
-        __pure_virtual();
-}
+void __cxa_pure_virtual() { __pure_virtual(); }
 
 #endif /* defined(LINUX) || defined(OSX) */

@@ -40,54 +40,51 @@ class MM_HeapRegionDescriptorRealtime;
 /**
  * @todo Provide class documentation
  */
-class MM_IncrementalOverflow : public MM_WorkPacketOverflow
-{
-/* Data members & types */
+class MM_IncrementalOverflow : public MM_WorkPacketOverflow {
+    /* Data members & types */
 public:
 protected:
 private:
-	MM_GCExtensions *_extensions;
-	MM_HeapRegionDescriptorRealtime *_overflowList;
-	bool _overflowThisGCCycle; /**< set to signify an overflow happened sometime during GC cycle */
-	
-/* Methods */
-public:
-	static MM_IncrementalOverflow *newInstance(MM_EnvironmentBase *env, MM_WorkPackets *workPackets);
-	virtual void reset(MM_EnvironmentBase *env);
-	
-	virtual bool isEmpty()
-	{
-		return (_overflowList == NULL);
-	}
-	
-	bool isOverflowThisGCCycle() const { return _overflowThisGCCycle; }
-	void resetOverflowThisGCCycle() { _overflowThisGCCycle = false; }
-	
-	virtual void emptyToOverflow(MM_EnvironmentBase *env, MM_Packet *packet, MM_OverflowType type);
-	virtual void fillFromOverflow(MM_EnvironmentBase *env, MM_Packet *packet);
-	virtual void overflowItem(MM_EnvironmentBase *env, void *item, MM_OverflowType type);
+    MM_GCExtensions* _extensions;
+    MM_HeapRegionDescriptorRealtime* _overflowList;
+    bool _overflowThisGCCycle; /**< set to signify an overflow happened sometime during GC cycle */
 
-	/**
-	 * Create a IncrementalOverflow object.
-	 */	
-	MM_IncrementalOverflow(MM_EnvironmentBase *env, MM_WorkPackets *workPackets) :
-		MM_WorkPacketOverflow(env, workPackets),
-		_overflowList(NULL),
-		_overflowThisGCCycle(false)
-	{
-		_typeId = __FUNCTION__;
-	};
-	
+    /* Methods */
+public:
+    static MM_IncrementalOverflow* newInstance(MM_EnvironmentBase* env, MM_WorkPackets* workPackets);
+    virtual void reset(MM_EnvironmentBase* env);
+
+    virtual bool isEmpty() { return (_overflowList == NULL); }
+
+    bool isOverflowThisGCCycle() const { return _overflowThisGCCycle; }
+    void resetOverflowThisGCCycle() { _overflowThisGCCycle = false; }
+
+    virtual void emptyToOverflow(MM_EnvironmentBase* env, MM_Packet* packet, MM_OverflowType type);
+    virtual void fillFromOverflow(MM_EnvironmentBase* env, MM_Packet* packet);
+    virtual void overflowItem(MM_EnvironmentBase* env, void* item, MM_OverflowType type);
+
+    /**
+     * Create a IncrementalOverflow object.
+     */
+    MM_IncrementalOverflow(MM_EnvironmentBase* env, MM_WorkPackets* workPackets)
+        : MM_WorkPacketOverflow(env, workPackets)
+        , _overflowList(NULL)
+        , _overflowThisGCCycle(false)
+    {
+        _typeId = __FUNCTION__;
+    };
+
 protected:
-	bool initialize(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
+    bool initialize(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
+
 private:
-	void overflowItemInternal(MM_EnvironmentBase *env, void *item, MM_OverflowType type);
-	void push(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region);
-	void pushNoLock(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region);
-	MM_HeapRegionDescriptorRealtime *pop(MM_EnvironmentBase *env);
-	void pushLocal(MM_EnvironmentBase *env, MM_HeapRegionDescriptorRealtime *region, MM_OverflowType type);
-	void flushLocal(MM_EnvironmentBase *env, MM_OverflowType type);
+    void overflowItemInternal(MM_EnvironmentBase* env, void* item, MM_OverflowType type);
+    void push(MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region);
+    void pushNoLock(MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region);
+    MM_HeapRegionDescriptorRealtime* pop(MM_EnvironmentBase* env);
+    void pushLocal(MM_EnvironmentBase* env, MM_HeapRegionDescriptorRealtime* region, MM_OverflowType type);
+    void flushLocal(MM_EnvironmentBase* env, MM_OverflowType type);
 };
 
 #endif /* INCREMENTALOVERFLOW_HPP_ */

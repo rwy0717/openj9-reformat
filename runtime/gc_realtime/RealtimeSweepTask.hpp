@@ -37,28 +37,28 @@ class MM_SweepSchemeRealtime;
 /**
  * Task representing a the sweep phase of Metronome global collection.
  */
-class MM_RealtimeSweepTask : public MM_IncrementalParallelTask
-{
-/* Data members / types */
+class MM_RealtimeSweepTask : public MM_IncrementalParallelTask {
+    /* Data members / types */
 public:
 protected:
 private:
-	MM_SweepSchemeRealtime *_sweepScheme;
+    MM_SweepSchemeRealtime* _sweepScheme;
 
-/* Methods */
+    /* Methods */
 public:
-	virtual UDATA getVMStateID() { return OMRVMSTATE_GC_SWEEP; };
-	
-	virtual void run(MM_EnvironmentBase *env);
-	virtual void setup(MM_EnvironmentBase *env);
-	virtual void cleanup(MM_EnvironmentBase *env);
-	
-	MM_RealtimeSweepTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher, MM_SweepSchemeRealtime *sweepScheme) :
-		MM_IncrementalParallelTask(env, dispatcher),
-		_sweepScheme(sweepScheme)
-	{
-		_typeId = __FUNCTION__;
-	}
+    virtual UDATA getVMStateID() { return OMRVMSTATE_GC_SWEEP; };
+
+    virtual void run(MM_EnvironmentBase* env);
+    virtual void setup(MM_EnvironmentBase* env);
+    virtual void cleanup(MM_EnvironmentBase* env);
+
+    MM_RealtimeSweepTask(MM_EnvironmentBase* env, MM_Dispatcher* dispatcher, MM_SweepSchemeRealtime* sweepScheme)
+        : MM_IncrementalParallelTask(env, dispatcher)
+        , _sweepScheme(sweepScheme)
+    {
+        _typeId = __FUNCTION__;
+    }
+
 protected:
 private:
 };

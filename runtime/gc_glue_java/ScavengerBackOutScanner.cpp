@@ -37,197 +37,197 @@
 
 #include "ScavengerBackOutScanner.hpp"
 
-void
-MM_ScavengerBackOutScanner::scanAllSlots(MM_EnvironmentBase *env)
+void MM_ScavengerBackOutScanner::scanAllSlots(MM_EnvironmentBase* env)
 {
-	/* Clear the reference lists since the scavenge is being backed out */
-	{
-		GC_HeapRegionIteratorStandard regionIterator(_extensions->heapRegionManager);
-		MM_HeapRegionDescriptorStandard *region = NULL;
-		while(NULL != (region = regionIterator.nextRegion())) {
-			if ((MEMORY_TYPE_NEW == (region->getTypeFlags() & MEMORY_TYPE_NEW))) {
-				MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-				for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
-					MM_ReferenceObjectList *list = &regionExtension->_referenceObjectLists[i];
-					list->resetLists();
-				}
-			}
-		}
-	}
+    /* Clear the reference lists since the scavenge is being backed out */
+    {
+        GC_HeapRegionIteratorStandard regionIterator(_extensions->heapRegionManager);
+        MM_HeapRegionDescriptorStandard* region = NULL;
+        while (NULL != (region = regionIterator.nextRegion())) {
+            if ((MEMORY_TYPE_NEW == (region->getTypeFlags() & MEMORY_TYPE_NEW))) {
+                MM_HeapRegionDescriptorStandardExtension* regionExtension
+                    = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+                for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
+                    MM_ReferenceObjectList* list = &regionExtension->_referenceObjectLists[i];
+                    list->resetLists();
+                }
+            }
+        }
+    }
 
-	/* Walk roots fixing up pointers through reverse forwarding information */
-	MM_RootScanner::scanAllSlots(env);
+    /* Walk roots fixing up pointers through reverse forwarding information */
+    MM_RootScanner::scanAllSlots(env);
 
-	if (!_extensions->isConcurrentScavengerEnabled()) {
-	/* Back out Ownable Synchronizer Processing */
-		MM_HeapRegionDescriptorStandard *region = NULL;
-		GC_HeapRegionIteratorStandard regionIterator(_extensions->heapRegionManager);
-		while (NULL != (region = regionIterator.nextRegion())) {
-			MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-			for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
-				MM_OwnableSynchronizerObjectList *list = &regionExtension->_ownableSynchronizerObjectLists[i];
-				list->backoutList();
-			}
-		}
-	}
+    if (!_extensions->isConcurrentScavengerEnabled()) {
+        /* Back out Ownable Synchronizer Processing */
+        MM_HeapRegionDescriptorStandard* region = NULL;
+        GC_HeapRegionIteratorStandard regionIterator(_extensions->heapRegionManager);
+        while (NULL != (region = regionIterator.nextRegion())) {
+            MM_HeapRegionDescriptorStandardExtension* regionExtension
+                = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+            for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
+                MM_OwnableSynchronizerObjectList* list = &regionExtension->_ownableSynchronizerObjectLists[i];
+                list->backoutList();
+            }
+        }
+    }
 
- 	/* Done backout */
-	Assert_MM_true(env->getGCEnvironment()->_referenceObjectBuffer->isEmpty());
+    /* Done backout */
+    Assert_MM_true(env->getGCEnvironment()->_referenceObjectBuffer->isEmpty());
 }
 
 #if defined(J9VM_GC_FINALIZATION)
-void
-MM_ScavengerBackOutScanner::backoutFinalizableObjects(MM_EnvironmentStandard *env)
+void MM_ScavengerBackOutScanner::backoutFinalizableObjects(MM_EnvironmentStandard* env)
 {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-	if (_extensions->isConcurrentScavengerEnabled()) {
-		GC_FinalizeListManager * finalizeListManager = _extensions->finalizeListManager;
-		{
-			GC_FinalizableObjectBuffer objectBuffer(_extensions);
-			/* walk finalizable objects loaded by the system class loader */
-			omrobjectptr_t systemObject = finalizeListManager->resetSystemFinalizableObjects();
-			while (NULL != systemObject) {
-				MM_ForwardedHeader forwardHeader(systemObject);
-				omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
+    if (_extensions->isConcurrentScavengerEnabled()) {
+        GC_FinalizeListManager* finalizeListManager = _extensions->finalizeListManager;
+        {
+            GC_FinalizableObjectBuffer objectBuffer(_extensions);
+            /* walk finalizable objects loaded by the system class loader */
+            omrobjectptr_t systemObject = finalizeListManager->resetSystemFinalizableObjects();
+            while (NULL != systemObject) {
+                MM_ForwardedHeader forwardHeader(systemObject);
+                omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
 
-				if (NULL != forwardPtr) {
-					if (forwardHeader.isSelfForwardedPointer()) {
-						forwardHeader.restoreSelfForwardedPointer();
-					} else {
-						systemObject = forwardPtr;
-					}
-				}
+                if (NULL != forwardPtr) {
+                    if (forwardHeader.isSelfForwardedPointer()) {
+                        forwardHeader.restoreSelfForwardedPointer();
+                    } else {
+                        systemObject = forwardPtr;
+                    }
+                }
 
-				omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(systemObject);
-				objectBuffer.add(env, systemObject);
-				systemObject = next;
-			}
-			objectBuffer.flush(env);
-		}
+                omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(systemObject);
+                objectBuffer.add(env, systemObject);
+                systemObject = next;
+            }
+            objectBuffer.flush(env);
+        }
 
-		{
-			GC_FinalizableObjectBuffer objectBuffer(_extensions);
-			/* walk finalizable objects loaded by the all other class loaders */
-			omrobjectptr_t defaultObject = finalizeListManager->resetDefaultFinalizableObjects();
-			while (NULL != defaultObject) {
-				MM_ForwardedHeader forwardHeader(defaultObject);
-				omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
+        {
+            GC_FinalizableObjectBuffer objectBuffer(_extensions);
+            /* walk finalizable objects loaded by the all other class loaders */
+            omrobjectptr_t defaultObject = finalizeListManager->resetDefaultFinalizableObjects();
+            while (NULL != defaultObject) {
+                MM_ForwardedHeader forwardHeader(defaultObject);
+                omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
 
-				if (NULL != forwardPtr) {
-					if (forwardHeader.isSelfForwardedPointer()) {
-						forwardHeader.restoreSelfForwardedPointer();
-					} else {
-						defaultObject = forwardPtr;
-					}
-				}
+                if (NULL != forwardPtr) {
+                    if (forwardHeader.isSelfForwardedPointer()) {
+                        forwardHeader.restoreSelfForwardedPointer();
+                    } else {
+                        defaultObject = forwardPtr;
+                    }
+                }
 
-				omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(defaultObject);
-				objectBuffer.add(env, defaultObject);
-				defaultObject = next;
-			}
-			objectBuffer.flush(env);
-		}
+                omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(defaultObject);
+                objectBuffer.add(env, defaultObject);
+                defaultObject = next;
+            }
+            objectBuffer.flush(env);
+        }
 
-		{
-			/* walk reference objects */
-			GC_FinalizableReferenceBuffer referenceBuffer(_extensions);
-			omrobjectptr_t referenceObject = finalizeListManager->resetReferenceObjects();
-			while (NULL != referenceObject) {
-				MM_ForwardedHeader forwardHeader(referenceObject);
-				omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
+        {
+            /* walk reference objects */
+            GC_FinalizableReferenceBuffer referenceBuffer(_extensions);
+            omrobjectptr_t referenceObject = finalizeListManager->resetReferenceObjects();
+            while (NULL != referenceObject) {
+                MM_ForwardedHeader forwardHeader(referenceObject);
+                omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
 
-				if (NULL != forwardPtr) {
-					if (forwardHeader.isSelfForwardedPointer()) {
-						forwardHeader.restoreSelfForwardedPointer();
-					} else {
-						referenceObject = forwardPtr;
-					}
-				}
+                if (NULL != forwardPtr) {
+                    if (forwardHeader.isSelfForwardedPointer()) {
+                        forwardHeader.restoreSelfForwardedPointer();
+                    } else {
+                        referenceObject = forwardPtr;
+                    }
+                }
 
-				omrobjectptr_t next = _extensions->accessBarrier->getReferenceLink(referenceObject);
-				referenceBuffer.add(env, referenceObject);
-				referenceObject = next;
-			}
-			referenceBuffer.flush(env);
-		}
-	} else
+                omrobjectptr_t next = _extensions->accessBarrier->getReferenceLink(referenceObject);
+                referenceBuffer.add(env, referenceObject);
+                referenceObject = next;
+            }
+            referenceBuffer.flush(env);
+        }
+    } else
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
-	{
-		GC_FinalizeListManager * finalizeListManager = _extensions->finalizeListManager;
-		{
-			GC_FinalizableObjectBuffer objectBuffer(_extensions);
-			/* walk finalizable objects loaded by the system class loader */
-			omrobjectptr_t systemObject = finalizeListManager->resetSystemFinalizableObjects();
-			while (NULL != systemObject) {
-				omrobjectptr_t next = NULL;
-				MM_ForwardedHeader forwardHeader(systemObject);
-				Assert_MM_false(forwardHeader.isForwardedPointer());
-				if (forwardHeader.isReverseForwardedPointer()) {
-					omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
-					Assert_MM_true(NULL != originalObject);
-					/* Read the finalizeLink from the originalObject since it will be copied back in
-					 * reverseForwardedObject and the current object may have had this slot destroyed by
-					 * reverseForwardedObject.
-					 */
-					next = _extensions->accessBarrier->getFinalizeLink(originalObject);
-					objectBuffer.add(env, originalObject);
-				} else {
-					next = _extensions->accessBarrier->getFinalizeLink(systemObject);
-					objectBuffer.add(env, systemObject);
-				}
+    {
+        GC_FinalizeListManager* finalizeListManager = _extensions->finalizeListManager;
+        {
+            GC_FinalizableObjectBuffer objectBuffer(_extensions);
+            /* walk finalizable objects loaded by the system class loader */
+            omrobjectptr_t systemObject = finalizeListManager->resetSystemFinalizableObjects();
+            while (NULL != systemObject) {
+                omrobjectptr_t next = NULL;
+                MM_ForwardedHeader forwardHeader(systemObject);
+                Assert_MM_false(forwardHeader.isForwardedPointer());
+                if (forwardHeader.isReverseForwardedPointer()) {
+                    omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
+                    Assert_MM_true(NULL != originalObject);
+                    /* Read the finalizeLink from the originalObject since it will be copied back in
+                     * reverseForwardedObject and the current object may have had this slot destroyed by
+                     * reverseForwardedObject.
+                     */
+                    next = _extensions->accessBarrier->getFinalizeLink(originalObject);
+                    objectBuffer.add(env, originalObject);
+                } else {
+                    next = _extensions->accessBarrier->getFinalizeLink(systemObject);
+                    objectBuffer.add(env, systemObject);
+                }
 
-				systemObject = next;
-			}
-			objectBuffer.flush(env);
-		}
+                systemObject = next;
+            }
+            objectBuffer.flush(env);
+        }
 
-		{
-			GC_FinalizableObjectBuffer objectBuffer(_extensions);
-			/* walk finalizable objects loaded by the all other class loaders */
-			omrobjectptr_t defaultObject = finalizeListManager->resetDefaultFinalizableObjects();
-			while (NULL != defaultObject) {
-				omrobjectptr_t next = NULL;
-				MM_ForwardedHeader forwardHeader(defaultObject);
-				Assert_MM_false(forwardHeader.isForwardedPointer());
-				if (forwardHeader.isReverseForwardedPointer()) {
-					omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
-					Assert_MM_true(NULL != originalObject);
-					next = _extensions->accessBarrier->getFinalizeLink(originalObject);
-					objectBuffer.add(env, originalObject);
-				} else {
-					next = _extensions->accessBarrier->getFinalizeLink(defaultObject);
-					objectBuffer.add(env, defaultObject);
-				}
+        {
+            GC_FinalizableObjectBuffer objectBuffer(_extensions);
+            /* walk finalizable objects loaded by the all other class loaders */
+            omrobjectptr_t defaultObject = finalizeListManager->resetDefaultFinalizableObjects();
+            while (NULL != defaultObject) {
+                omrobjectptr_t next = NULL;
+                MM_ForwardedHeader forwardHeader(defaultObject);
+                Assert_MM_false(forwardHeader.isForwardedPointer());
+                if (forwardHeader.isReverseForwardedPointer()) {
+                    omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
+                    Assert_MM_true(NULL != originalObject);
+                    next = _extensions->accessBarrier->getFinalizeLink(originalObject);
+                    objectBuffer.add(env, originalObject);
+                } else {
+                    next = _extensions->accessBarrier->getFinalizeLink(defaultObject);
+                    objectBuffer.add(env, defaultObject);
+                }
 
-				defaultObject = next;
-			}
-			objectBuffer.flush(env);
-		}
+                defaultObject = next;
+            }
+            objectBuffer.flush(env);
+        }
 
-		{
-			/* walk reference objects */
-			GC_FinalizableReferenceBuffer referenceBuffer(_extensions);
-			omrobjectptr_t referenceObject = finalizeListManager->resetReferenceObjects();
-			while (NULL != referenceObject) {
-				omrobjectptr_t next = NULL;
-				MM_ForwardedHeader forwardHeader(referenceObject);
-				Assert_MM_false(forwardHeader.isForwardedPointer());
-				if (forwardHeader.isReverseForwardedPointer()) {
-					omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
-					Assert_MM_true(NULL != originalObject);
+        {
+            /* walk reference objects */
+            GC_FinalizableReferenceBuffer referenceBuffer(_extensions);
+            omrobjectptr_t referenceObject = finalizeListManager->resetReferenceObjects();
+            while (NULL != referenceObject) {
+                omrobjectptr_t next = NULL;
+                MM_ForwardedHeader forwardHeader(referenceObject);
+                Assert_MM_false(forwardHeader.isForwardedPointer());
+                if (forwardHeader.isReverseForwardedPointer()) {
+                    omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
+                    Assert_MM_true(NULL != originalObject);
 
-					next = _extensions->accessBarrier->getReferenceLink(originalObject);
-					referenceBuffer.add(env, originalObject);
-				} else {
-					next = _extensions->accessBarrier->getReferenceLink(referenceObject);
-					referenceBuffer.add(env, referenceObject);
-				}
+                    next = _extensions->accessBarrier->getReferenceLink(originalObject);
+                    referenceBuffer.add(env, originalObject);
+                } else {
+                    next = _extensions->accessBarrier->getReferenceLink(referenceObject);
+                    referenceBuffer.add(env, referenceObject);
+                }
 
-				referenceObject = next;
-			}
-			referenceBuffer.flush(env);
-		}
-	}
+                referenceObject = next;
+            }
+            referenceBuffer.flush(env);
+        }
+    }
 }
 
 /**
@@ -236,83 +236,85 @@ MM_ScavengerBackOutScanner::backoutFinalizableObjects(MM_EnvironmentStandard *en
  *
  * @NOTE it is assumed that this code will be called while the GC is in single threaded backout
  */
-void
-MM_ScavengerBackOutScanner::backoutUnfinalizedObjects(MM_EnvironmentStandard *env)
+void MM_ScavengerBackOutScanner::backoutUnfinalizedObjects(MM_EnvironmentStandard* env)
 {
-	MM_Heap *heap = _extensions->heap;
-	MM_HeapRegionManager *regionManager = heap->getHeapRegionManager();
-	MM_HeapRegionDescriptorStandard *region = NULL;
+    MM_Heap* heap = _extensions->heap;
+    MM_HeapRegionManager* regionManager = heap->getHeapRegionManager();
+    MM_HeapRegionDescriptorStandard* region = NULL;
 
-	GC_HeapRegionIteratorStandard regionIterator(regionManager);
-	while(NULL != (region = regionIterator.nextRegion())) {
-		MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-		for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
-			MM_UnfinalizedObjectList *list = &regionExtension->_unfinalizedObjectLists[i];
-			list->startUnfinalizedProcessing();
-		}
-	}
+    GC_HeapRegionIteratorStandard regionIterator(regionManager);
+    while (NULL != (region = regionIterator.nextRegion())) {
+        MM_HeapRegionDescriptorStandardExtension* regionExtension
+            = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+        for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
+            MM_UnfinalizedObjectList* list = &regionExtension->_unfinalizedObjectLists[i];
+            list->startUnfinalizedProcessing();
+        }
+    }
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-	if (_extensions->isConcurrentScavengerEnabled()) {
-		GC_HeapRegionIteratorStandard regionIterator2(regionManager);
-		while(NULL != (region = regionIterator2.nextRegion())) {
-			MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-			for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
-				MM_UnfinalizedObjectList *list = &regionExtension->_unfinalizedObjectLists[i];
-				if (!list->wasEmpty()) {
-					omrobjectptr_t object = list->getPriorList();
-					while (NULL != object) {
-						MM_ForwardedHeader forwardHeader(object);
-						omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
-						if (NULL != forwardPtr) {
-							if (forwardHeader.isSelfForwardedPointer()) {
-								forwardHeader.restoreSelfForwardedPointer();
-							} else {
-								object = forwardPtr;
-							}
-						}
+    if (_extensions->isConcurrentScavengerEnabled()) {
+        GC_HeapRegionIteratorStandard regionIterator2(regionManager);
+        while (NULL != (region = regionIterator2.nextRegion())) {
+            MM_HeapRegionDescriptorStandardExtension* regionExtension
+                = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+            for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
+                MM_UnfinalizedObjectList* list = &regionExtension->_unfinalizedObjectLists[i];
+                if (!list->wasEmpty()) {
+                    omrobjectptr_t object = list->getPriorList();
+                    while (NULL != object) {
+                        MM_ForwardedHeader forwardHeader(object);
+                        omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
+                        if (NULL != forwardPtr) {
+                            if (forwardHeader.isSelfForwardedPointer()) {
+                                forwardHeader.restoreSelfForwardedPointer();
+                            } else {
+                                object = forwardPtr;
+                            }
+                        }
 
-						omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(object);
-						env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, object);
+                        omrobjectptr_t next = _extensions->accessBarrier->getFinalizeLink(object);
+                        env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, object);
 
-						object = next;
-					}
-				}
-			}
-		}
-	} else
+                        object = next;
+                    }
+                }
+            }
+        }
+    } else
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
-	{
-		GC_HeapRegionIteratorStandard regionIterator2(regionManager);
-		while(NULL != (region = regionIterator2.nextRegion())) {
-			MM_HeapRegionDescriptorStandardExtension *regionExtension = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
-			for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
-				MM_UnfinalizedObjectList *list = &regionExtension->_unfinalizedObjectLists[i];
-				if (!list->wasEmpty()) {
-					omrobjectptr_t object = list->getPriorList();
-					while (NULL != object) {
-						omrobjectptr_t next = NULL;
-						MM_ForwardedHeader forwardHeader(object);
-						Assert_MM_false(forwardHeader.isForwardedPointer());
-						if (forwardHeader.isReverseForwardedPointer()) {
-							omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
-							Assert_MM_true(NULL != originalObject);
-							next = _extensions->accessBarrier->getFinalizeLink(originalObject);
-							env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, originalObject);
-						} else {
-							next = _extensions->accessBarrier->getFinalizeLink(object);
-							env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, object);
-						}
+    {
+        GC_HeapRegionIteratorStandard regionIterator2(regionManager);
+        while (NULL != (region = regionIterator2.nextRegion())) {
+            MM_HeapRegionDescriptorStandardExtension* regionExtension
+                = MM_ConfigurationDelegate::getHeapRegionDescriptorStandardExtension(env, region);
+            for (uintptr_t i = 0; i < regionExtension->_maxListIndex; i++) {
+                MM_UnfinalizedObjectList* list = &regionExtension->_unfinalizedObjectLists[i];
+                if (!list->wasEmpty()) {
+                    omrobjectptr_t object = list->getPriorList();
+                    while (NULL != object) {
+                        omrobjectptr_t next = NULL;
+                        MM_ForwardedHeader forwardHeader(object);
+                        Assert_MM_false(forwardHeader.isForwardedPointer());
+                        if (forwardHeader.isReverseForwardedPointer()) {
+                            omrobjectptr_t originalObject = forwardHeader.getReverseForwardedPointer();
+                            Assert_MM_true(NULL != originalObject);
+                            next = _extensions->accessBarrier->getFinalizeLink(originalObject);
+                            env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, originalObject);
+                        } else {
+                            next = _extensions->accessBarrier->getFinalizeLink(object);
+                            env->getGCEnvironment()->_unfinalizedObjectBuffer->add(env, object);
+                        }
 
-						object = next;
-					}
-				}
-			}
-		}
-	}
+                        object = next;
+                    }
+                }
+            }
+        }
+    }
 
-	/* restore everything to a flushed state before exiting */
-	env->getGCEnvironment()->_unfinalizedObjectBuffer->flush(env);
+    /* restore everything to a flushed state before exiting */
+    env->getGCEnvironment()->_unfinalizedObjectBuffer->flush(env);
 }
 #endif /* J9VM_GC_FINALIZATION */
 #endif /* defined(OMR_GC_MODRON_SCAVENGER) */

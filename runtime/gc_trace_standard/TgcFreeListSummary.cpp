@@ -40,16 +40,17 @@
 #include "HeapMemoryPoolIterator.hpp"
 #include "MemoryPool.hpp"
 
-#define STAT_ELEMENTS			22
-#define FIRST_ELEMENT_THRESHOLD	1024
+#define STAT_ELEMENTS 22
+#define FIRST_ELEMENT_THRESHOLD 1024
 
 /*
- * Free List Summary is organized as a array of counters. Each counter represents number of holes in pool with size in particular range.
- * First element represents number of holes smaller then FIRST_ELEMENT_THRESHOLD bytes (but larger then dark metter threshold - 512 bytes default)
- * Second element represents number of holes smaller then 2 * FIRST_ELEMENT_THRESHOLD but larger then FIRST_ELEMENT_THRESHOLD.
- * Each next element has a doubled threshold, except last one which represents number of holes larger then previous threshold.
- * The table of thresholds for FIRST_ELEMENT_THRESHOLD = 1024 and number of elements = 22 is below: 
- * 
+ * Free List Summary is organized as a array of counters. Each counter represents number of holes in pool with size in
+ * particular range. First element represents number of holes smaller then FIRST_ELEMENT_THRESHOLD bytes (but larger
+ * then dark metter threshold - 512 bytes default) Second element represents number of holes smaller then 2 *
+ * FIRST_ELEMENT_THRESHOLD but larger then FIRST_ELEMENT_THRESHOLD. Each next element has a doubled threshold, except
+ * last one which represents number of holes larger then previous threshold. The table of thresholds for
+ * FIRST_ELEMENT_THRESHOLD = 1024 and number of elements = 22 is below:
+ *
  * 1	<1024
  * 2	<2048
  * 3	<4096
@@ -74,26 +75,25 @@
  * 22	>=1073741824
  *
  */
- 
- /*
-  * Increment the counter responsible for size in range
-  * @param size Size of hole we want to add to count
-  * @param array Pointer to Free List Summary array
-  * @param elements Number of elements in Free List Summary array
-  */
-static void
-addSizeToSummary(UDATA size, UDATA *array, UDATA elements)
+
+/*
+ * Increment the counter responsible for size in range
+ * @param size Size of hole we want to add to count
+ * @param array Pointer to Free List Summary array
+ * @param elements Number of elements in Free List Summary array
+ */
+static void addSizeToSummary(UDATA size, UDATA* array, UDATA elements)
 {
-	UDATA i;
-	UDATA n = FIRST_ELEMENT_THRESHOLD;
-	for (i = 0; i < elements - 1; i++) {
-		if (size < n) {
-			array[i] += 1;
-			return;
-		}
-		n = n * 2;
-	}
-	array[elements - 1] += 1;
+    UDATA i;
+    UDATA n = FIRST_ELEMENT_THRESHOLD;
+    for (i = 0; i < elements - 1; i++) {
+        if (size < n) {
+            array[i] += 1;
+            return;
+        }
+        n = n * 2;
+    }
+    array[elements - 1] += 1;
 }
 
 /*
@@ -104,27 +104,26 @@ addSizeToSummary(UDATA size, UDATA *array, UDATA elements)
  * @param elements Number of elements in Free List Summary array
  * @return Size of largest hole discovered in pool
  */
-static UDATA
-calcSummaryForMemoryPool(MM_EnvironmentBase *env, MM_MemoryPool *pool, UDATA *statsArray, UDATA elements)
+static UDATA calcSummaryForMemoryPool(MM_EnvironmentBase* env, MM_MemoryPool* pool, UDATA* statsArray, UDATA elements)
 {
-	UDATA i;
-	UDATA largest = 0;
+    UDATA i;
+    UDATA largest = 0;
 
-	for (i = 0; i < elements; i++) {
-		statsArray[i] = 0;
-	}
+    for (i = 0; i < elements; i++) {
+        statsArray[i] = 0;
+    }
 
-	MM_HeapLinkedFreeHeader *currentFreeEntry = (MM_HeapLinkedFreeHeader *)pool->getFirstFreeStartingAddr(env);
-	while(currentFreeEntry) {
-		UDATA size = currentFreeEntry->getSize();
-		if (size > largest) {
-			largest = size;
-		}
-		addSizeToSummary(size, statsArray, elements);
-		currentFreeEntry = (MM_HeapLinkedFreeHeader *)pool->getNextFreeStartingAddr(env, currentFreeEntry);
-	}
+    MM_HeapLinkedFreeHeader* currentFreeEntry = (MM_HeapLinkedFreeHeader*)pool->getFirstFreeStartingAddr(env);
+    while (currentFreeEntry) {
+        UDATA size = currentFreeEntry->getSize();
+        if (size > largest) {
+            largest = size;
+        }
+        addSizeToSummary(size, statsArray, elements);
+        currentFreeEntry = (MM_HeapLinkedFreeHeader*)pool->getNextFreeStartingAddr(env, currentFreeEntry);
+    }
 
-	return largest;
+    return largest;
 }
 
 /*
@@ -132,64 +131,63 @@ calcSummaryForMemoryPool(MM_EnvironmentBase *env, MM_MemoryPool *pool, UDATA *st
  * @param env thread information
  * @param verboseEvent Event description iv verbose form
  */
-static void
-calcAndPrintFreeListSummary(MM_EnvironmentBase *env, const char *verboseEvent)
+static void calcAndPrintFreeListSummary(MM_EnvironmentBase* env, const char* verboseEvent)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
-	MM_MemoryPool *memoryPool = NULL;
-	MM_HeapMemoryPoolIterator poolIterator(env, extensions->heap);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
+    MM_MemoryPool* memoryPool = NULL;
+    MM_HeapMemoryPoolIterator poolIterator(env, extensions->heap);
 
-	UDATA statsArray[STAT_ELEMENTS];
-	UDATA statLargest = 0;
-	UDATA i;
+    UDATA statsArray[STAT_ELEMENTS];
+    UDATA statLargest = 0;
+    UDATA i;
 
-	tgcExtensions->printf("\n<free_list_summary reason=\"%s\">\n", verboseEvent);
-	while(NULL != (memoryPool = (MM_MemoryPool *)poolIterator.nextPool())) {
-		statLargest = calcSummaryForMemoryPool(env, memoryPool, statsArray, STAT_ELEMENTS);
-		tgcExtensions->printf("<memory_pool address=\"%p\" name=\"%s\" largest=\"%d\">", memoryPool, memoryPool->getPoolName(), statLargest);
-		for (i = 0; i < STAT_ELEMENTS; i++) {
-			tgcExtensions->printf(" %d", statsArray[i]);
-		}
-		tgcExtensions->printf(" </memory_pool>\n");
-	}
-	tgcExtensions->printf("</free_list_summary>\n");
+    tgcExtensions->printf("\n<free_list_summary reason=\"%s\">\n", verboseEvent);
+    while (NULL != (memoryPool = (MM_MemoryPool*)poolIterator.nextPool())) {
+        statLargest = calcSummaryForMemoryPool(env, memoryPool, statsArray, STAT_ELEMENTS);
+        tgcExtensions->printf("<memory_pool address=\"%p\" name=\"%s\" largest=\"%d\">", memoryPool,
+            memoryPool->getPoolName(), statLargest);
+        for (i = 0; i < STAT_ELEMENTS; i++) {
+            tgcExtensions->printf(" %d", statsArray[i]);
+        }
+        tgcExtensions->printf(" </memory_pool>\n");
+    }
+    tgcExtensions->printf("</free_list_summary>\n");
 }
 
 /*
  * Handle for J9HOOK_MM_GLOBAL_GC_START event
  */
-static void
-tgcHookFreeListSummaryStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookFreeListSummaryStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_GlobalGCEndEvent* event = (MM_GlobalGCEndEvent*)eventData;
-	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(event->currentThread);
-	calcAndPrintFreeListSummary(env, "Global GC Start");
+    MM_GlobalGCEndEvent* event = (MM_GlobalGCEndEvent*)eventData;
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
+    calcAndPrintFreeListSummary(env, "Global GC Start");
 }
 
 /*
  * Handle for J9HOOK_MM_GLOBAL_GC_END event
  */
-static void
-tgcHookFreeListSummaryEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookFreeListSummaryEnd(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_GlobalGCEndEvent* event = (MM_GlobalGCEndEvent*)eventData;
-	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(event->currentThread);
-	calcAndPrintFreeListSummary(env, "Global GC End");
+    MM_GlobalGCEndEvent* event = (MM_GlobalGCEndEvent*)eventData;
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
+    calcAndPrintFreeListSummary(env, "Global GC End");
 }
 
 /*
  * Initialization for Free List Summary request
  */
-bool
-tgcFreeListSummaryInitialize(J9JavaVM *javaVM)
+bool tgcFreeListSummaryInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	J9HookInterface** hooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*hooks)->J9HookRegisterWithCallSite(hooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookFreeListSummaryStart, OMR_GET_CALLSITE(), javaVM);
-	(*hooks)->J9HookRegisterWithCallSite(hooks, J9HOOK_MM_OMR_GLOBAL_GC_END, tgcHookFreeListSummaryEnd, OMR_GET_CALLSITE(), javaVM);
+    J9HookInterface** hooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*hooks)->J9HookRegisterWithCallSite(
+        hooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookFreeListSummaryStart, OMR_GET_CALLSITE(), javaVM);
+    (*hooks)->J9HookRegisterWithCallSite(
+        hooks, J9HOOK_MM_OMR_GLOBAL_GC_END, tgcHookFreeListSummaryEnd, OMR_GET_CALLSITE(), javaVM);
 
-	return result;
+    return result;
 }

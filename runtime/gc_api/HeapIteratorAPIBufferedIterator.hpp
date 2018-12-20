@@ -23,30 +23,30 @@
 #if !defined(HEAPITERATORAPIBUFFEREDITERATOR_HPP_)
 #define HEAPITERATORAPIBUFFEREDITERATOR_HPP_
 
-
 #include "GCExtensions.hpp"
 #include "ObjectHeapBufferedIterator.hpp"
 #include "HeapIteratorAPI.h"
 #include "HeapRegionDescriptor.hpp"
 
-class HeapIteratorAPI_BufferedIterator : public GC_ObjectHeapBufferedIterator
-{
+class HeapIteratorAPI_BufferedIterator : public GC_ObjectHeapBufferedIterator {
 public:
 protected:
 private:
-
-	
 public:
-	HeapIteratorAPI_BufferedIterator(J9JavaVM* javaVM, J9PortLibrary *portLibrary, MM_HeapRegionDescriptor* region, bool includeDeadObjects) :
-		GC_ObjectHeapBufferedIterator(MM_GCExtensions::getExtensions(javaVM->omrVM), region, region->getLowAddress(), region->getHighAddress(), includeDeadObjects, 1)
-	{}
-	
-	HeapIteratorAPI_BufferedIterator(J9JavaVM* javaVM, J9PortLibrary *portLibrary, MM_HeapRegionDescriptor* region, void *base, void *top, bool includeDeadObjects) :
-		GC_ObjectHeapBufferedIterator(MM_GCExtensions::getExtensions(javaVM->omrVM), region, base, top, includeDeadObjects, 1)
-	{}	
-	
-	J9Object *nextObject();
-	
+    HeapIteratorAPI_BufferedIterator(
+        J9JavaVM* javaVM, J9PortLibrary* portLibrary, MM_HeapRegionDescriptor* region, bool includeDeadObjects)
+        : GC_ObjectHeapBufferedIterator(MM_GCExtensions::getExtensions(javaVM->omrVM), region, region->getLowAddress(),
+              region->getHighAddress(), includeDeadObjects, 1)
+    {}
+
+    HeapIteratorAPI_BufferedIterator(J9JavaVM* javaVM, J9PortLibrary* portLibrary, MM_HeapRegionDescriptor* region,
+        void* base, void* top, bool includeDeadObjects)
+        : GC_ObjectHeapBufferedIterator(
+              MM_GCExtensions::getExtensions(javaVM->omrVM), region, base, top, includeDeadObjects, 1)
+    {}
+
+    J9Object* nextObject();
+
 protected:
 private:
 };

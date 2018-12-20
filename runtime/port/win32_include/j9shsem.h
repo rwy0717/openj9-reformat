@@ -26,24 +26,26 @@
 #include "portpriv.h"
 
 typedef struct j9shsem_handle {
-	char* rootName;      
-	HANDLE *semHandles;
-	HANDLE *mainLock;
-	uint32_t setSize;
-	BOOL creator;
+    char* rootName;
+    HANDLE* semHandles;
+    HANDLE* mainLock;
+    uint32_t setSize;
+    BOOL creator;
 } j9shsem_handle;
 
-intptr_t j9shsem_post(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag);
-intptr_t j9shsem_destroy (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle);
-intptr_t j9shsem_getVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset);
-intptr_t j9shsem_wait(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag);
-int32_t j9shsem_startup(struct J9PortLibrary *portLibrary);
-void j9shsem_shutdown(struct J9PortLibrary *portLibrary);
-intptr_t j9shsem_setVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle *handle, uintptr_t semset, intptr_t value);
-intptr_t j9shsem_open (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle, const struct J9PortShSemParameters *params);
-void j9shsem_close (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle);
-int32_t j9shsem_params_init(struct J9PortLibrary *portLibrary, struct J9PortShSemParameters *params);
+intptr_t j9shsem_post(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag);
+intptr_t j9shsem_destroy(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle);
+intptr_t j9shsem_getVal(struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset);
+intptr_t j9shsem_wait(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag);
+int32_t j9shsem_startup(struct J9PortLibrary* portLibrary);
+void j9shsem_shutdown(struct J9PortLibrary* portLibrary);
+intptr_t j9shsem_setVal(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, intptr_t value);
+intptr_t j9shsem_open(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle, const struct J9PortShSemParameters* params);
+void j9shsem_close(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle);
+int32_t j9shsem_params_init(struct J9PortLibrary* portLibrary, struct J9PortShSemParameters* params);
 
-#endif     /* j9shsem_h */
-
-
+#endif /* j9shsem_h */

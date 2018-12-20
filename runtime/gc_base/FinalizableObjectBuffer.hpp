@@ -34,96 +34,101 @@
 #include "FinalizeListManager.hpp"
 #include "ObjectAccessBarrier.hpp"
 
-class GC_FinalizableObjectBuffer
-{
+class GC_FinalizableObjectBuffer {
 private:
-	j9object_t _systemHead; /**< the head of the linked list of finalizable objects loaded by the system class loader */
-	j9object_t _systemTail; /**< the tail of the linked list of unfinalized objects loaded by the system class loader */
-	UDATA _systemObjectCount; /**< the number of buffered objects loaded by the system class loader */
-	j9object_t _defaultHead; /**< the head of the linked list of unfinalized objects not loaded by the system class loader */
-	j9object_t _defaultTail; /**< the tail of the linked list of unfinalized objects not loaded by the system class loader */
-	UDATA _defaultObjectCount; /**< the number of buffered objects not loaded by the system class loader */
-	MM_GCExtensions * const _extensions; /**< a cached pointer to the extensions structure */
-	J9ClassLoader* const _systemClassLoader;
+    j9object_t _systemHead; /**< the head of the linked list of finalizable objects loaded by the system class loader */
+    j9object_t _systemTail; /**< the tail of the linked list of unfinalized objects loaded by the system class loader */
+    UDATA _systemObjectCount; /**< the number of buffered objects loaded by the system class loader */
+    j9object_t
+        _defaultHead; /**< the head of the linked list of unfinalized objects not loaded by the system class loader */
+    j9object_t
+        _defaultTail; /**< the tail of the linked list of unfinalized objects not loaded by the system class loader */
+    UDATA _defaultObjectCount; /**< the number of buffered objects not loaded by the system class loader */
+    MM_GCExtensions* const _extensions; /**< a cached pointer to the extensions structure */
+    J9ClassLoader* const _systemClassLoader;
+
 protected:
 public:
-
 private:
-	void addSystemObject(MM_EnvironmentBase* env, j9object_t object) {
-		if (NULL == _systemHead) {
-			Assert_MM_true(NULL == _systemTail);
-			Assert_MM_true(0 == _systemObjectCount);
-			_extensions->accessBarrier->setFinalizeLink(object, NULL);
-			_systemHead = object;
-			_systemTail = object;
-			_systemObjectCount = 1;
-		} else {
-			Assert_MM_true(NULL != _systemTail);
-			Assert_MM_true(0 != _systemObjectCount);
-			_extensions->accessBarrier->setFinalizeLink(object, _systemHead);
-			_systemHead = object;
-			_systemObjectCount += 1;
-		}
-	}
+    void addSystemObject(MM_EnvironmentBase* env, j9object_t object)
+    {
+        if (NULL == _systemHead) {
+            Assert_MM_true(NULL == _systemTail);
+            Assert_MM_true(0 == _systemObjectCount);
+            _extensions->accessBarrier->setFinalizeLink(object, NULL);
+            _systemHead = object;
+            _systemTail = object;
+            _systemObjectCount = 1;
+        } else {
+            Assert_MM_true(NULL != _systemTail);
+            Assert_MM_true(0 != _systemObjectCount);
+            _extensions->accessBarrier->setFinalizeLink(object, _systemHead);
+            _systemHead = object;
+            _systemObjectCount += 1;
+        }
+    }
 
-	void addDefaultObject(MM_EnvironmentBase* env, j9object_t object) {
-		if (NULL == _defaultHead) {
-			_extensions->accessBarrier->setFinalizeLink(object, NULL);
-			_defaultHead = object;
-			_defaultTail = object;
-			_defaultObjectCount = 1;
-		} else {
-			_extensions->accessBarrier->setFinalizeLink(object, _defaultHead);
-			_defaultHead = object;
-			_defaultObjectCount += 1;
-		}
-	}
+    void addDefaultObject(MM_EnvironmentBase* env, j9object_t object)
+    {
+        if (NULL == _defaultHead) {
+            _extensions->accessBarrier->setFinalizeLink(object, NULL);
+            _defaultHead = object;
+            _defaultTail = object;
+            _defaultObjectCount = 1;
+        } else {
+            _extensions->accessBarrier->setFinalizeLink(object, _defaultHead);
+            _defaultHead = object;
+            _defaultObjectCount += 1;
+        }
+    }
+
 protected:
 public:
-	/**
-	 * Add the specified unfinalized object to the buffer.
-	 * @param env[in] the current thread
-	 * @param object[in] the object to add
-	 */
-	virtual void add(MM_EnvironmentBase* env, j9object_t object)
-	{
-		if (_systemClassLoader == (J9OBJECT_CLAZZ((J9VMThread *)env->getOmrVMThread()->_language_vmthread, object)->classLoader)) {
-			addSystemObject(env, object);
-		} else {
-			addDefaultObject(env, object);
-		}
-	}
+    /**
+     * Add the specified unfinalized object to the buffer.
+     * @param env[in] the current thread
+     * @param object[in] the object to add
+     */
+    virtual void add(MM_EnvironmentBase* env, j9object_t object)
+    {
+        if (_systemClassLoader
+            == (J9OBJECT_CLAZZ((J9VMThread*)env->getOmrVMThread()->_language_vmthread, object)->classLoader)) {
+            addSystemObject(env, object);
+        } else {
+            addDefaultObject(env, object);
+        }
+    }
 
-	void flush(MM_EnvironmentBase* env)
-	{
-		GC_FinalizeListManager *finalizeListManager = _extensions->finalizeListManager;
-		if (NULL != _systemHead) {
-			finalizeListManager->addSystemFinalizableObjects(_systemHead, _systemTail, _systemObjectCount);
-			_systemHead = NULL;
-			_systemTail = NULL;
-			_systemObjectCount = 0;
-		}
-		if (NULL != _defaultHead) {
-			finalizeListManager->addDefaultFinalizableObjects(_defaultHead, _defaultTail, _defaultObjectCount);
-			_defaultHead = NULL;
-			_defaultTail = NULL;
-			_defaultObjectCount = 0;
-		}
-	}
+    void flush(MM_EnvironmentBase* env)
+    {
+        GC_FinalizeListManager* finalizeListManager = _extensions->finalizeListManager;
+        if (NULL != _systemHead) {
+            finalizeListManager->addSystemFinalizableObjects(_systemHead, _systemTail, _systemObjectCount);
+            _systemHead = NULL;
+            _systemTail = NULL;
+            _systemObjectCount = 0;
+        }
+        if (NULL != _defaultHead) {
+            finalizeListManager->addDefaultFinalizableObjects(_defaultHead, _defaultTail, _defaultObjectCount);
+            _defaultHead = NULL;
+            _defaultTail = NULL;
+            _defaultObjectCount = 0;
+        }
+    }
 
-	/**
-	 * Construct a new buffer.
-	 * @param extensions[in] the GC extensions
-	 */
-	GC_FinalizableObjectBuffer(MM_GCExtensions *extensions) :
-		_systemHead(NULL)
-		,_systemTail(NULL)
-		,_systemObjectCount(0)
-		,_defaultHead(NULL)
-		,_defaultTail(NULL)
-		,_defaultObjectCount(0)
-		,_extensions(extensions)
-		,_systemClassLoader(((J9JavaVM *)extensions->getOmrVM()->_language_vm)->systemClassLoader)
-	{}
+    /**
+     * Construct a new buffer.
+     * @param extensions[in] the GC extensions
+     */
+    GC_FinalizableObjectBuffer(MM_GCExtensions* extensions)
+        : _systemHead(NULL)
+        , _systemTail(NULL)
+        , _systemObjectCount(0)
+        , _defaultHead(NULL)
+        , _defaultTail(NULL)
+        , _defaultObjectCount(0)
+        , _extensions(extensions)
+        , _systemClassLoader(((J9JavaVM*)extensions->getOmrVM()->_language_vm)->systemClassLoader)
+    {}
 };
 #endif /* FINALIZABLEOBJECTBUFFER_HPP_ */

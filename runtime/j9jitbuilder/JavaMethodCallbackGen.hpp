@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #ifndef JAVAMETHODCALLBACK_HPP_
 #define JAVAMETHODCALLBACK_HPP_
 
@@ -27,18 +27,15 @@
 
 #include "ilgen/MethodBuilder.hpp"
 
-class JavaMethodCallbackGen : public TR::MethodBuilder
-{
-/* fields */
-	public:
-	J9VMThread *vmThread;
+class JavaMethodCallbackGen : public TR::MethodBuilder {
+    /* fields */
+public:
+    J9VMThread* vmThread;
 
-
-/* methods */
-	public:
-	JavaMethodCallbackGen(J9VMThread *vmThread, TR::TypeDictionary *types);
-	virtual bool buildIL();
+    /* methods */
+public:
+    JavaMethodCallbackGen(J9VMThread* vmThread, TR::TypeDictionary* types);
+    virtual bool buildIL();
 };
-
 
 #endif /* JAVAMETHODCALLBACK_HPP_ */

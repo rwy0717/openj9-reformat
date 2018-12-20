@@ -32,21 +32,20 @@
 
 #if defined(J9VM_GC_REALTIME)
 
-class MM_VerboseEventMetronomeTriggerStart : public MM_VerboseEvent
-{
+class MM_VerboseEventMetronomeTriggerStart : public MM_VerboseEvent {
 private:
-public:	
-	static MM_VerboseEvent *newInstance(MM_MetronomeTriggerStartEvent *event, J9HookInterface** hookInterface);
+public:
+    static MM_VerboseEvent* newInstance(MM_MetronomeTriggerStartEvent* event, J9HookInterface** hookInterface);
 
-	virtual void consumeEvents(void);
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents(void);
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine(void) { return true; }
-	MMINLINE virtual bool endsEventChain(void) { return true; }
-	
-	MM_VerboseEventMetronomeTriggerStart(MM_MetronomeTriggerStartEvent *event, J9HookInterface** hookInterface) :
-	MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{}
+    MMINLINE virtual bool definesOutputRoutine(void) { return true; }
+    MMINLINE virtual bool endsEventChain(void) { return true; }
+
+    MM_VerboseEventMetronomeTriggerStart(MM_MetronomeTriggerStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+    {}
 };
 
 #endif /* J9VM_GC_REALTIME */

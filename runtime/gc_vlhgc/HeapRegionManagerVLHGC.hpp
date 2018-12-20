@@ -29,28 +29,31 @@ class MM_EnvironmentBase;
 class MM_MemboryHandle;
 class MM_HeapMemorySnapshot;
 
-class MM_HeapRegionManagerVLHGC : public MM_HeapRegionManagerTarok
-{
-	/*
-	 * Function members
-	 */
+class MM_HeapRegionManagerVLHGC : public MM_HeapRegionManagerTarok {
+    /*
+     * Function members
+     */
 public:
-	/**
-	 * @see MM_HeapRegionManagerTarok::enableRegionsInTable
-	 */
-	virtual bool enableRegionsInTable(MM_EnvironmentBase *env, MM_MemoryHandle *handle);
+    /**
+     * @see MM_HeapRegionManagerTarok::enableRegionsInTable
+     */
+    virtual bool enableRegionsInTable(MM_EnvironmentBase* env, MM_MemoryHandle* handle);
 
-	virtual MM_HeapMemorySnapshot* getHeapMemorySnapshot(MM_GCExtensionsBase *extensions, MM_HeapMemorySnapshot* snapshot, bool gcEnd);
+    virtual MM_HeapMemorySnapshot* getHeapMemorySnapshot(
+        MM_GCExtensionsBase* extensions, MM_HeapMemorySnapshot* snapshot, bool gcEnd);
 
-	static MM_HeapRegionManagerVLHGC *newInstance(MM_EnvironmentBase *env, UDATA regionSize, UDATA tableDescriptorSize, MM_RegionDescriptorInitializer regionDescriptorInitializer, MM_RegionDescriptorDestructor regionDescriptorDestructor);
-	MM_HeapRegionManagerVLHGC(MM_EnvironmentBase *env, UDATA regionSize, UDATA tableDescriptorSize, MM_RegionDescriptorInitializer regionDescriptorInitializer, MM_RegionDescriptorDestructor regionDescriptorDestructor);
+    static MM_HeapRegionManagerVLHGC* newInstance(MM_EnvironmentBase* env, UDATA regionSize, UDATA tableDescriptorSize,
+        MM_RegionDescriptorInitializer regionDescriptorInitializer,
+        MM_RegionDescriptorDestructor regionDescriptorDestructor);
+    MM_HeapRegionManagerVLHGC(MM_EnvironmentBase* env, UDATA regionSize, UDATA tableDescriptorSize,
+        MM_RegionDescriptorInitializer regionDescriptorInitializer,
+        MM_RegionDescriptorDestructor regionDescriptorDestructor);
 
 protected:
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
 private:
-
 };
 
 #endif /* HEAPREGIONMANAGERVLHGC_HPP */

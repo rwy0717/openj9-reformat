@@ -23,7 +23,7 @@
 
 #if !defined(EVENT_CLASS_UNLOADING_END_HPP_)
 #define EVENT_CLASS_UNLOADING_END_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -34,40 +34,38 @@
  * Stores the data relating to the end of class unloading.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventClassUnloadingEnd : public MM_VerboseEvent
-{
+class MM_VerboseEventClassUnloadingEnd : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_classLoadersUnloadedCount;	/**< the number of classloader unloaded */
-	UDATA	_classesUnloadedCount; /**< the number of classes unloaded */
-	U_64 	_cleanUpClassLoadersStartTime; /**< the time to call cleanUpClassLoadersStart */
-	U_64	_cleanUpClassLoadersTime; /**< the time the gc was waiting on the cleanUpClassLoader call */
-	U_64 	_cleanUpClassLoadersEndTime; /**< the time to call cleanUpClassLoadersEnd */
-	U_64	_classUnloadMutexQuiesceTime; /**< Time the GC is waiting on the classUnloadMutex held by the JIT */
-	
-	/* Consumed Data */
-	U_64	_classUnloadingStartTime;
-	
+    /* Passed Data */
+    UDATA _classLoadersUnloadedCount; /**< the number of classloader unloaded */
+    UDATA _classesUnloadedCount; /**< the number of classes unloaded */
+    U_64 _cleanUpClassLoadersStartTime; /**< the time to call cleanUpClassLoadersStart */
+    U_64 _cleanUpClassLoadersTime; /**< the time the gc was waiting on the cleanUpClassLoader call */
+    U_64 _cleanUpClassLoadersEndTime; /**< the time to call cleanUpClassLoadersEnd */
+    U_64 _classUnloadMutexQuiesceTime; /**< Time the GC is waiting on the classUnloadMutex held by the JIT */
+
+    /* Consumed Data */
+    U_64 _classUnloadingStartTime;
+
 public:
-	
-	static MM_VerboseEvent *newInstance(MM_ClassUnloadingEndEvent *event, J9HookInterface** hookInterface);
-	
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    static MM_VerboseEvent* newInstance(MM_ClassUnloadingEndEvent* event, J9HookInterface** hookInterface);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventClassUnloadingEnd(MM_ClassUnloadingEndEvent *event, J9HookInterface** hookInterface)
-		: MM_VerboseEvent(event->currentThread->omrVMThread, event->timestamp, event->eventid, hookInterface)
-		, _classLoadersUnloadedCount(event->classLoaderCount)
-		, _classesUnloadedCount(event->classesCount)
-		, _cleanUpClassLoadersStartTime(event->cleanUpClassLoadersStartTime)
-		, _cleanUpClassLoadersTime(event->cleanUpClassLoaders)
-		, _cleanUpClassLoadersEndTime(event->cleanUpClassLoadersEndTime)
-		, _classUnloadMutexQuiesceTime(event->quiesceTime)
-		, _classUnloadingStartTime(0)
-	{}
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventClassUnloadingEnd(MM_ClassUnloadingEndEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread->omrVMThread, event->timestamp, event->eventid, hookInterface)
+        , _classLoadersUnloadedCount(event->classLoaderCount)
+        , _classesUnloadedCount(event->classesCount)
+        , _cleanUpClassLoadersStartTime(event->cleanUpClassLoadersStartTime)
+        , _cleanUpClassLoadersTime(event->cleanUpClassLoaders)
+        , _cleanUpClassLoadersEndTime(event->cleanUpClassLoadersEndTime)
+        , _classUnloadMutexQuiesceTime(event->quiesceTime)
+        , _classUnloadingStartTime(0)
+    {}
 };
 
 #endif /* EVENT_CLASS_UNLOADING_END_HPP_ */

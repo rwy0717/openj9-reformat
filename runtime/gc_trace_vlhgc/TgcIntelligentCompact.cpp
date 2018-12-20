@@ -37,13 +37,12 @@
 #include "HeapRegionIteratorVLHGC.hpp"
 #include "HeapRegionDescriptorVLHGC.hpp"
 
-static void
-processCompactDataForTGC(J9JavaVM *javaVM, MM_CompactStartEvent* event, bool forCompactRegionOnly)
+static void processCompactDataForTGC(J9JavaVM* javaVM, MM_CompactStartEvent* event, bool forCompactRegionOnly)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
-	/* Calculate the average scores for regions */
-	double totalRegionCount = 0;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(extensions);
+    /* Calculate the average scores for regions */
+    double totalRegionCount = 0;
 #if 0
 	double sumRegionAgeNormalized = 0;
 	double sumDarkMatterNormalized = 0;
@@ -51,20 +50,21 @@ processCompactDataForTGC(J9JavaVM *javaVM, MM_CompactStartEvent* event, bool for
 	double sumAverageFreeNormalized = 0;
 	double sumAbilityToSatisfyAllocateNormalized = 0;
 #endif
-	double scoreBucket90_100 = 0;
-	double scoreBucket80_90 = 0;
-	double scoreBucket70_80 = 0;
-	double scoreBucket60_70 = 0;
-	double scoreBucket50_60 = 0;
-	double scoreBucket40_50 = 0;
-	double scoreBucket20_40 = 0;
-	double scoreBucket0_20 = 0;
-	MM_HeapRegionDescriptorVLHGC *region = NULL;
-	/* Calculate average and std deviation for individual compact scores */
-	GC_HeapRegionIteratorVLHGC regionIterator1(extensions->heap->getHeapRegionManager(), MM_HeapRegionDescriptor::MANAGED);
-	while(NULL != (region = regionIterator1.nextRegion())) {
-		if (region->containsObjects() && (!forCompactRegionOnly || region->_compactData._shouldCompact)) {
-			totalRegionCount+=1;
+    double scoreBucket90_100 = 0;
+    double scoreBucket80_90 = 0;
+    double scoreBucket70_80 = 0;
+    double scoreBucket60_70 = 0;
+    double scoreBucket50_60 = 0;
+    double scoreBucket40_50 = 0;
+    double scoreBucket20_40 = 0;
+    double scoreBucket0_20 = 0;
+    MM_HeapRegionDescriptorVLHGC* region = NULL;
+    /* Calculate average and std deviation for individual compact scores */
+    GC_HeapRegionIteratorVLHGC regionIterator1(
+        extensions->heap->getHeapRegionManager(), MM_HeapRegionDescriptor::MANAGED);
+    while (NULL != (region = regionIterator1.nextRegion())) {
+        if (region->containsObjects() && (!forCompactRegionOnly || region->_compactData._shouldCompact)) {
+            totalRegionCount += 1;
 #if 0
 			sumRegionAgeNormalized += region->_compactData._regionAgeNormalized;
 			sumDarkMatterNormalized += region->_compactData._darkMatterNormalized;
@@ -72,26 +72,26 @@ processCompactDataForTGC(J9JavaVM *javaVM, MM_CompactStartEvent* event, bool for
 			sumAverageFreeNormalized += region->_compactData._averageFreeNormalized;
 			sumAbilityToSatisfyAllocateNormalized += region->_compactData._abilityToSatisfyAllocateNormalized;
 #endif
-			double currentScore = region->_compactData._compactScore;
-			if (currentScore > 90.0) {
-				scoreBucket90_100+=1;
-			} else if (currentScore > 80.0) {
-				scoreBucket80_90+=1;
-			} else if (currentScore > 70.0) {
-				scoreBucket70_80+=1;
-			} else if (currentScore > 60.0) {
-				scoreBucket60_70+=1;
-			} else if (currentScore > 50.0) {
-				scoreBucket50_60+=1;
-			} else if (currentScore > 40.0) {
-				scoreBucket40_50+=1;
-			} else if (currentScore > 20.0) {
-				scoreBucket20_40+=1;
-			} else {
-				scoreBucket0_20+=1;
-			}
-		}
-	}
+            double currentScore = region->_compactData._compactScore;
+            if (currentScore > 90.0) {
+                scoreBucket90_100 += 1;
+            } else if (currentScore > 80.0) {
+                scoreBucket80_90 += 1;
+            } else if (currentScore > 70.0) {
+                scoreBucket70_80 += 1;
+            } else if (currentScore > 60.0) {
+                scoreBucket60_70 += 1;
+            } else if (currentScore > 50.0) {
+                scoreBucket50_60 += 1;
+            } else if (currentScore > 40.0) {
+                scoreBucket40_50 += 1;
+            } else if (currentScore > 20.0) {
+                scoreBucket20_40 += 1;
+            } else {
+                scoreBucket0_20 += 1;
+            }
+        }
+    }
 #if 0
 	double avgRegionAgeNormalized = sumRegionAgeNormalized / totalRegionCount;
 	double avgDarkMatterNormalized = sumDarkMatterNormalized / totalRegionCount;
@@ -131,9 +131,9 @@ processCompactDataForTGC(J9JavaVM *javaVM, MM_CompactStartEvent* event, bool for
 	double std_dev_avgAverageFreeNormalized = sqrt(std_deviation_sqr_avgAverageFreeNormalized / totalRegionCount);
 	double std_dev_avgAbilityToSatisfyAllocateNormalized = sqrt(std_deviation_sqr_avgAbilityToSatisfyAllocateNormalized / totalRegionCount);
 #endif
-	
-	UDATA gcCount = event->gcCount;
-	tgcExtensions->printf("Compact(%zu): region count: %.0f\n", gcCount, totalRegionCount);
+
+    UDATA gcCount = event->gcCount;
+    tgcExtensions->printf("Compact(%zu): region count: %.0f\n", gcCount, totalRegionCount);
 #if 0
 	tgcExtensions->printf("Compact(%zu):               %10s %10s %10s %12s %25s\n", gcCount, "RegionAge", "DarkMatter", "TotalFree", "AverageFree", "AbilityToSatisfyAllocate");
 	tgcExtensions->printf("Compact(%zu): avg           %10.0f %10.0f %10.0f %12.0f %25.0f\n", 
@@ -146,57 +146,50 @@ processCompactDataForTGC(J9JavaVM *javaVM, MM_CompactStartEvent* event, bool for
 			std_dev_avgAverageFreeNormalized,
 			std_dev_avgAbilityToSatisfyAllocateNormalized);
 #endif
-	
-	tgcExtensions->printf("Compact(%zu): Score distribution:\n", gcCount);
-	tgcExtensions->printf("Compact(%zu): Range:       %6s %6s %6s %6s %6s %6s %6s %6s\n", 
-			gcCount, "<= 20", "<= 40", "<= 50", "<= 60", "<= 70", "<= 80", "<= 90", "<= 100");
-	tgcExtensions->printf("Compact(%zu): Region Count:%6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f\n", 
-			gcCount,
-			scoreBucket0_20,
-			scoreBucket20_40,
-			scoreBucket40_50,
-			scoreBucket50_60,
-			scoreBucket60_70,
-			scoreBucket70_80,
-			scoreBucket80_90,
-			scoreBucket90_100);
+
+    tgcExtensions->printf("Compact(%zu): Score distribution:\n", gcCount);
+    tgcExtensions->printf("Compact(%zu): Range:       %6s %6s %6s %6s %6s %6s %6s %6s\n", gcCount, "<= 20", "<= 40",
+        "<= 50", "<= 60", "<= 70", "<= 80", "<= 90", "<= 100");
+    tgcExtensions->printf("Compact(%zu): Region Count:%6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f\n", gcCount,
+        scoreBucket0_20, scoreBucket20_40, scoreBucket40_50, scoreBucket50_60, scoreBucket60_70, scoreBucket70_80,
+        scoreBucket80_90, scoreBucket90_100);
 }
-	
+
 /**
  * Report NUMA statistics prior to a collection
  */
-static void
-tgcHookReportIntelligentCompactStatistics(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookReportIntelligentCompactStatistics(
+    J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_CompactStartEvent* event = (MM_CompactStartEvent*)eventData;
-	UDATA gcCount = event->gcCount;
-	J9JavaVM *javaVM = static_cast<J9VMThread*>(event->currentThread->_language_vmthread)->javaVM;
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(javaVM);
-	
-	/* report TGC stats for all regoins */
-	tgcExtensions->printf("Compact(%zu): For All Regions:\n", gcCount);
-	processCompactDataForTGC(javaVM, event, false);
-	
-	/* report TGC stats for compact regoins */
-	tgcExtensions->printf("Compact(%zu): For Compact Regions:\n", gcCount);
-	processCompactDataForTGC(javaVM, event, true);
-}
+    MM_CompactStartEvent* event = (MM_CompactStartEvent*)eventData;
+    UDATA gcCount = event->gcCount;
+    J9JavaVM* javaVM = static_cast<J9VMThread*>(event->currentThread->_language_vmthread)->javaVM;
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(javaVM);
 
+    /* report TGC stats for all regoins */
+    tgcExtensions->printf("Compact(%zu): For All Regions:\n", gcCount);
+    processCompactDataForTGC(javaVM, event, false);
+
+    /* report TGC stats for compact regoins */
+    tgcExtensions->printf("Compact(%zu): For Compact Regions:\n", gcCount);
+    processCompactDataForTGC(javaVM, event, true);
+}
 
 /**
  * Initialize NUMA tgc tracing.
  * Attaches hooks to the appropriate functions handling events used by NUMA tgc tracing.
  */
-bool
-tgcIntelligentCompactInitialize(J9JavaVM *javaVM)
+bool tgcIntelligentCompactInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
-	
-	J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
-	(*privateHooks)->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_COMPACT_START, tgcHookReportIntelligentCompactStatistics, OMR_GET_CALLSITE(), NULL);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	return result;
+    J9HookInterface** privateHooks = J9_HOOK_INTERFACE(extensions->privateHookInterface);
+    (*privateHooks)
+        ->J9HookRegisterWithCallSite(privateHooks, J9HOOK_MM_PRIVATE_COMPACT_START,
+            tgcHookReportIntelligentCompactStatistics, OMR_GET_CALLSITE(), NULL);
+
+    return result;
 }
 
 #endif /* J9VM_GC_MODRON_COMPACTION */

@@ -35,29 +35,29 @@
 /* ---- System specific configurations ----------------------------------- */
 
 #ifndef LIBFFI_ASM
-typedef unsigned long          ffi_arg;
-typedef signed long            ffi_sarg;
+typedef unsigned long ffi_arg;
+typedef signed long ffi_sarg;
 
 typedef enum ffi_abi {
-  FFI_FIRST_ABI = 0,
+    FFI_FIRST_ABI = 0,
 
 #ifdef PA_LINUX
-  FFI_PA32,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_PA32
+    FFI_PA32,
+    FFI_LAST_ABI,
+    FFI_DEFAULT_ABI = FFI_PA32
 #endif
 
 #ifdef PA_HPUX
-  FFI_PA32,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_PA32
+        FFI_PA32,
+    FFI_LAST_ABI,
+    FFI_DEFAULT_ABI = FFI_PA32
 #endif
 
 #ifdef PA64_HPUX
 #error "PA64_HPUX FFI is not yet implemented"
-  FFI_PA64,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_PA64
+        FFI_PA64,
+    FFI_LAST_ABI,
+    FFI_DEFAULT_ABI = FFI_PA64
 #endif
 } ffi_abi;
 #endif

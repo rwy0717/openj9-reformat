@@ -33,8 +33,8 @@ extern "C" {
  * Method:    findPattern
  * Signature: ([BIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniSearchableMemory_findPattern
-  (JNIEnv *, jobject, jbyteArray, jint, jlong);
+JNIEXPORT jlong JNICALL Java_com_ibm_j9ddr_corereaders_debugger_JniSearchableMemory_findPattern(
+    JNIEnv*, jobject, jbyteArray, jint, jlong);
 
 #ifdef __cplusplus
 }

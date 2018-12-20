@@ -31,7 +31,6 @@
 
 #include "portpriv.h"
 
-void
-save_error_message(struct J9PortLibrary *portLibrary, char *errMsg);
+void save_error_message(struct J9PortLibrary* portLibrary, char* errMsg);
 
 #endif

@@ -34,30 +34,27 @@
  * Stores the data relating to the start of a global garbage collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventGlobalGCStart : public MM_VerboseEvent
-{
+class MM_VerboseEventGlobalGCStart : public MM_VerboseEvent {
 private:
-	/* Passed Data */
-	UDATA	_globalGCCount; /**< the count of global gc's */
-	UDATA	_localGCCount; /**< the count of local gc's */
-	/* External Data */
-	U_64	_lastGlobalTime; /**< the timestamp of the last global collection */
+    /* Passed Data */
+    UDATA _globalGCCount; /**< the count of global gc's */
+    UDATA _localGCCount; /**< the count of local gc's */
+    /* External Data */
+    U_64 _lastGlobalTime; /**< the timestamp of the last global collection */
 
 public:
-	
-	static MM_VerboseEvent *newInstance(MM_GlobalGCIncrementStartEvent *event, J9HookInterface** hookInterface);
+    static MM_VerboseEvent* newInstance(MM_GlobalGCIncrementStartEvent* event, J9HookInterface** hookInterface);
 
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MMINLINE virtual bool definesOutputRoutine() { return true; };
-	MMINLINE virtual bool endsEventChain() { return false; };
-	
-	MM_VerboseEventGlobalGCStart(MM_GlobalGCIncrementStartEvent *event, J9HookInterface** hookInterface)
-		: MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-		, _globalGCCount(event->globalGCCount)
-		, _localGCCount(event->localGCCount)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return true; };
+    MMINLINE virtual bool endsEventChain() { return false; };
+
+    MM_VerboseEventGlobalGCStart(MM_GlobalGCIncrementStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
+        , _globalGCCount(event->globalGCCount)
+        , _localGCCount(event->localGCCount) {};
 };
 
 #endif /* EVENT_GLOBAL_GC_START_HPP_ */

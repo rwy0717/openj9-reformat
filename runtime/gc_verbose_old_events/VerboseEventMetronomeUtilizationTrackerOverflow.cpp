@@ -34,22 +34,23 @@
  * Create an new instance of a MM_VerboseEventMetronomeOutOfMemory event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventMetronomeUtilizationTrackerOverflow::newInstance(MM_UtilizationTrackerOverflowEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventMetronomeUtilizationTrackerOverflow::newInstance(
+    MM_UtilizationTrackerOverflowEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventMetronomeUtilizationTrackerOverflow *eventObject = (MM_VerboseEventMetronomeUtilizationTrackerOverflow *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventMetronomeUtilizationTrackerOverflow));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventMetronomeUtilizationTrackerOverflow(event, hookInterface);
-		eventObject->initialize(event);
-	}
-	return eventObject;
+    MM_VerboseEventMetronomeUtilizationTrackerOverflow* eventObject
+        = (MM_VerboseEventMetronomeUtilizationTrackerOverflow*)MM_VerboseEvent::create(
+            event->currentThread, sizeof(MM_VerboseEventMetronomeUtilizationTrackerOverflow));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventMetronomeUtilizationTrackerOverflow(event, hookInterface);
+        eventObject->initialize(event);
+    }
+    return eventObject;
 }
 
-void
-MM_VerboseEventMetronomeUtilizationTrackerOverflow::initialize(MM_UtilizationTrackerOverflowEvent *event)
+void MM_VerboseEventMetronomeUtilizationTrackerOverflow::initialize(MM_UtilizationTrackerOverflowEvent* event)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	_timeInMilliSeconds = omrtime_hires_delta(0, _time, J9PORT_TIME_DELTA_IN_MILLISECONDS);
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    _timeInMilliSeconds = omrtime_hires_delta(0, _time, J9PORT_TIME_DELTA_IN_MILLISECONDS);
 }
 
 /**
@@ -57,32 +58,26 @@ MM_VerboseEventMetronomeUtilizationTrackerOverflow::initialize(MM_UtilizationTra
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventMetronomeUtilizationTrackerOverflow::consumeEvents()
-{
-}
+void MM_VerboseEventMetronomeUtilizationTrackerOverflow::consumeEvents() {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventMetronomeUtilizationTrackerOverflow::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventMetronomeUtilizationTrackerOverflow::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
-	MM_VerboseManagerOld *manager = (MM_VerboseManagerOld*) extensions->verboseGCManager;
-	char timestamp[32];
-	
-	omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(), "<event details=\"utilization tracker overflow\" timestamp=\"%s\" utilizationTrackerAddress=\"0x%p\" timeSliceDurationArrayAddress=\"0x%p\" timeSliceCursor=\"%d\" />",
-		timestamp,
-		_utilizationTrackerAddress,
-		_timeSliceDurationArrayAddress,
-		_timeSliceCursor
-	);
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    OMRPORT_ACCESS_FROM_OMRVMTHREAD(_omrThread);
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(_omrThread->_vm);
+    MM_VerboseManagerOld* manager = (MM_VerboseManagerOld*)extensions->verboseGCManager;
+    char timestamp[32];
+
+    omrstr_ftime(timestamp, sizeof(timestamp), VERBOSEGC_DATE_FORMAT, _timeInMilliSeconds);
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), manager->getIndentLevel(),
+        "<event details=\"utilization tracker overflow\" timestamp=\"%s\" utilizationTrackerAddress=\"0x%p\" "
+        "timeSliceDurationArrayAddress=\"0x%p\" timeSliceCursor=\"%d\" />",
+        timestamp, _utilizationTrackerAddress, _timeSliceDurationArrayAddress, _timeSliceCursor);
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }
 
 #endif /* J9VM_GC_REALTIME */

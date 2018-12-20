@@ -25,345 +25,280 @@
 #include "../j9vm/jvm.h"
 #include "jni.h"
 
-
-jarray JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetSystemPackages(JNIEnv* env, jclass unused)
+jarray JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetSystemPackages(JNIEnv* env, jclass unused)
 {
-	return JVM_GetSystemPackages(env);
+    return JVM_GetSystemPackages(env);
 }
 
-
-
-jstring JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetSystemPackage(JNIEnv* env, jclass rcvr, jstring pkgName)
+jstring JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetSystemPackage(JNIEnv* env, jclass rcvr, jstring pkgName)
 {
-	return JVM_GetSystemPackage(env, pkgName);
+    return JVM_GetSystemPackage(env, pkgName);
 }
 
-
-
-JNIEXPORT jint JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_Close(JNIEnv* env, jclass clazz, jint descriptor)
+JNIEXPORT jint JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_Close(JNIEnv* env, jclass clazz, jint descriptor)
 {
-	return JVM_Close(descriptor);
+    return JVM_Close(descriptor);
 }
 
-
-
-JNIEXPORT jint JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_UcsOpen(JNIEnv* env, jclass clazz, jstring filename, jint flags, jint mode)
+JNIEXPORT jint JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_UcsOpen(
+    JNIEnv* env, jclass clazz, jstring filename, jint flags, jint mode)
 {
-	const jchar *filenameChars = (*env)->GetStringChars(env, filename, NULL);
-	jint result = JVM_UcsOpen(filenameChars, flags, mode);
-	(*env)->ReleaseStringChars(env, filename, filenameChars);
-	return result;
+    const jchar* filenameChars = (*env)->GetStringChars(env, filename, NULL);
+    jint result = JVM_UcsOpen(filenameChars, flags, mode);
+    (*env)->ReleaseStringChars(env, filename, filenameChars);
+    return result;
 }
 
-
-
-JNIEXPORT jint JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_Write(JNIEnv* env, jclass clazz, jint descriptor, jstring aString)
+JNIEXPORT jint JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_Write(
+    JNIEnv* env, jclass clazz, jint descriptor, jstring aString)
 {
-	jsize length = (*env)->GetStringUTFLength(env, aString);
-	const char *buffer = (*env)->GetStringUTFChars(env, aString, NULL);
-	jint result = JVM_Write(descriptor, (const char *) buffer, (jint) length);
-	(*env)->ReleaseStringUTFChars(env, aString, buffer);
-	return result;
+    jsize length = (*env)->GetStringUTFLength(env, aString);
+    const char* buffer = (*env)->GetStringUTFChars(env, aString, NULL);
+    jint result = JVM_Write(descriptor, (const char*)buffer, (jint)length);
+    (*env)->ReleaseStringUTFChars(env, aString, buffer);
+    return result;
 }
 
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GCNoCompact(JNIEnv* env, jclass unused) { JVM_GCNoCompact(); }
 
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GCNoCompact(JNIEnv* env, jclass unused)
+jlong JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_MaxObjectInspectionAge(JNIEnv* env, jclass unused)
 {
-	JVM_GCNoCompact();
+    return JVM_MaxObjectInspectionAge();
 }
 
-
-
-jlong JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_MaxObjectInspectionAge(JNIEnv* env, jclass unused)
+jint JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetArrayLength(JNIEnv* env, jclass unused, jobject array)
 {
-	return JVM_MaxObjectInspectionAge();
+    return JVM_GetArrayLength(env, array);
 }
 
-
-
-jint JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetArrayLength(JNIEnv * env, jclass unused, jobject array)
+jobject JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetArrayLength(env, array);
+    return JVM_GetArrayElement(env, array, index);
 }
 
-
-
-jobject JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jobject element)
 {
-	return JVM_GetArrayElement(env, array, index);
+    JVM_SetArrayElement(env, array, index, element);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jobject element)
+jlong JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetPrimitiveArrayElementWCodeParam(
+    JNIEnv* env, jclass unused, jobject array, jint index, jint wcode)
 {
-	JVM_SetArrayElement(env, array, index, element);
+    I_64 val = 0;
+
+    switch (wcode) {
+    case 4:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).z;
+        break;
+    case 5:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).c;
+        break;
+    case 6:
+        val = (I_64)JVM_GetPrimitiveArrayElement(env, array, index, wcode).f;
+        return val;
+        break;
+    case 7:
+        val = (I_64)JVM_GetPrimitiveArrayElement(env, array, index, wcode).d;
+        return val;
+        break;
+    case 8:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).b;
+        break;
+    case 9:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).s;
+        break;
+    case 10:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).i;
+        break;
+    case 11:
+        return JVM_GetPrimitiveArrayElement(env, array, index, wcode).j;
+        break;
+    }
+    return 0;
 }
 
-
-
-jlong JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetPrimitiveArrayElementWCodeParam(JNIEnv * env, jclass unused, jobject array, jint index, jint wcode)
+jlong JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetLongArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	I_64 val = 0;
-
-	switch (wcode) {
-	case 4:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).z;
-		break;
-	case 5:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).c;
-		break;
-	case 6:
-		val = (I_64) JVM_GetPrimitiveArrayElement(env, array, index, wcode).f;
-		return val;
-		break;
-	case 7:
-		val = (I_64) JVM_GetPrimitiveArrayElement(env, array, index, wcode).d;
-		return val;
-		break;
-	case 8:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).b;
-		break;
-	case 9:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).s;
-		break;
-	case 10:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).i;
-		break;
-	case 11:
-		return JVM_GetPrimitiveArrayElement(env, array, index, wcode).j;
-		break;
-	}
-	return 0;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 11).j;
 }
 
-
-jlong JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetLongArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jboolean JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetBooleanArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 11).j;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 4).z;
 }
 
-
-
-jboolean JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetBooleanArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jint JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetIntArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 4).z;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 10).i;
 }
 
-
-
-jint JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetIntArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jshort JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetShortArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 10).i;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 9).s;
 }
 
-
-
-jshort JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetShortArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jbyte JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetByteArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 9).s;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 8).b;
 }
 
-
-
-jbyte JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetByteArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jchar JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetCharArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 8).b;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 5).c;
 }
 
-
-
-jchar JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetCharArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jfloat JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetFloatArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 5).c;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 6).f;
 }
 
-
-
-jfloat JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetFloatArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+jdouble JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetDoubleArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 6).f;
+    return JVM_GetPrimitiveArrayElement(env, array, index, 7).d;
 }
 
-
-
-jdouble JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetDoubleArrayElement(JNIEnv * env, jclass unused, jobject array, jint index)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetPrimitiveArrayElementWCodeParam(
+    JNIEnv* env, jclass unused, jobject array, jint index, jlong value, jchar vCode)
 {
-	return JVM_GetPrimitiveArrayElement(env, array, index, 7).d;
+    jvalue element;
+
+    element.j = 0;
+
+    switch (vCode) {
+    case 11:
+        element.j = (jlong)value;
+        break;
+    case 4:
+        element.z = (jboolean)value;
+        break;
+    case 8:
+        element.b = (jbyte)value;
+        break;
+    case 5:
+        element.c = (jchar)value;
+        break;
+    case 9:
+        element.s = (jshort)value;
+        break;
+    case 10:
+        element.i = (jint)value;
+        break;
+    case 6:
+        element.f = (jfloat)value;
+        break;
+    case 7:
+        element.d = (jdouble)value;
+        break;
+    }
+
+    JVM_SetPrimitiveArrayElement(env, array, index, element, (unsigned char)vCode);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetPrimitiveArrayElementWCodeParam(JNIEnv * env, jclass unused, jobject array, jint index, jlong value, jchar vCode)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetLongArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jlong value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
+    element.j = value;
 
-	switch (vCode) {
-	case 11:
-		element.j = (jlong) value;
-		break;
-	case 4:
-		element.z = (jboolean) value;
-		break;
-	case 8:
-		element.b = (jbyte) value;
-		break;
-	case 5:
-		element.c = (jchar) value;
-		break;
-	case 9:
-		element.s = (jshort) value;
-		break;
-	case 10:
-		element.i = (jint) value;
-		break;
-	case 6:
-		element.f = (jfloat) value;
-		break;
-	case 7:
-		element.d = (jdouble) value;
-		break;
-	}
-
-	JVM_SetPrimitiveArrayElement(env, array, index, element,(unsigned char) vCode);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 11);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetLongArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jlong value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetBooleanArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jboolean value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = value;
+    element.j = 0;
+    element.z = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 11);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 4);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetBooleanArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jboolean value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetIntArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jint value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.z = value;
+    element.j = 0;
+    element.i = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 4);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 10);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetIntArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jint value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetShortArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jshort value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.i = value;
+    element.j = 0;
+    element.s = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 10);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 9);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetShortArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jshort value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetByteArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jbyte value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.s = value;
+    element.j = 0;
+    element.b = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element,9);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 8);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetByteArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jbyte value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetCharArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jchar value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.b = value;
+    element.j = 0;
+    element.c = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 8);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 5);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetCharArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jchar value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetFloatArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jfloat value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.c = value;
+    element.j = 0;
+    element.f = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 5);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 6);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetFloatArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jfloat value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_SetDoubleArrayElement(
+    JNIEnv* env, jclass unused, jobject array, jint index, jdouble value)
 {
-	jvalue element;
+    jvalue element;
 
-	element.j = 0;
-	element.f = value;
+    element.j = 0;
+    element.d = value;
 
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 6);
+    JVM_SetPrimitiveArrayElement(env, array, index, element, 7);
 }
 
-
-
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_SetDoubleArrayElement(JNIEnv * env, jclass unused, jobject array, jint index, jdouble value)
+void JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_ArrayCopy(
+    JNIEnv* env, jclass unused, jobject src, jint src_pos, jobject dst, jint dst_pos, jint length)
 {
-	jvalue element;
-
-	element.j = 0;
-	element.d = value;
-
-	JVM_SetPrimitiveArrayElement(env, array, index, element, 7);
+    JVM_ArrayCopy(env, unused, src, src_pos, dst, dst_pos, length);
 }
 
-void JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_ArrayCopy(JNIEnv * env, jclass unused, jobject src, jint src_pos, jobject dst, jint dst_pos, jint length)
+jlong JNICALL Java_com_ibm_oti_jvmtests_SupportJVM_GetNanoTimeAdjustment(
+    JNIEnv* env, jclass clazz, jlong offset_seconds)
 {
-	JVM_ArrayCopy(env, unused, src, src_pos, dst, dst_pos, length);
+    return JVM_GetNanoTimeAdjustment(env, clazz, offset_seconds);
 }
-
-jlong JNICALL
-Java_com_ibm_oti_jvmtests_SupportJVM_GetNanoTimeAdjustment(JNIEnv *env, jclass clazz, jlong offset_seconds)
-{
-	return JVM_GetNanoTimeAdjustment(env, clazz, offset_seconds);
-}
-
-

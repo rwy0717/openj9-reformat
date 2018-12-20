@@ -33,82 +33,78 @@
 #include "HeapRegionManager.hpp"
 #include "ObjectAccessBarrier.hpp"
 
-MM_OwnableSynchronizerObjectBuffer::MM_OwnableSynchronizerObjectBuffer(MM_GCExtensions *extensions, UDATA maxObjectCount)
-	: MM_BaseVirtual()
-	, _maxObjectCount(maxObjectCount)
-	, _extensions(extensions)
+MM_OwnableSynchronizerObjectBuffer::MM_OwnableSynchronizerObjectBuffer(
+    MM_GCExtensions* extensions, UDATA maxObjectCount)
+    : MM_BaseVirtual()
+    , _maxObjectCount(maxObjectCount)
+    , _extensions(extensions)
 {
-	_typeId = __FUNCTION__;
-	reset();
+    _typeId = __FUNCTION__;
+    reset();
 }
 
-void
-MM_OwnableSynchronizerObjectBuffer::kill(MM_EnvironmentBase *env)
+void MM_OwnableSynchronizerObjectBuffer::kill(MM_EnvironmentBase* env)
 {
-	tearDown(env);
-	env->getForge()->free(this);
+    tearDown(env);
+    env->getForge()->free(this);
 }
 
-void 
-MM_OwnableSynchronizerObjectBuffer::reset()
+void MM_OwnableSynchronizerObjectBuffer::reset()
 {
-	_head = NULL;
-	_tail = NULL;
-	_region = NULL;
-	/* set object count to appear full so that we force initialization on the next add */
-	_objectCount = _maxObjectCount;
+    _head = NULL;
+    _tail = NULL;
+    _region = NULL;
+    /* set object count to appear full so that we force initialization on the next add */
+    _objectCount = _maxObjectCount;
 }
 
-void 
-MM_OwnableSynchronizerObjectBuffer::flush(MM_EnvironmentBase* env)
+void MM_OwnableSynchronizerObjectBuffer::flush(MM_EnvironmentBase* env)
 {
-	if (NULL != _head) {
-		/* call the virtual flush implementation function */
-		flushImpl(env);
-		reset();
-	}
+    if (NULL != _head) {
+        /* call the virtual flush implementation function */
+        flushImpl(env);
+        reset();
+    }
 }
 
-void
-MM_OwnableSynchronizerObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
+void MM_OwnableSynchronizerObjectBuffer::add(MM_EnvironmentBase* env, j9object_t object)
 {
-	Assert_MM_true(object != _head);
-	Assert_MM_true(object != _tail);
+    Assert_MM_true(object != _head);
+    Assert_MM_true(object != _tail);
 
-	if ( (_objectCount < _maxObjectCount) && _region->isAddressInRegion(object) ) {
-		/* object is permitted in this buffer */
-		Assert_MM_true(NULL != _head);
-		Assert_MM_true(NULL != _tail);
+    if ((_objectCount < _maxObjectCount) && _region->isAddressInRegion(object)) {
+        /* object is permitted in this buffer */
+        Assert_MM_true(NULL != _head);
+        Assert_MM_true(NULL != _tail);
 
-		_extensions->accessBarrier->setOwnableSynchronizerLink(object, _head);
-		_head = object;
-		_objectCount += 1;					
-	} else {
-		MM_HeapRegionDescriptor *region = _region;
+        _extensions->accessBarrier->setOwnableSynchronizerLink(object, _head);
+        _head = object;
+        _objectCount += 1;
+    } else {
+        MM_HeapRegionDescriptor* region = _region;
 
-		/* flush the buffer and start fresh */
-		flush(env);
-		_extensions->accessBarrier->setOwnableSynchronizerLink(object, NULL);
-		_head = object;
-		_tail = object;
-		_objectCount = 1;
-		if (NULL == region || !region->isAddressInRegion(object)) {
-			/* record the region which contains this object. Other objects will be permitted in the buffer if they are in the same region */
-			MM_HeapRegionManager *regionManager = _extensions->getHeap()->getHeapRegionManager();
-			region = regionManager->regionDescriptorForAddress(object);
+        /* flush the buffer and start fresh */
+        flush(env);
+        _extensions->accessBarrier->setOwnableSynchronizerLink(object, NULL);
+        _head = object;
+        _tail = object;
+        _objectCount = 1;
+        if (NULL == region || !region->isAddressInRegion(object)) {
+            /* record the region which contains this object. Other objects will be permitted in the buffer if they are
+             * in the same region */
+            MM_HeapRegionManager* regionManager = _extensions->getHeap()->getHeapRegionManager();
+            region = regionManager->regionDescriptorForAddress(object);
 
-			Assert_GC_true_with_message(env, NULL != region, "Attempt to access ownable synchronizer object located outside of heap (stack allocated?) %p\n", object);
-		}
-		_region = region;
-	}
-	Assert_MM_true(_region->isAddressInRegion(object));
+            Assert_GC_true_with_message(env, NULL != region,
+                "Attempt to access ownable synchronizer object located outside of heap (stack allocated?) %p\n",
+                object);
+        }
+        _region = region;
+    }
+    Assert_MM_true(_region->isAddressInRegion(object));
 }
 
-/* 
+/*
  * temporary place holder implementation - just delegate to the old fragment code.
  */
-void 
-MM_OwnableSynchronizerObjectBuffer::flushImpl(MM_EnvironmentBase* env)
-{
-	Assert_MM_unreachable();
-}
+void MM_OwnableSynchronizerObjectBuffer::flushImpl(MM_EnvironmentBase* env) { Assert_MM_unreachable(); }

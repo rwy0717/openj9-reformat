@@ -436,22 +436,20 @@ shutdown:
 
 /* NOT DONE - need to test UDP */
 
-
 /***********************************************************
  * sock_test, the entry point to the socket testing module
  ***********************************************************/
-int 
-socket_test(struct J9PortLibrary *portLibrary,BOOLEAN isClient,char* serverName) 
+int socket_test(struct J9PortLibrary* portLibrary, BOOLEAN isClient, char* serverName)
 {
 
-	PORT_ACCESS_FROM_PORT(portLibrary);
+    PORT_ACCESS_FROM_PORT(portLibrary);
 #if 0
 	I_32 rc;
 	char buf[64];
 	U_16 i,portMin=45000, portMax=45003;	/*[50000,60000)*/
 #endif
-		/*fancy heading*/
-	HEADING(PORTLIB,"Socket test");
+    /*fancy heading*/
+    HEADING(PORTLIB, "Socket test");
 
 #if 0
 
@@ -533,9 +531,7 @@ shutdown:
 	j9tty_printf(PORTLIB,"Sockets all shut down\n");
 
 #endif
-	
-	j9tty_printf(PORTLIB,"SOCKET test done!\n\n");
-	return 0;
-}
- 
 
+    j9tty_printf(PORTLIB, "SOCKET test done!\n\n");
+    return 0;
+}

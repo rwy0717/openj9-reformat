@@ -40,4 +40,4 @@ IDATA testSCStoreWithBCITests(J9JavaVM* vm);
 } /*extern "C"*/
 #endif
 
-#endif  /*J9SC_STORE_WITHBCI_TESTS_H_INCLUDED*/
+#endif /*J9SC_STORE_WITHBCI_TESTS_H_INCLUDED*/

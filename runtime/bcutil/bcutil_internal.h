@@ -24,13 +24,13 @@
 #define bcutil_internal_h
 
 /**
-* @file bcutil_internal.h
-* @brief Internal prototypes used within the BCUTIL module.
-*
-* This file contains implementation-private function prototypes and
-* type definitions for the BCUTIL module.
-*
-*/
+ * @file bcutil_internal.h
+ * @brief Internal prototypes used within the BCUTIL module.
+ *
+ * This file contains implementation-private function prototypes and
+ * type definitions for the BCUTIL module.
+ *
+ */
 
 #include "j9.h"
 #include "j9comp.h"
@@ -44,37 +44,37 @@ extern "C" {
 
 #if defined(J9VM_OPT_INVARIANT_INTERNING)
 
-#define BCU_TREE_VERIFY_ASSERT(tree, condition) \
-do { \
-	if (!condition) { \
-		if (tree != NULL) { \
-			tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
-		} \
-		Trc_BCU_Assert_TrueTreeVerify(condition); \
-	} \
-} while(0)
+#define BCU_TREE_VERIFY_ASSERT(tree, condition)                                              \
+    do {                                                                                     \
+        if (!condition) {                                                                    \
+            if (tree != NULL) {                                                              \
+                tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
+            }                                                                                \
+            Trc_BCU_Assert_TrueTreeVerify(condition);                                        \
+        }                                                                                    \
+    } while (0)
 
-#define BCU_TREE_VERIFY_ASSERT_AND_RETURN_ONFAIL_VOID(tree, condition) \
-do { \
-	if (!condition) { \
-		if (tree != NULL) { \
-			tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
-		} \
-		Trc_BCU_Assert_TrueTreeVerify(condition); \
-		return; \
-	} \
-} while(0)
+#define BCU_TREE_VERIFY_ASSERT_AND_RETURN_ONFAIL_VOID(tree, condition)                       \
+    do {                                                                                     \
+        if (!condition) {                                                                    \
+            if (tree != NULL) {                                                              \
+                tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
+            }                                                                                \
+            Trc_BCU_Assert_TrueTreeVerify(condition);                                        \
+            return;                                                                          \
+        }                                                                                    \
+    } while (0)
 
-#define BCU_TREE_VERIFY_ASSERT_AND_RETURN_ONFAIL_RC(tree, condition, rc) \
-do { \
-	if (!condition) { \
-		if (tree != NULL) { \
-			tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
-		} \
-		Trc_BCU_Assert_TrueTreeVerify(condition); \
-		return rc; \
-	} \
-} while(0)
+#define BCU_TREE_VERIFY_ASSERT_AND_RETURN_ONFAIL_RC(tree, condition, rc)                     \
+    do {                                                                                     \
+        if (!condition) {                                                                    \
+            if (tree != NULL) {                                                              \
+                tree->flags = (tree->flags & (~J9AVLTREE_DO_VERIFY_TREE_STRUCT_AND_ACCESS)); \
+            }                                                                                \
+            Trc_BCU_Assert_TrueTreeVerify(condition);                                        \
+            return rc;                                                                       \
+        }                                                                                    \
+    } while (0)
 
 #else
 #define BCU_TREE_VERIFY_ASSERT(tree, condition)
@@ -82,33 +82,26 @@ do { \
 #define BCU_TREE_VERIFY_ASSERT_AND_RETURN_ONFAIL_RC(tree, condition, rc)
 #endif
 
-J9HashTable*
-romClassHashTableNew(J9JavaVM *vm, U_32 initialSize);
+J9HashTable* romClassHashTableNew(J9JavaVM* vm, U_32 initialSize);
 
-void
-romClassHashTableFree(J9HashTable *hashTable);
+void romClassHashTableFree(J9HashTable* hashTable);
 
 UDATA
-romClassHashTableAdd(J9HashTable *hashTable, J9ROMClass *value);
+romClassHashTableAdd(J9HashTable* hashTable, J9ROMClass* value);
 
-J9ROMClass*
-romClassHashTableFind(J9HashTable *hashTable, U_8 *className, UDATA classNameLength);
+J9ROMClass* romClassHashTableFind(J9HashTable* hashTable, U_8* className, UDATA classNameLength);
 
-void
-romClassHashTableReplace(J9HashTable *hashTable, J9ROMClass *originalClass, J9ROMClass *replacementClass);
+void romClassHashTableReplace(J9HashTable* hashTable, J9ROMClass* originalClass, J9ROMClass* replacementClass);
 
 UDATA
-romClassHashTableDelete(J9HashTable *hashTable, J9ROMClass *romClass);
+romClassHashTableDelete(J9HashTable* hashTable, J9ROMClass* romClass);
 
-void
-romVerboseRecordPhaseStart(void *verboseContext, UDATA phase);
+void romVerboseRecordPhaseStart(void* verboseContext, UDATA phase);
 
-void
-romVerboseRecordPhaseEnd(void *verboseContext, UDATA phase);
+void romVerboseRecordPhaseEnd(void* verboseContext, UDATA phase);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* bcutil_internal_h */
-

@@ -47,11 +47,11 @@ extern "C" {
  * @param[in] componentName the name of the component this trace point belongs to, for example j9mm
  * @param[in] tracepoint the trace point number within the component, for example 123
  */
-typedef char *(*FormatStringCallback)(const char *componentName, int32_t tracepoint);
+typedef char* (*FormatStringCallback)(const char* componentName, int32_t tracepoint);
 struct UtTraceFileIterator;
-typedef struct  UtTraceFileIterator UtTraceFileIterator;
+typedef struct UtTraceFileIterator UtTraceFileIterator;
 struct UtTracePointIterator;
-typedef struct  UtTracePointIterator UtTracePointIterator;
+typedef struct UtTracePointIterator UtTracePointIterator;
 
 /**
  * Obtain a UtTraceFileIterator for the file named in fileName.
@@ -62,7 +62,8 @@ typedef struct  UtTracePointIterator UtTracePointIterator;
  * @param[in] portLib An initialized OMRPortLibrary structure.
  * @param[in] fileName The name of the trace file to open.
  * @param[in,out] iteratorPtr A pointer to a location where the initialized UtTraceFileIterator pointer can be stored.
- * @param[in] getFormatString A callback the formatter can use to obtain a format string for a trace point id in a named module.
+ * @param[in] getFormatString A callback the formatter can use to obtain a format string for a trace point id in a named
+ * module.
  *
  * @return OMR_ERROR_NONE on success
  * @return OMR_ERROR_NOT_AVAILABLE if the specified file cannot be opened
@@ -70,7 +71,8 @@ typedef struct  UtTracePointIterator UtTracePointIterator;
  * @return OMR_ERROR_OUT_OF_NATIVE_MEMORY if memory for the iterator structure cannot be allocated.
  * @return OMR_ERROR_NOT_AVAILABLE if the specified file cannot be opened.
  */
-omr_error_t omr_trc_getTraceFileIterator(OMRPortLibrary *portLib, char *fileName, UtTraceFileIterator **iteratorPtr, FormatStringCallback getFormatString);
+omr_error_t omr_trc_getTraceFileIterator(
+    OMRPortLibrary* portLib, char* fileName, UtTraceFileIterator** iteratorPtr, FormatStringCallback getFormatString);
 
 /**
  * Format the next trace point available from iter into buffer.
@@ -82,7 +84,7 @@ omr_error_t omr_trc_getTraceFileIterator(OMRPortLibrary *portLib, char *fileName
  * @param[in] buffLen the length of the buffer
  * @return a pointer to buffer or NULL if there are no more trace points available
  */
-char *omr_trc_formatNextTracePoint(UtTracePointIterator *iter, char *buffer, uint32_t buffLen);
+char* omr_trc_formatNextTracePoint(UtTracePointIterator* iter, char* buffer, uint32_t buffLen);
 
 /**
  * Free a trace point iterator and any memory associated with it
@@ -92,7 +94,7 @@ char *omr_trc_formatNextTracePoint(UtTracePointIterator *iter, char *buffer, uin
  * @param[in] iter the UtTracePointIterator to free
  * @return OMR_ERROR_NONE on success
  */
-omr_error_t omr_trc_freeTracePointIterator(UtTracePointIterator *iter);
+omr_error_t omr_trc_freeTracePointIterator(UtTracePointIterator* iter);
 
 #ifdef __cplusplus
 }

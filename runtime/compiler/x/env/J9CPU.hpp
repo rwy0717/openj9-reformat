@@ -28,15 +28,23 @@
  */
 #ifndef J9_CPU_CONNECTOR
 #define J9_CPU_CONNECTOR
-namespace J9 { namespace X86 { class CPU; } }
-namespace J9 { typedef J9::X86::CPU CPUConnector; }
+namespace J9 {
+namespace X86 {
+class CPU;
+}
+} // namespace J9
+namespace J9 {
+typedef J9::X86::CPU CPUConnector;
+}
 #else
 #error J9::X86::CPU expected to be a primary connector, but a J9 connector is already defined
 #endif
 
 #include "compiler/env/J9CPU.hpp"
 
-namespace TR { class Compilation; }
+namespace TR {
+class Compilation;
+}
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,56 +52,50 @@ extern "C" {
 
 #define PROCESSOR_FEATURES_SIZE 3
 typedef struct TR_ProcessorFeatureFlags {
-  uint32_t featureFlags[PROCESSOR_FEATURES_SIZE];
+    uint32_t featureFlags[PROCESSOR_FEATURES_SIZE];
 } TR_ProcessorFeatureFlags;
 
 #ifdef __cplusplus
 }
 #endif
 
-namespace J9
-{
+namespace J9 {
 
-namespace X86
-{
+namespace X86 {
 
-class CPU : public J9::CPU
-   {
+class CPU : public J9::CPU {
 protected:
-
-   CPU() :
-         J9::CPU(),
-         _featureFlags(0),
-         _featureFlags2(0),
-         _featureFlags8(0)
-      {}
+    CPU()
+        : J9::CPU()
+        , _featureFlags(0)
+        , _featureFlags2(0)
+        , _featureFlags8(0)
+    {}
 
 public:
+    const char* getX86ProcessorVendorId(TR::Compilation* comp);
+    uint32_t getX86ProcessorSignature(TR::Compilation* comp);
+    uint32_t getX86ProcessorFeatureFlags(TR::Compilation* comp);
+    uint32_t getX86ProcessorFeatureFlags2(TR::Compilation* comp);
+    uint32_t getX86ProcessorFeatureFlags8(TR::Compilation* comp);
 
-   const char *getX86ProcessorVendorId(TR::Compilation *comp);
-   uint32_t getX86ProcessorSignature(TR::Compilation *comp);
-   uint32_t getX86ProcessorFeatureFlags(TR::Compilation *comp);
-   uint32_t getX86ProcessorFeatureFlags2(TR::Compilation *comp);
-   uint32_t getX86ProcessorFeatureFlags8(TR::Compilation *comp);
+    TR_ProcessorFeatureFlags getProcessorFeatureFlags();
+    bool isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags);
 
-   TR_ProcessorFeatureFlags getProcessorFeatureFlags();
-   bool isCompatible(TR_Processor processorSignature, TR_ProcessorFeatureFlags processorFeatureFlags);
+    bool testOSForSSESupport(TR::Compilation* comp);
 
-   bool testOSForSSESupport(TR::Compilation *comp);
-
-   void setX86ProcessorFeatureFlags(uint32_t flags);
-   void setX86ProcessorFeatureFlags2(uint32_t flags2);
-   void setX86ProcessorFeatureFlags8(uint32_t flags8);
+    void setX86ProcessorFeatureFlags(uint32_t flags);
+    void setX86ProcessorFeatureFlags2(uint32_t flags2);
+    void setX86ProcessorFeatureFlags8(uint32_t flags8);
 
 private:
-   uint32_t _featureFlags;
-   uint32_t _featureFlags2;
-   uint32_t _featureFlags8;
+    uint32_t _featureFlags;
+    uint32_t _featureFlags2;
+    uint32_t _featureFlags8;
+};
 
-   };
+} // namespace X86
 
-}
-
-}
+} // namespace J9
 
 #endif

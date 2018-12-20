@@ -42,4 +42,4 @@ IDATA testCompositeCacheSizes(J9JavaVM* vm);
 }
 #endif
 
-#endif  /*J9SC_COMPOSITE_CACHE_SIZES_TESTS_H_INCLUDED*/
+#endif /*J9SC_COMPOSITE_CACHE_SIZES_TESTS_H_INCLUDED*/

@@ -26,7 +26,6 @@
  * @brief Shared Semaphores
  */
 
-
 #include <Windows.h>
 #include "j9port.h"
 #include "omrportptb.h"
@@ -44,425 +43,411 @@
 #define OK 0
 #define SUCCESS 0
 #define SEMAPHORE_MAX I_32_MAX
-static j9shsem_handle* createsemHandle(struct J9PortLibrary *portLibrary, int nsems, char* baseName);
+static j9shsem_handle* createsemHandle(struct J9PortLibrary* portLibrary, int nsems, char* baseName);
 static intptr_t createSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle);
 static intptr_t openSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle);
-static char*
-getSemaphoreFullName(struct J9PortLibrary* portLibrary, const struct J9PortShSemParameters *params);
+static char* getSemaphoreFullName(struct J9PortLibrary* portLibrary, const struct J9PortShSemParameters* params);
 
-int32_t
-j9shsem_params_init(struct J9PortLibrary *portLibrary, struct J9PortShSemParameters *params) 
+int32_t j9shsem_params_init(struct J9PortLibrary* portLibrary, struct J9PortShSemParameters* params)
 {
- 	params->semName = NULL; /* Unique identifier of the semaphore. */
- 	params->setSize = 1; /* number of semaphores to be created in this set */
- 	params->permission = 0; /* No applicable in Windows */
- 	params->controlFileDir = NULL; /* Directory in which to create control files (SysV semaphores only */
- 	params->proj_id = 1; /* parameter used with semName to generate semaphore key */
- 	return 0;
+    params->semName = NULL; /* Unique identifier of the semaphore. */
+    params->setSize = 1; /* number of semaphores to be created in this set */
+    params->permission = 0; /* No applicable in Windows */
+    params->controlFileDir = NULL; /* Directory in which to create control files (SysV semaphores only */
+    params->proj_id = 1; /* parameter used with semName to generate semaphore key */
+    return 0;
 }
-intptr_t 
-j9shsem_open(struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle, const struct J9PortShSemParameters *params)
+intptr_t j9shsem_open(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle, const struct J9PortShSemParameters* params)
 {
-	/* TODO: what happens if setSize == 0? We used to allow the setSize to be 0 so that when the user trying to open
-		an existing semaphore they won't need to specify that. However because semaphore set is not part of Windows API
-		so we are emulating it using separate name - we need code to find out how large a semaphore set is */
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	char baseFile[J9SH_MAXPATH], semaphoreName[J9SH_MAXPATH];
-	j9shsem_handle* shsem_handle;
-	intptr_t rc;
-	DWORD waitResult;
-	DWORD windowsLastError;
-	char *semaphoreFullName;
-	int i = 0;
-	wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
-	
-	Trc_PRT_shsem_j9shsem_open_Entry(params->semName, params->setSize, params->permission);
-	/* If global creation mutex doesn't exist, create it */
-	if (NULL == PPG_shsem_creationMutex) {
-		DWORD lastError = 0;
+    /* TODO: what happens if setSize == 0? We used to allow the setSize to be 0 so that when the user trying to open
+            an existing semaphore they won't need to specify that. However because semaphore set is not part of Windows
+       API so we are emulating it using separate name - we need code to find out how large a semaphore set is */
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    char baseFile[J9SH_MAXPATH], semaphoreName[J9SH_MAXPATH];
+    j9shsem_handle* shsem_handle;
+    intptr_t rc;
+    DWORD waitResult;
+    DWORD windowsLastError;
+    char* semaphoreFullName;
+    int i = 0;
+    wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
 
-		/* Security attributes for the global creationMutex is set to public accessible */
-		SECURITY_DESCRIPTOR secdes;
-		SECURITY_ATTRIBUTES secattr;
+    Trc_PRT_shsem_j9shsem_open_Entry(params->semName, params->setSize, params->permission);
+    /* If global creation mutex doesn't exist, create it */
+    if (NULL == PPG_shsem_creationMutex) {
+        DWORD lastError = 0;
 
-		InitializeSecurityDescriptor (&secdes, SECURITY_DESCRIPTOR_REVISION);
-		SetSecurityDescriptorDacl(	&secdes, TRUE, NULL, TRUE); 
-	
-		secattr.nLength=sizeof(SECURITY_ATTRIBUTES);
-		secattr.lpSecurityDescriptor=&secdes;
-		secattr.bInheritHandle = FALSE; 
+        /* Security attributes for the global creationMutex is set to public accessible */
+        SECURITY_DESCRIPTOR secdes;
+        SECURITY_ATTRIBUTES secattr;
 
-		/* Initialize the creationMutex */
-		Trc_PRT_shsem_j9shsem_open_globalMutexCreate();
-		PPG_shsem_creationMutex = CreateMutex(&secattr, FALSE, J9PORT_SHSEM_CREATIONMUTEX);
-		lastError = GetLastError();
-		if(NULL == PPG_shsem_creationMutex) {
-			if(lastError == ERROR_ALREADY_EXISTS) {
-				Trc_PRT_shsem_j9shsem_open_globalMutexOpen(lastError);
-				PPG_shsem_creationMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, J9PORT_SHSEM_CREATIONMUTEX);
-				lastError = GetLastError();
-				if(NULL == PPG_shsem_creationMutex) {
-					Trc_PRT_shsem_j9shsem_open_globalMutexOpenFailed(lastError);
-					return J9PORT_ERROR_SHSEM_OPFAILED;
-				} else {
-					Trc_PRT_shsem_j9shsem_open_globalMutexOpenSuccess(lastError);
-				}
-			} else {
-				Trc_PRT_shsem_j9shsem_open_globalMutexCreateFailed(lastError);
-				return J9PORT_ERROR_SHSEM_OPFAILED;
-			}
-		} else {
-			Trc_PRT_shsem_j9shsem_open_globalMutexCreateSuccess(lastError);
-		}
-	} else {
-		Trc_PRT_shsem_j9shsem_open_globalMutexExists();
-	}
+        InitializeSecurityDescriptor(&secdes, SECURITY_DESCRIPTOR_REVISION);
+        SetSecurityDescriptorDacl(&secdes, TRUE, NULL, TRUE);
 
-	semaphoreFullName = getSemaphoreFullName(portLibrary, params);
-	if (NULL == semaphoreFullName) {
-		Trc_PRT_shsem_j9shsem_open_nullSemaphoreFullName();
-		return J9PORT_ERROR_SHSEM_OPFAILED;
-	}
-	omrstr_printf(baseFile, J9SH_MAXPATH, "%s_semaphore", semaphoreFullName);
-	omrmem_free_memory(semaphoreFullName);
-	Trc_PRT_shsem_j9shsem_open_builtsemname(baseFile);
-	for (i = 0; baseFile[i] != '\0' && i < J9SH_MAXPATH; i++) {
-		if (('\\' == baseFile[i]) || (':' == baseFile[i]) || (' ' == baseFile[i])) {
-			baseFile[i] = '_';
-		}
-	}
-	Trc_PRT_shsem_j9shsem_open_translatedsemname(baseFile);
+        secattr.nLength = sizeof(SECURITY_ATTRIBUTES);
+        secattr.lpSecurityDescriptor = &secdes;
+        secattr.bInheritHandle = FALSE;
 
-	shsem_handle = (*handle) = createsemHandle(portLibrary, params->setSize, baseFile);
-	if (!shsem_handle) {
-		Trc_PRT_shsem_j9shsem_open_nullSemaphoreHandle();
-		return J9PORT_ERROR_SHSEM_OPFAILED;
-	}
+        /* Initialize the creationMutex */
+        Trc_PRT_shsem_j9shsem_open_globalMutexCreate();
+        PPG_shsem_creationMutex = CreateMutex(&secattr, FALSE, J9PORT_SHSEM_CREATIONMUTEX);
+        lastError = GetLastError();
+        if (NULL == PPG_shsem_creationMutex) {
+            if (lastError == ERROR_ALREADY_EXISTS) {
+                Trc_PRT_shsem_j9shsem_open_globalMutexOpen(lastError);
+                PPG_shsem_creationMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, J9PORT_SHSEM_CREATIONMUTEX);
+                lastError = GetLastError();
+                if (NULL == PPG_shsem_creationMutex) {
+                    Trc_PRT_shsem_j9shsem_open_globalMutexOpenFailed(lastError);
+                    return J9PORT_ERROR_SHSEM_OPFAILED;
+                } else {
+                    Trc_PRT_shsem_j9shsem_open_globalMutexOpenSuccess(lastError);
+                }
+            } else {
+                Trc_PRT_shsem_j9shsem_open_globalMutexCreateFailed(lastError);
+                return J9PORT_ERROR_SHSEM_OPFAILED;
+            }
+        } else {
+            Trc_PRT_shsem_j9shsem_open_globalMutexCreateSuccess(lastError);
+        }
+    } else {
+        Trc_PRT_shsem_j9shsem_open_globalMutexExists();
+    }
 
-	Trc_PRT_shsem_j9shsem_open_Debug1(baseFile);
+    semaphoreFullName = getSemaphoreFullName(portLibrary, params);
+    if (NULL == semaphoreFullName) {
+        Trc_PRT_shsem_j9shsem_open_nullSemaphoreFullName();
+        return J9PORT_ERROR_SHSEM_OPFAILED;
+    }
+    omrstr_printf(baseFile, J9SH_MAXPATH, "%s_semaphore", semaphoreFullName);
+    omrmem_free_memory(semaphoreFullName);
+    Trc_PRT_shsem_j9shsem_open_builtsemname(baseFile);
+    for (i = 0; baseFile[i] != '\0' && i < J9SH_MAXPATH; i++) {
+        if (('\\' == baseFile[i]) || (':' == baseFile[i]) || (' ' == baseFile[i])) {
+            baseFile[i] = '_';
+        }
+    }
+    Trc_PRT_shsem_j9shsem_open_translatedsemname(baseFile);
 
-	/* Lock the creation mutex */
-	waitResult = WaitForSingleObject(PPG_shsem_creationMutex, J9PORT_SHSEM_WAITTIME); 
-	windowsLastError = GetLastError();
+    shsem_handle = (*handle) = createsemHandle(portLibrary, params->setSize, baseFile);
+    if (!shsem_handle) {
+        Trc_PRT_shsem_j9shsem_open_nullSemaphoreHandle();
+        return J9PORT_ERROR_SHSEM_OPFAILED;
+    }
 
-	if (WAIT_FAILED == waitResult) {
-		omrmem_free_memory((*handle)->rootName);
-		omrmem_free_memory((*handle)->semHandles);
-		omrmem_free_memory(*handle);
-		*handle = NULL;
-		Trc_PRT_shsem_j9shsem_open_waitglobalmutexfailed(waitResult, windowsLastError);
-		return J9PORT_ERROR_SHSEM_OPFAILED;
-	}
-	if (WAIT_TIMEOUT == waitResult) {
-		omrmem_free_memory((*handle)->rootName);
-		omrmem_free_memory((*handle)->semHandles);
-		omrmem_free_memory(*handle);
-		*handle = NULL;
-		Trc_PRT_shsem_j9shsem_open_waitglobalmutextimeout(waitResult, windowsLastError);
-		return J9PORT_ERROR_SHSEM_WAIT_FOR_CREATION_MUTEX_TIMEDOUT;
-	}
+    Trc_PRT_shsem_j9shsem_open_Debug1(baseFile);
 
-	Trc_PRT_shsem_j9shsem_open_waitglobalmutex(waitResult, windowsLastError);
-	omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s", baseFile);
-	/* Convert the filename from UTF8 to Unicode */
-	unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
-	if (NULL == unicodeSemaphoreName) {
-		rc = J9PORT_ERROR_SHSEM_OPFAILED;
-	} else {
-		shsem_handle->mainLock = OpenSemaphoreW(SEMAPHORE_ALL_ACCESS, 0, unicodeSemaphoreName);
-		if (unicodeBuffer != unicodeSemaphoreName) {
-			omrmem_free_memory(unicodeSemaphoreName);
-		}
-  
-		if (shsem_handle->mainLock == NULL) {
-			Trc_PRT_shsem_j9shsem_open_Event2(semaphoreName);
-			rc = createSemaphore(portLibrary, shsem_handle);
-		} else {
-			Trc_PRT_shsem_j9shsem_open_Event1(semaphoreName);
-			rc = openSemaphore(portLibrary, shsem_handle);
-		}
-	}
-	
-	/* release the creation mutex */
-	ReleaseMutex(PPG_shsem_creationMutex);
-	
-	if (J9PORT_ERROR_SHSEM_OPFAILED == rc) {
-		Trc_PRT_shsem_j9shsem_open_Exit1();
-		omrfile_error_message();
-		return rc;
-	}
+    /* Lock the creation mutex */
+    waitResult = WaitForSingleObject(PPG_shsem_creationMutex, J9PORT_SHSEM_WAITTIME);
+    windowsLastError = GetLastError();
 
-	Trc_PRT_shsem_j9shsem_open_Exit(rc, (*handle));
-	return rc; 	
+    if (WAIT_FAILED == waitResult) {
+        omrmem_free_memory((*handle)->rootName);
+        omrmem_free_memory((*handle)->semHandles);
+        omrmem_free_memory(*handle);
+        *handle = NULL;
+        Trc_PRT_shsem_j9shsem_open_waitglobalmutexfailed(waitResult, windowsLastError);
+        return J9PORT_ERROR_SHSEM_OPFAILED;
+    }
+    if (WAIT_TIMEOUT == waitResult) {
+        omrmem_free_memory((*handle)->rootName);
+        omrmem_free_memory((*handle)->semHandles);
+        omrmem_free_memory(*handle);
+        *handle = NULL;
+        Trc_PRT_shsem_j9shsem_open_waitglobalmutextimeout(waitResult, windowsLastError);
+        return J9PORT_ERROR_SHSEM_WAIT_FOR_CREATION_MUTEX_TIMEDOUT;
+    }
+
+    Trc_PRT_shsem_j9shsem_open_waitglobalmutex(waitResult, windowsLastError);
+    omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s", baseFile);
+    /* Convert the filename from UTF8 to Unicode */
+    unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
+    if (NULL == unicodeSemaphoreName) {
+        rc = J9PORT_ERROR_SHSEM_OPFAILED;
+    } else {
+        shsem_handle->mainLock = OpenSemaphoreW(SEMAPHORE_ALL_ACCESS, 0, unicodeSemaphoreName);
+        if (unicodeBuffer != unicodeSemaphoreName) {
+            omrmem_free_memory(unicodeSemaphoreName);
+        }
+
+        if (shsem_handle->mainLock == NULL) {
+            Trc_PRT_shsem_j9shsem_open_Event2(semaphoreName);
+            rc = createSemaphore(portLibrary, shsem_handle);
+        } else {
+            Trc_PRT_shsem_j9shsem_open_Event1(semaphoreName);
+            rc = openSemaphore(portLibrary, shsem_handle);
+        }
+    }
+
+    /* release the creation mutex */
+    ReleaseMutex(PPG_shsem_creationMutex);
+
+    if (J9PORT_ERROR_SHSEM_OPFAILED == rc) {
+        Trc_PRT_shsem_j9shsem_open_Exit1();
+        omrfile_error_message();
+        return rc;
+    }
+
+    Trc_PRT_shsem_j9shsem_open_Exit(rc, (*handle));
+    return rc;
 }
 
-intptr_t 
-j9shsem_post(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
+intptr_t j9shsem_post(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
 {
-	Trc_PRT_shsem_j9shsem_post_Entry(handle, semset, flag);
-	/* flag is ignored on Win32 for now - there is no Undo for semaphore */	
-	if(handle == NULL) {
-		Trc_PRT_shsem_j9shsem_post_Exit1();
-		return J9PORT_ERROR_SHSEM_HANDLE_INVALID;
-	}
+    Trc_PRT_shsem_j9shsem_post_Entry(handle, semset, flag);
+    /* flag is ignored on Win32 for now - there is no Undo for semaphore */
+    if (handle == NULL) {
+        Trc_PRT_shsem_j9shsem_post_Exit1();
+        return J9PORT_ERROR_SHSEM_HANDLE_INVALID;
+    }
 
-	if(semset < 0 || semset >= handle->setSize) {
-		Trc_PRT_shsem_j9shsem_post_Exit2();
-		return J9PORT_ERROR_SHSEM_SEMSET_INVALID;
-	}
-  
-	if(0 != ReleaseSemaphore(handle->semHandles[semset], 1, NULL)) {
-		Trc_PRT_shsem_j9shsem_post_Exit(0);
-		return 0;
-	} else {
-		Trc_PRT_shsem_j9shsem_post_Exit3(0, GetLastError());
-		return -1;
-	}
+    if (semset < 0 || semset >= handle->setSize) {
+        Trc_PRT_shsem_j9shsem_post_Exit2();
+        return J9PORT_ERROR_SHSEM_SEMSET_INVALID;
+    }
+
+    if (0 != ReleaseSemaphore(handle->semHandles[semset], 1, NULL)) {
+        Trc_PRT_shsem_j9shsem_post_Exit(0);
+        return 0;
+    } else {
+        Trc_PRT_shsem_j9shsem_post_Exit3(0, GetLastError());
+        return -1;
+    }
 }
 
-intptr_t
-j9shsem_wait(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
+intptr_t j9shsem_wait(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, uintptr_t flag)
 {
-	DWORD timeout,rc;
+    DWORD timeout, rc;
 
-	Trc_PRT_shsem_j9shsem_wait_Entry(handle, semset, flag);
+    Trc_PRT_shsem_j9shsem_wait_Entry(handle, semset, flag);
 
-	if(handle == NULL) {
-		Trc_PRT_shsem_j9shsem_wait_Exit1();
-		return J9PORT_ERROR_SHSEM_HANDLE_INVALID;
-	}
-	if(semset < 0 || semset >= handle->setSize) {
-		Trc_PRT_shsem_j9shsem_wait_Exit2();
-		return J9PORT_ERROR_SHSEM_SEMSET_INVALID;
-	}
+    if (handle == NULL) {
+        Trc_PRT_shsem_j9shsem_wait_Exit1();
+        return J9PORT_ERROR_SHSEM_HANDLE_INVALID;
+    }
+    if (semset < 0 || semset >= handle->setSize) {
+        Trc_PRT_shsem_j9shsem_wait_Exit2();
+        return J9PORT_ERROR_SHSEM_SEMSET_INVALID;
+    }
 
-	if(flag & J9PORT_SHSEM_MODE_NOWAIT) {
-		timeout = 0;
-	} else {
-		timeout = INFINITE;
-	} 
-   
-	rc = WaitForSingleObject(handle->semHandles[semset],timeout);
-	
-	switch(rc) {
-	case WAIT_ABANDONED: /* This means someone has crashed but hasn't released the semaphore, we are okay with this */
-	case WAIT_OBJECT_0:
-		Trc_PRT_shsem_j9shsem_wait_Exit(0);
-		return 0;
-	case WAIT_TIMEOUT: /* Falls through */
-	case WAIT_FAILED:
-		Trc_PRT_shsem_j9shsem_wait_Exit3(-1, rc);
-		return -1;
-	default:
-		Trc_PRT_shsem_j9shsem_wait_Exit3(-1, rc);
-		return -1;
-	}
+    if (flag & J9PORT_SHSEM_MODE_NOWAIT) {
+        timeout = 0;
+    } else {
+        timeout = INFINITE;
+    }
 
+    rc = WaitForSingleObject(handle->semHandles[semset], timeout);
+
+    switch (rc) {
+    case WAIT_ABANDONED: /* This means someone has crashed but hasn't released the semaphore, we are okay with this */
+    case WAIT_OBJECT_0:
+        Trc_PRT_shsem_j9shsem_wait_Exit(0);
+        return 0;
+    case WAIT_TIMEOUT: /* Falls through */
+    case WAIT_FAILED:
+        Trc_PRT_shsem_j9shsem_wait_Exit3(-1, rc);
+        return -1;
+    default:
+        Trc_PRT_shsem_j9shsem_wait_Exit3(-1, rc);
+        return -1;
+    }
 }
 
-intptr_t 
-j9shsem_getVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle* handle, uintptr_t semset)
+intptr_t j9shsem_getVal(struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset)
 {
-	Trc_PRT_shsem_j9shsem_getVal_Entry(*handle, semset);
-	Trc_PRT_shsem_j9shsem_getVal_Exit(0);
-	return -1;
+    Trc_PRT_shsem_j9shsem_getVal_Entry(*handle, semset);
+    Trc_PRT_shsem_j9shsem_getVal_Exit(0);
+    return -1;
 }
 
-intptr_t 
-j9shsem_setVal(struct J9PortLibrary *portLibrary, struct j9shsem_handle *handle, uintptr_t semset, intptr_t value)
+intptr_t j9shsem_setVal(
+    struct J9PortLibrary* portLibrary, struct j9shsem_handle* handle, uintptr_t semset, intptr_t value)
 {
-	Trc_PRT_shsem_j9shsem_setVal_Entry(handle, semset, value);
-	Trc_PRT_shsem_j9shsem_setVal_Exit(-1);
-	return -1;
+    Trc_PRT_shsem_j9shsem_setVal_Entry(handle, semset, value);
+    Trc_PRT_shsem_j9shsem_setVal_Exit(-1);
+    return -1;
 }
 
-void 
-j9shsem_close (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle)
+void j9shsem_close(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	uint32_t i;
-	j9shsem_handle* sem_handle = (*handle);
-	
-	Trc_PRT_shsem_j9shsem_close_Entry(*handle);
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    uint32_t i;
+    j9shsem_handle* sem_handle = (*handle);
 
-	if(*handle == NULL) {
-		Trc_PRT_shsem_j9shsem_close_NullHandle();
-		return;
-	}
-   
-	for(i=0; i<sem_handle->setSize; i++) {        
-		CloseHandle(sem_handle->semHandles[i]);
-	}
-  
-	CloseHandle(sem_handle->mainLock);
+    Trc_PRT_shsem_j9shsem_close_Entry(*handle);
 
-	omrmem_free_memory((*handle)->rootName);
-	omrmem_free_memory((*handle)->semHandles);
-	omrmem_free_memory(*handle);
-	*handle = NULL;
+    if (*handle == NULL) {
+        Trc_PRT_shsem_j9shsem_close_NullHandle();
+        return;
+    }
 
-	Trc_PRT_shsem_j9shsem_close_Exit();
+    for (i = 0; i < sem_handle->setSize; i++) {
+        CloseHandle(sem_handle->semHandles[i]);
+    }
+
+    CloseHandle(sem_handle->mainLock);
+
+    omrmem_free_memory((*handle)->rootName);
+    omrmem_free_memory((*handle)->semHandles);
+    omrmem_free_memory(*handle);
+    *handle = NULL;
+
+    Trc_PRT_shsem_j9shsem_close_Exit();
 }
 
-intptr_t 
-j9shsem_destroy (struct J9PortLibrary *portLibrary, struct j9shsem_handle **handle)
+intptr_t j9shsem_destroy(struct J9PortLibrary* portLibrary, struct j9shsem_handle** handle)
 {
-	Trc_PRT_shsem_j9shsem_destroy_Entry(*handle);
-	/*On Windows this just maps to j9shsem_close */
-	if((*handle) == NULL) {
-		Trc_PRT_shsem_j9shsem_destroy_NullHandle();
-		return 0;
-	}
+    Trc_PRT_shsem_j9shsem_destroy_Entry(*handle);
+    /*On Windows this just maps to j9shsem_close */
+    if ((*handle) == NULL) {
+        Trc_PRT_shsem_j9shsem_destroy_NullHandle();
+        return 0;
+    }
 
-	j9shsem_close(portLibrary, handle);
-	Trc_PRT_shsem_j9shsem_close_Exit();
-	return 0;
+    j9shsem_close(portLibrary, handle);
+    Trc_PRT_shsem_j9shsem_close_Exit();
+    return 0;
 }
 
-
-int32_t
-j9shsem_startup(struct J9PortLibrary *portLibrary)
+int32_t j9shsem_startup(struct J9PortLibrary* portLibrary)
 {
-	PPG_shsem_creationMutex = NULL;
-	return 0;
+    PPG_shsem_creationMutex = NULL;
+    return 0;
 }
 
-void
-j9shsem_shutdown(struct J9PortLibrary *portLibrary)
+void j9shsem_shutdown(struct J9PortLibrary* portLibrary)
 {
-	if (NULL != PPG_shsem_creationMutex) {
-		CloseHandle(PPG_shsem_creationMutex);
-		PPG_shsem_creationMutex = NULL;
-	}
+    if (NULL != PPG_shsem_creationMutex) {
+        CloseHandle(PPG_shsem_creationMutex);
+        PPG_shsem_creationMutex = NULL;
+    }
 }
-static j9shsem_handle*
-createsemHandle(struct J9PortLibrary *portLibrary, int nsems, char* baseName) 
+static j9shsem_handle* createsemHandle(struct J9PortLibrary* portLibrary, int nsems, char* baseName)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	j9shsem_handle* result;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    j9shsem_handle* result;
 
-	result = omrmem_allocate_memory(sizeof(j9shsem_handle), OMRMEM_CATEGORY_PORT_LIBRARY);
-	if(result == NULL) {
-		return NULL;
-	}
+    result = omrmem_allocate_memory(sizeof(j9shsem_handle), OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (result == NULL) {
+        return NULL;
+    }
 
-	result->rootName = omrmem_allocate_memory(strlen(baseName)+1, OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (NULL == result->rootName) {
-		omrmem_free_memory(result);
-		return NULL;
-	}
-	omrstr_printf(result->rootName, J9SH_MAXPATH, "%s", baseName);
+    result->rootName = omrmem_allocate_memory(strlen(baseName) + 1, OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (NULL == result->rootName) {
+        omrmem_free_memory(result);
+        return NULL;
+    }
+    omrstr_printf(result->rootName, J9SH_MAXPATH, "%s", baseName);
 
-	/*Allocating semHandle array*/
-	result->semHandles = omrmem_allocate_memory(nsems*sizeof(HANDLE), OMRMEM_CATEGORY_PORT_LIBRARY);
-	if(NULL == result->semHandles) {
-		omrmem_free_memory(result->rootName);
-		omrmem_free_memory(result);
-		return NULL;
-	}
+    /*Allocating semHandle array*/
+    result->semHandles = omrmem_allocate_memory(nsems * sizeof(HANDLE), OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (NULL == result->semHandles) {
+        omrmem_free_memory(result->rootName);
+        omrmem_free_memory(result);
+        return NULL;
+    }
 
-	result->setSize = nsems;
+    result->setSize = nsems;
 
-	/* TODO: need to check whether baseName is too long - what should we do if it is?! */
-	return result;
+    /* TODO: need to check whether baseName is too long - what should we do if it is?! */
+    return result;
 }
 
-static intptr_t
-createSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle)
+static intptr_t createSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	uint32_t i;
-	char semaphoreName[J9SH_MAXPATH];
-	DWORD windowsLastError;
-	wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    uint32_t i;
+    char semaphoreName[J9SH_MAXPATH];
+    DWORD windowsLastError;
+    wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
 
-	Trc_PRT_shsem_j9shsem_createsemaphore_entered(shsem_handle->rootName);
+    Trc_PRT_shsem_j9shsem_createsemaphore_entered(shsem_handle->rootName);
 
-	/* Convert the semaphore name from UTF8 to Unicode */
-	unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, shsem_handle->rootName, unicodeBuffer, UNICODE_BUFFER_SIZE);
-	if (NULL != unicodeSemaphoreName) {
-		shsem_handle->mainLock = CreateSemaphoreW(NULL, 0, SEMAPHORE_MAX, unicodeSemaphoreName);
-		if(unicodeBuffer != unicodeSemaphoreName) {
-			omrmem_free_memory(unicodeSemaphoreName);
-		}	
-	}
+    /* Convert the semaphore name from UTF8 to Unicode */
+    unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, shsem_handle->rootName, unicodeBuffer, UNICODE_BUFFER_SIZE);
+    if (NULL != unicodeSemaphoreName) {
+        shsem_handle->mainLock = CreateSemaphoreW(NULL, 0, SEMAPHORE_MAX, unicodeSemaphoreName);
+        if (unicodeBuffer != unicodeSemaphoreName) {
+            omrmem_free_memory(unicodeSemaphoreName);
+        }
+    }
 
-	if(shsem_handle->mainLock == NULL) {
-		windowsLastError = GetLastError();
-		Trc_PRT_shsem_j9shsem_createsemaphore_exiterror(windowsLastError);
-		/* can't create mainlock, we can't do anything else :-( */
-		return J9PORT_ERROR_SHSEM_OPFAILED;
-	}
+    if (shsem_handle->mainLock == NULL) {
+        windowsLastError = GetLastError();
+        Trc_PRT_shsem_j9shsem_createsemaphore_exiterror(windowsLastError);
+        /* can't create mainlock, we can't do anything else :-( */
+        return J9PORT_ERROR_SHSEM_OPFAILED;
+    }
 
-	Trc_PRT_shsem_j9shsem_createsemaphore_createdmain();	
-	
-	for (i = 0; i < shsem_handle->setSize; i++) {
-		HANDLE debugHandle;
-		omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s_set%d", shsem_handle->rootName, i);
-		Trc_PRT_shsem_j9shsem_createsemaphore_creatingset(i, semaphoreName);   
-		  
-		unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
-		if (NULL != unicodeSemaphoreName) {
-			debugHandle = shsem_handle->semHandles[i] = CreateSemaphoreW(NULL, 0, SEMAPHORE_MAX, unicodeSemaphoreName);
-			if (unicodeBuffer != unicodeSemaphoreName) {
-				omrmem_free_memory(unicodeSemaphoreName);
-			}	
-		}
-		if(shsem_handle->semHandles[i] == NULL) {
-			windowsLastError = GetLastError();
-			Trc_PRT_shsem_j9shsem_createsemaphore_exiterror(windowsLastError);
-			return J9PORT_ERROR_SHSEM_OPFAILED;
-		}
-	}
+    Trc_PRT_shsem_j9shsem_createsemaphore_createdmain();
 
-	Trc_PRT_shsem_j9shsem_createsemaphore_exit();
-	return J9PORT_INFO_SHSEM_CREATED;
+    for (i = 0; i < shsem_handle->setSize; i++) {
+        HANDLE debugHandle;
+        omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s_set%d", shsem_handle->rootName, i);
+        Trc_PRT_shsem_j9shsem_createsemaphore_creatingset(i, semaphoreName);
+
+        unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
+        if (NULL != unicodeSemaphoreName) {
+            debugHandle = shsem_handle->semHandles[i] = CreateSemaphoreW(NULL, 0, SEMAPHORE_MAX, unicodeSemaphoreName);
+            if (unicodeBuffer != unicodeSemaphoreName) {
+                omrmem_free_memory(unicodeSemaphoreName);
+            }
+        }
+        if (shsem_handle->semHandles[i] == NULL) {
+            windowsLastError = GetLastError();
+            Trc_PRT_shsem_j9shsem_createsemaphore_exiterror(windowsLastError);
+            return J9PORT_ERROR_SHSEM_OPFAILED;
+        }
+    }
+
+    Trc_PRT_shsem_j9shsem_createsemaphore_exit();
+    return J9PORT_INFO_SHSEM_CREATED;
 }
-static intptr_t
-openSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle)
+static intptr_t openSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_handle)
 {
-	/*Open and setup the semaphore arrays*/
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	uint32_t i;
-	char semaphoreName[J9SH_MAXPATH];
-	DWORD windowsLastError;
-	wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
+    /*Open and setup the semaphore arrays*/
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    uint32_t i;
+    char semaphoreName[J9SH_MAXPATH];
+    DWORD windowsLastError;
+    wchar_t unicodeBuffer[UNICODE_BUFFER_SIZE], *unicodeSemaphoreName;
 
-	Trc_PRT_shsem_j9shsem_opensemaphore_entered(shsem_handle->rootName);
+    Trc_PRT_shsem_j9shsem_opensemaphore_entered(shsem_handle->rootName);
 
-	for (i = 0; i < shsem_handle->setSize; i++) {
-		omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s_set%d", shsem_handle->rootName, i);
-		Trc_PRT_shsem_j9shsem_opensemaphore_openingset(i, semaphoreName);          
+    for (i = 0; i < shsem_handle->setSize; i++) {
+        omrstr_printf(semaphoreName, J9SH_MAXPATH, "%s_set%d", shsem_handle->rootName, i);
+        Trc_PRT_shsem_j9shsem_opensemaphore_openingset(i, semaphoreName);
 
-		/*convert the name to unicode*/
-		memset(unicodeBuffer, 0, UNICODE_BUFFER_SIZE * sizeof(wchar_t));
-		unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
-		if (NULL != unicodeSemaphoreName) {
-			shsem_handle->semHandles[i] = OpenSemaphoreW(SEMAPHORE_ALL_ACCESS, 0, unicodeSemaphoreName);
-			if (unicodeBuffer != unicodeSemaphoreName) {
-				omrmem_free_memory(unicodeSemaphoreName);
-			}
-		} else {
-			Trc_PRT_shsem_j9shsem_opensemaphore_failedToBuildUnicodeString(
-					semaphoreName,
-					omrerror_last_error_number());
-			shsem_handle->semHandles[i] = NULL;
-			/*Continue to clean up code and return J9PORT_ERROR_SHSEM_OPFAILED*/
-		}
-		
-		if(shsem_handle->semHandles[i] == NULL) {
-			uint32_t j;
-			windowsLastError = GetLastError();
-			Trc_PRT_shsem_j9shsem_opensemaphore_exiterror(windowsLastError);
-			for(j=0; j<i; j++) {
-				CloseHandle(shsem_handle->semHandles[i]);
-			}
-			return J9PORT_ERROR_SHSEM_OPFAILED;
-		}
-	}
+        /*convert the name to unicode*/
+        memset(unicodeBuffer, 0, UNICODE_BUFFER_SIZE * sizeof(wchar_t));
+        unicodeSemaphoreName = port_convertFromUTF8(OMRPORTLIB, semaphoreName, unicodeBuffer, UNICODE_BUFFER_SIZE);
+        if (NULL != unicodeSemaphoreName) {
+            shsem_handle->semHandles[i] = OpenSemaphoreW(SEMAPHORE_ALL_ACCESS, 0, unicodeSemaphoreName);
+            if (unicodeBuffer != unicodeSemaphoreName) {
+                omrmem_free_memory(unicodeSemaphoreName);
+            }
+        } else {
+            Trc_PRT_shsem_j9shsem_opensemaphore_failedToBuildUnicodeString(semaphoreName, omrerror_last_error_number());
+            shsem_handle->semHandles[i] = NULL;
+            /*Continue to clean up code and return J9PORT_ERROR_SHSEM_OPFAILED*/
+        }
 
-	Trc_PRT_shsem_j9shsem_opensemaphore_exit();
-	return J9PORT_INFO_SHSEM_OPENED;
+        if (shsem_handle->semHandles[i] == NULL) {
+            uint32_t j;
+            windowsLastError = GetLastError();
+            Trc_PRT_shsem_j9shsem_opensemaphore_exiterror(windowsLastError);
+            for (j = 0; j < i; j++) {
+                CloseHandle(shsem_handle->semHandles[i]);
+            }
+            return J9PORT_ERROR_SHSEM_OPFAILED;
+        }
+    }
+
+    Trc_PRT_shsem_j9shsem_opensemaphore_exit();
+    return J9PORT_INFO_SHSEM_OPENED;
 }
 
 /* Create a semaphore name acceptable to the Windows semaphore open and create functions.
@@ -470,34 +455,32 @@ openSemaphore(struct J9PortLibrary* portLibrary, struct j9shsem_handle* shsem_ha
  * @param[in] J9PortShSemParameters struct containing semaphore name and control directory.
  * @return Semaphore full name derived from semaphore name and control directory
  * The caller must release the storage allocated for the semaphore full name.
- * 
- * Filters out backslashes from the control directory path string and other non-numeric characters caused by path conversion.
+ *
+ * Filters out backslashes from the control directory path string and other non-numeric characters caused by path
+ * conversion.
  */
-static char*
-getSemaphoreFullName(struct J9PortLibrary* portLibrary, const struct J9PortShSemParameters *params)
+static char* getSemaphoreFullName(struct J9PortLibrary* portLibrary, const struct J9PortShSemParameters* params)
 {
-	OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
-	char *result, *readPtr, *writePtr;
-	uintptr_t resultLen;
+    OMRPORT_ACCESS_FROM_J9PORT(portLibrary);
+    char *result, *readPtr, *writePtr;
+    uintptr_t resultLen;
 
-	resultLen = strlen(params->semName)
-		+strlen(params->controlFileDir)
-		+2; /* add space for the underscore between controlFileDir and semName and for the null terminator */
-	result = omrmem_allocate_memory(resultLen, OMRMEM_CATEGORY_PORT_LIBRARY);
-	if (NULL == result) {
-		return NULL;
-	}
+    resultLen = strlen(params->semName) + strlen(params->controlFileDir)
+        + 2; /* add space for the underscore between controlFileDir and semName and for the null terminator */
+    result = omrmem_allocate_memory(resultLen, OMRMEM_CATEGORY_PORT_LIBRARY);
+    if (NULL == result) {
+        return NULL;
+    }
 
-	omrstr_printf(result, resultLen, "%s_%s", params->controlFileDir, params->semName);
-	readPtr = writePtr = result;
-	while ('\0' != *readPtr) { /* get rid of non-alphanumeric characters */
-		if (isalnum(*readPtr) || ('_' == *readPtr)) {
-			*writePtr = *readPtr;
-			++writePtr;
-		}
-		++readPtr;
-	}
-	*writePtr = '\0';
-	return result;
+    omrstr_printf(result, resultLen, "%s_%s", params->controlFileDir, params->semName);
+    readPtr = writePtr = result;
+    while ('\0' != *readPtr) { /* get rid of non-alphanumeric characters */
+        if (isalnum(*readPtr) || ('_' == *readPtr)) {
+            *writePtr = *readPtr;
+            ++writePtr;
+        }
+        ++readPtr;
+    }
+    *writePtr = '\0';
+    return result;
 }
-

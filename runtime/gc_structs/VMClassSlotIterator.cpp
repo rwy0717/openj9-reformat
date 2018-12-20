@@ -36,11 +36,10 @@
  * @return the next slot containing an object reference
  * @return NULL if there are no more such slots
  */
-J9Class **
-GC_VMClassSlotIterator::nextSlot()
+J9Class** GC_VMClassSlotIterator::nextSlot()
 {
-	if(_scanPtr < _endPtr) {
-		return _scanPtr++;
-	}
-	return NULL;
+    if (_scanPtr < _endPtr) {
+        return _scanPtr++;
+    }
+    return NULL;
 }

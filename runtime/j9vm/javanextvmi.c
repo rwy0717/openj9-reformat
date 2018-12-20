@@ -24,9 +24,5 @@
 #include <jni.h>
 
 #if JAVA_SPEC_VERSION >= 12
-JNIEXPORT void JNICALL
-JVM_InitializeFromArchive(JNIEnv *env, jclass clz)
-{
-	/* A no-op implementation is ok. */
-}
+JNIEXPORT void JNICALL JVM_InitializeFromArchive(JNIEnv* env, jclass clz) { /* A no-op implementation is ok. */ }
 #endif /* JAVA_SPEC_VERSION >= 12 */

@@ -28,46 +28,41 @@
  * Invoked immediately after this shared library has been loaded.
  * The shared library is currenly only a stub: simply return.
  */
-jint JNICALL
-JNI_OnLoad(JavaVM *vm, void *reserved)
-{
-	return JNI_VERSION_1_8;
-}
+jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) { return JNI_VERSION_1_8; }
 
 /* Convert path to platform encoding.
  * It is the callers responsibility for freeing the returned memory.
  *
  * @return NULL on error, otherwise return converted string
  */
-static const char*
-translatePathToPlatform(JNIEnv *env, const char* pathUTF)
+static const char* translatePathToPlatform(JNIEnv* env, const char* pathUTF)
 {
-	char *result = NULL;
-	int32_t bufferLength = 0;
-	uintptr_t pathUTFSize = strlen(pathUTF);
+    char* result = NULL;
+    int32_t bufferLength = 0;
+    uintptr_t pathUTFSize = strlen(pathUTF);
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	bufferLength = 	j9str_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_OMR_INTERNAL, pathUTF, pathUTFSize, NULL, 0);
+    bufferLength = j9str_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_OMR_INTERNAL, pathUTF, pathUTFSize, NULL, 0);
 
-	if (bufferLength >= 0) {
-		bufferLength += MAX_STRING_TERMINATOR_LENGTH;
+    if (bufferLength >= 0) {
+        bufferLength += MAX_STRING_TERMINATOR_LENGTH;
 
-		result = (char*)j9mem_allocate_memory(bufferLength, OMRMEM_CATEGORY_PORT_LIBRARY);
-		if (NULL != result)  {
-			int32_t resultLength = j9str_convert(J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_OMR_INTERNAL, pathUTF, pathUTFSize, result, bufferLength);
-			if ((resultLength < 0) ||  (resultLength + MAX_STRING_TERMINATOR_LENGTH != bufferLength)) {
-				j9mem_free_memory(result);
-				result = NULL; /* error occured */
-			} else {
-				/* add terminator */
-				memset(result + resultLength, 0, MAX_STRING_TERMINATOR_LENGTH);
-			}
-		}
-	}
+        result = (char*)j9mem_allocate_memory(bufferLength, OMRMEM_CATEGORY_PORT_LIBRARY);
+        if (NULL != result) {
+            int32_t resultLength = j9str_convert(
+                J9STR_CODE_MUTF8, J9STR_CODE_PLATFORM_OMR_INTERNAL, pathUTF, pathUTFSize, result, bufferLength);
+            if ((resultLength < 0) || (resultLength + MAX_STRING_TERMINATOR_LENGTH != bufferLength)) {
+                j9mem_free_memory(result);
+                result = NULL; /* error occured */
+            } else {
+                /* add terminator */
+                memset(result + resultLength, 0, MAX_STRING_TERMINATOR_LENGTH);
+            }
+        }
+    }
 
-	return (const char*)result;
-
+    return (const char*)result;
 }
 
 /**
@@ -79,55 +74,54 @@ translatePathToPlatform(JNIEnv *env, const char* pathUTF)
  *
  * Note: Windows permission bits are not set to differentiate between users.
  */
-JNIEXPORT jboolean JNICALL 
-Java_sun_management_FileSystemImpl_isAccessUserOnly0(JNIEnv *env, jclass c, jstring path)
+JNIEXPORT jboolean JNICALL Java_sun_management_FileSystemImpl_isAccessUserOnly0(JNIEnv* env, jclass c, jstring path)
 {
-	const char* pathUTF = NULL;
-	jboolean result = JNI_FALSE;
+    const char* pathUTF = NULL;
+    jboolean result = JNI_FALSE;
 
-	PORT_ACCESS_FROM_ENV(env);
+    PORT_ACCESS_FROM_ENV(env);
 
-	pathUTF = (*env)->GetStringUTFChars(env, path, NULL);
-	if (NULL == pathUTF) {
-		((J9VMThread *)env)->javaVM->internalVMFunctions->throwNativeOOMError(env, 0, 0);
-	} else {
-		struct J9FileStat buf;
-		I_32 status = -1;
-		const char* pathConvert = pathUTF;
+    pathUTF = (*env)->GetStringUTFChars(env, path, NULL);
+    if (NULL == pathUTF) {
+        ((J9VMThread*)env)->javaVM->internalVMFunctions->throwNativeOOMError(env, 0, 0);
+    } else {
+        struct J9FileStat buf;
+        I_32 status = -1;
+        const char* pathConvert = pathUTF;
 #if !defined(WIN32) && !defined(WIN64)
-		pathConvert = (char*)translatePathToPlatform(env, pathUTF);
-		if (NULL == pathConvert) {
-			((J9VMThread *)env)->javaVM->internalVMFunctions->throwNativeOOMError(env, 0, 0);
-			(*env)->ReleaseStringUTFChars(env, path, pathUTF);
-			return result;
-		}
+        pathConvert = (char*)translatePathToPlatform(env, pathUTF);
+        if (NULL == pathConvert) {
+            ((J9VMThread*)env)->javaVM->internalVMFunctions->throwNativeOOMError(env, 0, 0);
+            (*env)->ReleaseStringUTFChars(env, path, pathUTF);
+            return result;
+        }
 #endif /* skip on windows */
-		/* retrieve file information */
-		status = j9file_stat(pathConvert, 0, &buf);
+        /* retrieve file information */
+        status = j9file_stat(pathConvert, 0, &buf);
 
-		if (0 == status) {
-			/* if any permissions are set other than user, fail */
-			if (!buf.perm.isGroupWriteable && !buf.perm.isGroupReadable && !buf.perm.isOtherWriteable && !buf.perm.isOtherReadable) {
-				result = JNI_TRUE;
-			}
-		} else {
-			/* failed to retrieve statistics */
-			((J9VMThread *)env)->javaVM->internalVMFunctions->throwNewJavaIoIOException(env, NULL);
-		}
+        if (0 == status) {
+            /* if any permissions are set other than user, fail */
+            if (!buf.perm.isGroupWriteable && !buf.perm.isGroupReadable && !buf.perm.isOtherWriteable
+                && !buf.perm.isOtherReadable) {
+                result = JNI_TRUE;
+            }
+        } else {
+            /* failed to retrieve statistics */
+            ((J9VMThread*)env)->javaVM->internalVMFunctions->throwNewJavaIoIOException(env, NULL);
+        }
 
-		if (pathConvert != pathUTF) {
-			j9mem_free_memory((void*)pathConvert);
-		}
-		(*env)->ReleaseStringUTFChars(env, path, pathUTF);
-	}
+        if (pathConvert != pathUTF) {
+            j9mem_free_memory((void*)pathConvert);
+        }
+        (*env)->ReleaseStringUTFChars(env, path, pathUTF);
+    }
 
-	return result;
+    return result;
 }
 
 #if defined(WIN32) || defined(WIN64)
-JNIEXPORT void JNICALL 
-Java_sun_management_FileSystemImpl_init0(JNIEnv *env, jclass c)
+JNIEXPORT void JNICALL Java_sun_management_FileSystemImpl_init0(JNIEnv* env, jclass c)
 {
-	/* stub method, no implementation required */ 
+    /* stub method, no implementation required */
 }
 #endif /* defined(WIN32) || defined(WIN64) */

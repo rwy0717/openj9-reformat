@@ -31,16 +31,16 @@
  * Create an new instance of a MM_VerboseEventSystemGCEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventSystemGCEnd::newInstance(MM_SystemGCEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventSystemGCEnd::newInstance(MM_SystemGCEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventSystemGCEnd *eventObject;
-	
-	eventObject = (MM_VerboseEventSystemGCEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventSystemGCEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventSystemGCEnd(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventSystemGCEnd* eventObject;
+
+    eventObject = (MM_VerboseEventSystemGCEnd*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventSystemGCEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventSystemGCEnd(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -48,47 +48,46 @@ MM_VerboseEventSystemGCEnd::newInstance(MM_SystemGCEndEvent *event, J9HookInterf
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventSystemGCEnd::consumeEvents(void)
+void MM_VerboseEventSystemGCEnd::consumeEvents(void)
 {
-	MM_VerboseEventStream *eventStream = _manager->getEventStream();
-	MM_VerboseEventSystemGCStart *event = NULL;
-	
-	/* Consume Events */
-	if (NULL != (event = (MM_VerboseEventSystemGCStart *)eventStream->returnEvent(J9HOOK_MM_PRIVATE_SYSTEM_GC_START, _manager->getPrivateHookInterface(), (MM_VerboseEvent *)this))){
-		_systemGCStartTime = event->getTimeStamp();
-	} else {
-		//Stream is corrupted, what now?
-	}
-	
-	/* Set last Global collection time */
-	_manager->setLastSystemGCTime(_time);
+    MM_VerboseEventStream* eventStream = _manager->getEventStream();
+    MM_VerboseEventSystemGCStart* event = NULL;
+
+    /* Consume Events */
+    if (NULL
+        != (event = (MM_VerboseEventSystemGCStart*)eventStream->returnEvent(
+                J9HOOK_MM_PRIVATE_SYSTEM_GC_START, _manager->getPrivateHookInterface(), (MM_VerboseEvent*)this))) {
+        _systemGCStartTime = event->getTimeStamp();
+    } else {
+        // Stream is corrupted, what now?
+    }
+
+    /* Set last Global collection time */
+    _manager->setLastSystemGCTime(_time);
 }
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventSystemGCEnd::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventSystemGCEnd::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	U_64 timeInMicroSeconds;
-		
-	/* output the common GC start info */
-	gcEndFormattedOutput(agent);
-	
-	if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _systemGCStartTime, _time + _exclusiveAccessTime)) {
-		agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<warning details=\"clock error detected in time totalms\" />");
-	}
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<time totalms=\"%llu.%03.3llu\" />",
-		timeInMicroSeconds / 1000,
-		timeInMicroSeconds % 1000
-	);
-	
-	_manager->decrementIndent();
-	indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</sys>");
-	agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
+    UDATA indentLevel = _manager->getIndentLevel();
+    U_64 timeInMicroSeconds;
+
+    /* output the common GC start info */
+    gcEndFormattedOutput(agent);
+
+    if (!getTimeDeltaInMicroSeconds(&timeInMicroSeconds, _systemGCStartTime, _time + _exclusiveAccessTime)) {
+        agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+            "<warning details=\"clock error detected in time totalms\" />");
+    }
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<time totalms=\"%llu.%03.3llu\" />", timeInMicroSeconds / 1000, timeInMicroSeconds % 1000);
+
+    _manager->decrementIndent();
+    indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "</sys>");
+    agent->endOfCycle(static_cast<J9VMThread*>(_omrThread->_language_vmthread));
 }

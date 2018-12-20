@@ -24,93 +24,94 @@
 
 #include "RuntimeToolsIntervalAgent.hpp"
 
-class JLMAgent : public RuntimeToolsIntervalAgent
-{
+class JLMAgent : public RuntimeToolsIntervalAgent {
 private:
+    /* pointers to functions used to enable and dump JLM data */
+    jvmtiExtensionFunction _jlmSet;
+    jvmtiExtensionFunction _jlmDump;
+    jvmtiExtensionFunction _jlmDumpStats;
 
-	/* pointers to functions used to enable and dump JLM data */
-	jvmtiExtensionFunction _jlmSet;
-	jvmtiExtensionFunction _jlmDump;
-	jvmtiExtensionFunction _jlmDumpStats;
+    /* env that can be used by new thread to make jvmti calls */
+    jvmtiEnv* _jvmti_env;
 
-	/* env that can be used by new thread to make jvmti calls */
-	jvmtiEnv* _jvmti_env;
+    /* used to limit the locks that are reported */
+    U_32 _slowThreshold;
 
-	/* used to limit the locks that are reported */
-	U_32 _slowThreshold;
+    /*
+     * type of locks that will be reported
+     * 1 - object only
+     * 2 - native only
+     * 3 - both
+     *
+     */
+    int _lockType;
 
-	/*
-	 * type of locks that will be reported
-	 * 1 - object only
-	 * 2 - native only
-	 * 3 - both
-	 *
-	 */
-	int _lockType;
-
-	/* indicates if we clear the jlm data each time we capture it */
-	bool _clearOnCapture;
+    /* indicates if we clear the jlm data each time we capture it */
+    bool _clearOnCapture;
 
 protected:
-	/**
-	 * Default constructor
-	 *
+    /**
+     * Default constructor
+     *
      * @param vm java vm that can be used by this manager
-	 */
-	JLMAgent(JavaVM * vm) : RuntimeToolsIntervalAgent(vm) {}
+     */
+    JLMAgent(JavaVM* vm)
+        : RuntimeToolsIntervalAgent(vm)
+    {}
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init();
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init();
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill();
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill();
 
-	/**
-	 * This method is used to create an instance
+    /**
+     * This method is used to create an instance
      * @param vm java vm that can be used by this manager
-	 */
-	static JLMAgent* newInstance(JavaVM * vm);
+     */
+    static JLMAgent* newInstance(JavaVM* vm);
 
-	/**
-	 * This get gets the reference to the agent given the pointer to where it should
-	 * be stored.  If necessary it creates the agent
-	 * @param vm that can be used by the method
-	 * @param agent pointer to storage where pointer to agent can be stored
-	 */
-	static inline JLMAgent* getAgent(JavaVM * vm, JLMAgent** agent){
-		if (*agent == NULL){
-			*agent = newInstance(vm);
-		}
-		return *agent;
-	}
+    /**
+     * This get gets the reference to the agent given the pointer to where it should
+     * be stored.  If necessary it creates the agent
+     * @param vm that can be used by the method
+     * @param agent pointer to storage where pointer to agent can be stored
+     */
+    static inline JLMAgent* getAgent(JavaVM* vm, JLMAgent** agent)
+    {
+        if (*agent == NULL) {
+            *agent = newInstance(vm);
+        }
+        return *agent;
+    }
 
-	/**
-	 * This method should be called when Agent_OnLoad is invoked by the JVM.  It will parse the
-	 * options that it understands and then call setupAgentSpecific
-	 *
-	 * @param options the options passed to the agent in Agent_OnLoad
-	 */
-	virtual jint setup(char * options);
+    /**
+     * This method should be called when Agent_OnLoad is invoked by the JVM.  It will parse the
+     * options that it understands and then call setupAgentSpecific
+     *
+     * @param options the options passed to the agent in Agent_OnLoad
+     */
+    virtual jint setup(char* options);
 
-	/**
-	 * Method called at the interval specified in the options for the agent
-	 */
-	virtual void runAction();
+    /**
+     * Method called at the interval specified in the options for the agent
+     */
+    virtual void runAction();
 
-	/**
-	 * This is called once for each argument, the agent should parse the arguments
-	 * it supports and pass any that it does not understand to parent classes
-	 *
-	 * @param options string containing the argument
-	 *
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	virtual jint parseArgument(char* option);
+    /**
+     * This is called once for each argument, the agent should parse the arguments
+     * it supports and pass any that it does not understand to parent classes
+     *
+     * @param options string containing the argument
+     *
+     * @returns one of the AGENT_ERROR_ values
+     */
+    virtual jint parseArgument(char* option);
 };
 
 #endif /*RUNTIMETOOLS_JLMAGENT_HPP_*/

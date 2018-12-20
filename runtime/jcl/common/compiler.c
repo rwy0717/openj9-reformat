@@ -23,131 +23,126 @@
 #include "j9.h"
 #include "jcl.h"
 
-
-void JNICALL Java_java_lang_Compiler_enable(JNIEnv *env, jclass clazz)
+void JNICALL Java_java_lang_Compiler_enable(JNIEnv* env, jclass clazz)
 {
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	J9VMThread *currentThread = (J9VMThread *) env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9JITConfig * jitConfig = vm->jitConfig;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9JITConfig* jitConfig = vm->jitConfig;
 
-	if ((jitConfig != NULL) && (jitConfig->enableJit != NULL)) {
+    if ((jitConfig != NULL) && (jitConfig->enableJit != NULL)) {
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-		vmFuncs->internalReleaseVMAccess(currentThread);
+        J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+        vmFuncs->internalEnterVMFromJNI(currentThread);
+        vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-		jitConfig->enableJit(jitConfig);
-	}
+        jitConfig->enableJit(jitConfig);
+    }
 #endif
 }
 
-
-void JNICALL Java_java_lang_Compiler_disable(JNIEnv *env, jclass clazz)
+void JNICALL Java_java_lang_Compiler_disable(JNIEnv* env, jclass clazz)
 {
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	J9VMThread *currentThread = (J9VMThread *) env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9JITConfig * jitConfig = vm->jitConfig;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9JITConfig* jitConfig = vm->jitConfig;
 
-	if ((jitConfig != NULL) && (jitConfig->disableJit != NULL)) {
+    if ((jitConfig != NULL) && (jitConfig->disableJit != NULL)) {
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-		vmFuncs->internalReleaseVMAccess(currentThread);
+        J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+        vmFuncs->internalEnterVMFromJNI(currentThread);
+        vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-		jitConfig->disableJit(jitConfig);
-	}
+        jitConfig->disableJit(jitConfig);
+    }
 #endif
 }
 
-
-jobject JNICALL Java_java_lang_Compiler_commandImpl(JNIEnv *env, jclass clazz, jobject cmd)
+jobject JNICALL Java_java_lang_Compiler_commandImpl(JNIEnv* env, jclass clazz, jobject cmd)
 {
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	J9VMThread *currentThread = (J9VMThread *) env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9JITConfig * jitConfig = vm->jitConfig;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9JITConfig* jitConfig = vm->jitConfig;
 
-	if ((cmd != NULL) && (jitConfig != NULL) && (jitConfig->command != NULL)) {
-		jclass stringClass = (*env)->FindClass(env, "java/lang/String");
+    if ((cmd != NULL) && (jitConfig != NULL) && (jitConfig->command != NULL)) {
+        jclass stringClass = (*env)->FindClass(env, "java/lang/String");
 
-		if (stringClass != NULL) {
-			jclass intClass = (*env)->FindClass(env, "java/lang/Integer");
+        if (stringClass != NULL) {
+            jclass intClass = (*env)->FindClass(env, "java/lang/Integer");
 
-			if (intClass != NULL) {
-				jmethodID mid = (*env)->GetMethodID(env, intClass, "<init>", "(I)V");
+            if (intClass != NULL) {
+                jmethodID mid = (*env)->GetMethodID(env, intClass, "<init>", "(I)V");
 
-				if (mid != NULL) {
-					if ((*env)->IsInstanceOf(env, cmd, stringClass)) {
-						const char * commandString = (const char *) (*env)->GetStringUTFChars(env, cmd, NULL);
+                if (mid != NULL) {
+                    if ((*env)->IsInstanceOf(env, cmd, stringClass)) {
+                        const char* commandString = (const char*)(*env)->GetStringUTFChars(env, cmd, NULL);
 
-						if (commandString != NULL) {
-							I_32 result = 0;
+                        if (commandString != NULL) {
+                            I_32 result = 0;
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-							J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-							vmFuncs->internalEnterVMFromJNI(currentThread);
-							vmFuncs->internalReleaseVMAccess(currentThread);
+                            J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+                            vmFuncs->internalEnterVMFromJNI(currentThread);
+                            vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-							result = jitConfig->command(currentThread, commandString);
-							(*env)->ReleaseStringUTFChars(env, cmd, commandString);
-							return (*env)->NewObject(env, intClass, mid, result);
-						}
-					}
-				}
-			}
-		}
-	}
+                            result = jitConfig->command(currentThread, commandString);
+                            (*env)->ReleaseStringUTFChars(env, cmd, commandString);
+                            return (*env)->NewObject(env, intClass, mid, result);
+                        }
+                    }
+                }
+            }
+        }
+    }
 #endif
-	return NULL;
+    return NULL;
 }
 
-
-jboolean JNICALL Java_java_lang_Compiler_compileClassImpl(JNIEnv *env, jclass clazz, jclass compileClass)
+jboolean JNICALL Java_java_lang_Compiler_compileClassImpl(JNIEnv* env, jclass clazz, jclass compileClass)
 {
-	jboolean rc = JNI_FALSE;
+    jboolean rc = JNI_FALSE;
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	J9VMThread *currentThread = (J9VMThread *) env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9JITConfig * jitConfig = vm->jitConfig;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9JITConfig* jitConfig = vm->jitConfig;
 
-	if ((compileClass != NULL) && (jitConfig != NULL) && (jitConfig->compileClass != NULL)) {
+    if ((compileClass != NULL) && (jitConfig != NULL) && (jitConfig->compileClass != NULL)) {
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-		vmFuncs->internalReleaseVMAccess(currentThread);
+        J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+        vmFuncs->internalEnterVMFromJNI(currentThread);
+        vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-		rc = (jboolean)jitConfig->compileClass(currentThread, compileClass);
-	}
+        rc = (jboolean)jitConfig->compileClass(currentThread, compileClass);
+    }
 #endif
-	return rc;
+    return rc;
 }
 
-
-jboolean JNICALL Java_java_lang_Compiler_compileClassesImpl(JNIEnv *env, jclass clazz, jstring nameRoot)
+jboolean JNICALL Java_java_lang_Compiler_compileClassesImpl(JNIEnv* env, jclass clazz, jstring nameRoot)
 {
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	J9VMThread *currentThread = (J9VMThread *) env;
-	J9JavaVM *vm = currentThread->javaVM;
-	J9JITConfig * jitConfig = vm->jitConfig;
+    J9VMThread* currentThread = (J9VMThread*)env;
+    J9JavaVM* vm = currentThread->javaVM;
+    J9JITConfig* jitConfig = vm->jitConfig;
 
-	if ((nameRoot != NULL) && (jitConfig != NULL) && (jitConfig->compileClasses != NULL)) {
-		const char * pattern;
+    if ((nameRoot != NULL) && (jitConfig != NULL) && (jitConfig->compileClasses != NULL)) {
+        const char* pattern;
 
-		pattern = (const char *) (*env)->GetStringUTFChars(env, nameRoot, NULL);
-		if (pattern != NULL) {
-			jboolean rc;
+        pattern = (const char*)(*env)->GetStringUTFChars(env, nameRoot, NULL);
+        if (pattern != NULL) {
+            jboolean rc;
 
 #if defined(J9VM_INTERP_ATOMIC_FREE_JNI)
-			J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-			vmFuncs->internalEnterVMFromJNI(currentThread);
-			vmFuncs->internalReleaseVMAccess(currentThread);
+            J9InternalVMFunctions* vmFuncs = vm->internalVMFunctions;
+            vmFuncs->internalEnterVMFromJNI(currentThread);
+            vmFuncs->internalReleaseVMAccess(currentThread);
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
-			rc = (jboolean) jitConfig->compileClasses(currentThread, pattern);
-			(*env)->ReleaseStringUTFChars(env, nameRoot, pattern);
-			return rc;
-		}
-	}
+            rc = (jboolean)jitConfig->compileClasses(currentThread, pattern);
+            (*env)->ReleaseStringUTFChars(env, nameRoot, pattern);
+            return rc;
+        }
+    }
 #endif
-	return JNI_FALSE;
+    return JNI_FALSE;
 }

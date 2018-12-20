@@ -27,15 +27,12 @@
 #include "ilgen/MethodBuilder.hpp"
 #include "JavaMethodCallbackGen.hpp"
 
-JavaMethodCallbackGen::JavaMethodCallbackGen(J9VMThread *vmThread, TR::TypeDictionary *types) : MethodBuilder(types)
+JavaMethodCallbackGen::JavaMethodCallbackGen(J9VMThread* vmThread, TR::TypeDictionary* types)
+    : MethodBuilder(types)
 {
-	DefineLine(LINETOSTR(__LINE__));
-	DefineFile(__FILE__);
-	DefineName("JavaMethodCallbackGen");
+    DefineLine(LINETOSTR(__LINE__));
+    DefineFile(__FILE__);
+    DefineName("JavaMethodCallbackGen");
 }
 
-bool
-JavaMethodCallbackGen::buildIL()
-{
-	return true;
-}
+bool JavaMethodCallbackGen::buildIL() { return true; }

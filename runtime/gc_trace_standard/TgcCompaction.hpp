@@ -29,7 +29,6 @@
 #if !defined(TGCCOMPACTION_HPP_)
 #define TGCCOMPACTION_HPP_
 
-bool tgcCompactionInitialize(J9JavaVM *javaVM);
+bool tgcCompactionInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCCOMPACTION_HPP_ */
-

@@ -38,35 +38,34 @@ class MM_EnvironmentBase;
 class MM_GlobalAllocationManagerSegregated;
 class MM_RegionPoolSegregated;
 
-class MM_AllocationContextRealtime : public MM_AllocationContextSegregated
-{
-/* Data members / Types */
+class MM_AllocationContextRealtime : public MM_AllocationContextSegregated {
+    /* Data members / Types */
 public:
+protected:
+private:
+    /* Methods */
+public:
+    static MM_AllocationContextRealtime* newInstance(
+        MM_EnvironmentBase* env, MM_GlobalAllocationManagerSegregated* gam, MM_RegionPoolSegregated* regionPool);
+
+    virtual UDATA* allocateLarge(MM_EnvironmentBase* env, UDATA sizeInBytesRequired);
 
 protected:
+    MM_AllocationContextRealtime(
+        MM_EnvironmentBase* env, MM_GlobalAllocationManagerSegregated* gam, MM_RegionPoolSegregated* regionPool)
+        : MM_AllocationContextSegregated(env, gam, regionPool)
+    {
+        _typeId = __FUNCTION__;
+    }
+
+    virtual bool shouldPreMarkSmallCells(MM_EnvironmentBase* env);
+    virtual bool trySweepAndAllocateRegionFromSmallSizeClass(
+        MM_EnvironmentBase* env, UDATA sizeClass, UDATA* sweepCount, U_64* sweepStartTime);
+    virtual void signalSmallRegionDepleted(MM_EnvironmentBase* env, UDATA sizeClass);
 
 private:
-
-/* Methods */
-public:
-	static MM_AllocationContextRealtime *newInstance(MM_EnvironmentBase *env, MM_GlobalAllocationManagerSegregated *gam, MM_RegionPoolSegregated *regionPool);
-
-	virtual UDATA *allocateLarge(MM_EnvironmentBase *env, UDATA sizeInBytesRequired);
-
-protected:
-	MM_AllocationContextRealtime(MM_EnvironmentBase *env, MM_GlobalAllocationManagerSegregated *gam, MM_RegionPoolSegregated *regionPool)
-		: MM_AllocationContextSegregated(env, gam, regionPool)
-	{
-		_typeId = __FUNCTION__;
-	}
-
-	virtual bool shouldPreMarkSmallCells(MM_EnvironmentBase *env);
-	virtual bool trySweepAndAllocateRegionFromSmallSizeClass(MM_EnvironmentBase *env, UDATA sizeClass, UDATA *sweepCount, U_64 *sweepStartTime);
-	virtual void signalSmallRegionDepleted(MM_EnvironmentBase *env, UDATA sizeClass);
-
-private:
-	bool initialize(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
+    bool initialize(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
 };
 
 #endif /* ALLOCATIONCONTEXTREALTIME_HPP_ */

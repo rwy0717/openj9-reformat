@@ -30,27 +30,27 @@ IDATA
 setHWPrefetch(UDATA value)
 {
 
-/*	DPFD_DEFAULT 0
-	DPFD_NONE 1
-	DPFD_SHALLOWEST 2
-	DPFD_SHALLOW 3
-	DPFD_MEDIUM 4
-	DPFD_DEEP 5
-	DPFD_DEEPER 6
-	DPFD_DEEPEST 7
-	DSCR_SSE 8*/
+    /*	DPFD_DEFAULT 0
+            DPFD_NONE 1
+            DPFD_SHALLOWEST 2
+            DPFD_SHALLOW 3
+            DPFD_MEDIUM 4
+            DPFD_DEEP 5
+            DPFD_DEEPER 6
+            DPFD_DEEPEST 7
+            DSCR_SSE 8*/
 
-	int rc;
-	long long dscr;
+    int rc;
+    long long dscr;
 
-	dscr = (long long) value;
-	rc = dscr_ctl(DSCR_WRITE, &dscr, sizeof(dscr));
+    dscr = (long long)value;
+    rc = dscr_ctl(DSCR_WRITE, &dscr, sizeof(dscr));
 
-	if (-1 == rc) {
-		Trc_Util_setHWPrefetch_Failed(errno, strerror(errno));
-	}
+    if (-1 == rc) {
+        Trc_Util_setHWPrefetch_Failed(errno, strerror(errno));
+    }
 
-	Trc_Util_setHWPrefetch(rc, dscr);
+    Trc_Util_setHWPrefetch(rc, dscr);
 
-	return rc;
+    return rc;
 }

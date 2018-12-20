@@ -32,30 +32,30 @@
 #include "EnvironmentVLHGC.hpp"
 #include "GCExtensions.hpp"
 
-void
-MM_GlobalMarkNoScanCardCleaner::clean(MM_EnvironmentBase *envModron, void *lowAddress, void *highAddress, Card *cardToClean)
+void MM_GlobalMarkNoScanCardCleaner::clean(
+    MM_EnvironmentBase* envModron, void* lowAddress, void* highAddress, Card* cardToClean)
 {
-	MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
-	Assert_MM_false(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
-	
-	Card fromState = *cardToClean;
-	Card toState = CARD_INVALID;
-	switch(fromState) {
-	case CARD_DIRTY:
-		toState = CARD_PGC_MUST_SCAN;
-		break;
-	case CARD_GMP_MUST_SCAN:
-		Assert_MM_unreachable();
-		break;
-	case CARD_CLEAN:
-	case CARD_PGC_MUST_SCAN:
-		/* other card states are not of interest to this cleaner and should be ignored */
-		break;
-	default:
-		Assert_MM_unreachable();
-	}
-	/* only update the card state if we identified a transition we are interested in since some are to be ignored. */
-	if (CARD_INVALID != toState) {
-		*cardToClean = toState;
-	}
+    MM_EnvironmentVLHGC* env = MM_EnvironmentVLHGC::getEnvironment(envModron);
+    Assert_MM_false(MM_CycleState::CT_PARTIAL_GARBAGE_COLLECTION == env->_cycleState->_collectionType);
+
+    Card fromState = *cardToClean;
+    Card toState = CARD_INVALID;
+    switch (fromState) {
+    case CARD_DIRTY:
+        toState = CARD_PGC_MUST_SCAN;
+        break;
+    case CARD_GMP_MUST_SCAN:
+        Assert_MM_unreachable();
+        break;
+    case CARD_CLEAN:
+    case CARD_PGC_MUST_SCAN:
+        /* other card states are not of interest to this cleaner and should be ignored */
+        break;
+    default:
+        Assert_MM_unreachable();
+    }
+    /* only update the card state if we identified a transition we are interested in since some are to be ignored. */
+    if (CARD_INVALID != toState) {
+        *cardToClean = toState;
+    }
 }

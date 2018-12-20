@@ -27,40 +27,40 @@
 #include "TimestampManager.hpp"
 #include "Managers.hpp"
 
-/* 
+/*
  * Implementation of SH_TimestampManager interface
  */
-class SH_TimestampManagerImpl : public SH_TimestampManager
-{
+class SH_TimestampManagerImpl : public SH_TimestampManager {
 protected:
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
 public:
-	/*
-	 * Create a new SH_TimestampManagerImpl.
-	 * 
-	 * Parameters:
-	 *   vm				A Java VM
-	 *   memForConstructor		Memory to build this instance into
-	 */
-	static SH_TimestampManagerImpl* newInstance(J9JavaVM* vm, SH_TimestampManagerImpl* memForConstructor, J9SharedClassConfig* sharedClassConfig);
+    /*
+     * Create a new SH_TimestampManagerImpl.
+     *
+     * Parameters:
+     *   vm				A Java VM
+     *   memForConstructor		Memory to build this instance into
+     */
+    static SH_TimestampManagerImpl* newInstance(
+        J9JavaVM* vm, SH_TimestampManagerImpl* memForConstructor, J9SharedClassConfig* sharedClassConfig);
 
-	/*
-	 * Returns memory bytes the constructor requires to build what it needs
-	 */
-	static UDATA getRequiredConstrBytes(void);
+    /*
+     * Returns memory bytes the constructor requires to build what it needs
+     */
+    static UDATA getRequiredConstrBytes(void);
 
-	/* @see TimestampManager.hpp */
-	virtual I_64 checkCPEITimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei);
+    /* @see TimestampManager.hpp */
+    virtual I_64 checkCPEITimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei);
 
-	/* @see TimestampManager.hpp */
-	virtual I_64 checkROMClassTimeStamp(J9VMThread* currentThread, const char* className, UDATA classNameLen, ClasspathEntryItem* cpei, ROMClassWrapper* rcWrapper);
+    /* @see TimestampManager.hpp */
+    virtual I_64 checkROMClassTimeStamp(J9VMThread* currentThread, const char* className, UDATA classNameLen,
+        ClasspathEntryItem* cpei, ROMClassWrapper* rcWrapper);
 
 private:
-
-	I_64 localCheckTimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei, const char* className, UDATA classNameLen, ROMClassWrapper* rcWrapper);
-	J9SharedClassConfig* _sharedClassConfig;
+    I_64 localCheckTimeStamp(J9VMThread* currentThread, ClasspathEntryItem* cpei, const char* className,
+        UDATA classNameLen, ROMClassWrapper* rcWrapper);
+    J9SharedClassConfig* _sharedClassConfig;
 };
 
 #endif /* !defined(TIMESTAMPMANAGERIMPL_HPP_INCLUDED) */
-

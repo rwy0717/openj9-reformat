@@ -43,23 +43,22 @@ shcDbgReadSRP(UDATA srcaddr);
 /* ---------------- shcdatautils.c ---------------- */
 
 /**
-* @brief
-* @param vm
-* @param state
-* @param limitDataType
-* @param includeStale
-* @return ShcItem
-*/
-ShcItem*
-shcSharedClassMetadataEntriesStartDo(J9JavaVM* vm, J9SharedClassMetadataWalkState* state, UDATA limitDataType, UDATA includeStale);
+ * @brief
+ * @param vm
+ * @param state
+ * @param limitDataType
+ * @param includeStale
+ * @return ShcItem
+ */
+ShcItem* shcSharedClassMetadataEntriesStartDo(
+    J9JavaVM* vm, J9SharedClassMetadataWalkState* state, UDATA limitDataType, UDATA includeStale);
 
 /**
-* @brief
-* @param state
-* @return ShcItem
-*/
-ShcItem*
-shcSharedClassMetadataEntriesNextDo(J9SharedClassMetadataWalkState* state);
+ * @brief
+ * @param state
+ * @return ShcItem
+ */
+ShcItem* shcSharedClassMetadataEntriesNextDo(J9SharedClassMetadataWalkState* state);
 
 #ifdef __cplusplus
 }

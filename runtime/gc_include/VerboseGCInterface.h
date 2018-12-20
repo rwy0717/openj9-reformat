@@ -34,17 +34,17 @@ extern "C" {
 /**
  * Initializes the verbose function table.
  */
-void initializeVerboseFunctionTable(J9JavaVM *javaVM);
-	
+void initializeVerboseFunctionTable(J9JavaVM* javaVM);
+
 /**
  * Definition of Verbose function table.
  */
 typedef struct J9MemoryManagerVerboseInterface {
-	UDATA (*gcDebugVerboseStartupLogging)(J9JavaVM *javaVM, char* filename, UDATA numFiles, UDATA numCycles);
-	void (*gcDebugVerboseShutdownLogging)(J9JavaVM *javaVM, UDATA releaseVerboseStructures);
-	void (*gcDumpMemorySizes)(J9JavaVM *javaVM);
-	UDATA (*configureVerbosegc)(J9JavaVM *javaVM, int enable, char* filename, UDATA numFiles, UDATA numCycles);
-	UDATA (*queryVerbosegc)(J9JavaVM *javaVM);
+    UDATA (*gcDebugVerboseStartupLogging)(J9JavaVM* javaVM, char* filename, UDATA numFiles, UDATA numCycles);
+    void (*gcDebugVerboseShutdownLogging)(J9JavaVM* javaVM, UDATA releaseVerboseStructures);
+    void (*gcDumpMemorySizes)(J9JavaVM* javaVM);
+    UDATA (*configureVerbosegc)(J9JavaVM* javaVM, int enable, char* filename, UDATA numFiles, UDATA numCycles);
+    UDATA (*queryVerbosegc)(J9JavaVM* javaVM);
 } J9MemoryManagerVerboseInterface;
 
 #ifdef __cplusplus

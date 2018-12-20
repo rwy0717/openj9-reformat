@@ -22,22 +22,12 @@
 
 /* data types in TR */
 FirstJ9Type = NumOMRTypes,
-DecimalFloat = FirstJ9Type,
-DecimalDouble,
-DecimalLongDouble,
-FirstBCDType,    // do not insert any non-BCD types between FirstBCDType and LastBCDType
-PackedDecimal = FirstBCDType,
-FirstZonedType,
-ZonedDecimal = FirstZonedType,
-ZonedDecimalSignLeadingEmbedded,
-ZonedDecimalSignLeadingSeparate,
-ZonedDecimalSignTrailingSeparate,
-LastZonedType = ZonedDecimalSignTrailingSeparate,
-FirstUnicodeType,
-UnicodeDecimal = FirstUnicodeType,    // specifically the type is UTF-16 (CCSID 1200) -- equivalent to the National External Decimal type in COBOL
-UnicodeDecimalSignLeading,
-UnicodeDecimalSignTrailing,
-LastUnicodeType = UnicodeDecimalSignTrailing,
-LastBCDType = UnicodeDecimalSignTrailing,
-LastJ9Type = UnicodeDecimalSignTrailing,
-
+    DecimalFloat = FirstJ9Type, DecimalDouble, DecimalLongDouble,
+    FirstBCDType, // do not insert any non-BCD types between FirstBCDType and LastBCDType
+    PackedDecimal = FirstBCDType, FirstZonedType, ZonedDecimal = FirstZonedType, ZonedDecimalSignLeadingEmbedded,
+    ZonedDecimalSignLeadingSeparate, ZonedDecimalSignTrailingSeparate, LastZonedType = ZonedDecimalSignTrailingSeparate,
+    FirstUnicodeType,
+    UnicodeDecimal = FirstUnicodeType, // specifically the type is UTF-16 (CCSID 1200) -- equivalent to the National
+                                       // External Decimal type in COBOL
+    UnicodeDecimalSignLeading, UnicodeDecimalSignTrailing, LastUnicodeType = UnicodeDecimalSignTrailing,
+    LastBCDType = UnicodeDecimalSignTrailing, LastJ9Type = UnicodeDecimalSignTrailing,

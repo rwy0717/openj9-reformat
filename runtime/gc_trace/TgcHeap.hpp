@@ -27,7 +27,7 @@
 
 #if !defined(TGCHEAP_HPP_)
 #define TGCHEAP_HPP_
-	
-bool tgcHeapInitialize(J9JavaVM *javaVM);
+
+bool tgcHeapInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCHEAP_HPP_ */

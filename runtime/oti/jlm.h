@@ -31,8 +31,8 @@
 #define JLM_FAIL ((jint)-1)
 
 typedef struct J9VMJlmDump {
-	char *begin;
-	char *end;
+    char* begin;
+    char* end;
 } J9VMJlmDump;
 
 #endif /* jlm_h */

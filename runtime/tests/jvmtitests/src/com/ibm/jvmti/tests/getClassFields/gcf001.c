@@ -24,81 +24,79 @@
 #include "ibmjvmti.h"
 #include "jvmti_test.h"
 
+static agentEnv* env;
 
-static agentEnv * env;
-
-jint JNICALL
-gcf001(agentEnv * agent_env, char * args)
+jint JNICALL gcf001(agentEnv* agent_env, char* args)
 {
-	JVMTI_ACCESS_FROM_AGENT(agent_env);
-	jvmtiCapabilities capabilities;
-	jvmtiError err;
+    JVMTI_ACCESS_FROM_AGENT(agent_env);
+    jvmtiCapabilities capabilities;
+    jvmtiError err;
 
-	env = agent_env;
+    env = agent_env;
 
-	memset(&capabilities, 0, sizeof(jvmtiCapabilities));
-	capabilities.can_tag_objects = 1;
-	err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
-	if (err != JVMTI_ERROR_NONE) {
-		error(env, err, "Failed to add capabilities");
-		return JNI_ERR;
-	}
+    memset(&capabilities, 0, sizeof(jvmtiCapabilities));
+    capabilities.can_tag_objects = 1;
+    err = (*jvmti_env)->AddCapabilities(jvmti_env, &capabilities);
+    if (err != JVMTI_ERROR_NONE) {
+        error(env, err, "Failed to add capabilities");
+        return JNI_ERR;
+    }
 
-	return JNI_OK;
+    return JNI_OK;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_com_ibm_jvmti_tests_getClassFields_gcf001_checkClassFields(JNIEnv *jni_env,
-	jclass myklass, jclass klass, jobjectArray expectedFieldNames, jobjectArray expectedFieldSignatures)
+JNIEXPORT jboolean JNICALL Java_com_ibm_jvmti_tests_getClassFields_gcf001_checkClassFields(JNIEnv* jni_env,
+    jclass myklass, jclass klass, jobjectArray expectedFieldNames, jobjectArray expectedFieldSignatures)
 {
-	JVMTI_ACCESS_FROM_AGENT(env);
-	jint i;
-	jint fieldCount;
-	jfieldID *fields;
-	jvmtiError err;
+    JVMTI_ACCESS_FROM_AGENT(env);
+    jint i;
+    jint fieldCount;
+    jfieldID* fields;
+    jvmtiError err;
 
-	err = (*jvmti_env)->GetClassFields(jvmti_env, klass, &fieldCount, &fields);
-	if (JVMTI_ERROR_NONE != err) {
-		error(env, err, "GetClassFields() failed");
-		return JNI_FALSE;
-	}
+    err = (*jvmti_env)->GetClassFields(jvmti_env, klass, &fieldCount, &fields);
+    if (JVMTI_ERROR_NONE != err) {
+        error(env, err, "GetClassFields() failed");
+        return JNI_FALSE;
+    }
 
-	if ((*jni_env)->GetArrayLength(jni_env, expectedFieldNames) != fieldCount) {
-		error(env, err, "GetArrayLength() (%d) did not match fieldCount (%d)",
-			(*jni_env)->GetArrayLength(jni_env, expectedFieldNames), fieldCount);
-		return JNI_FALSE;
-	}
+    if ((*jni_env)->GetArrayLength(jni_env, expectedFieldNames) != fieldCount) {
+        error(env, err, "GetArrayLength() (%d) did not match fieldCount (%d)",
+            (*jni_env)->GetArrayLength(jni_env, expectedFieldNames), fieldCount);
+        return JNI_FALSE;
+    }
 
-	for (i = 0; i < fieldCount; i++) {
-		jstring expectedNameString = (*jni_env)->GetObjectArrayElement(jni_env, expectedFieldNames, i);
-		jstring expectedSignatureString = (*jni_env)->GetObjectArrayElement(jni_env, expectedFieldSignatures, i);
-		const char *expectedName = (*jni_env)->GetStringUTFChars(jni_env, expectedNameString, 0);
-		const char *expectedSignature = (*jni_env)->GetStringUTFChars(jni_env, expectedSignatureString, 0);
-		char *fieldName;
-		char *fieldSignature;
+    for (i = 0; i < fieldCount; i++) {
+        jstring expectedNameString = (*jni_env)->GetObjectArrayElement(jni_env, expectedFieldNames, i);
+        jstring expectedSignatureString = (*jni_env)->GetObjectArrayElement(jni_env, expectedFieldSignatures, i);
+        const char* expectedName = (*jni_env)->GetStringUTFChars(jni_env, expectedNameString, 0);
+        const char* expectedSignature = (*jni_env)->GetStringUTFChars(jni_env, expectedSignatureString, 0);
+        char* fieldName;
+        char* fieldSignature;
 
-		err = (*jvmti_env)->GetFieldName(jvmti_env, klass, fields[i], &fieldName, &fieldSignature, NULL);
-		if (JVMTI_ERROR_NONE != err) {
-			error(env, err, "GetFieldName() failed");
-			return JNI_FALSE;
-		}
+        err = (*jvmti_env)->GetFieldName(jvmti_env, klass, fields[i], &fieldName, &fieldSignature, NULL);
+        if (JVMTI_ERROR_NONE != err) {
+            error(env, err, "GetFieldName() failed");
+            return JNI_FALSE;
+        }
 
-		if (0 != strcmp(fieldName, expectedName)) {
-			error(env, err, "fieldName (%s) did not match expectedName (%s)", fieldName, expectedName);
-			return JNI_FALSE;
-		}
+        if (0 != strcmp(fieldName, expectedName)) {
+            error(env, err, "fieldName (%s) did not match expectedName (%s)", fieldName, expectedName);
+            return JNI_FALSE;
+        }
 
-		if (0 != strcmp(fieldSignature, expectedSignature)) {
-			error(env, err, "fieldSignature (%s) did not match expectedSignature (%s)", fieldSignature, expectedSignature);
-			return JNI_FALSE;
-		}
+        if (0 != strcmp(fieldSignature, expectedSignature)) {
+            error(env, err, "fieldSignature (%s) did not match expectedSignature (%s)", fieldSignature,
+                expectedSignature);
+            return JNI_FALSE;
+        }
 
-		(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)fieldName);
-		(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)fieldSignature);
-		(*jni_env)->ReleaseStringUTFChars(jni_env, expectedNameString, expectedName);
-		(*jni_env)->ReleaseStringUTFChars(jni_env, expectedSignatureString, expectedSignature);
-	}
-	(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)fields);
+        (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)fieldName);
+        (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)fieldSignature);
+        (*jni_env)->ReleaseStringUTFChars(jni_env, expectedNameString, expectedName);
+        (*jni_env)->ReleaseStringUTFChars(jni_env, expectedSignatureString, expectedSignature);
+    }
+    (*jvmti_env)->Deallocate(jvmti_env, (unsigned char*)fields);
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 }

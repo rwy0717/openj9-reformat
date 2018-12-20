@@ -23,9 +23,9 @@
 #include "j9protos.h"
 
 UDATA
-setVMState(J9VMThread *currentThread, UDATA newState)
+setVMState(J9VMThread* currentThread, UDATA newState)
 {
-	UDATA oldState = currentThread->omrVMThread->vmState;
-	currentThread->omrVMThread->vmState = newState;
-	return oldState;
+    UDATA oldState = currentThread->omrVMThread->vmState;
+    currentThread->omrVMThread->vmState = newState;
+    return oldState;
 }

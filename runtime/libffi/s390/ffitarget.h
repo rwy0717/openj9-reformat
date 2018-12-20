@@ -32,7 +32,7 @@
 #error "Please do not include ffitarget.h directly into your source.  Use ffi.h instead."
 #endif
 
-#if defined (__s390x__)
+#if defined(__s390x__)
 #ifndef S390X
 #define S390X
 #endif
@@ -41,15 +41,10 @@
 /* ---- System specific configurations ----------------------------------- */
 
 #ifndef LIBFFI_ASM
-typedef unsigned long          ffi_arg;
-typedef signed long            ffi_sarg;
+typedef unsigned long ffi_arg;
+typedef signed long ffi_sarg;
 
-typedef enum ffi_abi {
-  FFI_FIRST_ABI = 0,
-  FFI_SYSV,
-  FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_SYSV
-} ffi_abi;
+typedef enum ffi_abi { FFI_FIRST_ABI = 0, FFI_SYSV, FFI_LAST_ABI, FFI_DEFAULT_ABI = FFI_SYSV } ffi_abi;
 #endif
 
 #define FFI_TARGET_SPECIFIC_STACK_SPACE_ALLOCATION
@@ -66,4 +61,3 @@ typedef enum ffi_abi {
 #define FFI_NATIVE_RAW_API 0
 
 #endif
-

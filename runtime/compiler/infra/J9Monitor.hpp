@@ -25,8 +25,12 @@
 
 #ifndef J9_MONITOR_CONNECTOR
 #define J9_MONITOR_CONNECTOR
-namespace J9 { class Monitor; }
-namespace J9 { typedef J9::Monitor MonitorConnector; }
+namespace J9 {
+class Monitor;
+}
+namespace J9 {
+typedef J9::Monitor MonitorConnector;
+}
 #endif
 
 #include "env/TRMemory.hpp"
@@ -36,57 +40,59 @@ struct J9PortLibrary;
 struct J9ThreadMonitor;
 struct J9JavaVM;
 struct J9VMThread;
-namespace TR { class MonitorTable; }
-namespace TR { class Monitor; }
-namespace J9 { class MonitorTable; }
-
-namespace J9
-{
-
-class Monitor : public TR_Link0<TR::Monitor>
-   {
-   public:
-
-   static TR::Monitor *create(char *name);
-   static void destroy(TR::Monitor *monitor);
-
-   void enter();
-
-   int32_t try_enter();
-
-   int32_t exit();
-
-   void destroy();
-
-   void wait();
-
-   intptr_t wait_timed(int64_t millis, int32_t nanos);
-
-   void notify();
-
-   void notifyAll();
-
-   int32_t num_waiting();
-
-   int32_t owned_by_self(); // returns 1 if current thread owns the monitor, 0 otherwise
-
-   // Dangerous: do not use this routine, except for thread exit
-   void *getVMMonitor() { return (void*)_monitor; }
-
-   private:
-
-   friend class J9::MonitorTable;
-
-   void *operator new(size_t size, void *p) { return p; }
-   void operator delete(void *p);
-
-   bool init(char *name);
-
-   bool initFromVMMutex(void *mutex);
-
-   J9ThreadMonitor *_monitor;
-   };
-
+namespace TR {
+class MonitorTable;
 }
+namespace TR {
+class Monitor;
+}
+namespace J9 {
+class MonitorTable;
+}
+
+namespace J9 {
+
+class Monitor : public TR_Link0<TR::Monitor> {
+public:
+    static TR::Monitor* create(char* name);
+    static void destroy(TR::Monitor* monitor);
+
+    void enter();
+
+    int32_t try_enter();
+
+    int32_t exit();
+
+    void destroy();
+
+    void wait();
+
+    intptr_t wait_timed(int64_t millis, int32_t nanos);
+
+    void notify();
+
+    void notifyAll();
+
+    int32_t num_waiting();
+
+    int32_t owned_by_self(); // returns 1 if current thread owns the monitor, 0 otherwise
+
+    // Dangerous: do not use this routine, except for thread exit
+    void* getVMMonitor() { return (void*)_monitor; }
+
+private:
+    friend class J9::MonitorTable;
+
+    void* operator new(size_t size, void* p) { return p; }
+    void operator delete(void* p);
+
+    bool init(char* name);
+
+    bool initFromVMMutex(void* mutex);
+
+    J9ThreadMonitor* _monitor;
+};
+
+} // namespace J9
 
 #endif

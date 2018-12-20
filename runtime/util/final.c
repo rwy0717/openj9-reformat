@@ -24,50 +24,52 @@
 #include <string.h>
 #include "util_internal.h"
 
+UDATA methodIsFinalInObject(UDATA nameLength, U_8* name, UDATA sigLength, U_8* sig)
+{
 
-UDATA methodIsFinalInObject(UDATA nameLength, U_8* name, UDATA sigLength, U_8* sig) {
-
-	const char names[] = "wait\0" "wait\0" "wait\0" "notify\0" "notifyAll\0" "getClass\0";
-	const U_8 nameLengths[] = {
-		sizeof("wait") - 1, sizeof("wait") - 1, sizeof("wait") - 1,
-		sizeof("notify") - 1, sizeof("notifyAll") - 1, sizeof("getClass") - 1 };
-	const char sigs[] = "()V\0" "(J)V\0" "(JI)V\0" "()V\0" "()V\0" "()Ljava/lang/Class;\0";
-	const U_8 sigLengths[] = {
-		sizeof("()V") - 1, sizeof("(J)V") - 1, sizeof("(JI)V") - 1,
-		sizeof("()V") - 1, sizeof("()V") - 1, sizeof("()Ljava/lang/Class;") - 1 };
+    const char names[] = "wait\0"
+                         "wait\0"
+                         "wait\0"
+                         "notify\0"
+                         "notifyAll\0"
+                         "getClass\0";
+    const U_8 nameLengths[] = { sizeof("wait") - 1, sizeof("wait") - 1, sizeof("wait") - 1, sizeof("notify") - 1,
+        sizeof("notifyAll") - 1, sizeof("getClass") - 1 };
+    const char sigs[] = "()V\0"
+                        "(J)V\0"
+                        "(JI)V\0"
+                        "()V\0"
+                        "()V\0"
+                        "()Ljava/lang/Class;\0";
+    const U_8 sigLengths[] = { sizeof("()V") - 1, sizeof("(J)V") - 1, sizeof("(JI)V") - 1, sizeof("()V") - 1,
+        sizeof("()V") - 1, sizeof("()Ljava/lang/Class;") - 1 };
 #define OBJECT_FINAL_COUNT 6
 #define SHORTEST_METHOD_NAME (sizeof("wait") - 1)
 #define LONGEST_METHOD_NAME (sizeof("notifyAll") - 1)
 
-	int i;
+    int i;
 
-	const char* thisName = names;
-	const char* thisSig = sigs;
+    const char* thisName = names;
+    const char* thisSig = sigs;
 
-	if ((nameLength < SHORTEST_METHOD_NAME) || (nameLength > LONGEST_METHOD_NAME)) {
-		return 0;
-	}
+    if ((nameLength < SHORTEST_METHOD_NAME) || (nameLength > LONGEST_METHOD_NAME)) {
+        return 0;
+    }
 
-	for (i = 0; i < OBJECT_FINAL_COUNT; i++) {
-		UDATA nameLen = nameLengths[i];
-		UDATA sigLen = sigLengths[i];
-		/* we should really be doing UTF8 compares here, since the UTF8s may not be canonical */
-		if ((nameLength == nameLen)
-		&& (sigLength == sigLen)
-		&& (memcmp(name, thisName, nameLen) == 0)
-		&& (memcmp(sig, thisSig, sigLen) == 0)
-		) {
-			return 1;
-		}
-		thisName += nameLengths[i] + 1;
-		thisSig += sigLengths[i] + 1;
-	}
+    for (i = 0; i < OBJECT_FINAL_COUNT; i++) {
+        UDATA nameLen = nameLengths[i];
+        UDATA sigLen = sigLengths[i];
+        /* we should really be doing UTF8 compares here, since the UTF8s may not be canonical */
+        if ((nameLength == nameLen) && (sigLength == sigLen) && (memcmp(name, thisName, nameLen) == 0)
+            && (memcmp(sig, thisSig, sigLen) == 0)) {
+            return 1;
+        }
+        thisName += nameLengths[i] + 1;
+        thisSig += sigLengths[i] + 1;
+    }
 
 #undef SHORTEST_METHOD_NAME
 #undef LONGEST_METHOD_NAME
 #undef OBJECT_FINAL_COUNT
-	return 0;
+    return 0;
 }
-
-
-

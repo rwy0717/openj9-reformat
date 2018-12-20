@@ -28,16 +28,14 @@
 extern "C" {
 
 /* java.lang.String: public native String intern(); */
-j9object_t JNICALL
-Fast_java_lang_String_intern(J9VMThread *currentThread, j9object_t stringObject)
+j9object_t JNICALL Fast_java_lang_String_intern(J9VMThread* currentThread, j9object_t stringObject)
 {
-	/* This call sets an exception on failure */
-	return currentThread->javaVM->memoryManagerFunctions->j9gc_internString(currentThread, stringObject);
+    /* This call sets an exception on failure */
+    return currentThread->javaVM->memoryManagerFunctions->j9gc_internString(currentThread, stringObject);
 }
 
 J9_FAST_JNI_METHOD_TABLE(java_lang_String)
-	J9_FAST_JNI_METHOD("intern", "()Ljava/lang/String;", Fast_java_lang_String_intern,
-		J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
+J9_FAST_JNI_METHOD("intern", "()Ljava/lang/String;", Fast_java_lang_String_intern,
+    J9_FAST_JNI_RETAIN_VM_ACCESS | J9_FAST_JNI_DO_NOT_WRAP_OBJECTS)
 J9_FAST_JNI_METHOD_TABLE_END
-
 }

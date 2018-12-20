@@ -48,39 +48,42 @@
  *------------------------------------------------------------------*/
 
 typedef struct J9LinkedString {
-	struct J9LinkedString *next;
-	char data[1];
+    struct J9LinkedString* next;
+    char data[1];
 } J9LinkedString;
 
 typedef struct {
-	I_32 size;
-	I_32 count;
-	JavaVMOption *vmOptions;
-	J9PortLibrary *portLib;
-	J9LinkedString *strings;
+    I_32 size;
+    I_32 count;
+    JavaVMOption* vmOptions;
+    J9PortLibrary* portLib;
+    J9LinkedString* strings;
 } J9VMOptionsTable;
 
 #define J9CMD_EXACT_MATCH 0
 #define J9CMD_PARTIAL_MATCH 1
 typedef struct J9CmdLineAction {
-	char *cmdLineName;
-	UDATA partialMatch;
-	char *internalName;
-	I_32 (*actionFunction)(J9PortLibrary *portLib, int *argc, char *argv[], void **vmOptionsTable, struct J9CmdLineAction *);
+    char* cmdLineName;
+    UDATA partialMatch;
+    char* internalName;
+    I_32 (*actionFunction)
+    (J9PortLibrary* portLib, int* argc, char* argv[], void** vmOptionsTable, struct J9CmdLineAction*);
 } J9CmdLineAction;
 
-I_32 vmOptionsTableAddExeName(void **vmOptionsTable, char *argv0);
-int vmOptionsTableGetCount(void **vmOptionsTable);
-I_32 vmOptionsTableInit(J9PortLibrary *portLib, void **vmOptionsTable, int initialCount);
-I_32 vmOptionsTableAddOptionWithCopy(void **vmOptionsTable, char *optionString, void *extraInfo);
-I_32 vmOptionsTableAddOption(void **vmOptionsTable, char *optionString, void *extraInfo);
-JavaVMOption *vmOptionsTableGetOptions(void **vmOptionsTable);
-void vmOptionsTableDestroy(void **vmOptionsTable);
+I_32 vmOptionsTableAddExeName(void** vmOptionsTable, char* argv0);
+int vmOptionsTableGetCount(void** vmOptionsTable);
+I_32 vmOptionsTableInit(J9PortLibrary* portLib, void** vmOptionsTable, int initialCount);
+I_32 vmOptionsTableAddOptionWithCopy(void** vmOptionsTable, char* optionString, void* extraInfo);
+I_32 vmOptionsTableAddOption(void** vmOptionsTable, char* optionString, void* extraInfo);
+JavaVMOption* vmOptionsTableGetOptions(void** vmOptionsTable);
+void vmOptionsTableDestroy(void** vmOptionsTable);
 
-static char *allocString(J9VMOptionsTable *table, UDATA size);
-static I_32 cmdline_get_jcl(J9PortLibrary *portLib, int *argc, char *argv[], void **vmOptionsTable, J9CmdLineAction *action);
-static I_32 copyTable(J9PortLibrary *portLib, J9VMOptionsTable *table, J9VMOptionsTable *oldTable);
-static I_32 buildNewTable(J9PortLibrary *portLib, int initialCount, J9VMOptionsTable *oldTable, J9VMOptionsTable **newTable);
+static char* allocString(J9VMOptionsTable* table, UDATA size);
+static I_32 cmdline_get_jcl(
+    J9PortLibrary* portLib, int* argc, char* argv[], void** vmOptionsTable, J9CmdLineAction* action);
+static I_32 copyTable(J9PortLibrary* portLib, J9VMOptionsTable* table, J9VMOptionsTable* oldTable);
+static I_32 buildNewTable(
+    J9PortLibrary* portLib, int initialCount, J9VMOptionsTable* oldTable, J9VMOptionsTable** newTable);
 
 #define NO_DEFAULT_VALUE 0
 #define PRIVATE_OPTION NULL
@@ -90,254 +93,241 @@ static I_32 buildNewTable(J9PortLibrary *portLib, int initialCount, J9VMOptionsT
  *------------------------------------------------------------------*/
 
 #if defined(J9VM_INTERP_VERBOSE)
-static char *verboseOptions[] = {
-	"\n  -verbose[:{class",
-	"|gcterse",
-	"|gc",
+static char* verboseOptions[] = { "\n  -verbose[:{class", "|gcterse", "|gc",
 #ifdef J9VM_OPT_DYNAMIC_LOAD_SUPPORT
-	"|dynload",
+    "|dynload",
 #endif
-	"|sizes",
-	"|stack|debug}]\n"
-};
+    "|sizes", "|stack|debug}]\n" };
 #endif /* J9VM_INTERP_VERBOSE */
 
 /*------------------------------------------------------------------
  * create a new table with specified size
  *------------------------------------------------------------------*/
-I_32
-vmOptionsTableInit(J9PortLibrary *portLib, void **vmOptionsTable, int initialCount)
+I_32 vmOptionsTableInit(J9PortLibrary* portLib, void** vmOptionsTable, int initialCount)
 {
-	return buildNewTable(portLib, initialCount, NULL, (J9VMOptionsTable **)vmOptionsTable);
+    return buildNewTable(portLib, initialCount, NULL, (J9VMOptionsTable**)vmOptionsTable);
 }
 
 /*------------------------------------------------------------------
  * destroy the table
  *------------------------------------------------------------------*/
-void
-vmOptionsTableDestroy(void **vmOptionsTable)
+void vmOptionsTableDestroy(void** vmOptionsTable)
 {
-	J9VMOptionsTable *table = *vmOptionsTable;
-	J9PortLibrary *portLib = table->portLib;
-	J9LinkedString *this = table->strings;
-	PORT_ACCESS_FROM_PORT(portLib);
+    J9VMOptionsTable* table = *vmOptionsTable;
+    J9PortLibrary* portLib = table->portLib;
+    J9LinkedString* this = table->strings;
+    PORT_ACCESS_FROM_PORT(portLib);
 
-	/* free the linked list of strings */
-	while (NULL != this) {
-		J9LinkedString *next = this->next;
-		j9mem_free_memory(this);
-		this = next;
-	}
+    /* free the linked list of strings */
+    while (NULL != this) {
+        J9LinkedString* next = this->next;
+        j9mem_free_memory(this);
+        this = next;
+    }
 
-	j9mem_free_memory(table);
+    j9mem_free_memory(table);
 }
 
 /*------------------------------------------------------------------
  * get the number of options in the table
  *------------------------------------------------------------------*/
-int
-vmOptionsTableGetCount(void **vmOptionsTable)
+int vmOptionsTableGetCount(void** vmOptionsTable)
 {
-	J9VMOptionsTable *table = *vmOptionsTable;
+    J9VMOptionsTable* table = *vmOptionsTable;
 
-	return table->count;
+    return table->count;
 }
 
 /*------------------------------------------------------------------
  *
  *------------------------------------------------------------------*/
-JavaVMOption *
-vmOptionsTableGetOptions(void **vmOptionsTable)
+JavaVMOption* vmOptionsTableGetOptions(void** vmOptionsTable)
 {
-	J9VMOptionsTable *table = *vmOptionsTable;
+    J9VMOptionsTable* table = *vmOptionsTable;
 
-	return table->vmOptions;
+    return table->vmOptions;
 }
 
 /*------------------------------------------------------------------
  *
  *------------------------------------------------------------------*/
-I_32
-vmOptionsTableAddOption(void **vmOptionsTable, char *optionString, void *extraInfo)
+I_32 vmOptionsTableAddOption(void** vmOptionsTable, char* optionString, void* extraInfo)
 {
-	J9VMOptionsTable *table = *vmOptionsTable;
-	J9VMOptionsTable *newTable = NULL;
+    J9VMOptionsTable* table = *vmOptionsTable;
+    J9VMOptionsTable* newTable = NULL;
 
-	if (table->count == table->size) {
-		I_32 returnCode = buildNewTable(table->portLib, table->size * 2, table, &newTable);
-		if (J9CMDLINE_OK != returnCode) {
-			return returnCode;
-		}
+    if (table->count == table->size) {
+        I_32 returnCode = buildNewTable(table->portLib, table->size * 2, table, &newTable);
+        if (J9CMDLINE_OK != returnCode) {
+            return returnCode;
+        }
 
-		vmOptionsTableDestroy(vmOptionsTable);
-		table = newTable;
-		*vmOptionsTable = table;
-	}
+        vmOptionsTableDestroy(vmOptionsTable);
+        table = newTable;
+        *vmOptionsTable = table;
+    }
 
-	table->vmOptions[table->count].optionString = optionString;
-	table->vmOptions[table->count].extraInfo = extraInfo;
+    table->vmOptions[table->count].optionString = optionString;
+    table->vmOptions[table->count].extraInfo = extraInfo;
 
-	table->count++;
-	return J9CMDLINE_OK;
+    table->count++;
+    return J9CMDLINE_OK;
 }
 
 /*------------------------------------------------------------------
  *
  *------------------------------------------------------------------*/
-I_32
-vmOptionsTableAddExeName(void **vmOptionsTable, char *argv0)
+I_32 vmOptionsTableAddExeName(void** vmOptionsTable, char* argv0)
 {
-	J9VMOptionsTable *table = *vmOptionsTable;
-	PORT_ACCESS_FROM_PORT(table->portLib);
-	char *value = NULL;
-	char *define = NULL;
+    J9VMOptionsTable* table = *vmOptionsTable;
+    PORT_ACCESS_FROM_PORT(table->portLib);
+    char* value = NULL;
+    char* define = NULL;
 #define EXE_PROPERTY "-Dcom.ibm.oti.vm.exe="
 
-	if (j9sysinfo_get_executable_name(argv0, &value)) {
-		return J9CMDLINE_GENERIC_ERROR;
-	}
+    if (j9sysinfo_get_executable_name(argv0, &value)) {
+        return J9CMDLINE_GENERIC_ERROR;
+    }
 
-	define = allocString(*vmOptionsTable, sizeof(EXE_PROPERTY) + strlen(value)); /* sizeof() includes room for the terminating \0 */
-	if (NULL == define) {
-		j9mem_free_memory(value);
-		return J9CMDLINE_OUT_OF_MEMORY;
-	}
+    define = allocString(
+        *vmOptionsTable, sizeof(EXE_PROPERTY) + strlen(value)); /* sizeof() includes room for the terminating \0 */
+    if (NULL == define) {
+        j9mem_free_memory(value);
+        return J9CMDLINE_OUT_OF_MEMORY;
+    }
 
-	strcpy(define, EXE_PROPERTY);
-	strcat(define, value);
-	/* Do /not/ delete executable name string; system-owned. */
-	return vmOptionsTableAddOption(vmOptionsTable, define, NULL);
+    strcpy(define, EXE_PROPERTY);
+    strcat(define, value);
+    /* Do /not/ delete executable name string; system-owned. */
+    return vmOptionsTableAddOption(vmOptionsTable, define, NULL);
 }
 
-static char *
-allocString(J9VMOptionsTable *table, UDATA size)
+static char* allocString(J9VMOptionsTable* table, UDATA size)
 {
-	PORT_ACCESS_FROM_PORT(table->portLib);
-	J9LinkedString *node = j9mem_allocate_memory(size + sizeof(J9LinkedString *), OMRMEM_CATEGORY_VM);
+    PORT_ACCESS_FROM_PORT(table->portLib);
+    J9LinkedString* node = j9mem_allocate_memory(size + sizeof(J9LinkedString*), OMRMEM_CATEGORY_VM);
 
-	if (NULL == node) {
-		return NULL;
-	}
+    if (NULL == node) {
+        return NULL;
+    }
 
-	node->next = table->strings;
-	table->strings = node;
+    node->next = table->strings;
+    table->strings = node;
 
-	return node->data;
-}
-
-/*------------------------------------------------------------------
- * create a new table, copying from old if valid
- *------------------------------------------------------------------*/
-static I_32
-buildNewTable(J9PortLibrary *portLib, int initialCount, J9VMOptionsTable *oldTable, J9VMOptionsTable **newTable)
-{
-	J9VMOptionsTable *table = NULL;
-	int mallocSize = sizeof(J9VMOptionsTable) + (sizeof(JavaVMOption) * initialCount);
-	I_32 returnCode = 0;
-
-	PORT_ACCESS_FROM_PORT(portLib);
-
-	LOG(("buildNewTable(%d,%p)\n", initialCount, oldTable));
-	LOG(("buildNewtable(): malloc size = %d\n", mallocSize));
-
-	table = j9mem_allocate_memory(mallocSize, OMRMEM_CATEGORY_VM);
-	if (NULL == table) {
-		return J9CMDLINE_OUT_OF_MEMORY;
-	}
-	*newTable = table;
-
-	table->size = initialCount;
-	table->count = 0;
-	table->portLib = portLib;
-	table->vmOptions = (JavaVMOption *) (((char *) table) + sizeof(J9VMOptionsTable));
-	table->strings = NULL;
-
-	LOG(("buildNewtable(): table:   %#010X\n",table));
-	LOG(("buildNewtable(): options: %#010X\n",table->vmOptions));
-
-	if (NULL == oldTable) {
-		return J9CMDLINE_OK;
-	}
-
-	LOG(("buildNewtable(): copying table\n"));
-	returnCode = copyTable(table->portLib, table, oldTable);
-	if (J9CMDLINE_OK != returnCode) {
-		return returnCode;
-	}
-
-	LOG(("buildNewtable(): table->size = %d\n",table->size));
-	return J9CMDLINE_OK;
+    return node->data;
 }
 
 /*------------------------------------------------------------------
  * create a new table, copying from old if valid
  *------------------------------------------------------------------*/
-static I_32
-copyTable(J9PortLibrary *portLib, J9VMOptionsTable *table, J9VMOptionsTable *oldTable)
+static I_32 buildNewTable(
+    J9PortLibrary* portLib, int initialCount, J9VMOptionsTable* oldTable, J9VMOptionsTable** newTable)
 {
-	int i = 0;
+    J9VMOptionsTable* table = NULL;
+    int mallocSize = sizeof(J9VMOptionsTable) + (sizeof(JavaVMOption) * initialCount);
+    I_32 returnCode = 0;
 
-	LOG(("copyTable(%p, %p, %d)\n", table, oldTable, copyCount));
+    PORT_ACCESS_FROM_PORT(portLib);
 
-	table->strings = oldTable->strings;
-	oldTable->strings = NULL;
-	table->count = oldTable->count;
+    LOG(("buildNewTable(%d,%p)\n", initialCount, oldTable));
+    LOG(("buildNewtable(): malloc size = %d\n", mallocSize));
 
-	for (i = 0; i < oldTable->count; i++) {
-		table->vmOptions[i].optionString = oldTable->vmOptions[i].optionString;
-		table->vmOptions[i].extraInfo = oldTable->vmOptions[i].extraInfo;
-	}
+    table = j9mem_allocate_memory(mallocSize, OMRMEM_CATEGORY_VM);
+    if (NULL == table) {
+        return J9CMDLINE_OUT_OF_MEMORY;
+    }
+    *newTable = table;
 
-	LOG(("copyTable(): table->count = %d\n",table->count));
+    table->size = initialCount;
+    table->count = 0;
+    table->portLib = portLib;
+    table->vmOptions = (JavaVMOption*)(((char*)table) + sizeof(J9VMOptionsTable));
+    table->strings = NULL;
 
-	return J9CMDLINE_OK;
+    LOG(("buildNewtable(): table:   %#010X\n", table));
+    LOG(("buildNewtable(): options: %#010X\n", table->vmOptions));
+
+    if (NULL == oldTable) {
+        return J9CMDLINE_OK;
+    }
+
+    LOG(("buildNewtable(): copying table\n"));
+    returnCode = copyTable(table->portLib, table, oldTable);
+    if (J9CMDLINE_OK != returnCode) {
+        return returnCode;
+    }
+
+    LOG(("buildNewtable(): table->size = %d\n", table->size));
+    return J9CMDLINE_OK;
+}
+
+/*------------------------------------------------------------------
+ * create a new table, copying from old if valid
+ *------------------------------------------------------------------*/
+static I_32 copyTable(J9PortLibrary* portLib, J9VMOptionsTable* table, J9VMOptionsTable* oldTable)
+{
+    int i = 0;
+
+    LOG(("copyTable(%p, %p, %d)\n", table, oldTable, copyCount));
+
+    table->strings = oldTable->strings;
+    oldTable->strings = NULL;
+    table->count = oldTable->count;
+
+    for (i = 0; i < oldTable->count; i++) {
+        table->vmOptions[i].optionString = oldTable->vmOptions[i].optionString;
+        table->vmOptions[i].extraInfo = oldTable->vmOptions[i].extraInfo;
+    }
+
+    LOG(("copyTable(): table->count = %d\n", table->count));
+
+    return J9CMDLINE_OK;
 }
 
 /*------------------------------------------------------------------
  *
  *------------------------------------------------------------------*/
-I_32
-vmOptionsTableAddOptionWithCopy(void **vmOptionsTable, char *optionString, void *extraInfo)
+I_32 vmOptionsTableAddOptionWithCopy(void** vmOptionsTable, char* optionString, void* extraInfo)
 {
-	char *copyOptionString = allocString(*vmOptionsTable, strlen(optionString) + 1);
+    char* copyOptionString = allocString(*vmOptionsTable, strlen(optionString) + 1);
 
-	if (NULL == copyOptionString) {
-		return J9CMDLINE_OUT_OF_MEMORY;
-	}
-	strcpy(copyOptionString, optionString);
-	return vmOptionsTableAddOption(vmOptionsTable, copyOptionString, extraInfo);
+    if (NULL == copyOptionString) {
+        return J9CMDLINE_OUT_OF_MEMORY;
+    }
+    strcpy(copyOptionString, optionString);
+    return vmOptionsTableAddOption(vmOptionsTable, copyOptionString, extraInfo);
 }
 
 #if defined(WIN32)
-  /* On Windows, the subdirectory containing the redirector hasn't changed with Java versions. */
-  #define J9JAVA_REDIRECTOR_SUBDIR "\\bin\\j9vm\\"
+/* On Windows, the subdirectory containing the redirector hasn't changed with Java versions. */
+#define J9JAVA_REDIRECTOR_SUBDIR "\\bin\\j9vm\\"
 #elif (JAVA_SPEC_VERSION >= 10) || ((JAVA_SPEC_VERSION == 9) && defined(OPENJ9_BUILD)) || defined(OSX)
-  /* On other platforms, the subdirectory containing the redirector is common in recent Java versions. */
-  #define J9JAVA_REDIRECTOR_SUBDIR "/lib/j9vm/"
+/* On other platforms, the subdirectory containing the redirector is common in recent Java versions. */
+#define J9JAVA_REDIRECTOR_SUBDIR "/lib/j9vm/"
 #else /* WIN32 */
-  /* In Java 8 and early versions of Java 9, the path depends on the platform architecture. */
-  #if defined(J9HAMMER)
-	#define JVM_ARCH_DIR "amd64"
-  #elif defined(J9ARM)
-	#define JVM_ARCH_DIR "arm"
-  #elif defined(J9X86)
-	#define JVM_ARCH_DIR "i386"
-  #elif defined(S39064) || defined(J9ZOS39064)
-	#define JVM_ARCH_DIR "s390x"
-  #elif defined(S390) || defined(J9ZOS390)
-	#define JVM_ARCH_DIR "s390"
-  #elif defined(RS6000) || defined(LINUXPPC)
-	#if !defined(PPC64)
-	  #define JVM_ARCH_DIR "ppc"
-	#elif defined(J9VM_ENV_LITTLE_ENDIAN)
-	  #define JVM_ARCH_DIR "ppc64le"
-	#else /* J9VM_ENV_LITTLE_ENDIAN */
-	  #define JVM_ARCH_DIR "ppc64"
-	#endif /* PPC64 */
-  #else
-	#error "Must define an architecture"
-  #endif
-  #define J9JAVA_REDIRECTOR_SUBDIR "/lib/" JVM_ARCH_DIR "/j9vm/"
+/* In Java 8 and early versions of Java 9, the path depends on the platform architecture. */
+#if defined(J9HAMMER)
+#define JVM_ARCH_DIR "amd64"
+#elif defined(J9ARM)
+#define JVM_ARCH_DIR "arm"
+#elif defined(J9X86)
+#define JVM_ARCH_DIR "i386"
+#elif defined(S39064) || defined(J9ZOS39064)
+#define JVM_ARCH_DIR "s390x"
+#elif defined(S390) || defined(J9ZOS390)
+#define JVM_ARCH_DIR "s390"
+#elif defined(RS6000) || defined(LINUXPPC)
+#if !defined(PPC64)
+#define JVM_ARCH_DIR "ppc"
+#elif defined(J9VM_ENV_LITTLE_ENDIAN)
+#define JVM_ARCH_DIR "ppc64le"
+#else /* J9VM_ENV_LITTLE_ENDIAN */
+#define JVM_ARCH_DIR "ppc64"
+#endif /* PPC64 */
+#else
+#error "Must define an architecture"
+#endif
+#define J9JAVA_REDIRECTOR_SUBDIR "/lib/" JVM_ARCH_DIR "/j9vm/"
 #endif /* WIN32 */
 
 #define JAVAHOMEDIR "-Djava.home="
@@ -351,29 +341,29 @@ vmOptionsTableAddOptionWithCopy(void **vmOptionsTable, char *optionString, void 
  * in a sdk shape independent way.
  */
 BOOLEAN
-cmdline_fetchRedirectorDllDir(struct j9cmdlineOptions *args, char *result)
+cmdline_fetchRedirectorDllDir(struct j9cmdlineOptions* args, char* result)
 {
-	char *tmpresult = NULL;
-	struct j9cmdlineOptions *arg = args;
-	int argc = arg->argc;
-	char **argv = arg->argv;
-	int i = 0;
+    char* tmpresult = NULL;
+    struct j9cmdlineOptions* arg = args;
+    int argc = arg->argc;
+    char** argv = arg->argv;
+    int i = 0;
 
-	/* Find the last -Djava.home= in the args */
-	for (i = 0; i < argc; i++) {
-		char *javaHomeDir = strstr(argv[i], JAVAHOMEDIR);
-		if (NULL != javaHomeDir) {
-			tmpresult = javaHomeDir + JAVAHOMEDIR_LEN;
-		}
-	}
+    /* Find the last -Djava.home= in the args */
+    for (i = 0; i < argc; i++) {
+        char* javaHomeDir = strstr(argv[i], JAVAHOMEDIR);
+        if (NULL != javaHomeDir) {
+            tmpresult = javaHomeDir + JAVAHOMEDIR_LEN;
+        }
+    }
 
-	if (NULL == tmpresult) {
-		printf("ERROR: -Djava.home was not specified on command line.\n");
-		return FALSE;
-	}
+    if (NULL == tmpresult) {
+        printf("ERROR: -Djava.home was not specified on command line.\n");
+        return FALSE;
+    }
 
-	strcpy(result, tmpresult);
-	strcat(result, J9JAVA_REDIRECTOR_SUBDIR);
+    strcpy(result, tmpresult);
+    strcat(result, J9JAVA_REDIRECTOR_SUBDIR);
 
-	return TRUE;
+    return TRUE;
 }

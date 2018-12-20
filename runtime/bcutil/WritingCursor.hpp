@@ -32,31 +32,30 @@
 
 class ROMClassStringInternManager;
 
-class WritingCursor : public Cursor
-{
+class WritingCursor : public Cursor {
 public:
-	WritingCursor(UDATA tag, SRPOffsetTable *srpOffsetTable, ROMClassStringInternManager *internManager, ROMClassCreationContext * context) :
-		Cursor(tag, srpOffsetTable, context),
-		_baseAddress(srpOffsetTable->getBaseAddressForTag(tag)),
-		_internManager(internManager)
-	{
-	}
+    WritingCursor(UDATA tag, SRPOffsetTable* srpOffsetTable, ROMClassStringInternManager* internManager,
+        ROMClassCreationContext* context)
+        : Cursor(tag, srpOffsetTable, context)
+        , _baseAddress(srpOffsetTable->getBaseAddressForTag(tag))
+        , _internManager(internManager)
+    {}
 
-	void writeU8(U_8 u8Value, DataType dataType);
-	void writeU16(U_16 u16Value, DataType dataType);
-	void writeU32(U_32 u32Value, DataType dataType);
-	void writeU64(U_32 u32ValueHigh, U_32 u32ValueLow, DataType dataType);
-	void writeUTF8(U_8* UTF8Data, U_16 UTF8Length, DataType dataType);
-	void writeData(U_8* bytes, UDATA length, DataType dataType);
-	void padToAlignment(UDATA byteAlignment, DataType dataType);
+    void writeU8(U_8 u8Value, DataType dataType);
+    void writeU16(U_16 u16Value, DataType dataType);
+    void writeU32(U_32 u32Value, DataType dataType);
+    void writeU64(U_32 u32ValueHigh, U_32 u32ValueLow, DataType dataType);
+    void writeUTF8(U_8* UTF8Data, U_16 UTF8Length, DataType dataType);
+    void writeData(U_8* bytes, UDATA length, DataType dataType);
+    void padToAlignment(UDATA byteAlignment, DataType dataType);
 
-	void writeSRP(UDATA srpKey, DataType dataType);
-	void writeWSRP(UDATA srpKey, DataType dataType);
-	void mark(UDATA srpKey);
+    void writeSRP(UDATA srpKey, DataType dataType);
+    void writeWSRP(UDATA srpKey, DataType dataType);
+    void mark(UDATA srpKey);
 
 private:
-	U_8 * _baseAddress;
-	ROMClassStringInternManager *_internManager;
+    U_8* _baseAddress;
+    ROMClassStringInternManager* _internManager;
 };
 
 #endif /* WRITINGCURSOR_HPP_ */

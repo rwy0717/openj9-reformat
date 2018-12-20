@@ -33,10 +33,9 @@
  * Structure holding information relating to tgc tracing for exclusive access.
  */
 typedef struct TgcExclusiveAccessExtensions {
-	UDATA unused;
+    UDATA unused;
 } TgcExclusiveAccessExtensions;
-	
-bool tgcExclusiveAccessInitialize(J9JavaVM *javaVM);
+
+bool tgcExclusiveAccessInitialize(J9JavaVM* javaVM);
 
 #endif /* TGCEXCLUSIVEACCESS_HPP_ */
- 

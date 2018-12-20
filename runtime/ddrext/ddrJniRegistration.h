@@ -20,13 +20,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 #ifndef DDRJNIREGISTRATION_H_
 #define DDRJNIREGISTRATION_H_
 #include "j9.h"
 #include "j9protos.h"
 #include "j9port.h"
 
-BOOLEAN register_ddr_natives(JNIEnv * env);
+BOOLEAN register_ddr_natives(JNIEnv* env);
 
 #endif /* DDRJNIREGISTRATION_H_ */

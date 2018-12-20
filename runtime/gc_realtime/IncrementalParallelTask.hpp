@@ -39,29 +39,27 @@
  * @todo Provide class documentation
  * @ingroup GC_Realtime
  */
-class MM_IncrementalParallelTask : public MM_ParallelTask
-{
+class MM_IncrementalParallelTask : public MM_ParallelTask {
 private:
-	UDATA _entryCount;
-	MM_YieldCollaborator _yieldCollaborator;
+    UDATA _entryCount;
+    MM_YieldCollaborator _yieldCollaborator;
 
 protected:
-	virtual void synchronizeGCThreads(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase *env, const char *id);
-	virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase *env, const char *id);
-	virtual void releaseSynchronizedGCThreads(MM_EnvironmentBase *env);
+    virtual void synchronizeGCThreads(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseMaster(MM_EnvironmentBase* env, const char* id);
+    virtual bool synchronizeGCThreadsAndReleaseSingleThread(MM_EnvironmentBase* env, const char* id);
+    virtual void releaseSynchronizedGCThreads(MM_EnvironmentBase* env);
+
 public:
-	
-	
-	MM_YieldCollaborator *getYieldCollaborator() { return &_yieldCollaborator; }	
-	
-	MM_IncrementalParallelTask(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher) :
-		MM_ParallelTask(env, dispatcher),
-		_entryCount(0),
-		_yieldCollaborator(&_synchronizeMutex, &_synchronizeCount, MM_YieldCollaborator::IncrementalParallelTask)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_YieldCollaborator* getYieldCollaborator() { return &_yieldCollaborator; }
+
+    MM_IncrementalParallelTask(MM_EnvironmentBase* env, MM_Dispatcher* dispatcher)
+        : MM_ParallelTask(env, dispatcher)
+        , _entryCount(0)
+        , _yieldCollaborator(&_synchronizeMutex, &_synchronizeCount, MM_YieldCollaborator::IncrementalParallelTask)
+    {
+        _typeId = __FUNCTION__;
+    };
 };
 
 #endif /* INCREMENTAL_PARALLEL_TASK_HPP_ */

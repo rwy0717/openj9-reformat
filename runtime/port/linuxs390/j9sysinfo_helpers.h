@@ -38,6 +38,6 @@
  *
  * @return The index of the last valid uint64_t in the bits array.
  */
-extern int getstfle(int lastDoubleWord, uint64_t *bits);
+extern int getstfle(int lastDoubleWord, uint64_t* bits);
 
 #endif /* SYSINFO_HELPERS_H_ */

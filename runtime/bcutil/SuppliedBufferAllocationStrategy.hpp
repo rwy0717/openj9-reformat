@@ -30,67 +30,66 @@
 /* @ddr_namespace: default */
 #include "AllocationStrategy.hpp"
 
-class SuppliedBufferAllocationStrategy: public AllocationStrategy
-{
+class SuppliedBufferAllocationStrategy : public AllocationStrategy {
 public:
-	SuppliedBufferAllocationStrategy(U_8 * buffer, UDATA bufferSize) :
-		_buffer(buffer),
-		_bufferSize(bufferSize),
-		_lineNumberBuffer(NULL),
-		_lineNumberBufferSize(0),
-		_variableInfoBuffer(NULL),
-		_variableInfoBufferSize(0)
-	{
-	}
+    SuppliedBufferAllocationStrategy(U_8* buffer, UDATA bufferSize)
+        : _buffer(buffer)
+        , _bufferSize(bufferSize)
+        , _lineNumberBuffer(NULL)
+        , _lineNumberBufferSize(0)
+        , _variableInfoBuffer(NULL)
+        , _variableInfoBufferSize(0)
+    {}
 
-	SuppliedBufferAllocationStrategy(U_8 * buffer, UDATA bufferSize,
-			U_8 *lineNumberBuffer, UDATA lineNumberBufferSize,
-			U_8 * variableInfoBuffer, UDATA variableInfoBufferSize) :
-		_buffer(buffer),
-		_bufferSize(bufferSize),
-		_lineNumberBuffer(lineNumberBuffer),
-		_lineNumberBufferSize(lineNumberBufferSize),
-		_variableInfoBuffer(variableInfoBuffer),
-		_variableInfoBufferSize(variableInfoBufferSize)
-	{
-	}
+    SuppliedBufferAllocationStrategy(U_8* buffer, UDATA bufferSize, U_8* lineNumberBuffer, UDATA lineNumberBufferSize,
+        U_8* variableInfoBuffer, UDATA variableInfoBufferSize)
+        : _buffer(buffer)
+        , _bufferSize(bufferSize)
+        , _lineNumberBuffer(lineNumberBuffer)
+        , _lineNumberBufferSize(lineNumberBufferSize)
+        , _variableInfoBuffer(variableInfoBuffer)
+        , _variableInfoBufferSize(variableInfoBufferSize)
+    {}
 
-	virtual U_8* allocate(UDATA byteAmount) {
-		if (byteAmount <= _bufferSize) {
-			return _buffer;
-		}
-		return NULL;
-	}
+    virtual U_8* allocate(UDATA byteAmount)
+    {
+        if (byteAmount <= _bufferSize) {
+            return _buffer;
+        }
+        return NULL;
+    }
 
-	virtual bool allocateWithOutOfLineData(AllocatedBuffers *allocatedBuffers, UDATA byteAmount, UDATA lineNumberByteAmount, UDATA variableInfoByteAmount)
-	{
-		if (byteAmount > _bufferSize) {
-			return false;
-		}
-		if (lineNumberByteAmount > _lineNumberBufferSize) {
-			return false;
-		}
-		if (variableInfoByteAmount > _variableInfoBufferSize) {
-			return false;
-		}
-		allocatedBuffers->romClassBuffer = _buffer;
-		allocatedBuffers->lineNumberBuffer = _lineNumberBuffer;
-		allocatedBuffers->variableInfoBuffer = _variableInfoBuffer;
-		return true;
-	}
+    virtual bool allocateWithOutOfLineData(
+        AllocatedBuffers* allocatedBuffers, UDATA byteAmount, UDATA lineNumberByteAmount, UDATA variableInfoByteAmount)
+    {
+        if (byteAmount > _bufferSize) {
+            return false;
+        }
+        if (lineNumberByteAmount > _lineNumberBufferSize) {
+            return false;
+        }
+        if (variableInfoByteAmount > _variableInfoBufferSize) {
+            return false;
+        }
+        allocatedBuffers->romClassBuffer = _buffer;
+        allocatedBuffers->lineNumberBuffer = _lineNumberBuffer;
+        allocatedBuffers->variableInfoBuffer = _variableInfoBuffer;
+        return true;
+    }
 
+    void updateFinalROMSize(UDATA finalSize)
+    { /* do nothing */
+    }
 
-	void updateFinalROMSize(UDATA finalSize) { /* do nothing */ }
-
-	virtual bool canStoreDebugDataOutOfLine() { return true; }
+    virtual bool canStoreDebugDataOutOfLine() { return true; }
 
 private:
-	U_8 * _buffer;
-	UDATA _bufferSize;
-	U_8 * _lineNumberBuffer;
-	UDATA _lineNumberBufferSize;
-	U_8 * _variableInfoBuffer;
-	UDATA _variableInfoBufferSize;
+    U_8* _buffer;
+    UDATA _bufferSize;
+    U_8* _lineNumberBuffer;
+    UDATA _lineNumberBufferSize;
+    U_8* _variableInfoBuffer;
+    UDATA _variableInfoBufferSize;
 };
 
 #endif /* SUPPLIEDBUFFERALLOCATIONSTRATEGY_HPP_ */

@@ -35,18 +35,16 @@
  * @return the next VM Thread in the list
  * @return NULL if there are no more threads in the list
  */
-J9VMThread *
-GC_VMThreadListIterator::nextVMThread()
+J9VMThread* GC_VMThreadListIterator::nextVMThread()
 {
-	if(_vmThread) {
-		J9VMThread *currentVMThread;
-		currentVMThread = _vmThread;
-		_vmThread = _vmThread->linkNext;
-		if(_vmThread == _initialVMThread) {
-			_vmThread = NULL;
-		}
-		return currentVMThread;
-	}
-	return NULL;
+    if (_vmThread) {
+        J9VMThread* currentVMThread;
+        currentVMThread = _vmThread;
+        _vmThread = _vmThread->linkNext;
+        if (_vmThread == _initialVMThread) {
+            _vmThread = NULL;
+        }
+        return currentVMThread;
+    }
+    return NULL;
 }
-

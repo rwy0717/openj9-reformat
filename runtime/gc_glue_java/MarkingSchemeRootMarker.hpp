@@ -31,31 +31,31 @@
 class MM_MarkingScheme;
 class MM_MarkingDelegate;
 
-class MM_MarkingSchemeRootMarker : public MM_RootScanner
-{
-/* Data members & types */
+class MM_MarkingSchemeRootMarker : public MM_RootScanner {
+    /* Data members & types */
 public:
 protected:
 private:
-	MM_MarkingScheme *_markingScheme;
-	MM_MarkingDelegate *_markingDelegate;
+    MM_MarkingScheme* _markingScheme;
+    MM_MarkingDelegate* _markingDelegate;
 
-/* Methods */
+    /* Methods */
 public:
-	MM_MarkingSchemeRootMarker(MM_EnvironmentBase *env, MM_MarkingScheme *markingScheme, MM_MarkingDelegate *markingDelegate) :
-		  MM_RootScanner(env)
-		, _markingScheme(markingScheme)
-		, _markingDelegate(markingDelegate)
-	{
-		_typeId = __FUNCTION__;
-	};
+    MM_MarkingSchemeRootMarker(
+        MM_EnvironmentBase* env, MM_MarkingScheme* markingScheme, MM_MarkingDelegate* markingDelegate)
+        : MM_RootScanner(env)
+        , _markingScheme(markingScheme)
+        , _markingDelegate(markingDelegate)
+    {
+        _typeId = __FUNCTION__;
+    };
 
-	virtual void doSlot(omrobjectptr_t *slotPtr);
-	virtual void doStackSlot(omrobjectptr_t *slotPtr, void *walkState, const void* stackLocation);
-	virtual void doVMThreadSlot(omrobjectptr_t *slotPtr, GC_VMThreadIterator *vmThreadIterator);
-	virtual void doClass(J9Class *clazz);
-	virtual void doClassLoader(J9ClassLoader *classLoader);
-	virtual void doFinalizableObject(omrobjectptr_t object);
+    virtual void doSlot(omrobjectptr_t* slotPtr);
+    virtual void doStackSlot(omrobjectptr_t* slotPtr, void* walkState, const void* stackLocation);
+    virtual void doVMThreadSlot(omrobjectptr_t* slotPtr, GC_VMThreadIterator* vmThreadIterator);
+    virtual void doClass(J9Class* clazz);
+    virtual void doClassLoader(J9ClassLoader* classLoader);
+    virtual void doFinalizableObject(omrobjectptr_t object);
 
 protected:
 private:

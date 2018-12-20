@@ -40,4 +40,4 @@ IDATA testClassDebugDataTests(J9JavaVM* vm);
 } /*extern "C"*/
 #endif
 
-#endif  /*J9SC_CLASS_DEBUG_DATA_TESTS_H_INCLUDED*/
+#endif /*J9SC_CLASS_DEBUG_DATA_TESTS_H_INCLUDED*/

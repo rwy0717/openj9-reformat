@@ -22,40 +22,36 @@
 #include <jni.h>
 /* Header for class com_ibm_j9_jnimark_Natives */
 
-
- static void
- throwException(JNIEnv *env, const char *name, const char *msg)
- {
-     jclass cls = (*env)->FindClass(env, name);
-     /* if cls is NULL, an exception has already been thrown */
-     if (cls != NULL) {
-         (*env)->ThrowNew(env, cls, msg);
-     }
-     /* free the local ref */
-     (*env)->DeleteLocalRef(env, cls);
- }
-
+static void throwException(JNIEnv* env, const char* name, const char* msg)
+{
+    jclass cls = (*env)->FindClass(env, name);
+    /* if cls is NULL, an exception has already been thrown */
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, msg);
+    }
+    /* free the local ref */
+    (*env)->DeleteLocalRef(env, cls);
+}
 
 /*
  * Class:     com_ibm_j9_jnimark_Natives
  * Method:    getByteArrayElements
  * Signature: ([B)I
  */
-jint JNICALL
-Java_com_ibm_j9_jnimark_Natives_getByteArrayElements(JNIEnv * env, jclass clazz, jbyteArray array)
+jint JNICALL Java_com_ibm_j9_jnimark_Natives_getByteArrayElements(JNIEnv* env, jclass clazz, jbyteArray array)
 {
-	jbyte* elements;
+    jbyte* elements;
 
-	if (NULL == array) {
-		throwException(env, "java/lang/IllegalArgumentException", "a byte array must be provided.");
-		return -1;
-	}
+    if (NULL == array) {
+        throwException(env, "java/lang/IllegalArgumentException", "a byte array must be provided.");
+        return -1;
+    }
 
-	elements = (*env)->GetByteArrayElements(env, array, NULL);
-	if (NULL != elements) {
-		(*env)->ReleaseByteArrayElements(env, array, elements, JNI_ABORT);
-		return (*env)->GetArrayLength(env, array);
-	} else {
-		return 0;
-	}
+    elements = (*env)->GetByteArrayElements(env, array, NULL);
+    if (NULL != elements) {
+        (*env)->ReleaseByteArrayElements(env, array, elements, JNI_ABORT);
+        return (*env)->GetArrayLength(env, array);
+    } else {
+        return 0;
+    }
 }

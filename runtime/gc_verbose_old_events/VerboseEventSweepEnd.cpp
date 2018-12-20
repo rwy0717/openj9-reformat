@@ -27,16 +27,16 @@
  * Create an new instance of a MM_VerboseEventSweepEnd event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventSweepEnd::newInstance(MM_SweepEndEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventSweepEnd::newInstance(MM_SweepEndEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventSweepEnd *eventObject;
-	
-	eventObject = (MM_VerboseEventSweepEnd *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventSweepEnd));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventSweepEnd(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventSweepEnd* eventObject;
+
+    eventObject
+        = (MM_VerboseEventSweepEnd*)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventSweepEnd));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventSweepEnd(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -44,16 +44,10 @@ MM_VerboseEventSweepEnd::newInstance(MM_SweepEndEvent *event, J9HookInterface** 
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventSweepEnd::consumeEvents(void)
-{
-}
+void MM_VerboseEventSweepEnd::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventSweepEnd::formattedOutput(MM_VerboseOutputAgent *agent)
-{
-}
+void MM_VerboseEventSweepEnd::formattedOutput(MM_VerboseOutputAgent* agent) {}

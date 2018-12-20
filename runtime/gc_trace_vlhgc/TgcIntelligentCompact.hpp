@@ -30,7 +30,7 @@
 #define TGCINTELLIGENTCOMPACT_HPP_
 
 #if defined(J9VM_GC_MODRON_COMPACTION)
-bool tgcIntelligentCompactInitialize(J9JavaVM *javaVM);
+bool tgcIntelligentCompactInitialize(J9JavaVM* javaVM);
 #endif /* J9VM_GC_MODRON_COMPACTION */
 
 #endif /* TGCINTELLIGENTCOMPACT_HPP_ */

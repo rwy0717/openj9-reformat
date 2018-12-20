@@ -40,102 +40,91 @@
  * Provides information for a given class.
  * @ingroup GC_Base
  */
-class GC_ClassModel
-{
+class GC_ClassModel {
 public:
 #if !defined(J9VM_OPT_FRAGMENT_RAM_CLASSES)
-	/**
-	 * Returns the size of a class, in bytes.
-	 * @param clazzPtr Pointer to the class whose size is required
-	 * @return Size of class in bytes
-	 */
-	MMINLINE static UDATA getSizeInBytes(J9Class *clazzPtr)
-	{
-		return clazzPtr->size;
-	}
+    /**
+     * Returns the size of a class, in bytes.
+     * @param clazzPtr Pointer to the class whose size is required
+     * @return Size of class in bytes
+     */
+    MMINLINE static UDATA getSizeInBytes(J9Class* clazzPtr) { return clazzPtr->size; }
 
-	/**
-	 * Returns the size of a class, in slots.
-	 * @param clazzPtr Pointer to the class whose size is required
-	 * @return Size of class in slots
-	 */	
-	MMINLINE static UDATA getSizeInSlots(J9Class *clazzPtr)
-	{
-		return MM_Bits::convertBytesToSlots(getSizeInBytes(clazzPtr));
-	}
+    /**
+     * Returns the size of a class, in slots.
+     * @param clazzPtr Pointer to the class whose size is required
+     * @return Size of class in slots
+     */
+    MMINLINE static UDATA getSizeInSlots(J9Class* clazzPtr)
+    {
+        return MM_Bits::convertBytesToSlots(getSizeInBytes(clazzPtr));
+    }
 #endif
 
-	/**
-	 * Returns the depth of a class.
-	 * @param clazzPtr Pointer to the class whose depth is required
-	 * @return Depth of class
-	 */	
-	MMINLINE static UDATA getClassDepth(J9Class *clazzPtr)
-	{
-		return J9CLASS_DEPTH(clazzPtr);
-	}
+    /**
+     * Returns the depth of a class.
+     * @param clazzPtr Pointer to the class whose depth is required
+     * @return Depth of class
+     */
+    MMINLINE static UDATA getClassDepth(J9Class* clazzPtr) { return J9CLASS_DEPTH(clazzPtr); }
 
-	/**
-	 * Returns the superclass of a class.
-	 * @param clazzPtr Pointer to the class whose superclass is required
-	 * @return superclass of class
-	 */	
-	MMINLINE static J9Class *getSuperclass(J9Class *clazzPtr)
-	{
-		UDATA classDepth = J9CLASS_DEPTH(clazzPtr);
-		return clazzPtr->superclasses[classDepth - 1];
-	}
+    /**
+     * Returns the superclass of a class.
+     * @param clazzPtr Pointer to the class whose superclass is required
+     * @return superclass of class
+     */
+    MMINLINE static J9Class* getSuperclass(J9Class* clazzPtr)
+    {
+        UDATA classDepth = J9CLASS_DEPTH(clazzPtr);
+        return clazzPtr->superclasses[classDepth - 1];
+    }
 
-	/**
-	 * Returns TRUE if the class is an array class, FALSE otherwise.
-	 * @param clazzPtr Pointer to the class
-	 * @return TRUE if the class is an array class, FALSE otherwise
-	 */
-	MMINLINE static bool usesSharedITable(J9JavaVM *javaVM, J9Class *clazzPtr)
-	{
-		return (clazzPtr->romClass->modifiers & J9_JAVA_CLASS_ARRAY) && (clazzPtr != javaVM->booleanArrayClass);
-	}
+    /**
+     * Returns TRUE if the class is an array class, FALSE otherwise.
+     * @param clazzPtr Pointer to the class
+     * @return TRUE if the class is an array class, FALSE otherwise
+     */
+    MMINLINE static bool usesSharedITable(J9JavaVM* javaVM, J9Class* clazzPtr)
+    {
+        return (clazzPtr->romClass->modifiers & J9_JAVA_CLASS_ARRAY) && (clazzPtr != javaVM->booleanArrayClass);
+    }
 
-	/**
-	 * Returns the size, in bytes, of an instance of a class.
-	 * @param clazzPtr Pointer to the class whose instance size is required
-	 * @return The size of and instance of the class in bytes
-	 */
-	MMINLINE static UDATA getInstanceSizeInBytes(J9Class *clazzPtr)
-	{
-		return clazzPtr->totalInstanceSize;
-	}
+    /**
+     * Returns the size, in bytes, of an instance of a class.
+     * @param clazzPtr Pointer to the class whose instance size is required
+     * @return The size of and instance of the class in bytes
+     */
+    MMINLINE static UDATA getInstanceSizeInBytes(J9Class* clazzPtr) { return clazzPtr->totalInstanceSize; }
 
-	/**
-	 * Calculate the number of object slots in the class.
-	 * @param[in] clazz Pointer to the class
-	 * @return number of object slots.
-	 */
-	MMINLINE static UDATA
-	getNumberOfObjectSlots(J9Class *clazz)
-	{
-		UDATA totalInstanceSize = clazz->totalInstanceSize;
-		IDATA scanLimit = (IDATA) (totalInstanceSize / sizeof(fj9object_t));
-		UDATA tempDescription = (UDATA)clazz->instanceDescription;
+    /**
+     * Calculate the number of object slots in the class.
+     * @param[in] clazz Pointer to the class
+     * @return number of object slots.
+     */
+    MMINLINE static UDATA getNumberOfObjectSlots(J9Class* clazz)
+    {
+        UDATA totalInstanceSize = clazz->totalInstanceSize;
+        IDATA scanLimit = (IDATA)(totalInstanceSize / sizeof(fj9object_t));
+        UDATA tempDescription = (UDATA)clazz->instanceDescription;
 
-		UDATA slotCount = 0;
-		if (scanLimit > 0) {
-			if (tempDescription & 1) {
-				/* immediate */
-				UDATA description = (tempDescription >> 1);
-				slotCount = MM_Bits::populationCount(description);
-			} else {
-				UDATA *descriptionPtr = (UDATA *) tempDescription;
-				while (scanLimit > 0) {
-					UDATA description = *descriptionPtr;
-					descriptionPtr += 1;
-					slotCount += MM_Bits::populationCount(description);
-					scanLimit = scanLimit - J9_OBJECT_DESCRIPTION_SIZE;
-				}
-			}
-		}
-		return slotCount;
-	}
+        UDATA slotCount = 0;
+        if (scanLimit > 0) {
+            if (tempDescription & 1) {
+                /* immediate */
+                UDATA description = (tempDescription >> 1);
+                slotCount = MM_Bits::populationCount(description);
+            } else {
+                UDATA* descriptionPtr = (UDATA*)tempDescription;
+                while (scanLimit > 0) {
+                    UDATA description = *descriptionPtr;
+                    descriptionPtr += 1;
+                    slotCount += MM_Bits::populationCount(description);
+                    scanLimit = scanLimit - J9_OBJECT_DESCRIPTION_SIZE;
+                }
+            }
+        }
+        return slotCount;
+    }
 };
 
 #endif /* CLASSMODEL_HPP_ */

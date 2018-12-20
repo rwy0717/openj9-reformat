@@ -26,26 +26,26 @@
 #include "j9comp.h"
 #include "j9cfg.h"
 
-#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT))  /* File Level Build Flags */
+#if (defined(J9VM_OPT_DYNAMIC_LOAD_SUPPORT)) /* File Level Build Flags */
 
-#define ROUND_TO(granularity, number) ((number) +		\
-	(((number) % (granularity)) ? ((granularity) - ((number) % (granularity))) : 0))
+#define ROUND_TO(granularity, number) \
+    ((number) + (((number) % (granularity)) ? ((granularity) - ((number) % (granularity))) : 0))
 
 #define ROUNDING_GRANULARITY 1024
-#define CHECK_BUFFER( buf, currentSize, requiredSize ) \
-	\
-	if (currentSize < (requiredSize) ) { \
-		if (currentSize > 0) { \
-			j9mem_free_memory( buf ); \
-		} \
-		currentSize = requiredSize; \
-		buf = j9mem_allocate_memory(currentSize, J9MEM_CATEGORY_CLASSES); \
-		if (buf == NULL) { \
-			currentSize = 0; \
-			return -1; /* Replaced BCT_ERR_OUT_OF_MEMORY as is not -1 */ \
-		} \
-	}
+#define CHECK_BUFFER(buf, currentSize, requiredSize)                      \
+                                                                          \
+    if (currentSize < (requiredSize)) {                                   \
+        if (currentSize > 0) {                                            \
+            j9mem_free_memory(buf);                                       \
+        }                                                                 \
+        currentSize = requiredSize;                                       \
+        buf = j9mem_allocate_memory(currentSize, J9MEM_CATEGORY_CLASSES); \
+        if (buf == NULL) {                                                \
+            currentSize = 0;                                              \
+            return -1; /* Replaced BCT_ERR_OUT_OF_MEMORY as is not -1 */  \
+        }                                                                 \
+    }
 
 #endif /* J9VM_OPT_DYNAMIC_LOAD_SUPPORT */ /* End File Level Build Flags */
 
-#endif			/* dynload_h */
+#endif /* dynload_h */

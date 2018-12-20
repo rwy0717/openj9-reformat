@@ -25,16 +25,14 @@
 
 #include "codegen/J9Linkage.hpp"
 
-namespace TR
-{
+namespace TR {
 
-class OMR_EXTENSIBLE Linkage : public J9::LinkageConnector
-   {
-   public:
-
-   Linkage(TR::CodeGenerator *cg, TR_S390LinkageConventions elc, TR_LinkageConventions le)
-      : J9::LinkageConnector(cg, elc, le) {}
-   };
-}
+class OMR_EXTENSIBLE Linkage : public J9::LinkageConnector {
+public:
+    Linkage(TR::CodeGenerator* cg, TR_S390LinkageConventions elc, TR_LinkageConventions le)
+        : J9::LinkageConnector(cg, elc, le)
+    {}
+};
+} // namespace TR
 
 #endif

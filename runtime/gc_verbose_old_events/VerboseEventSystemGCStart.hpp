@@ -35,32 +35,31 @@
  * Stores the data relating to the start of a system garbage collection.
  * @ingroup GC_verbose_events
  */
-class MM_VerboseEventSystemGCStart : public MM_VerboseEventGCStart
-{
+class MM_VerboseEventSystemGCStart : public MM_VerboseEventGCStart {
 private:
-	/**
-	 * Passed Data 
-	 * @{
-	 */
-	/** @} */
-	
-	/**
-	 * External Data 
-	 * @{
-	 */
-	U_64 _lastSysTime; /**< the timestamp of the last system GC */
-	UDATA _sysCollectionCount; /**< the count of system GCs */
-	/** @} */
+    /**
+     * Passed Data
+     * @{
+     */
+    /** @} */
+
+    /**
+     * External Data
+     * @{
+     */
+    U_64 _lastSysTime; /**< the timestamp of the last system GC */
+    UDATA _sysCollectionCount; /**< the count of system GCs */
+    /** @} */
 
 public:
-	static MM_VerboseEvent *newInstance(MM_SystemGCStartEvent *event, J9HookInterface** hookInterface);
+    static MM_VerboseEvent* newInstance(MM_SystemGCStartEvent* event, J9HookInterface** hookInterface);
 
-	virtual void consumeEvents();
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent);
+    virtual void consumeEvents();
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent);
 
-	MM_VerboseEventSystemGCStart(MM_SystemGCStartEvent *event, J9HookInterface** hookInterface) :
-		MM_VerboseEventGCStart(event->currentThread, event->timestamp, event->eventid, event->gcStartData, hookInterface)
-	{};
+    MM_VerboseEventSystemGCStart(MM_SystemGCStartEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEventGCStart(
+              event->currentThread, event->timestamp, event->eventid, event->gcStartData, hookInterface) {};
 };
 
 #endif /* EVENT_SYSTEM_GC_START_HPP_ */

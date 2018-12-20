@@ -25,7 +25,7 @@
 
 #if defined(_MSC_VER) && !defined(__clang__)
 /* MSVC compiler hangs on this file at max opt (/Ox) */
-#pragma optimize( "g", off )
+#pragma optimize("g", off)
 #endif /* _MSC_VER */
 
 #if defined(DEBUG_VERSION)
@@ -57,54 +57,54 @@
 #include "bcnames.h"
 #include "rommeth.h"
 
-static void
-getMethodName(J9PortLibrary *PORTLIB, J9Method *method, U_8 *pc, char *buffer)
+static void getMethodName(J9PortLibrary* PORTLIB, J9Method* method, U_8* pc, char* buffer)
 {
-	char temp[1024];
-	buffer[0] = '\0';
-	if ((UDATA)pc <= J9SF_MAX_SPECIAL_FRAME_TYPE) {
-		j9str_printf(PORTLIB, temp, sizeof(temp), "SPECIAL %d", pc);
-		strcat(buffer, temp);
-	} else if (((U_8*)-1 != pc) && (JBimpdep1 == *pc)) {
-		strcat(buffer, "MHMAGIC");
-	} else if (((U_8*)-1 != pc) && (JBimpdep2 == *pc)) {
-		strcat(buffer, "CALLIN");
-	} else if (((U_8*)-1 != pc) && (((*pc >= JBretFromNative0) && (*pc <= JBreturnFromJ2I)) || (JBreturnFromJ2I == *pc))) {
-		strcat(buffer, "JITRETURN");
-	} else if (NULL == method->bytecodes) {
-		j9str_printf(PORTLIB, temp, sizeof(temp), "(no bytecodes) (%p)", method);
-		strcat(buffer, temp);
-	} else {
-		J9UTF8 *className = J9ROMCLASS_CLASSNAME(J9_CLASS_FROM_METHOD(method)->romClass);
-		J9ROMMethod *romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
-		J9UTF8 *methodName = J9ROMMETHOD_NAME(romMethod);
-		J9UTF8 *methodSig = J9ROMMETHOD_SIGNATURE(romMethod);
-		if (romMethod->modifiers & J9AccNative) {
-			if ((UDATA)method->constantPool & J9_STARTPC_JNI_NATIVE) {
-				strcat(buffer, "JNI ");
-			} else {
-				strcat(buffer, "INL ");			
-			}
-		}
-		if (0 == ((UDATA)method->extra & 1)) {
-			strcat(buffer, "JITTED ");
-		}
-		j9str_printf(PORTLIB, temp, sizeof(temp), "%.*s.%.*s%.*s (%p)", className->length, className->data, methodName->length, methodName->data, methodSig->length, methodSig->data, method);
-		strcat(buffer, temp);
-		if ((U_8*)-1 != pc) {
-			j9str_printf(PORTLIB, temp, sizeof(temp), " @ %p (offset %d)", pc, pc - method->bytecodes);
-			strcat(buffer, temp);
-		}
-	}
+    char temp[1024];
+    buffer[0] = '\0';
+    if ((UDATA)pc <= J9SF_MAX_SPECIAL_FRAME_TYPE) {
+        j9str_printf(PORTLIB, temp, sizeof(temp), "SPECIAL %d", pc);
+        strcat(buffer, temp);
+    } else if (((U_8*)-1 != pc) && (JBimpdep1 == *pc)) {
+        strcat(buffer, "MHMAGIC");
+    } else if (((U_8*)-1 != pc) && (JBimpdep2 == *pc)) {
+        strcat(buffer, "CALLIN");
+    } else if (((U_8*)-1 != pc)
+        && (((*pc >= JBretFromNative0) && (*pc <= JBreturnFromJ2I)) || (JBreturnFromJ2I == *pc))) {
+        strcat(buffer, "JITRETURN");
+    } else if (NULL == method->bytecodes) {
+        j9str_printf(PORTLIB, temp, sizeof(temp), "(no bytecodes) (%p)", method);
+        strcat(buffer, temp);
+    } else {
+        J9UTF8* className = J9ROMCLASS_CLASSNAME(J9_CLASS_FROM_METHOD(method)->romClass);
+        J9ROMMethod* romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
+        J9UTF8* methodName = J9ROMMETHOD_NAME(romMethod);
+        J9UTF8* methodSig = J9ROMMETHOD_SIGNATURE(romMethod);
+        if (romMethod->modifiers & J9AccNative) {
+            if ((UDATA)method->constantPool & J9_STARTPC_JNI_NATIVE) {
+                strcat(buffer, "JNI ");
+            } else {
+                strcat(buffer, "INL ");
+            }
+        }
+        if (0 == ((UDATA)method->extra & 1)) {
+            strcat(buffer, "JITTED ");
+        }
+        j9str_printf(PORTLIB, temp, sizeof(temp), "%.*s.%.*s%.*s (%p)", className->length, className->data,
+            methodName->length, methodName->data, methodSig->length, methodSig->data, method);
+        strcat(buffer, temp);
+        if ((U_8*)-1 != pc) {
+            j9str_printf(PORTLIB, temp, sizeof(temp), " @ %p (offset %d)", pc, pc - method->bytecodes);
+            strcat(buffer, temp);
+        }
+    }
 }
 #endif
 
 #include "BytecodeInterpreter.hpp"
 
 /* Entry point must be C, not C++ */
-extern "C" UDATA
-LOOP_NAME(J9VMThread *currentThread)
+extern "C" UDATA LOOP_NAME(J9VMThread* currentThread)
 {
-	INTERPRETER_CLASS interpreter(currentThread);
-	return interpreter.run(currentThread);
+    INTERPRETER_CLASS interpreter(currentThread);
+    return interpreter.run(currentThread);
 }

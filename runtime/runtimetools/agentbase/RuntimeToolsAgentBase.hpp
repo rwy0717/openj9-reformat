@@ -38,193 +38,183 @@
 
 #define ARGUMENT_SEPARATOR_STRING ","
 
-class RuntimeToolsAgentBase
-{
+class RuntimeToolsAgentBase {
 private:
-
 protected:
-	/* java vm that will be available to all agents */
-	JavaVM * _vm;
+    /* java vm that will be available to all agents */
+    JavaVM* _vm;
 
-	/* store the filename that output may be sent to */
-	char* _outputFileName;
-	IDATA _outputFileNameFD;
+    /* store the filename that output may be sent to */
+    char* _outputFileName;
+    IDATA _outputFileNameFD;
 
-	/**
-	 * This redefines the new operator for this class and subclasses
-	 *
-	 * @param size the size of the object
-	 * @param the pointer to the object
-	 * @returns a pointer to the object
-	 */
-	void *operator new(size_t size, void *memoryPtr) { return memoryPtr; };
+    /**
+     * This redefines the new operator for this class and subclasses
+     *
+     * @param size the size of the object
+     * @param the pointer to the object
+     * @returns a pointer to the object
+     */
+    void* operator new(size_t size, void* memoryPtr) { return memoryPtr; };
 
-	/**
-	 * Default constructor
-	 *
+    /**
+     * Default constructor
+     *
      * @param vm java vm that can be used by this manager
-	 */
-	RuntimeToolsAgentBase(JavaVM * vm) {_vm = vm;}
+     */
+    RuntimeToolsAgentBase(JavaVM* vm) { _vm = vm; }
 
-	/**
-	 * This method is used to initialize an instance
-	 */
-	bool init();
+    /**
+     * This method is used to initialize an instance
+     */
+    bool init();
 
-	/**
-	 * pointers to callbacks for vm start/stop
-	 */
-	jvmtiEventCallbacks _callbacks;
+    /**
+     * pointers to callbacks for vm start/stop
+     */
+    jvmtiEventCallbacks _callbacks;
 
 public:
-	/**
-	 * This method should be called to destroy the object and free the associated memory
-	 */
-	virtual void kill();
+    /**
+     * This method should be called to destroy the object and free the associated memory
+     */
+    virtual void kill();
 
-	/**
-	 * This method is used to create an instance
-	 * @param vm java vm that can be used by this manager
-	 */
-	static RuntimeToolsAgentBase* newInstance(JavaVM * vm);
+    /**
+     * This method is used to create an instance
+     * @param vm java vm that can be used by this manager
+     */
+    static RuntimeToolsAgentBase* newInstance(JavaVM* vm);
 
-	/**
-	 * returns pointer to J9JavaVM
-	 */
-	inline J9JavaVM * getJavaVM() { return ((J9InvocationJavaVM *)_vm)->j9vm; }
+    /**
+     * returns pointer to J9JavaVM
+     */
+    inline J9JavaVM* getJavaVM() { return ((J9InvocationJavaVM*)_vm)->j9vm; }
 
-	/**
-	 * This method should be called when Agent_OnLoad is invoked by the JVM.  It will parse the
-	 * options that it understands and then call the same method on its parent
-	 *
-	 * @param options the options passed to the agent in Agent_OnLoad
-	 */
-	virtual jint setup(char * options);
+    /**
+     * This method should be called when Agent_OnLoad is invoked by the JVM.  It will parse the
+     * options that it understands and then call the same method on its parent
+     *
+     * @param options the options passed to the agent in Agent_OnLoad
+     */
+    virtual jint setup(char* options);
 
-	/**
-	 * This method should be called when Agent_OnUnLoad is invoked by the JVM.
-	 */
-	virtual void shutdown(){};
+    /**
+     * This method should be called when Agent_OnUnLoad is invoked by the JVM.
+     */
+    virtual void shutdown() {};
 
-	/**
-	 * Helper to output error messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void error(const char* string)
-	{
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    /**
+     * Helper to output error messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void error(const char* string)
+    {
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-		j9tty_printf(PORTLIB, string);
-	}
+        j9tty_printf(PORTLIB, string);
+    }
 
-	/**
-	 * Helper to output error messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void errorFormat(const char* format, ...)
-	{
-		va_list args;
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    /**
+     * Helper to output error messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void errorFormat(const char* format, ...)
+    {
+        va_list args;
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-		va_start(args, format);
-		j9tty_vprintf(format, args);
-		va_end(args);
-	}
+        va_start(args, format);
+        j9tty_vprintf(format, args);
+        va_end(args);
+    }
 
-	/**
-	 * Helper to output information messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void message(const char* string)
-	{
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-		if (_outputFileNameFD != -1){
-			j9file_printf(PORTLIB,_outputFileNameFD, string);
-		} else {
-			j9tty_printf(PORTLIB, string);
-		}
-	}
+    /**
+     * Helper to output information messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void message(const char* string)
+    {
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+        if (_outputFileNameFD != -1) {
+            j9file_printf(PORTLIB, _outputFileNameFD, string);
+        } else {
+            j9tty_printf(PORTLIB, string);
+        }
+    }
 
-	/**
-	 * Helper to output information messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void messageUDATA(UDATA val)
-	{
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-		if (_outputFileNameFD != -1){
-					j9file_printf(PORTLIB,_outputFileNameFD, "%zu",val);
-		} else {
-			j9tty_printf(PORTLIB, "%zu",val);
-		}
-	}
+    /**
+     * Helper to output information messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void messageUDATA(UDATA val)
+    {
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+        if (_outputFileNameFD != -1) {
+            j9file_printf(PORTLIB, _outputFileNameFD, "%zu", val);
+        } else {
+            j9tty_printf(PORTLIB, "%zu", val);
+        }
+    }
 
+    /**
+     * Helper to output information messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void messageU64(U_64 val)
+    {
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+        if (_outputFileNameFD != -1) {
+            j9file_printf(PORTLIB, _outputFileNameFD, "%llu", val);
+        } else {
+            j9tty_printf(PORTLIB, "%llu", val);
+        }
+    }
 
-	/**
-	 * Helper to output information messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void messageU64(U_64 val)
-	{
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-		if (_outputFileNameFD != -1){
-					j9file_printf(PORTLIB,_outputFileNameFD, "%llu",val);
-		} else {
-			j9tty_printf(PORTLIB, "%llu",val);
-		}
-	}
+    /**
+     * Helper to output information messages
+     * @param string the string containing the messages to be output
+     */
+    virtual void messageIDATA(IDATA val)
+    {
+        PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+        if (_outputFileNameFD != -1) {
+            j9file_printf(PORTLIB, _outputFileNameFD, "%zd", val);
+        } else {
+            j9tty_printf(PORTLIB, "%zd", val);
+        }
+    }
 
-	/**
-	 * Helper to output information messages
-	 * @param string the string containing the messages to be output
-	 */
-	virtual void messageIDATA(IDATA val)
-	{
-		PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-		if (_outputFileNameFD != -1){
-			j9file_printf(PORTLIB,_outputFileNameFD, "%zd",val);
-		} else {
-			j9tty_printf(PORTLIB, "%zd",val);
-		}
-	}
+    /**
+     * Called them the vm starts
+     * @param jvmti_env jvmti_evn that can be used by the agent
+     * @param env JNIEnv that can be used by the agent
+     */
+    virtual void vmStart(jvmtiEnv* jvmti_env, JNIEnv* env) { message("vm started\n"); }
 
-	/**
-	 * Called them the vm starts
-	 * @param jvmti_env jvmti_evn that can be used by the agent
-	 * @param env JNIEnv that can be used by the agent
-	 */
-	virtual void vmStart(jvmtiEnv *jvmti_env,JNIEnv* env)
-	{
-		message("vm started\n");
-	}
+    /**
+     * Called them the vm stops
+     * @param jvmti_env jvmti_evn that can be used by the agent
+     * @param env JNIEnv that can be used by the agent
+     */
+    virtual void vmStop(jvmtiEnv* jvmti_env, JNIEnv* env) { message("vm stopped\n"); }
 
-	/**
-	 * Called them the vm stops
-	 * @param jvmti_env jvmti_evn that can be used by the agent
-	 * @param env JNIEnv that can be used by the agent
-	 */
-	virtual void vmStop(jvmtiEnv *jvmti_env,JNIEnv* env)
-	{
-		message("vm stopped\n");
-	}
+    /**
+     * Called to parse the arguments passed to the agent
+     * @param options string containing the options
+     * @returns one of the AGENT_ERROR_ values
+     */
+    jint parseArguments(char* options);
 
-	/**
-	 * Called to parse the arguments passed to the agent
-	 * @param options string containing the options
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	jint parseArguments(char* options);
-
-	/**
-	 * This is called once for each argument, the agent should parse the arguments
-	 * it supports and pass any that it does not understand to parent classes
-	 *
-	 * @param options string containing the argument
-	 *
-	 * @returns one of the AGENT_ERROR_ values
-	 */
-	virtual jint parseArgument(char* options);
-
+    /**
+     * This is called once for each argument, the agent should parse the arguments
+     * it supports and pass any that it does not understand to parent classes
+     *
+     * @param options string containing the argument
+     *
+     * @returns one of the AGENT_ERROR_ values
+     */
+    virtual jint parseArgument(char* options);
 };
 
 #endif /*RUNTIMETOOLS_AGENTBASE_HPP_*/

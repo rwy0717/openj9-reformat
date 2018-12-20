@@ -24,42 +24,44 @@
 #include "j9.h"
 #include "jcl_internal.h"
 
-jlong JNICALL
-Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_getTotalCompilationTimeImpl(JNIEnv *env, jobject beanInstance)
+jlong JNICALL Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_getTotalCompilationTimeImpl(
+    JNIEnv* env, jobject beanInstance)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
-	jlong result;
-	J9JavaLangManagementData *mgmt = javaVM->managementData;
-	PORT_ACCESS_FROM_JAVAVM( javaVM );
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
+    jlong result;
+    J9JavaLangManagementData* mgmt = javaVM->managementData;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
 
-	omrthread_rwmutex_enter_read( mgmt->managementDataLock );
+    omrthread_rwmutex_enter_read(mgmt->managementDataLock);
 
-	result = (jlong)mgmt->totalCompilationTime;
-	if( mgmt->threadsCompiling > 0 ) {
-		result += checkedTimeInterval((U_64)j9time_nano_time(), (U_64)mgmt->lastCompilationStart) * mgmt->threadsCompiling;
-	}
+    result = (jlong)mgmt->totalCompilationTime;
+    if (mgmt->threadsCompiling > 0) {
+        result
+            += checkedTimeInterval((U_64)j9time_nano_time(), (U_64)mgmt->lastCompilationStart) * mgmt->threadsCompiling;
+    }
 
-	omrthread_rwmutex_exit_read( mgmt->managementDataLock );
+    omrthread_rwmutex_exit_read(mgmt->managementDataLock);
 
-	return result / J9PORT_TIME_NS_PER_MS;
+    return result / J9PORT_TIME_NS_PER_MS;
 }
 
 jboolean JNICALL
-Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_isCompilationTimeMonitoringSupportedImpl(JNIEnv *env, jobject beanInstance)
+Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_isCompilationTimeMonitoringSupportedImpl(
+    JNIEnv* env, jobject beanInstance)
 {
-	return JNI_TRUE;
+    return JNI_TRUE;
 }
 
-jboolean JNICALL
-Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_isJITEnabled(JNIEnv *env, jobject beanInstance)
+jboolean JNICALL Java_com_ibm_java_lang_management_internal_CompilationMXBeanImpl_isJITEnabled(
+    JNIEnv* env, jobject beanInstance)
 {
-	J9JavaVM *javaVM = ((J9VMThread *) env)->javaVM;
+    J9JavaVM* javaVM = ((J9VMThread*)env)->javaVM;
 
-#if defined (J9VM_INTERP_NATIVE_SUPPORT)
-	if( javaVM->jitConfig != NULL ) {
-		return JNI_TRUE;
-	}
+#if defined(J9VM_INTERP_NATIVE_SUPPORT)
+    if (javaVM->jitConfig != NULL) {
+        return JNI_TRUE;
+    }
 #endif
 
-	return JNI_FALSE;
+    return JNI_FALSE;
 }

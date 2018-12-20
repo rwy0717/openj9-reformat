@@ -37,153 +37,149 @@
  * @param indent The current level of indentation.
  * @param format String to format the data into.
  */
-void
-MM_VerboseStandardStreamOutput::formatAndOutput(J9VMThread *vmThread, UDATA indent, const char *format, ...)
+void MM_VerboseStandardStreamOutput::formatAndOutput(J9VMThread* vmThread, UDATA indent, const char* format, ...)
 {
-	char inputString[INPUT_STRING_SIZE];
-	char localBuf[256];
-	UDATA length;
-	va_list args;
-	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment((OMR_VMThread *)vmThread->omrVMThread);
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
+    char inputString[INPUT_STRING_SIZE];
+    char localBuf[256];
+    UDATA length;
+    va_list args;
+    MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment((OMR_VMThread*)vmThread->omrVMThread);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	localBuf[0] = '\0';
-	for(UDATA i=0; i < indent; i++) {
-		strcat(localBuf, INDENT_SPACER);
-	}
-	
-	va_start(args, format);
-	j9str_vprintf(inputString, INPUT_STRING_SIZE, format, args);
-	va_end(args);
-	
-	strcat(localBuf, inputString);
-	strcat(localBuf, "\n");
-	length = strlen(localBuf);
+    localBuf[0] = '\0';
+    for (UDATA i = 0; i < indent; i++) {
+        strcat(localBuf, INDENT_SPACER);
+    }
 
-	if(NULL != _buffer) {
-		if(_buffer->add(env, localBuf)) {
-			/* Added successfully - return */
-			return;
-		}
-	}
+    va_start(args, format);
+    j9str_vprintf(inputString, INPUT_STRING_SIZE, format, args);
+    va_end(args);
 
-	/* If there's a problem with the buffering, we just write straight to the tty */
-	if(STDERR == _currentStream){
-		j9file_write_text(J9PORT_TTY_ERR, localBuf, length);
-	} else {
-		j9file_write_text(J9PORT_TTY_OUT, localBuf, length);
-	}
+    strcat(localBuf, inputString);
+    strcat(localBuf, "\n");
+    length = strlen(localBuf);
+
+    if (NULL != _buffer) {
+        if (_buffer->add(env, localBuf)) {
+            /* Added successfully - return */
+            return;
+        }
+    }
+
+    /* If there's a problem with the buffering, we just write straight to the tty */
+    if (STDERR == _currentStream) {
+        j9file_write_text(J9PORT_TTY_ERR, localBuf, length);
+    } else {
+        j9file_write_text(J9PORT_TTY_OUT, localBuf, length);
+    }
 }
 
 /**
  * Create a new MM_VerboseStandardStreamOutput instance.
  */
-MM_VerboseStandardStreamOutput *
-MM_VerboseStandardStreamOutput::newInstance(MM_EnvironmentBase *env, const char *filename)
+MM_VerboseStandardStreamOutput* MM_VerboseStandardStreamOutput::newInstance(
+    MM_EnvironmentBase* env, const char* filename)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(env->getOmrVM());
 
-	MM_VerboseStandardStreamOutput *agent = (MM_VerboseStandardStreamOutput *)extensions->getForge()->allocate(sizeof(MM_VerboseStandardStreamOutput), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
-	if(agent) {
-		new(agent) MM_VerboseStandardStreamOutput(env);
-		if(!agent->initialize(env, filename)) {
-			agent->kill(env);
-			agent = NULL;
-		}
-	}
-	return agent;
+    MM_VerboseStandardStreamOutput* agent = (MM_VerboseStandardStreamOutput*)extensions->getForge()->allocate(
+        sizeof(MM_VerboseStandardStreamOutput), MM_AllocationCategory::DIAGNOSTIC, J9_GET_CALLSITE());
+    if (agent) {
+        new (agent) MM_VerboseStandardStreamOutput(env);
+        if (!agent->initialize(env, filename)) {
+            agent->kill(env);
+            agent = NULL;
+        }
+    }
+    return agent;
 }
 
 /**
  * Initializes the MM_VerboseStandardStreamOutput instance.
  */
-bool
-MM_VerboseStandardStreamOutput::initialize(MM_EnvironmentBase *env, const char *filename)
+bool MM_VerboseStandardStreamOutput::initialize(MM_EnvironmentBase* env, const char* filename)
 {
-	J9JavaVM* javaVM = (J9JavaVM *)env->getOmrVM()->_language_vm;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
-	const char* version = javaVM->memoryManagerFunctions->omrgc_get_version(env->getOmrVM());
-	
-	setStream(getStreamID(env, filename));
-	
-	if(STDERR == _currentStream){
-		j9file_printf(PORTLIB, J9PORT_TTY_ERR, "\n" VERBOSEGC_HEADER_TEXT_ALL, version);
-	} else {
-		j9file_printf(PORTLIB, J9PORT_TTY_OUT, "\n" VERBOSEGC_HEADER_TEXT_ALL, version);
-	}
-	
-	if(NULL == (_buffer = MM_VerboseBuffer::newInstance(env, INITIAL_BUFFER_SIZE))) {
-		return false;
-	}
-	
-	return true;
+    J9JavaVM* javaVM = (J9JavaVM*)env->getOmrVM()->_language_vm;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
+    const char* version = javaVM->memoryManagerFunctions->omrgc_get_version(env->getOmrVM());
+
+    setStream(getStreamID(env, filename));
+
+    if (STDERR == _currentStream) {
+        j9file_printf(PORTLIB, J9PORT_TTY_ERR, "\n" VERBOSEGC_HEADER_TEXT_ALL, version);
+    } else {
+        j9file_printf(PORTLIB, J9PORT_TTY_OUT, "\n" VERBOSEGC_HEADER_TEXT_ALL, version);
+    }
+
+    if (NULL == (_buffer = MM_VerboseBuffer::newInstance(env, INITIAL_BUFFER_SIZE))) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
  * Closes the agent's output stream.
  */
-void
-MM_VerboseStandardStreamOutput::closeStream(MM_EnvironmentBase *env)
+void MM_VerboseStandardStreamOutput::closeStream(MM_EnvironmentBase* env)
 {
-	UDATA length = strlen(VERBOSEGC_FOOTER_TEXT);
-	PORT_ACCESS_FROM_ENVIRONMENT(env);
+    UDATA length = strlen(VERBOSEGC_FOOTER_TEXT);
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
 
-	if(STDERR == _currentStream){
-		j9file_write_text(J9PORT_TTY_ERR, VERBOSEGC_FOOTER_TEXT "\n", length + 1);
-	} else {
-		j9file_write_text(J9PORT_TTY_OUT, VERBOSEGC_FOOTER_TEXT "\n", length + 1);
-	}
+    if (STDERR == _currentStream) {
+        j9file_write_text(J9PORT_TTY_ERR, VERBOSEGC_FOOTER_TEXT "\n", length + 1);
+    } else {
+        j9file_write_text(J9PORT_TTY_OUT, VERBOSEGC_FOOTER_TEXT "\n", length + 1);
+    }
 }
 
 /**
  * Tear down the structures managed by the MM_VerboseStandardStreamOutput.
  * Tears down the verbose buffer.
  */
-void
-MM_VerboseStandardStreamOutput::tearDown(MM_EnvironmentBase *env)
+void MM_VerboseStandardStreamOutput::tearDown(MM_EnvironmentBase* env)
 {
-	if(NULL != _buffer) {
-		_buffer->kill(env);
-	}
+    if (NULL != _buffer) {
+        _buffer->kill(env);
+    }
 }
 
 /**
  * Flushes the verbose buffer to the output stream.
  */
-void
-MM_VerboseStandardStreamOutput::endOfCycle(J9VMThread *vmThread)
+void MM_VerboseStandardStreamOutput::endOfCycle(J9VMThread* vmThread)
 {
-	PORT_ACCESS_FROM_VMC(vmThread);
-	
-	if(NULL != _buffer){
-		if(STDERR == _currentStream){
-			j9file_write_text(J9PORT_TTY_ERR, _buffer->contents(), _buffer->currentSize());
-			j9file_write_text(J9PORT_TTY_ERR, "\n", 1);
-		} else {
-			j9file_write_text(J9PORT_TTY_OUT, _buffer->contents(), _buffer->currentSize());
-			j9file_write_text(J9PORT_TTY_OUT, "\n", 1);
-		}
-		_buffer->reset();
-	}
+    PORT_ACCESS_FROM_VMC(vmThread);
+
+    if (NULL != _buffer) {
+        if (STDERR == _currentStream) {
+            j9file_write_text(J9PORT_TTY_ERR, _buffer->contents(), _buffer->currentSize());
+            j9file_write_text(J9PORT_TTY_ERR, "\n", 1);
+        } else {
+            j9file_write_text(J9PORT_TTY_OUT, _buffer->contents(), _buffer->currentSize());
+            j9file_write_text(J9PORT_TTY_OUT, "\n", 1);
+        }
+        _buffer->reset();
+    }
 }
 
-bool
-MM_VerboseStandardStreamOutput::reconfigure(MM_EnvironmentBase *env, const char *filename, UDATA fileCount, UDATA iterations)
+bool MM_VerboseStandardStreamOutput::reconfigure(
+    MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations)
 {
-	setStream(getStreamID(env, filename));
-	return true;
+    setStream(getStreamID(env, filename));
+    return true;
 }
 
-MM_VerboseStandardStreamOutput::StreamID
-MM_VerboseStandardStreamOutput::getStreamID(MM_EnvironmentBase *env, const char *string)
+MM_VerboseStandardStreamOutput::StreamID MM_VerboseStandardStreamOutput::getStreamID(
+    MM_EnvironmentBase* env, const char* string)
 {
-	if(NULL == string) {
-		return STDERR;
-	}
-	
-	if(!strcmp(string, "stdout")) {
-		return STDOUT;
-	}
-	
-	return STDERR;
+    if (NULL == string) {
+        return STDERR;
+    }
+
+    if (!strcmp(string, "stdout")) {
+        return STDOUT;
+    }
+
+    return STDERR;
 }

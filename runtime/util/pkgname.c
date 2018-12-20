@@ -27,36 +27,34 @@
 UDATA
 packageNameLength(J9ROMClass* romClass)
 {
-	const J9UTF8* className = J9ROMCLASS_CLASSNAME(romClass);
-	const BOOLEAN isAnonClass = J9_ARE_ANY_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass);
-	BOOLEAN foundFirstSlash = FALSE;
-	UDATA result = 0;
-	IDATA i = J9UTF8_LENGTH(className) - 1;
+    const J9UTF8* className = J9ROMCLASS_CLASSNAME(romClass);
+    const BOOLEAN isAnonClass = J9_ARE_ANY_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass);
+    BOOLEAN foundFirstSlash = FALSE;
+    UDATA result = 0;
+    IDATA i = J9UTF8_LENGTH(className) - 1;
 
-	for (; i >= 0; i--) {
-		if (J9UTF8_DATA(className)[i] == '/') {
-			/* Lambda names contain a '/'. If romClass is an anonymous class, find the second last '/'. */
-			if (!isAnonClass || foundFirstSlash) {
-				result = (UDATA)i;
-				break;
-			}
-			foundFirstSlash = TRUE;
-		}
-	}
+    for (; i >= 0; i--) {
+        if (J9UTF8_DATA(className)[i] == '/') {
+            /* Lambda names contain a '/'. If romClass is an anonymous class, find the second last '/'. */
+            if (!isAnonClass || foundFirstSlash) {
+                result = (UDATA)i;
+                break;
+            }
+            foundFirstSlash = TRUE;
+        }
+    }
 
-	return result;
+    return result;
 }
 
-const U_8*
-getPackageName(J9PackageIDTableEntry* key, UDATA* nameLength)
+const U_8* getPackageName(J9PackageIDTableEntry* key, UDATA* nameLength)
 {
-	if (key->taggedROMClass & J9PACKAGE_ID_TAG) {
-		J9ROMClass *romClass = (J9ROMClass*)(key->taggedROMClass & ~(UDATA)(J9PACKAGE_ID_TAG | J9PACKAGE_ID_GENERATED));
-		*nameLength = packageNameLength(romClass);
-		return J9UTF8_DATA(J9ROMCLASS_CLASSNAME(romClass));
-	} else {
-		*nameLength = 0;
-		return NULL;
-	}
+    if (key->taggedROMClass & J9PACKAGE_ID_TAG) {
+        J9ROMClass* romClass = (J9ROMClass*)(key->taggedROMClass & ~(UDATA)(J9PACKAGE_ID_TAG | J9PACKAGE_ID_GENERATED));
+        *nameLength = packageNameLength(romClass);
+        return J9UTF8_DATA(J9ROMCLASS_CLASSNAME(romClass));
+    } else {
+        *nameLength = 0;
+        return NULL;
+    }
 }
-

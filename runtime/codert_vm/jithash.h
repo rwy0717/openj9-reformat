@@ -28,22 +28,26 @@
 extern "C" {
 #endif
 
-void hash_jit_free(J9PortLibrary * portLibrary, J9JITHashTable * table);
-J9JITHashTable *hash_jit_allocate(J9PortLibrary * portLibrary, UDATA start, UDATA end);
-UDATA hash_jit_artifact_insert_range(J9PortLibrary *portLibrary, J9JITHashTable *table, J9JITExceptionTable *dataToInsert, UDATA startPC, UDATA endPC);
-J9JITExceptionTable * hash_jit_next_do(J9JITHashTableWalkState* walkState);
-J9JITHashTable* hash_jit_toJ9MemorySegment(J9JITHashTable * table, J9MemorySegment * codeCache, J9MemorySegment * dataCache);
-J9JITExceptionTable * hash_jit_start_do(J9JITHashTableWalkState* walkState, J9JITHashTable* table);
-UDATA hash_jit_artifact_remove(J9PortLibrary *portLibrary, J9JITHashTable *table, J9JITExceptionTable *dataToRemove);
-UDATA hash_jit_artifact_insert(J9PortLibrary *portLibrary, J9JITHashTable *table, J9JITExceptionTable *dataToInsert);
-J9JITExceptionTable** hash_jit_allocate_method_store(J9PortLibrary *portLibrary, J9JITHashTable *table);
-J9JITExceptionTable** hash_jit_artifact_array_insert(J9PortLibrary *portLibrary, J9JITHashTable *table, J9JITExceptionTable** array, J9JITExceptionTable *dataToInsert, UDATA startPC);
-J9JITExceptionTable** hash_jit_artifact_array_remove(J9PortLibrary *portLibrary, J9JITExceptionTable** array, J9JITExceptionTable *dataToRemove);
-UDATA hash_jit_artifact_remove_range(J9PortLibrary *portLibrary, J9JITHashTable *table, J9JITExceptionTable *dataToRemove, UDATA startPC, UDATA endPC);
-
+void hash_jit_free(J9PortLibrary* portLibrary, J9JITHashTable* table);
+J9JITHashTable* hash_jit_allocate(J9PortLibrary* portLibrary, UDATA start, UDATA end);
+UDATA hash_jit_artifact_insert_range(
+    J9PortLibrary* portLibrary, J9JITHashTable* table, J9JITExceptionTable* dataToInsert, UDATA startPC, UDATA endPC);
+J9JITExceptionTable* hash_jit_next_do(J9JITHashTableWalkState* walkState);
+J9JITHashTable* hash_jit_toJ9MemorySegment(
+    J9JITHashTable* table, J9MemorySegment* codeCache, J9MemorySegment* dataCache);
+J9JITExceptionTable* hash_jit_start_do(J9JITHashTableWalkState* walkState, J9JITHashTable* table);
+UDATA hash_jit_artifact_remove(J9PortLibrary* portLibrary, J9JITHashTable* table, J9JITExceptionTable* dataToRemove);
+UDATA hash_jit_artifact_insert(J9PortLibrary* portLibrary, J9JITHashTable* table, J9JITExceptionTable* dataToInsert);
+J9JITExceptionTable** hash_jit_allocate_method_store(J9PortLibrary* portLibrary, J9JITHashTable* table);
+J9JITExceptionTable** hash_jit_artifact_array_insert(J9PortLibrary* portLibrary, J9JITHashTable* table,
+    J9JITExceptionTable** array, J9JITExceptionTable* dataToInsert, UDATA startPC);
+J9JITExceptionTable** hash_jit_artifact_array_remove(
+    J9PortLibrary* portLibrary, J9JITExceptionTable** array, J9JITExceptionTable* dataToRemove);
+UDATA hash_jit_artifact_remove_range(
+    J9PortLibrary* portLibrary, J9JITHashTable* table, J9JITExceptionTable* dataToRemove, UDATA startPC, UDATA endPC);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif     /* jithash_h */
+#endif /* jithash_h */

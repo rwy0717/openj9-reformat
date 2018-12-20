@@ -32,29 +32,32 @@
 #include "ute_core.h"
 #include "j9trace.h"
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#define J9_RAS_IS_METHOD_TRACED(flags)  (( flags & (J9_RAS_METHOD_TRACING|J9_RAS_METHOD_TRIGGERING) ))
-#define UTSINTERFACEFROMVM(vm) ((J9UtServerInterface *)((UtInterface *)((RasGlobalStorage *)vm->j9rasGlobalStorage)->utIntf)->server)
+#define J9_RAS_IS_METHOD_TRACED(flags) ((flags & (J9_RAS_METHOD_TRACING | J9_RAS_METHOD_TRIGGERING)))
+#define UTSINTERFACEFROMVM(vm) \
+    ((J9UtServerInterface*)((UtInterface*)((RasGlobalStorage*)vm->j9rasGlobalStorage)->utIntf)->server)
 
 #define UTSI_TRACEMETHODENTER_FROMVM(vm, thr, method, receiverAddress, methodType) \
-	do { \
-		RasGlobalStorage *tempRasGbl; \
-		tempRasGbl = (RasGlobalStorage *)vm->j9rasGlobalStorage; \
-		if (tempRasGbl != NULL) { \
-			((J9UtServerInterface *)((UtInterface *)tempRasGbl->utIntf)->server)->TraceMethodEnter(thr, method, receiverAddress, methodType); \
-		} \
-	} while(0)
+    do {                                                                           \
+        RasGlobalStorage* tempRasGbl;                                              \
+        tempRasGbl = (RasGlobalStorage*)vm->j9rasGlobalStorage;                    \
+        if (tempRasGbl != NULL) {                                                  \
+            ((J9UtServerInterface*)((UtInterface*)tempRasGbl->utIntf)->server)     \
+                ->TraceMethodEnter(thr, method, receiverAddress, methodType);      \
+        }                                                                          \
+    } while (0)
 #define UTSI_TRACEMETHODEXIT_FROMVM(vm, thr, method, exceptionPtr, returnValuePtr, methodType) \
-	do { \
-		RasGlobalStorage *tempRasGbl; \
-		tempRasGbl = (RasGlobalStorage *)vm->j9rasGlobalStorage; \
-		if (tempRasGbl != NULL) { \
-			((J9UtServerInterface *)((UtInterface *)tempRasGbl->utIntf)->server)->TraceMethodExit(thr, method, exceptionPtr, returnValuePtr, methodType); \
-		} \
-	} while(0)
+    do {                                                                                       \
+        RasGlobalStorage* tempRasGbl;                                                          \
+        tempRasGbl = (RasGlobalStorage*)vm->j9rasGlobalStorage;                                \
+        if (tempRasGbl != NULL) {                                                              \
+            ((J9UtServerInterface*)((UtInterface*)tempRasGbl->utIntf)->server)                 \
+                ->TraceMethodExit(thr, method, exceptionPtr, returnValuePtr, methodType);      \
+        }                                                                                      \
+    } while (0)
 
 /*
  * =============================================================================
@@ -62,16 +65,17 @@ extern "C" {
  * =============================================================================
  */
 typedef struct J9UtServerInterface {
-	/* OMR layer API */
-	UtServerInterface omrf;
+    /* OMR layer API */
+    UtServerInterface omrf;
 
-	/* Java layer API */
-	void (*TraceMethodEnter)(J9VMThread* thr, J9Method* method, void *receiverAddress, UDATA methodType);
-	void (*TraceMethodExit)(J9VMThread* thr, J9Method* method, void* exceptionPtr, void *returnValuePtr, UDATA methodType);
-	void (*StartupComplete)(J9VMThread* thr);
+    /* Java layer API */
+    void (*TraceMethodEnter)(J9VMThread* thr, J9Method* method, void* receiverAddress, UDATA methodType);
+    void (*TraceMethodExit)(
+        J9VMThread* thr, J9Method* method, void* exceptionPtr, void* returnValuePtr, UDATA methodType);
+    void (*StartupComplete)(J9VMThread* thr);
 } J9UtServerInterface;
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* !_IBM_UTE_H */

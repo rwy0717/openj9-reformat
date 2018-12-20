@@ -35,45 +35,43 @@
  * Staccato ragged barrier model.
  *
  */
-class MM_BarrierSynchronization : public MM_BaseVirtual
-{
-/* Data members */
+class MM_BarrierSynchronization : public MM_BaseVirtual {
+    /* Data members */
 public:
 protected:
 private:
-	J9JavaVM *_vm;                                 /**< Retained to access VM functions. */
-	UDATA _vmResponsesRequiredForExclusiveVMAccess;  /**< Used to support the (request/wait)ExclusiveVMAccess methods. */
-	UDATA _jniResponsesRequiredForExclusiveVMAccess;  /**< Used to support the (request/wait)ExclusiveVMAccess methods. */
+    J9JavaVM* _vm; /**< Retained to access VM functions. */
+    UDATA _vmResponsesRequiredForExclusiveVMAccess; /**< Used to support the (request/wait)ExclusiveVMAccess methods. */
+    UDATA
+        _jniResponsesRequiredForExclusiveVMAccess; /**< Used to support the (request/wait)ExclusiveVMAccess methods. */
 
-/* Methods */
+    /* Methods */
 public:
+    /* The usual initialization and teardown methods.
+     */
+    static MM_BarrierSynchronization* newInstance(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env);
+    virtual void kill(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
+    MM_BarrierSynchronization(MM_EnvironmentBase* env)
+        : _vm((J9JavaVM*)env->getOmrVM()->_language_vm)
+        , _vmResponsesRequiredForExclusiveVMAccess(0)
+        , _jniResponsesRequiredForExclusiveVMAccess(0)
+    {
+        _typeId = __FUNCTION__;
+    }
 
-	/* The usual initialization and teardown methods.
-	 */
-	static MM_BarrierSynchronization *newInstance(MM_EnvironmentBase *env);
-	bool initialize(MM_EnvironmentBase *env);
-	virtual void kill(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
-	MM_BarrierSynchronization(MM_EnvironmentBase *env) :
-		_vm((J9JavaVM *)env->getOmrVM()->_language_vm),
-		_vmResponsesRequiredForExclusiveVMAccess(0),
-		_jniResponsesRequiredForExclusiveVMAccess(0)
-	{
-		_typeId = __FUNCTION__;
-	}
-
-	/*
-	 * These functions are used by classic Metronome gang-scheduling and
-	 * also transitionally used for the parts of Staccato that have not
-	 * been made concurrent.
-	 */
-	void preRequestExclusiveVMAccess(J9VMThread *threadRequestingExclusive);
-	void postRequestExclusiveVMAccess(J9VMThread *threadRequestingExclusive);
-	UDATA requestExclusiveVMAccess(MM_EnvironmentBase *env, UDATA block, UDATA *gcPriority);
-	void waitForExclusiveVMAccess(MM_EnvironmentBase *env, bool waitRequired);
-	void acquireExclusiveVMAccess(MM_EnvironmentBase *env, bool waitRequired);
-	void releaseExclusiveVMAccess(MM_EnvironmentBase *env, bool releaseRequired);
-
+    /*
+     * These functions are used by classic Metronome gang-scheduling and
+     * also transitionally used for the parts of Staccato that have not
+     * been made concurrent.
+     */
+    void preRequestExclusiveVMAccess(J9VMThread* threadRequestingExclusive);
+    void postRequestExclusiveVMAccess(J9VMThread* threadRequestingExclusive);
+    UDATA requestExclusiveVMAccess(MM_EnvironmentBase* env, UDATA block, UDATA* gcPriority);
+    void waitForExclusiveVMAccess(MM_EnvironmentBase* env, bool waitRequired);
+    void acquireExclusiveVMAccess(MM_EnvironmentBase* env, bool waitRequired);
+    void releaseExclusiveVMAccess(MM_EnvironmentBase* env, bool releaseRequired);
 };
 
 #endif /* BARRIERSYNCHRONIZATION_HPP_ */

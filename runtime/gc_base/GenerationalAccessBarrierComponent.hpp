@@ -21,7 +21,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-
 /**
  * @file
  * @ingroup GC_Base
@@ -30,9 +29,8 @@
 #if !defined(GENERATIONALACCESSBARRIERCOMPONENT_HPP_)
 #define GENERATIONALACCESSBARRIERCOMPONENT_HPP_
 
-
 #include "j9.h"
-#include "j9cfg.h"	
+#include "j9cfg.h"
 #include "BaseNonVirtual.hpp"
 
 #if defined(J9VM_GC_GENERATIONAL)
@@ -42,23 +40,18 @@ class MM_EnvironmentBase;
 /**
  * Generational Component for Access barrier for Modron collector.
  */
- 
-class MM_GenerationalAccessBarrierComponent : public MM_BaseNonVirtual
-{
+
+class MM_GenerationalAccessBarrierComponent : public MM_BaseNonVirtual {
 private:
 protected:
-	
 public:
-	bool initialize(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
+    bool initialize(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
 
-	void postObjectStore(J9VMThread *vmThread, J9Object *dstObject, J9Object *srcObject);
-	void preBatchObjectStore(J9VMThread *vmThread, J9Object *dstObject);
-	
-	MM_GenerationalAccessBarrierComponent()
-	{
-		_typeId = __FUNCTION__;
-	}
+    void postObjectStore(J9VMThread* vmThread, J9Object* dstObject, J9Object* srcObject);
+    void preBatchObjectStore(J9VMThread* vmThread, J9Object* dstObject);
+
+    MM_GenerationalAccessBarrierComponent() { _typeId = __FUNCTION__; }
 };
 
 #endif /* J9VM_GC_GENERATIONAL */

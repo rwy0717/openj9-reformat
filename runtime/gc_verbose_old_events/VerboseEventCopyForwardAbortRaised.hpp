@@ -33,19 +33,17 @@
 /**
  * Stores the data relating to the raising of excessivegc
  */
-class MM_VerboseEventCopyForwardAbortRaised : public MM_VerboseEvent
-{
+class MM_VerboseEventCopyForwardAbortRaised : public MM_VerboseEvent {
 public:
-	static MM_VerboseEvent *newInstance(MM_CopyForwardAbortEvent *event, J9HookInterface** hookInterface);
-	
-	MMINLINE virtual bool definesOutputRoutine() { return false; }
-	MMINLINE virtual bool endsEventChain() { return false; }
-	virtual void consumeEvents() {}
-	virtual void formattedOutput(MM_VerboseOutputAgent *agent) {}
+    static MM_VerboseEvent* newInstance(MM_CopyForwardAbortEvent* event, J9HookInterface** hookInterface);
 
-	MM_VerboseEventCopyForwardAbortRaised(MM_CopyForwardAbortEvent *event, J9HookInterface** hookInterface)
-		: MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface)
-	{};
+    MMINLINE virtual bool definesOutputRoutine() { return false; }
+    MMINLINE virtual bool endsEventChain() { return false; }
+    virtual void consumeEvents() {}
+    virtual void formattedOutput(MM_VerboseOutputAgent* agent) {}
+
+    MM_VerboseEventCopyForwardAbortRaised(MM_CopyForwardAbortEvent* event, J9HookInterface** hookInterface)
+        : MM_VerboseEvent(event->currentThread, event->timestamp, event->eventid, hookInterface) {};
 };
 
 #endif /* EVENT_COPYFORWARDABORTRAISED_HPP_ */

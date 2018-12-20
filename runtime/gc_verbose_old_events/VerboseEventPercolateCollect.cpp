@@ -34,16 +34,17 @@
  * Create an new instance of a MM_VerboseEventPercolateCollect event.
  * @param event Pointer to a structure containing the data passed over the hookInterface
  */
-MM_VerboseEvent *
-MM_VerboseEventPercolateCollect::newInstance(MM_PercolateCollectEvent *event, J9HookInterface** hookInterface)
+MM_VerboseEvent* MM_VerboseEventPercolateCollect::newInstance(
+    MM_PercolateCollectEvent* event, J9HookInterface** hookInterface)
 {
-	MM_VerboseEventPercolateCollect *eventObject;
-	
-	eventObject = (MM_VerboseEventPercolateCollect *)MM_VerboseEvent::create(event->currentThread, sizeof(MM_VerboseEventPercolateCollect));
-	if(NULL != eventObject) {
-		new(eventObject) MM_VerboseEventPercolateCollect(event, hookInterface);
-	}
-	return eventObject;
+    MM_VerboseEventPercolateCollect* eventObject;
+
+    eventObject = (MM_VerboseEventPercolateCollect*)MM_VerboseEvent::create(
+        event->currentThread, sizeof(MM_VerboseEventPercolateCollect));
+    if (NULL != eventObject) {
+        new (eventObject) MM_VerboseEventPercolateCollect(event, hookInterface);
+    }
+    return eventObject;
 }
 
 /**
@@ -51,21 +52,18 @@ MM_VerboseEventPercolateCollect::newInstance(MM_PercolateCollectEvent *event, J9
  * The event calls the event stream requesting the address of events it is interested in.
  * When an address is returned it populates itself with the data.
  */
-void
-MM_VerboseEventPercolateCollect::consumeEvents(void)
-{
-}
+void MM_VerboseEventPercolateCollect::consumeEvents(void) {}
 
 /**
  * Passes a format string and data to the output routine defined in the passed output agent.
  * @param agent Pointer to an output agent.
  */
-void
-MM_VerboseEventPercolateCollect::formattedOutput(MM_VerboseOutputAgent *agent)
+void MM_VerboseEventPercolateCollect::formattedOutput(MM_VerboseOutputAgent* agent)
 {
-	UDATA indentLevel = _manager->getIndentLevel();
-	
-	agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel, "<percolating_collect reason=\"%s\" />", getPercolateReasonAsString((PercolateReason)_reason));
+    UDATA indentLevel = _manager->getIndentLevel();
+
+    agent->formatAndOutput(static_cast<J9VMThread*>(_omrThread->_language_vmthread), indentLevel,
+        "<percolating_collect reason=\"%s\" />", getPercolateReasonAsString((PercolateReason)_reason));
 }
 
 #endif /* J9VM_GC_MODRON_SCAVENGER */

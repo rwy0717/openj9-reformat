@@ -25,20 +25,22 @@
 
 #include "infra/J9Cfg.hpp"
 
-namespace TR { class Compilation; }
-namespace TR { class ResolvedMethodSymbol; }
-
-namespace TR
-{
-
-class CFG : public J9::CFGConnector
-   {
-   public:
-
-   CFG(TR::Compilation *comp, TR::ResolvedMethodSymbol *method) :
-      J9::CFGConnector(comp, method) {}
-   };
-
+namespace TR {
+class Compilation;
 }
+namespace TR {
+class ResolvedMethodSymbol;
+}
+
+namespace TR {
+
+class CFG : public J9::CFGConnector {
+public:
+    CFG(TR::Compilation* comp, TR::ResolvedMethodSymbol* method)
+        : J9::CFGConnector(comp, method)
+    {}
+};
+
+} // namespace TR
 
 #endif

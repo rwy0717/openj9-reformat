@@ -21,16 +21,14 @@
  *******************************************************************************/
 #include "j9.h"
 
-U_64
-longVolatileRead(J9VMThread *vmThread, U_64 * srcAddress)
+U_64 longVolatileRead(J9VMThread* vmThread, U_64* srcAddress)
 {
-	/* Assume GCC >= 4.2 */
-	return __sync_val_compare_and_swap(srcAddress, 0, 0);
+    /* Assume GCC >= 4.2 */
+    return __sync_val_compare_and_swap(srcAddress, 0, 0);
 }
 
-void
-longVolatileWrite(J9VMThread *vmThread, U_64 * destAddress, U_64 * value)
+void longVolatileWrite(J9VMThread* vmThread, U_64* destAddress, U_64* value)
 {
-	/* Assume GCC >= 4.2 */
-	__sync_val_compare_and_swap(destAddress, *destAddress, *value);
+    /* Assume GCC >= 4.2 */
+    __sync_val_compare_and_swap(destAddress, *destAddress, *value);
 }

@@ -52,71 +52,69 @@
  * Storage for statistics relevant to the sweep phase of global collection
  * @ingroup GC_Stats
  */
-class MM_VLHGCIncrementStats : public MM_Base
-{
+class MM_VLHGCIncrementStats : public MM_Base {
 public:
-	class MM_MarkVLHGCStats _markStats;  /**< Stats for mark phase of increment */
-	class MM_SweepVLHGCStats _sweepStats;  /**< Stats for sweep phase of increment */
+    class MM_MarkVLHGCStats _markStats; /**< Stats for mark phase of increment */
+    class MM_SweepVLHGCStats _sweepStats; /**< Stats for sweep phase of increment */
 #if defined(J9VM_GC_MODRON_COMPACTION)
-	class MM_CompactVLHGCStats _compactStats;  /**< Stats for compact phase of increment */
+    class MM_CompactVLHGCStats _compactStats; /**< Stats for compact phase of increment */
 #endif /* J9VM_GC_MODRON_COMPACTION */
-	class MM_WorkPacketStats _workPacketStats;  /**< Stats for work packet activity of increment */
-	class MM_CopyForwardStats _copyForwardStats;  /**< Stats for copy forward phase of increment */
-	class MM_ClassUnloadStats _classUnloadStats;  /**< Stats for class unload operations of the increment */
-	class MM_InterRegionRememberedSetStats _irrsStats; /**< Stats for Inter Region Remembered Set processing */
+    class MM_WorkPacketStats _workPacketStats; /**< Stats for work packet activity of increment */
+    class MM_CopyForwardStats _copyForwardStats; /**< Stats for copy forward phase of increment */
+    class MM_ClassUnloadStats _classUnloadStats; /**< Stats for class unload operations of the increment */
+    class MM_InterRegionRememberedSetStats _irrsStats; /**< Stats for Inter Region Remembered Set processing */
 
-	enum GlobalMarkIncrementType {
-		mark_idle = 0, /**< No Global marking in progress */
-		mark_concurrent = 1, /**< Global marking is being performed concurrently with mutator */
-		mark_incremental = 2, /**< Global marking is being performed non-concurrently in stop-the-world increments */
-		mark_global_collection = 3, /** Global marking is being performed as part of a global collection */
-	} _globalMarkIncrementType;
+    enum GlobalMarkIncrementType {
+        mark_idle = 0, /**< No Global marking in progress */
+        mark_concurrent = 1, /**< Global marking is being performed concurrently with mutator */
+        mark_incremental = 2, /**< Global marking is being performed non-concurrently in stop-the-world increments */
+        mark_global_collection = 3, /** Global marking is being performed as part of a global collection */
+    } _globalMarkIncrementType;
 
 public:
-	MM_VLHGCIncrementStats() :
-		_markStats()
-		,_sweepStats()
+    MM_VLHGCIncrementStats()
+        : _markStats()
+        , _sweepStats()
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		,_compactStats()
+        , _compactStats()
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		,_workPacketStats()
-		,_copyForwardStats()
-		,_classUnloadStats()
-		,_irrsStats()
-		,_globalMarkIncrementType(MM_VLHGCIncrementStats::mark_idle)
-		{};
+        , _workPacketStats()
+        , _copyForwardStats()
+        , _classUnloadStats()
+        , _irrsStats()
+        , _globalMarkIncrementType(MM_VLHGCIncrementStats::mark_idle) {};
 
-	/**
-	 * Reset the statistics of the receiver for a new round.
-	 */
-	MMINLINE void clear()
-	{
-		_markStats.clear();
-		_sweepStats.clear();
+    /**
+     * Reset the statistics of the receiver for a new round.
+     */
+    MMINLINE void clear()
+    {
+        _markStats.clear();
+        _sweepStats.clear();
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		_compactStats.clear();
+        _compactStats.clear();
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		_workPacketStats.clear();
-		_copyForwardStats.clear();
-		_classUnloadStats.clear();
-		_irrsStats.clear();
-		_globalMarkIncrementType = MM_VLHGCIncrementStats::mark_idle;
-	}
+        _workPacketStats.clear();
+        _copyForwardStats.clear();
+        _classUnloadStats.clear();
+        _irrsStats.clear();
+        _globalMarkIncrementType = MM_VLHGCIncrementStats::mark_idle;
+    }
 
-	/**
-	 * Add / combine the statistics from the parameter to the receiver.
-	 */
-	MMINLINE void merge(MM_VLHGCIncrementStats *stats)
-	{
-		_markStats.merge(&stats->_markStats);
-		_sweepStats.merge(&stats->_sweepStats);
+    /**
+     * Add / combine the statistics from the parameter to the receiver.
+     */
+    MMINLINE void merge(MM_VLHGCIncrementStats* stats)
+    {
+        _markStats.merge(&stats->_markStats);
+        _sweepStats.merge(&stats->_sweepStats);
 #if defined(J9VM_GC_MODRON_COMPACTION)
-		_compactStats.merge(&stats->_compactStats);
+        _compactStats.merge(&stats->_compactStats);
 #endif /* J9VM_GC_MODRON_COMPACTION */
-		_workPacketStats.merge(&stats->_workPacketStats);
-		_copyForwardStats.merge(&stats->_copyForwardStats);
-		_irrsStats.merge(&stats->_irrsStats);
-	}
+        _workPacketStats.merge(&stats->_workPacketStats);
+        _copyForwardStats.merge(&stats->_copyForwardStats);
+        _irrsStats.merge(&stats->_irrsStats);
+    }
 };
 
 #endif /* J9VM_GC_VLHGC */

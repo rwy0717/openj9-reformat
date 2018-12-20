@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 #include "mmhook.h"
@@ -33,51 +33,49 @@
 /**
  * @todo Provide function documentation
  */
-static void
-printVMThreadInformation(J9VMThread *vmThread)
+static void printVMThreadInformation(J9VMThread* vmThread)
 {
-	MM_TgcExtensions *tgcExtensions = MM_TgcExtensions::getExtensions(vmThread);
-	char *threadName = getOMRVMThreadName(vmThread->omrVMThread);
-	if (threadName) {
-		tgcExtensions->printf("\"%s\" (0x%p)\n", threadName, vmThread->osThread);
-	}
-	releaseOMRVMThreadName(vmThread->omrVMThread);
+    MM_TgcExtensions* tgcExtensions = MM_TgcExtensions::getExtensions(vmThread);
+    char* threadName = getOMRVMThreadName(vmThread->omrVMThread);
+    if (threadName) {
+        tgcExtensions->printf("\"%s\" (0x%p)\n", threadName, vmThread->osThread);
+    }
+    releaseOMRVMThreadName(vmThread->omrVMThread);
 }
 
 /**
  * Print J9VMThread information at local garbage collection.
  * Hooked by: J9HOOK_MM_OMR_LOCAL_GC_START
  */
-static void
-tgcHookLocalGcStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookLocalGcStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_LocalGCStartEvent* event = (MM_LocalGCStartEvent*)eventData;
-	printVMThreadInformation((J9VMThread *)event->currentThread->_language_vmthread);
+    MM_LocalGCStartEvent* event = (MM_LocalGCStartEvent*)eventData;
+    printVMThreadInformation((J9VMThread*)event->currentThread->_language_vmthread);
 }
 
 /**
  * @todo Provide function documentation
  */
-static void
-tgcHookGlobalGcStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
+static void tgcHookGlobalGcStart(J9HookInterface** hook, UDATA eventNum, void* eventData, void* userData)
 {
-	MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
-	printVMThreadInformation((J9VMThread*)event->currentThread->_language_vmthread);
+    MM_GlobalGCStartEvent* event = (MM_GlobalGCStartEvent*)eventData;
+    printVMThreadInformation((J9VMThread*)event->currentThread->_language_vmthread);
 }
 
 /**
  * Initialize MM_TgcExtensions object fields.
  * Initialize the backtrace fields of the MM_TgcExtensions object.
  */
-bool
-tgcBacktraceInitialize(J9JavaVM *javaVM)
+bool tgcBacktraceInitialize(J9JavaVM* javaVM)
 {
-	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(javaVM);
-	bool result = true;
+    MM_GCExtensions* extensions = MM_GCExtensions::getExtensions(javaVM);
+    bool result = true;
 
-	J9HookInterface** omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
-	(*omrHooks)->J9HookRegisterWithCallSite(omrHooks, J9HOOK_MM_OMR_LOCAL_GC_START, tgcHookLocalGcStart, OMR_GET_CALLSITE(), NULL);
-	(*omrHooks)->J9HookRegisterWithCallSite(omrHooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookGlobalGcStart, OMR_GET_CALLSITE(), NULL);
+    J9HookInterface** omrHooks = J9_HOOK_INTERFACE(extensions->omrHookInterface);
+    (*omrHooks)->J9HookRegisterWithCallSite(
+        omrHooks, J9HOOK_MM_OMR_LOCAL_GC_START, tgcHookLocalGcStart, OMR_GET_CALLSITE(), NULL);
+    (*omrHooks)->J9HookRegisterWithCallSite(
+        omrHooks, J9HOOK_MM_OMR_GLOBAL_GC_START, tgcHookGlobalGcStart, OMR_GET_CALLSITE(), NULL);
 
-	return result;
+    return result;
 }

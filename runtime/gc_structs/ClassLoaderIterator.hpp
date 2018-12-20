@@ -38,9 +38,10 @@
  */
 class GC_ClassLoaderIterator : public GC_PoolIterator {
 public:
-	GC_ClassLoaderIterator(J9Pool *aPool) : GC_PoolIterator(aPool) {}
-	J9ClassLoader *nextSlot() { return (J9ClassLoader *)GC_PoolIterator::nextSlot(); }
+    GC_ClassLoaderIterator(J9Pool* aPool)
+        : GC_PoolIterator(aPool)
+    {}
+    J9ClassLoader* nextSlot() { return (J9ClassLoader*)GC_PoolIterator::nextSlot(); }
 };
 
 #endif /* CLASSLOADERITERATOR_HPP_ */
-

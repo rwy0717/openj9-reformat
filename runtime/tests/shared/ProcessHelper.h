@@ -31,13 +31,14 @@ extern "C" {
 #define SHRTEST_MAX_PATH 256
 #define SHRTEST_MAX_CMD_OPTS 15
 
-IDATA openLaunchSemaphore (J9PortLibrary* portLibrary, const char* name, UDATA nProcess);
-IDATA ReleaseLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
-IDATA WaitForLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore);
-IDATA CloseLaunchSemaphore (J9PortLibrary* portLibrary, IDATA semaphore);
+IDATA openLaunchSemaphore(J9PortLibrary* portLibrary, const char* name, UDATA nProcess);
+IDATA ReleaseLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore, UDATA nProcess);
+IDATA WaitForLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore);
+IDATA CloseLaunchSemaphore(J9PortLibrary* portLibrary, IDATA semaphore);
 
-J9ProcessHandle LaunchChildProcess (J9PortLibrary* portLibrary, const char* testname, char * newargv[SHRTEST_MAX_CMD_OPTS], UDATA newargc);
-IDATA WaitForTestProcess (J9PortLibrary* portLibrary, J9ProcessHandle pid);
+J9ProcessHandle LaunchChildProcess(
+    J9PortLibrary* portLibrary, const char* testname, char* newargv[SHRTEST_MAX_CMD_OPTS], UDATA newargc);
+IDATA WaitForTestProcess(J9PortLibrary* portLibrary, J9ProcessHandle pid);
 
 void SleepFor(IDATA second);
 

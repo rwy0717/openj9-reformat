@@ -27,116 +27,109 @@
 #include "VerboseManagerBase.hpp"
 #include "VerboseOutputAgent.hpp"
 
-
 /**
  * Contains the old verbose codepath (-Xgc:verboseFormat:deprecated).
  * @ingroup GC_verbose_engine
  */
-class MM_VerboseManagerOld : public MM_VerboseManagerBase
-{
-	/*
-	 * Data members
-	 */
+class MM_VerboseManagerOld : public MM_VerboseManagerBase {
+    /*
+     * Data members
+     */
 private:
-	J9JavaVM *javaVM;
-	
-	/* Pointers to the Hook interface */
-	J9HookInterface** _mmHooks;
+    J9JavaVM* javaVM;
 
-	/* The event stream */
-	MM_VerboseEventStream *_eventStream;
-	
-	/* The Output agents */
-	MM_VerboseOutputAgent *_agentChain;
+    /* Pointers to the Hook interface */
+    J9HookInterface** _mmHooks;
+
+    /* The event stream */
+    MM_VerboseEventStream* _eventStream;
+
+    /* The Output agents */
+    MM_VerboseOutputAgent* _agentChain;
 
 protected:
 public:
-	
-	/*
-	 * Function members
-	 */
+    /*
+     * Function members
+     */
 private:
+    void chainOutputAgent(MM_VerboseOutputAgent* agent);
+    MM_VerboseOutputAgent* findAgentInChain(AgentType type);
+    void disableAgents();
+    UDATA countActiveOutputAgents();
 
-	void chainOutputAgent(MM_VerboseOutputAgent *agent);
-	MM_VerboseOutputAgent *findAgentInChain(AgentType type);
-	void disableAgents();
-	UDATA countActiveOutputAgents();
+    AgentType parseAgentType(MM_EnvironmentBase* env, char* filename, UDATA fileCount, UDATA iterations);
 
-	AgentType parseAgentType(MM_EnvironmentBase *env, char *filename, UDATA fileCount, UDATA iterations);
+    /**
+     * Enable hooks for old verbose which are used in realtime configuration
+     */
+    void enableVerboseGCRealtime();
 
-	/**
-	 * Enable hooks for old verbose which are used in realtime configuration
-	 */
-	void enableVerboseGCRealtime();
+    /**
+     * Disable hooks for old verbose which are used in realtime configuration
+     */
+    void disableVerboseGCRealtime();
 
-	/**
-	 * Disable hooks for old verbose which are used in realtime configuration
-	 */
-	void disableVerboseGCRealtime();
+    /**
+     * Enable hooks for old verbose which are used in non-realtime configurations
+     */
+    void enableVerboseGCNonRealtime();
 
-	/**
-	 * Enable hooks for old verbose which are used in non-realtime configurations
-	 */
-	void enableVerboseGCNonRealtime();
+    /**
+     * Disable hooks for old verbose which are used in non-realtime configurations
+     */
+    void disableVerboseGCNonRealtime();
 
-	/**
-	 * Disable hooks for old verbose which are used in non-realtime configurations
-	 */
-	void disableVerboseGCNonRealtime();
-	
-	/**
-	 * Enable hooks for old verbose which are used in VLHGC configuration
-	 */
-	void enableVerboseGCVLHGC();
+    /**
+     * Enable hooks for old verbose which are used in VLHGC configuration
+     */
+    void enableVerboseGCVLHGC();
 
-	/**
-	 * Disable hooks for old verbose which are used in VLHGC configuration
-	 */
-	void disableVerboseGCVLHGC();
-	
+    /**
+     * Disable hooks for old verbose which are used in VLHGC configuration
+     */
+    void disableVerboseGCVLHGC();
+
 protected:
-
-	virtual bool initialize(MM_EnvironmentBase *env);
-	virtual void tearDown(MM_EnvironmentBase *env);
+    virtual bool initialize(MM_EnvironmentBase* env);
+    virtual void tearDown(MM_EnvironmentBase* env);
 
 public:
+    MM_VerboseEventStream* getEventStreamForEvent(MM_VerboseEvent* event);
+    MM_VerboseEventStream* getEventStream() { return _eventStream; }
 
-	MM_VerboseEventStream *getEventStreamForEvent(MM_VerboseEvent *event);
-	MM_VerboseEventStream *getEventStream() { return _eventStream; }
+    /* Interface for Dynamic Configuration */
+    virtual bool configureVerboseGC(OMR_VM* omrVM, char* filename, UDATA fileCount, UDATA iterations);
 
-	/* Interface for Dynamic Configuration */
-	virtual bool configureVerboseGC(OMR_VM *omrVM, char* filename, UDATA fileCount, UDATA iterations);
+    /**
+     * Determine the number of currently active output mechanisms.
+     * @return a count of the number of active output mechanisms.
+     */
+    virtual UDATA countActiveOutputHandlers();
 
-	/**
-	 * Determine the number of currently active output mechanisms.
-	 * @return a count of the number of active output mechanisms.
-	 */
-	virtual UDATA countActiveOutputHandlers();
+    /* Call for Event Stream */
+    void passStreamToOutputAgents(MM_EnvironmentBase* env, MM_VerboseEventStream* stream);
 
-	/* Call for Event Stream */
-	void passStreamToOutputAgents(MM_EnvironmentBase *env, MM_VerboseEventStream *stream);
+    virtual void enableVerboseGC();
+    virtual void disableVerboseGC();
 
-	virtual void enableVerboseGC();
-	virtual void disableVerboseGC();
+    static MM_VerboseManagerOld* newInstance(MM_EnvironmentBase* env, OMR_VM* vm);
+    virtual void kill(MM_EnvironmentBase* env);
 
-	static MM_VerboseManagerOld *newInstance(MM_EnvironmentBase *env, OMR_VM* vm);
-	virtual void kill(MM_EnvironmentBase *env);
+    /**
+     * Close all output mechanisms on the receiver.
+     * @param env vm thread.
+     */
+    virtual void closeStreams(MM_EnvironmentBase* env);
 
-	/**
-	 * Close all output mechanisms on the receiver.
-	 * @param env vm thread.
-	 */
-	virtual void closeStreams(MM_EnvironmentBase *env);
+    J9HookInterface** getHookInterface() { return _mmHooks; }
 
-	J9HookInterface** getHookInterface(){ return _mmHooks; }
-
-	MM_VerboseManagerOld(OMR_VM *vm)
-		: MM_VerboseManagerBase(vm)
-		, _mmHooks(NULL)
-		, _eventStream(NULL)
-		, _agentChain(NULL)
-	{
-	}
+    MM_VerboseManagerOld(OMR_VM* vm)
+        : MM_VerboseManagerBase(vm)
+        , _mmHooks(NULL)
+        , _eventStream(NULL)
+        , _agentChain(NULL)
+    {}
 };
 
 #endif /* VERBOSEMANAGEROLD_HPP_ */

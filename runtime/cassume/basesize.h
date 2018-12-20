@@ -26,5 +26,3 @@
 #include "cassume_api.h"
 
 #endif /* basesize_h */
-
-

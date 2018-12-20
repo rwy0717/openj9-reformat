@@ -33,19 +33,15 @@
 #include "j9cfg.h"
 
 struct GC_CheckElement {
-	enum {
-		type_none = 0,
-		type_object,
-		type_class
-	} type;
-	union {
-		J9Object *object;
-		J9Class *clazz;
-	} u;
-	
-	GC_CheckElement() :
-		type(type_none)
-		{}
+    enum { type_none = 0, type_object, type_class } type;
+    union {
+        J9Object* object;
+        J9Class* clazz;
+    } u;
+
+    GC_CheckElement()
+        : type(type_none)
+    {}
 };
 
 #endif /* CHECKELEMENT_HPP_ */

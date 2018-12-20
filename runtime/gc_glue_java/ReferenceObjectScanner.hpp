@@ -33,108 +33,104 @@
 /**
  * This class is used to iterate over the slots of a Java reference object.
  */
-class GC_ReferenceObjectScanner : public GC_MixedObjectScanner
-{
-	/* Data Members */
+class GC_ReferenceObjectScanner : public GC_MixedObjectScanner {
+    /* Data Members */
 private:
-	fomrobject_t * _referentSlotAddress;
+    fomrobject_t* _referentSlotAddress;
 
 protected:
-
 public:
-
-	/* Member Functions */
+    /* Member Functions */
 private:
-	/**
-	 * The referent slot must be skipped unless the referent must be marked. So clear
-	 * the corresponding bit in the scan map when the scan pointer is reset to contain
-	 * the referent slot within its mapped range.
-	 */
-	MMINLINE uintptr_t skipReferentSlot(fomrobject_t *mapPtr, uintptr_t scanMap)
-	{
-		if (_referentSlotAddress > mapPtr) {
-			/* Skip over referent slot */
-			intptr_t referentSlotDistance = _referentSlotAddress - mapPtr;
-			if (referentSlotDistance < _bitsPerScanMap) {
-				scanMap &= ~((uintptr_t)1 << referentSlotDistance);
-			}
-		}
-		return scanMap;
-	}
+    /**
+     * The referent slot must be skipped unless the referent must be marked. So clear
+     * the corresponding bit in the scan map when the scan pointer is reset to contain
+     * the referent slot within its mapped range.
+     */
+    MMINLINE uintptr_t skipReferentSlot(fomrobject_t* mapPtr, uintptr_t scanMap)
+    {
+        if (_referentSlotAddress > mapPtr) {
+            /* Skip over referent slot */
+            intptr_t referentSlotDistance = _referentSlotAddress - mapPtr;
+            if (referentSlotDistance < _bitsPerScanMap) {
+                scanMap &= ~((uintptr_t)1 << referentSlotDistance);
+            }
+        }
+        return scanMap;
+    }
 
 protected:
-	/**
-	 * Instantiation constructor.
-	 *
-	 * @param[in] env pointer to the environment for the current thread
-	 * @param[in] objectPtr pointer to the object to be processed
-	 * @param[in] referentSlotAddress pointer to referent slot, if this slot is to be skipped; otherwise, specify NULL
-	 * @param[in] flags Scanning context flags
-	 */
-	MMINLINE GC_ReferenceObjectScanner(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, fomrobject_t *referentSlotAddress, uintptr_t flags)
-		: GC_MixedObjectScanner(env, objectPtr, flags)
-		, _referentSlotAddress(referentSlotAddress)
-	{
-		_typeId = __FUNCTION__;
-	}
+    /**
+     * Instantiation constructor.
+     *
+     * @param[in] env pointer to the environment for the current thread
+     * @param[in] objectPtr pointer to the object to be processed
+     * @param[in] referentSlotAddress pointer to referent slot, if this slot is to be skipped; otherwise, specify NULL
+     * @param[in] flags Scanning context flags
+     */
+    MMINLINE GC_ReferenceObjectScanner(
+        MM_EnvironmentBase* env, omrobjectptr_t objectPtr, fomrobject_t* referentSlotAddress, uintptr_t flags)
+        : GC_MixedObjectScanner(env, objectPtr, flags)
+        , _referentSlotAddress(referentSlotAddress)
+    {
+        _typeId = __FUNCTION__;
+    }
 
-	/**
-	 * Subclasses must call this method to set up the instance description bits and description pointer.
-	 */
-	MMINLINE void
-	initialize(MM_EnvironmentBase *env)
-	{
-		GC_MixedObjectScanner::initialize(env);
+    /**
+     * Subclasses must call this method to set up the instance description bits and description pointer.
+     */
+    MMINLINE void initialize(MM_EnvironmentBase* env)
+    {
+        GC_MixedObjectScanner::initialize(env);
 
-		/* Skip over referent slot if required */
-		_scanMap = skipReferentSlot(_scanPtr, _scanMap);
-	}
+        /* Skip over referent slot if required */
+        _scanMap = skipReferentSlot(_scanPtr, _scanMap);
+    }
 
 public:
-	/**
-	 * In-place instantiation and initialization for reference object scanner.
-	 *
-	 * @param[in] env The scanning thread environment
-	 * @param[in] objectPtr The object to scan
-	 * @param[in] referentSlotAddress pointer to referent slot, if this slot is to be skipped; otherwise, specify NULL
-	 * @param[in] allocSpace Pointer to space for in-place instantiation (at least sizeof(GC_ReferenceObjectScanner) bytes)
-	 * @param[in] flags Scanning context flags
-	 * @return Pointer to GC_ReferenceObjectScanner instance in allocSpace
-	 */
-	MMINLINE static GC_ReferenceObjectScanner *
-	newInstance(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, fomrobject_t *referentSlotAddress, void *allocSpace, uintptr_t flags)
-	{
-		GC_ReferenceObjectScanner *objectScanner = (GC_ReferenceObjectScanner *)allocSpace;
-		new(objectScanner) GC_ReferenceObjectScanner(env, objectPtr, referentSlotAddress, flags);
-		objectScanner->initialize(env);
-		return objectScanner;
-	}
+    /**
+     * In-place instantiation and initialization for reference object scanner.
+     *
+     * @param[in] env The scanning thread environment
+     * @param[in] objectPtr The object to scan
+     * @param[in] referentSlotAddress pointer to referent slot, if this slot is to be skipped; otherwise, specify NULL
+     * @param[in] allocSpace Pointer to space for in-place instantiation (at least sizeof(GC_ReferenceObjectScanner)
+     * bytes)
+     * @param[in] flags Scanning context flags
+     * @return Pointer to GC_ReferenceObjectScanner instance in allocSpace
+     */
+    MMINLINE static GC_ReferenceObjectScanner* newInstance(MM_EnvironmentBase* env, omrobjectptr_t objectPtr,
+        fomrobject_t* referentSlotAddress, void* allocSpace, uintptr_t flags)
+    {
+        GC_ReferenceObjectScanner* objectScanner = (GC_ReferenceObjectScanner*)allocSpace;
+        new (objectScanner) GC_ReferenceObjectScanner(env, objectPtr, referentSlotAddress, flags);
+        objectScanner->initialize(env);
+        return objectScanner;
+    }
 
-	/**
-	 * @see GC_ObjectScanner::getNextSlotMap()
-	 */
-	virtual fomrobject_t *
-	getNextSlotMap(uintptr_t &slotMap, bool &hasNextSlotMap)
-	{
-		fomrobject_t *mapPtr = GC_MixedObjectScanner::getNextSlotMap(slotMap, hasNextSlotMap);
+    /**
+     * @see GC_ObjectScanner::getNextSlotMap()
+     */
+    virtual fomrobject_t* getNextSlotMap(uintptr_t& slotMap, bool& hasNextSlotMap)
+    {
+        fomrobject_t* mapPtr = GC_MixedObjectScanner::getNextSlotMap(slotMap, hasNextSlotMap);
 
-		/* Skip over referent slot */
-		slotMap = skipReferentSlot(mapPtr, slotMap);
+        /* Skip over referent slot */
+        slotMap = skipReferentSlot(mapPtr, slotMap);
 
-		return mapPtr;
-	}
+        return mapPtr;
+    }
 
 #if defined(OMR_GC_LEAF_BITS)
-	virtual fomrobject_t *
-	getNextSlotMap(uintptr_t &slotMap, uintptr_t &leafMap, bool &hasNextSlotMap)
-	{
-		fomrobject_t *mapPtr = GC_MixedObjectScanner::getNextSlotMap(slotMap, leafMap, hasNextSlotMap);
+    virtual fomrobject_t* getNextSlotMap(uintptr_t& slotMap, uintptr_t& leafMap, bool& hasNextSlotMap)
+    {
+        fomrobject_t* mapPtr = GC_MixedObjectScanner::getNextSlotMap(slotMap, leafMap, hasNextSlotMap);
 
-		/* Skip over referent slot */
-		slotMap = skipReferentSlot(mapPtr, slotMap);
+        /* Skip over referent slot */
+        slotMap = skipReferentSlot(mapPtr, slotMap);
 
-		return mapPtr;
-	}
+        return mapPtr;
+    }
 #endif /* defined(OMR_GC_LEAF_BITS) */
 };
 #endif /* REFERENCEOBJECTSCANNER_HPP_ */

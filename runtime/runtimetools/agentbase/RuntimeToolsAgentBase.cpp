@@ -25,28 +25,26 @@
 
 /* wrappers for jvmti callbacks which invoke the appropriate method on the agent instance */
 extern "C" {
-static void JNICALL
-vmStartWrapper(jvmtiEnv *jvmti_env,JNIEnv* env)
+static void JNICALL vmStartWrapper(jvmtiEnv* jvmti_env, JNIEnv* env)
 {
-	RuntimeToolsAgentBase* agent;
-	jvmtiError result = jvmti_env->GetEnvironmentLocalStorage((void**) &agent);
-	if (NULL == agent) {
-		fprintf(stderr, "ERROR: Failed to get pointer to agent via environment-local storage\n");
-		return;
-	}
-	agent->vmStart(jvmti_env,env);
+    RuntimeToolsAgentBase* agent;
+    jvmtiError result = jvmti_env->GetEnvironmentLocalStorage((void**)&agent);
+    if (NULL == agent) {
+        fprintf(stderr, "ERROR: Failed to get pointer to agent via environment-local storage\n");
+        return;
+    }
+    agent->vmStart(jvmti_env, env);
 }
 
-static void JNICALL
-vmStopWrapper(jvmtiEnv *jvmti_env,JNIEnv* env)
+static void JNICALL vmStopWrapper(jvmtiEnv* jvmti_env, JNIEnv* env)
 {
-	RuntimeToolsAgentBase* agent;
-	jvmtiError result = jvmti_env->GetEnvironmentLocalStorage((void**) &agent);
-	if (NULL == agent) {
-		fprintf(stderr, "ERROR: Failed to get pointer to agent via environment-local storage\n");
-		return;
-	}
-	agent->vmStop(jvmti_env,env);
+    RuntimeToolsAgentBase* agent;
+    jvmtiError result = jvmti_env->GetEnvironmentLocalStorage((void**)&agent);
+    if (NULL == agent) {
+        fprintf(stderr, "ERROR: Failed to get pointer to agent via environment-local storage\n");
+        return;
+    }
+    agent->vmStop(jvmti_env, env);
 }
 }
 /************************************************************************
@@ -54,19 +52,17 @@ vmStopWrapper(jvmtiEnv *jvmti_env,JNIEnv* env)
  *
  */
 
-
 /**
  * This method is used to initialize an instance
  */
 bool RuntimeToolsAgentBase::init()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	_outputFileName = NULL;
-	_outputFileNameFD = -1;
+    _outputFileName = NULL;
+    _outputFileNameFD = -1;
 
-	return true;
-
+    return true;
 }
 
 /**
@@ -74,9 +70,9 @@ bool RuntimeToolsAgentBase::init()
  */
 void RuntimeToolsAgentBase::kill()
 {
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
 
-	j9mem_free_memory(this);
+    j9mem_free_memory(this);
 }
 
 /**
@@ -84,19 +80,20 @@ void RuntimeToolsAgentBase::kill()
  *
  * @param vm java vm that can be used by this manager
  */
-RuntimeToolsAgentBase* RuntimeToolsAgentBase::newInstance(JavaVM * vm)
+RuntimeToolsAgentBase* RuntimeToolsAgentBase::newInstance(JavaVM* vm)
 {
-	J9JavaVM * javaVM = ((J9InvocationJavaVM *)vm)->j9vm;
-	PORT_ACCESS_FROM_JAVAVM(javaVM);
-	RuntimeToolsAgentBase* obj = (RuntimeToolsAgentBase*) j9mem_allocate_memory(sizeof(RuntimeToolsAgentBase), OMRMEM_CATEGORY_VM);
-	if (obj){
-		new (obj) RuntimeToolsAgentBase(vm);
-		if (!obj->init()){
-			obj->kill();
-			obj = NULL;
-		}
-	}
-	return obj;
+    J9JavaVM* javaVM = ((J9InvocationJavaVM*)vm)->j9vm;
+    PORT_ACCESS_FROM_JAVAVM(javaVM);
+    RuntimeToolsAgentBase* obj
+        = (RuntimeToolsAgentBase*)j9mem_allocate_memory(sizeof(RuntimeToolsAgentBase), OMRMEM_CATEGORY_VM);
+    if (obj) {
+        new (obj) RuntimeToolsAgentBase(vm);
+        if (!obj->init()) {
+            obj->kill();
+            obj = NULL;
+        }
+    }
+    return obj;
 }
 
 /**
@@ -106,56 +103,56 @@ RuntimeToolsAgentBase* RuntimeToolsAgentBase::newInstance(JavaVM * vm)
  * @param vm a JavaVM that the agent can use
  * @param options the options passed to the agent in Agent_OnLoad
  */
-jint RuntimeToolsAgentBase::setup(char * options)
+jint RuntimeToolsAgentBase::setup(char* options)
 {
-	jint rc = JVMTI_ERROR_NONE;
-	jvmtiEnv * jvmti_env = NULL;
-	char* currentOption = options;
+    jint rc = JVMTI_ERROR_NONE;
+    jvmtiEnv* jvmti_env = NULL;
+    char* currentOption = options;
 
-	/* parse any options */
-	rc = parseArguments(options);
-	if (AGENT_ERROR_NONE != rc ){
-		return rc;
-	}
+    /* parse any options */
+    rc = parseArguments(options);
+    if (AGENT_ERROR_NONE != rc) {
+        return rc;
+    }
 
-	/* start by getting an env we can use */
-	rc = _vm->GetEnv((void **) &jvmti_env, JVMTI_VERSION_1_1);
-	if (JNI_OK != rc) {
-		if ((JNI_EVERSION != rc) || JNI_OK != ((rc = _vm->GetEnv((void **) &jvmti_env, JVMTI_VERSION_1_0)))) {
-			error("Failed to GetEnv\n");
-			return AGENT_ERROR_FAILED_TO_GET_JNI_ENV;
-		}
-	}
+    /* start by getting an env we can use */
+    rc = _vm->GetEnv((void**)&jvmti_env, JVMTI_VERSION_1_1);
+    if (JNI_OK != rc) {
+        if ((JNI_EVERSION != rc) || JNI_OK != ((rc = _vm->GetEnv((void**)&jvmti_env, JVMTI_VERSION_1_0)))) {
+            error("Failed to GetEnv\n");
+            return AGENT_ERROR_FAILED_TO_GET_JNI_ENV;
+        }
+    }
 
-	/*
-	 * this this object instance as part of the local storage so that we have access to it on
-	 * later calls
-	 */
-	RuntimeToolsAgentBase* agent = this;
-	rc = jvmti_env->SetEnvironmentLocalStorage((void*)this);
+    /*
+     * this this object instance as part of the local storage so that we have access to it on
+     * later calls
+     */
+    RuntimeToolsAgentBase* agent = this;
+    rc = jvmti_env->SetEnvironmentLocalStorage((void*)this);
 
-	if (JVMTI_ERROR_NONE != rc){
-		return AGENT_ERROR_COULD_NOT_SET_LOCAL_STORAGE;
-	}
+    if (JVMTI_ERROR_NONE != rc) {
+        return AGENT_ERROR_COULD_NOT_SET_LOCAL_STORAGE;
+    }
 
-	/* set and enable the the vmstart and stop callbacks */
-	memset(&_callbacks,0,sizeof(jvmtiEventCallbacks));
-	_callbacks.VMStart = vmStartWrapper;
-	_callbacks.VMDeath = vmStopWrapper;
-	rc = jvmti_env->SetEventCallbacks(&_callbacks,sizeof(jvmtiEventCallbacks));
+    /* set and enable the the vmstart and stop callbacks */
+    memset(&_callbacks, 0, sizeof(jvmtiEventCallbacks));
+    _callbacks.VMStart = vmStartWrapper;
+    _callbacks.VMDeath = vmStopWrapper;
+    rc = jvmti_env->SetEventCallbacks(&_callbacks, sizeof(jvmtiEventCallbacks));
 
-	if (JVMTI_ERROR_NONE == rc){
-		rc = jvmti_env->SetEventNotificationMode(JVMTI_ENABLE,JVMTI_EVENT_VM_START,NULL);
-	}
-	if (JVMTI_ERROR_NONE == rc){
-		rc = jvmti_env->SetEventNotificationMode(JVMTI_ENABLE,JVMTI_EVENT_VM_DEATH,NULL);
-	}
+    if (JVMTI_ERROR_NONE == rc) {
+        rc = jvmti_env->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_START, NULL);
+    }
+    if (JVMTI_ERROR_NONE == rc) {
+        rc = jvmti_env->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_DEATH, NULL);
+    }
 
-	if (JVMTI_ERROR_NONE != rc){
-		return AGENT_ERROR_COULD_NOT_SET_REQ_EVENTS;
-	}
+    if (JVMTI_ERROR_NONE != rc) {
+        return AGENT_ERROR_COULD_NOT_SET_REQ_EVENTS;
+    }
 
-	return AGENT_ERROR_NONE;
+    return AGENT_ERROR_NONE;
 }
 
 /**
@@ -165,25 +162,25 @@ jint RuntimeToolsAgentBase::setup(char * options)
  */
 jint RuntimeToolsAgentBase::parseArguments(char* options)
 {
-	char* nextArg = NULL;
-	char result = AGENT_ERROR_NONE;
+    char* nextArg = NULL;
+    char result = AGENT_ERROR_NONE;
 
-	/* split up the arguments using the command separator and call parseArgument for each one */
-	if (options != NULL){
-		nextArg = strtok(options,ARGUMENT_SEPARATOR_STRING);
-		if (nextArg != NULL){
-			while(nextArg != NULL){
-				result = parseArgument(nextArg);
-				if (result != AGENT_ERROR_NONE){
-					break;
-				}
-				nextArg = strtok(NULL,ARGUMENT_SEPARATOR_STRING);
-			}
-		} else {
-			result = parseArgument(options);
-		}
-	}
-	return result;
+    /* split up the arguments using the command separator and call parseArgument for each one */
+    if (options != NULL) {
+        nextArg = strtok(options, ARGUMENT_SEPARATOR_STRING);
+        if (nextArg != NULL) {
+            while (nextArg != NULL) {
+                result = parseArgument(nextArg);
+                if (result != AGENT_ERROR_NONE) {
+                    break;
+                }
+                nextArg = strtok(NULL, ARGUMENT_SEPARATOR_STRING);
+            }
+        } else {
+            result = parseArgument(options);
+        }
+    }
+    return result;
 }
 
 /**
@@ -191,25 +188,26 @@ jint RuntimeToolsAgentBase::parseArguments(char* options)
  * @param options string containing the options
  * @returns one of the AGENT_ERROR_ values
  */
-jint RuntimeToolsAgentBase::parseArgument(char* option){
-	PORT_ACCESS_FROM_JAVAVM(getJavaVM());
-	jint rc = AGENT_ERROR_NONE;
-	if (strcmp(option,"")!= 0){
-		if (try_scan(&option,"file:")){
-			int length = (int) strlen(option)+1;
-			_outputFileName=(char*) j9mem_allocate_memory(length, OMRMEM_CATEGORY_VM);
-			if (_outputFileName == NULL){
-				error("invalid output file name passed to agent\n");
-				return AGENT_ERROR_INVALID_ARGUMENT_VALUE;
-			}
-			memset(_outputFileName,0,length);
-			memcpy(_outputFileName,option,length);
-		} else{
-			error("invalid option passed to agent:");
-			error(option);
-			error("\n");
-			rc = AGENT_ERROR_INVALID_ARGUMENT_VALUE;
-		}
-	}
-	return rc;
+jint RuntimeToolsAgentBase::parseArgument(char* option)
+{
+    PORT_ACCESS_FROM_JAVAVM(getJavaVM());
+    jint rc = AGENT_ERROR_NONE;
+    if (strcmp(option, "") != 0) {
+        if (try_scan(&option, "file:")) {
+            int length = (int)strlen(option) + 1;
+            _outputFileName = (char*)j9mem_allocate_memory(length, OMRMEM_CATEGORY_VM);
+            if (_outputFileName == NULL) {
+                error("invalid output file name passed to agent\n");
+                return AGENT_ERROR_INVALID_ARGUMENT_VALUE;
+            }
+            memset(_outputFileName, 0, length);
+            memcpy(_outputFileName, option, length);
+        } else {
+            error("invalid option passed to agent:");
+            error(option);
+            error("\n");
+            rc = AGENT_ERROR_INVALID_ARGUMENT_VALUE;
+        }
+    }
+    return rc;
 }

@@ -20,10 +20,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
- 
+
 #if !defined(FILE_LOG_OUTPUT_HPP_)
 #define FILE_LOG_OUTPUT_HPP_
- 
+
 #include "j9.h"
 #include "j9cfg.h"
 
@@ -32,67 +32,62 @@
 #define VGC_INPUT_STRING_SIZE 256
 #define VGC_INDENT_SPACER "  "
 
-enum {
-	single_file = 0,
-	rotating_files
-};
+enum { single_file = 0, rotating_files };
 
 /**
  * Ouptut agent which directs verbosegc output to file.
  */
-class MM_VerboseFileLoggingOutput : public MM_VerboseOutputAgent
-{
-/* fields */
+class MM_VerboseFileLoggingOutput : public MM_VerboseOutputAgent {
+    /* fields */
 public:
 protected:
 private:
-	char *_filename; /**< the filename template supplied from the command line */
-	UDATA _numFiles; /**< number of files to rotate through */
-	UDATA _numCycles; /**< number of cycles in each file */
-	
-	UDATA _mode; /**< rotation mode -- single_file or rotating_files */
-	UDATA _currentFile; /**< zero-based index of current rotating file */
-	UDATA _currentCycle; /**< current GC cycle within this file */
+    char* _filename; /**< the filename template supplied from the command line */
+    UDATA _numFiles; /**< number of files to rotate through */
+    UDATA _numCycles; /**< number of cycles in each file */
 
-	IDATA _logFileDescriptor; /**< the file being written to */
-	
-	J9StringTokens *_tokens; /**< tokens used during filename expansion */
+    UDATA _mode; /**< rotation mode -- single_file or rotating_files */
+    UDATA _currentFile; /**< zero-based index of current rotating file */
+    UDATA _currentCycle; /**< current GC cycle within this file */
 
-/* methods */
+    IDATA _logFileDescriptor; /**< the file being written to */
+
+    J9StringTokens* _tokens; /**< tokens used during filename expansion */
+
+    /* methods */
 public:
-	virtual void formatAndOutput(J9VMThread *vmThread, UDATA indent, const char *format, ...);
-	
-	virtual bool reconfigure(MM_EnvironmentBase *env, const char* filename, UDATA fileCount, UDATA iterations);
+    virtual void formatAndOutput(J9VMThread* vmThread, UDATA indent, const char* format, ...);
 
-	bool openFile(MM_EnvironmentBase *env);
-	void closeFile(MM_EnvironmentBase *env);
-	
-	void closeStream(MM_EnvironmentBase *env);
+    virtual bool reconfigure(MM_EnvironmentBase* env, const char* filename, UDATA fileCount, UDATA iterations);
 
-	virtual void endOfCycle(J9VMThread *vmThread);
-	
-	static MM_VerboseFileLoggingOutput *newInstance(MM_EnvironmentBase *env, char* filename, UDATA fileCount, UDATA iterations);
+    bool openFile(MM_EnvironmentBase* env);
+    void closeFile(MM_EnvironmentBase* env);
 
-	MM_VerboseFileLoggingOutput(MM_EnvironmentBase *env)
-		: MM_VerboseOutputAgent(env, FILE_LOGGING)
-		, _filename(NULL)
-		, _mode(single_file)
-		, _currentFile(0)
-		, _currentCycle(0)
-		, _logFileDescriptor(-1)
-		, _tokens(NULL)
-	{}
+    void closeStream(MM_EnvironmentBase* env);
+
+    virtual void endOfCycle(J9VMThread* vmThread);
+
+    static MM_VerboseFileLoggingOutput* newInstance(
+        MM_EnvironmentBase* env, char* filename, UDATA fileCount, UDATA iterations);
+
+    MM_VerboseFileLoggingOutput(MM_EnvironmentBase* env)
+        : MM_VerboseOutputAgent(env, FILE_LOGGING)
+        , _filename(NULL)
+        , _mode(single_file)
+        , _currentFile(0)
+        , _currentCycle(0)
+        , _logFileDescriptor(-1)
+        , _tokens(NULL)
+    {}
 
 protected:
-
 private:
-	bool initialize(MM_EnvironmentBase *env, const char *filename, UDATA numFiles, UDATA numCycles);
-	virtual void tearDown(MM_EnvironmentBase *env);
-	IDATA findInitialFile(MM_EnvironmentBase *env);
-	bool initializeFilename(MM_EnvironmentBase *env, const char *filename);
-	bool initializeTokens(MM_EnvironmentBase *env);
-	char* expandFilename(MM_EnvironmentBase *env, UDATA currentFile);
-
+    bool initialize(MM_EnvironmentBase* env, const char* filename, UDATA numFiles, UDATA numCycles);
+    virtual void tearDown(MM_EnvironmentBase* env);
+    IDATA findInitialFile(MM_EnvironmentBase* env);
+    bool initializeFilename(MM_EnvironmentBase* env, const char* filename);
+    bool initializeTokens(MM_EnvironmentBase* env);
+    char* expandFilename(MM_EnvironmentBase* env, UDATA currentFile);
 };
 
 #endif /* FILE_LOG_OUTPUT_HPP_ */

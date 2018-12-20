@@ -27,7 +27,6 @@
 extern "C" {
 #endif
 
-
 #include "j9.h"
 #include "j9port.h"
 
@@ -122,78 +121,78 @@ typedef struct J9CfrParameterAnnotations {
 } J9CfrParameterAnnotations;
 
 typedef struct J9CfrTypeParameterTarget {
-	U_8 typeParameterIndex;
+    U_8 typeParameterIndex;
 } J9CfrTypeParameterTarget;
 
 typedef struct J9CfrSupertypeTarget {
-	U_16 supertypeIndex;
+    U_16 supertypeIndex;
 } J9CfrSupertypeTarget;
 
 typedef struct J9CfrTypeParameterBoundTarget {
-	U_8 typeParameterIndex;
-	U_8 boundIndex;
+    U_8 typeParameterIndex;
+    U_8 boundIndex;
 } J9CfrTypeParameterBoundTarget;
 
 typedef struct J9CfrMethodFormalParameterTarget {
-	U_8 formalParameterIndex;
+    U_8 formalParameterIndex;
 } J9CfrMethodFormalParameterTarget;
 
 typedef struct J9CfrThrowsTarget {
-	U_16 throwsTypeIndex;
+    U_16 throwsTypeIndex;
 } J9CfrThrowsTarget;
 
 typedef struct J9CfrLocalvarTargetEntry {
-	U_16 startPC;
-	U_16 length;
-	U_16 index;
+    U_16 startPC;
+    U_16 length;
+    U_16 index;
 } J9CfrLocalvarTargetEntry;
 
 typedef struct J9CfrLocalvarTarget {
-	U_16 tableLength;
-	J9CfrLocalvarTargetEntry *table;
+    U_16 tableLength;
+    J9CfrLocalvarTargetEntry* table;
 } J9CfrLocalvarTarget;
 
 typedef struct J9CfrCatchTarget {
-	U_16 exceptiontableIndex;
+    U_16 exceptiontableIndex;
 } J9CfrCatchTarget;
 
 typedef struct J9CfrOffsetTarget {
-	U_16 offset;
+    U_16 offset;
 } J9CfrOffsetTarget;
 
 typedef struct J9CfrTypeArgumentTarget {
-	U_16 offset;
-	U_8 typeArgumentIndex;
+    U_16 offset;
+    U_8 typeArgumentIndex;
 } J9CfrTypeArgumentTarget;
 
 typedef struct J9CfrTypePathEntry {
-	U_8 typePathKind;
-	U_8 typeArgumentIndex;
+    U_8 typePathKind;
+    U_8 typeArgumentIndex;
 } J9CfrTypePathEntry;
 
 typedef struct J9CfrTypePath {
-	U_8 pathLength;
-	J9CfrTypePathEntry* path;
+    U_8 pathLength;
+    J9CfrTypePathEntry* path;
 } J9CfrTypePath;
 
 typedef union J9CfrTypeAnnotationTargetInfo {
-	J9CfrTypeParameterTarget typeParameterTarget;
-	J9CfrSupertypeTarget supertypeTarget;
-	J9CfrTypeParameterBoundTarget typeParameterBoundTarget;
-	/* emptyTarget - no member required */
-	J9CfrMethodFormalParameterTarget methodFormalParameterTarget;
-	J9CfrThrowsTarget throwsTarget;
-	J9CfrLocalvarTarget localvarTarget;
-	J9CfrCatchTarget catchTarget;
-	J9CfrOffsetTarget offsetTarget;
-	J9CfrTypeArgumentTarget typeArgumentTarget;
+    J9CfrTypeParameterTarget typeParameterTarget;
+    J9CfrSupertypeTarget supertypeTarget;
+    J9CfrTypeParameterBoundTarget typeParameterBoundTarget;
+    /* emptyTarget - no member required */
+    J9CfrMethodFormalParameterTarget methodFormalParameterTarget;
+    J9CfrThrowsTarget throwsTarget;
+    J9CfrLocalvarTarget localvarTarget;
+    J9CfrCatchTarget catchTarget;
+    J9CfrOffsetTarget offsetTarget;
+    J9CfrTypeArgumentTarget typeArgumentTarget;
 } J9CfrTypeAnnotationTargetInfo;
 
 typedef struct J9CfrTypeAnnotation {
-	U_8 targetType;
-	J9CfrTypeAnnotationTargetInfo targetInfo;
-	J9CfrTypePath typePath;
-	J9CfrAnnotation annotation;
+    U_8 targetType;
+    J9CfrTypeAnnotationTargetInfo targetInfo;
+    J9CfrTypePath typePath;
+    J9CfrAnnotation annotation;
 
 } J9CfrTypeAnnotation;
 
@@ -206,39 +205,39 @@ typedef struct J9CfrAttribute {
     UDATA romAddress;
 } J9CfrAttribute;
 
-#define CFR_ATTRIBUTE_Unknown  0
-#define CFR_ATTRIBUTE_SourceFile  1
-#define CFR_ATTRIBUTE_ConstantValue  2
-#define CFR_ATTRIBUTE_Code  3
-#define CFR_ATTRIBUTE_Exceptions  4
-#define CFR_ATTRIBUTE_LocalVariableTable  6
-#define CFR_ATTRIBUTE_LineNumberTable  5
-#define CFR_ATTRIBUTE_Synthetic  7
-#define CFR_ATTRIBUTE_InnerClasses  8
-#define CFR_ATTRIBUTE_Deprecated  9
-#define CFR_ATTRIBUTE_SourceDebugExtension  10
-#define CFR_ATTRIBUTE_EnclosingMethod  11
-#define CFR_ATTRIBUTE_Signature  12
-#define CFR_ATTRIBUTE_LocalVariableTypeTable  13
-#define CFR_ATTRIBUTE_RuntimeInvisibleAnnotations  14
-#define CFR_ATTRIBUTE_RuntimeInvisibleParameterAnnotations  15
-#define CFR_ATTRIBUTE_RuntimeVisibleAnnotations  16
-#define CFR_ATTRIBUTE_RuntimeVisibleParameterAnnotations  17
-#define CFR_ATTRIBUTE_AnnotationDefault  18
-#define CFR_ATTRIBUTE_StackMap  19
-#define CFR_ATTRIBUTE_StackMapTable  20
-#define CFR_ATTRIBUTE_BootstrapMethods  21
-#define CFR_ATTRIBUTE_RuntimeVisibleTypeAnnotations  22
-#define CFR_ATTRIBUTE_RuntimeInvisibleTypeAnnotations  23
+#define CFR_ATTRIBUTE_Unknown 0
+#define CFR_ATTRIBUTE_SourceFile 1
+#define CFR_ATTRIBUTE_ConstantValue 2
+#define CFR_ATTRIBUTE_Code 3
+#define CFR_ATTRIBUTE_Exceptions 4
+#define CFR_ATTRIBUTE_LocalVariableTable 6
+#define CFR_ATTRIBUTE_LineNumberTable 5
+#define CFR_ATTRIBUTE_Synthetic 7
+#define CFR_ATTRIBUTE_InnerClasses 8
+#define CFR_ATTRIBUTE_Deprecated 9
+#define CFR_ATTRIBUTE_SourceDebugExtension 10
+#define CFR_ATTRIBUTE_EnclosingMethod 11
+#define CFR_ATTRIBUTE_Signature 12
+#define CFR_ATTRIBUTE_LocalVariableTypeTable 13
+#define CFR_ATTRIBUTE_RuntimeInvisibleAnnotations 14
+#define CFR_ATTRIBUTE_RuntimeInvisibleParameterAnnotations 15
+#define CFR_ATTRIBUTE_RuntimeVisibleAnnotations 16
+#define CFR_ATTRIBUTE_RuntimeVisibleParameterAnnotations 17
+#define CFR_ATTRIBUTE_AnnotationDefault 18
+#define CFR_ATTRIBUTE_StackMap 19
+#define CFR_ATTRIBUTE_StackMapTable 20
+#define CFR_ATTRIBUTE_BootstrapMethods 21
+#define CFR_ATTRIBUTE_RuntimeVisibleTypeAnnotations 22
+#define CFR_ATTRIBUTE_RuntimeInvisibleTypeAnnotations 23
 #define CFR_ATTRIBUTE_MethodParameters 24
 #define CFR_ATTRIBUTE_NestMembers 25
 #define CFR_ATTRIBUTE_NestHost 26
-#define CFR_ATTRIBUTE_StrippedLocalVariableTypeTable  122
-#define CFR_ATTRIBUTE_StrippedSourceDebugExtension  123
-#define CFR_ATTRIBUTE_StrippedInnerClasses  124
-#define CFR_ATTRIBUTE_StrippedLineNumberTable  125
-#define CFR_ATTRIBUTE_StrippedLocalVariableTable  126
-#define CFR_ATTRIBUTE_StrippedUnknown  127
+#define CFR_ATTRIBUTE_StrippedLocalVariableTypeTable 122
+#define CFR_ATTRIBUTE_StrippedSourceDebugExtension 123
+#define CFR_ATTRIBUTE_StrippedInnerClasses 124
+#define CFR_ATTRIBUTE_StrippedLineNumberTable 125
+#define CFR_ATTRIBUTE_StrippedLocalVariableTable 126
+#define CFR_ATTRIBUTE_StrippedUnknown 127
 
 typedef struct J9CfrAttributeAnnotationDefault {
     U_8 tag;
@@ -351,8 +350,8 @@ typedef struct J9CfrAttributeRuntimeInvisibleAnnotations {
     UDATA romAddress;
     U_16 numberOfAnnotations;
     struct J9CfrAnnotation* annotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeInvisibleAnnotations;
 
 typedef struct J9CfrAttributeRuntimeInvisibleParameterAnnotations {
@@ -362,8 +361,8 @@ typedef struct J9CfrAttributeRuntimeInvisibleParameterAnnotations {
     UDATA romAddress;
     U_8 numberOfParameters;
     struct J9CfrParameterAnnotations* parameterAnnotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeInvisibleParameterAnnotations;
 
 #define CFR_TARGET_TYPE_TypeParameterGenericClass 0x00
@@ -390,16 +389,15 @@ typedef struct J9CfrAttributeRuntimeInvisibleParameterAnnotations {
 #define CFR_TARGET_TYPE_TypeForGenericMethodInvocationInMethodRef 0x4B
 #define CFR_TARGET_TYPE_ErrorInAttribute 0xff
 
-
 typedef struct J9CfrAttributeRuntimeInvisibleTypeAnnotations {
-	U_8 tag;
-	U_16 nameIndex;
-	U_32 length;
-	UDATA romAddress;
-	U_16 numberOfAnnotations;
-	struct J9CfrTypeAnnotation* typeAnnotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_8 tag;
+    U_16 nameIndex;
+    U_32 length;
+    UDATA romAddress;
+    U_16 numberOfAnnotations;
+    struct J9CfrTypeAnnotation* typeAnnotations;
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeInvisibleTypeAnnotations;
 
 typedef struct J9CfrAttributeRuntimeVisibleAnnotations {
@@ -409,8 +407,8 @@ typedef struct J9CfrAttributeRuntimeVisibleAnnotations {
     UDATA romAddress;
     U_16 numberOfAnnotations;
     struct J9CfrAnnotation* annotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeVisibleAnnotations;
 
 typedef struct J9CfrAttributeRuntimeVisibleParameterAnnotations {
@@ -420,8 +418,8 @@ typedef struct J9CfrAttributeRuntimeVisibleParameterAnnotations {
     UDATA romAddress;
     U_8 numberOfParameters;
     struct J9CfrParameterAnnotations* parameterAnnotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeVisibleParameterAnnotations;
 
 typedef struct J9CfrAttributeMethodParameters {
@@ -430,8 +428,8 @@ typedef struct J9CfrAttributeMethodParameters {
     U_32 length;
     UDATA romAddress;
     U_8 numberOfMethodParameters;
-    U_16 * methodParametersIndexTable;
-    U_16 * flags;
+    U_16* methodParametersIndexTable;
+    U_16* flags;
 } J9CfrAttributeMethodParameters;
 
 typedef struct J9CfrAttributeRuntimeVisibleTypeAnnotations {
@@ -441,8 +439,8 @@ typedef struct J9CfrAttributeRuntimeVisibleTypeAnnotations {
     UDATA romAddress;
     U_16 numberOfAnnotations;
     struct J9CfrTypeAnnotation* typeAnnotations;
-	U_32 rawDataLength;
-	U_8 *rawAttributeData; /* hold the original attribute data in case of error  */
+    U_32 rawDataLength;
+    U_8* rawAttributeData; /* hold the original attribute data in case of error  */
 } J9CfrAttributeRuntimeVisibleTypeAnnotations;
 
 typedef struct J9CfrAttributeSignature {
@@ -480,20 +478,20 @@ typedef struct J9CfrAttributeSynthetic {
 
 #if defined(J9VM_OPT_VALHALLA_NESTMATES)
 typedef struct J9CfrAttributeNestHost {
-	U_8 tag;
-	U_16 nameIndex;
-	U_32 length;
-	UDATA romAddress;
-	U_16 hostClassIndex;
+    U_8 tag;
+    U_16 nameIndex;
+    U_32 length;
+    UDATA romAddress;
+    U_16 hostClassIndex;
 } J9CfrAttributeNestHost;
 
 typedef struct J9CfrAttributeNestMembers {
-	U_8 tag;
-	U_16 nameIndex;
-	U_32 length;
-	UDATA romAddress;
-	U_16 numberOfClasses;
-	U_16* classes;
+    U_8 tag;
+    U_16 nameIndex;
+    U_32 length;
+    UDATA romAddress;
+    U_16 numberOfClasses;
+    U_16* classes;
 } J9CfrAttributeNestMembers;
 #endif /* J9VM_OPT_VALHALLA_NESTMATES */
 
@@ -517,31 +515,30 @@ typedef struct J9CfrConstantPoolInfo {
     UDATA romAddress;
 } J9CfrConstantPoolInfo;
 
-#define CFR_CONSTANT_Null  0
-#define CFR_CONSTANT_Utf8  1
-#define CFR_CONSTANT_Integer  3
-#define CFR_CONSTANT_Float  4
-#define CFR_CONSTANT_Long  5
-#define CFR_CONSTANT_Double  6
-#define CFR_CONSTANT_Class  7
-#define CFR_CONSTANT_String  8
-#define CFR_CONSTANT_Fieldref  9
-#define CFR_CONSTANT_Methodref  10
-#define CFR_CONSTANT_InterfaceMethodref  11
-#define CFR_CONSTANT_NameAndType  12
-#define CFR_CONSTANT_MethodHandle  15
-#define CFR_CONSTANT_MethodType  16
-#define CFR_CONSTANT_Dynamic  17
-#define CFR_CONSTANT_InvokeDynamic  18
+#define CFR_CONSTANT_Null 0
+#define CFR_CONSTANT_Utf8 1
+#define CFR_CONSTANT_Integer 3
+#define CFR_CONSTANT_Float 4
+#define CFR_CONSTANT_Long 5
+#define CFR_CONSTANT_Double 6
+#define CFR_CONSTANT_Class 7
+#define CFR_CONSTANT_String 8
+#define CFR_CONSTANT_Fieldref 9
+#define CFR_CONSTANT_Methodref 10
+#define CFR_CONSTANT_InterfaceMethodref 11
+#define CFR_CONSTANT_NameAndType 12
+#define CFR_CONSTANT_MethodHandle 15
+#define CFR_CONSTANT_MethodType 16
+#define CFR_CONSTANT_Dynamic 17
+#define CFR_CONSTANT_InvokeDynamic 18
 #define CFR_CONSTANT_Module 19
 #define CFR_CONSTANT_Package 20
-#define CFR_ReferencedBit   0x80
-#define CFR_ReferencedMask  0x7F
-#define CFR_SeenByConvertInvokevirtualToSpecial  1
-#define CFR_FLAGS1_VerifiedMemberName  1
-#define CFR_FLAGS1_VerifiedFieldSignature  2
-#define CFR_ShouldConvertInvokevirtualToSpecial  2
-
+#define CFR_ReferencedBit 0x80
+#define CFR_ReferencedMask 0x7F
+#define CFR_SeenByConvertInvokevirtualToSpecial 1
+#define CFR_FLAGS1_VerifiedMemberName 1
+#define CFR_FLAGS1_VerifiedFieldSignature 2
+#define CFR_ShouldConvertInvokevirtualToSpecial 2
 
 typedef struct J9CfrMember {
     U_16 accessFlags;
@@ -780,14 +777,14 @@ typedef struct J9CfrMethod {
 #define CFR_BC_ifnonnull 199
 #define CFR_BC_goto_w 200
 #define CFR_BC_jsr_w 201
-#define CFR_BC_breakpoint 202  			/* Reserved opcodes */
+#define CFR_BC_breakpoint 202 /* Reserved opcodes */
 #define CFR_BC_defaultvalue 203
 #define CFR_BC_withfield 204
 #define CFR_BC_impdep1 254
 #define CFR_BC_impdep2 255
-#define CFR_BC_invokehandle 232 		/* JSR 292 internals */
+#define CFR_BC_invokehandle 232 /* JSR 292 internals */
 #define CFR_BC_invokehandlegeneric 233
-#define CFR_BC_invokestaticsplit 234 	/* Constant pool splitting / sidetable invokes */
+#define CFR_BC_invokestaticsplit 234 /* Constant pool splitting / sidetable invokes */
 #define CFR_BC_invokespecialsplit 235
 
 /* @ddr_namespace: map_to_type=J9CfrClassFile */
@@ -816,94 +813,107 @@ typedef struct J9CfrClassFile {
     U_32 classFileSize;
 } J9CfrClassFile;
 
-#define CFR_ACC_PUBLIC  					0x00000001
-#define CFR_ACC_PRIVATE  					0x00000002
-#define CFR_ACC_PROTECTED  					0x00000004
-#define CFR_ACC_STATIC  					0x00000008
-#define CFR_ACC_FINAL  						0x00000010
-#define CFR_ACC_SUPER  						0x00000020
-#define CFR_ACC_SYNCHRONIZED  				0x00000020
-#define CFR_ACC_BRIDGE  					0x00000040
-#define CFR_ACC_VOLATILE  					0x00000040
-#define CFR_ACC_TRANSIENT  					0x00000080
+#define CFR_ACC_PUBLIC 0x00000001
+#define CFR_ACC_PRIVATE 0x00000002
+#define CFR_ACC_PROTECTED 0x00000004
+#define CFR_ACC_STATIC 0x00000008
+#define CFR_ACC_FINAL 0x00000010
+#define CFR_ACC_SUPER 0x00000020
+#define CFR_ACC_SYNCHRONIZED 0x00000020
+#define CFR_ACC_BRIDGE 0x00000040
+#define CFR_ACC_VOLATILE 0x00000040
+#define CFR_ACC_TRANSIENT 0x00000080
 #if defined(J9VM_OPT_VALHALLA_VALUE_TYPES)
-#define CFR_ACC_VALUE_TYPE					0x00000100
+#define CFR_ACC_VALUE_TYPE 0x00000100
 #endif /* defined(J9VM_OPT_VALHALLA_VALUE_TYPES) */
-#define CFR_ACC_VARARGS  					0x00000080
-#define CFR_ACC_NATIVE  					0x00000100
-#define CFR_ACC_INTERFACE  					0x00000200
-#define CFR_ACC_ABSTRACT  					0x00000400
-#define CFR_ACC_STRICT  					0x00000800
-#define CFR_ACC_SYNTHETIC  					0x00001000
-#define CFR_ACC_ANNOTATION 					0x00002000
-#define CFR_ACC_ENUM  						0x00004000
-#define CFR_ACC_MANDATED  					0x00008000
-#define CFR_ACC_MODULE						0x00008000
-#define CFR_ACC_GETTER_METHOD  				0x00000200
-#define CFR_ACC_FORWARDER_METHOD  			0x00002000
-#define CFR_ACC_EMPTY_METHOD  				0x00004000
-#define CFR_ACC_VTABLE  					0x00010000
-#define CFR_ACC_HAS_EXCEPTION_INFO  		0x00020000
-#define CFR_ACC_METHOD_HAS_DEBUG_INFO  		0x00040000
-#define CFR_ACC_METHOD_FRAME_ITERATOR_SKIP  0x00080000
-#define CFR_ACC_METHOD_CALLER_SENSITIVE  	0x00100000
-#define CFR_ACC_METHOD_HAS_STACK_MAP  		0x10000000
-#define CFR_ACC_HAS_EMPTY_FINALIZE  		0x00200000
-#define CFR_ACC_HAS_VERIFY_DATA  			0x00800000
-#define CFR_ACC_HAS_FINAL_FIELDS  			0x02000000
-#define CFR_ACC_REFERENCE_WEAK  			0x10000000
-#define CFR_ACC_REFERENCE_SOFT  			0x20000000
-#define CFR_ACC_REFERENCE_PHANTOM     		0x30000000
-#define CFR_ACC_FINALIZE_NEEDED  			0x40000000
-#define CFR_ACC_CLONEABLE  					0x80000000
-#define CFR_MAGIC  0xCAFEBABE
-#define CFR_MAJOR_VERSION  45
-#define CFR_MINOR_VERSION  3
-#define CFR_PUBLIC_PRIVATE_PROTECTED_MASK	(CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED)
+#define CFR_ACC_VARARGS 0x00000080
+#define CFR_ACC_NATIVE 0x00000100
+#define CFR_ACC_INTERFACE 0x00000200
+#define CFR_ACC_ABSTRACT 0x00000400
+#define CFR_ACC_STRICT 0x00000800
+#define CFR_ACC_SYNTHETIC 0x00001000
+#define CFR_ACC_ANNOTATION 0x00002000
+#define CFR_ACC_ENUM 0x00004000
+#define CFR_ACC_MANDATED 0x00008000
+#define CFR_ACC_MODULE 0x00008000
+#define CFR_ACC_GETTER_METHOD 0x00000200
+#define CFR_ACC_FORWARDER_METHOD 0x00002000
+#define CFR_ACC_EMPTY_METHOD 0x00004000
+#define CFR_ACC_VTABLE 0x00010000
+#define CFR_ACC_HAS_EXCEPTION_INFO 0x00020000
+#define CFR_ACC_METHOD_HAS_DEBUG_INFO 0x00040000
+#define CFR_ACC_METHOD_FRAME_ITERATOR_SKIP 0x00080000
+#define CFR_ACC_METHOD_CALLER_SENSITIVE 0x00100000
+#define CFR_ACC_METHOD_HAS_STACK_MAP 0x10000000
+#define CFR_ACC_HAS_EMPTY_FINALIZE 0x00200000
+#define CFR_ACC_HAS_VERIFY_DATA 0x00800000
+#define CFR_ACC_HAS_FINAL_FIELDS 0x02000000
+#define CFR_ACC_REFERENCE_WEAK 0x10000000
+#define CFR_ACC_REFERENCE_SOFT 0x20000000
+#define CFR_ACC_REFERENCE_PHANTOM 0x30000000
+#define CFR_ACC_FINALIZE_NEEDED 0x40000000
+#define CFR_ACC_CLONEABLE 0x80000000
+#define CFR_MAGIC 0xCAFEBABE
+#define CFR_MAJOR_VERSION 45
+#define CFR_MINOR_VERSION 3
+#define CFR_PUBLIC_PRIVATE_PROTECTED_MASK (CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED)
 #if defined(J9VM_OPT_VALHALLA_VALUE_TYPES)
-#define CFR_CLASS_ACCESS_MASK					(CFR_ACC_PUBLIC | CFR_ACC_FINAL | CFR_ACC_SUPER | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION | CFR_ACC_ENUM | CFR_ACC_VALUE_TYPE)
+#define CFR_CLASS_ACCESS_MASK                                                                                  \
+    (CFR_ACC_PUBLIC | CFR_ACC_FINAL | CFR_ACC_SUPER | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC \
+        | CFR_ACC_ANNOTATION | CFR_ACC_ENUM | CFR_ACC_VALUE_TYPE)
 #else /* defined(J9VM_OPT_VALHALLA_VALUE_TYPES) */
-#define CFR_CLASS_ACCESS_MASK					(CFR_ACC_PUBLIC | CFR_ACC_FINAL | CFR_ACC_SUPER | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION | CFR_ACC_ENUM)
+#define CFR_CLASS_ACCESS_MASK                                                                                  \
+    (CFR_ACC_PUBLIC | CFR_ACC_FINAL | CFR_ACC_SUPER | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC \
+        | CFR_ACC_ANNOTATION | CFR_ACC_ENUM)
 #endif /* defined(J9VM_OPT_VALHALLA_VALUE_TYPES) */
-#define CFR_INTERFACE_CLASS_ACCESS_MASK			(CFR_ACC_PUBLIC | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION)
-#define CFR_FIELD_ACCESS_MASK  					(CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_VOLATILE | CFR_ACC_TRANSIENT | CFR_ACC_SYNTHETIC | CFR_ACC_ENUM)
-#define CFR_INTERFACE_FIELD_ACCESS_MASK  		(CFR_ACC_PUBLIC | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_SYNTHETIC)
-#define CFR_INTERFACE_FIELD_ACCESS_REQUIRED  	(CFR_ACC_PUBLIC | CFR_ACC_STATIC | CFR_ACC_FINAL) 
-#define CFR_METHOD_ACCESS_MASK  				(CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_SYNCHRONIZED | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_NATIVE | CFR_ACC_STRICT | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
-#define CFR_ABSTRACT_METHOD_ACCESS_MASK  		(CFR_ACC_PUBLIC | CFR_ACC_PROTECTED | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
-#define CFR_INTERFACE_METHOD_ACCESS_MASK  		(CFR_ACC_PUBLIC | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
-#define CFR_INTERFACE_METHOD_ACCESS_REQUIRED	(CFR_ACC_PUBLIC | CFR_ACC_ABSTRACT)
-#define CFR_INIT_METHOD_ACCESS_MASK		(CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_SYNTHETIC | CFR_ACC_VARARGS | CFR_ACC_STRICT)
-#define CFR_CLINIT_METHOD_ACCESS_MASK	(CFR_ACC_STRICT | CFR_ACC_STATIC)
-#define CFR_CLASS_ACCESS_NEWJDK5_MASK	(CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION | CFR_ACC_ENUM)  /* Defines access flags not available prior to JDK 5.0 */
-#define CFR_FIELD_ACCESS_NEWJDK5_MASK	(CFR_ACC_SYNTHETIC | CFR_ACC_ENUM)
-#define CFR_METHOD_ACCESS_NEWJDK5_MASK	(CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_SYNTHETIC)
+#define CFR_INTERFACE_CLASS_ACCESS_MASK \
+    (CFR_ACC_PUBLIC | CFR_ACC_INTERFACE | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION)
+#define CFR_FIELD_ACCESS_MASK                                                                                 \
+    (CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_VOLATILE \
+        | CFR_ACC_TRANSIENT | CFR_ACC_SYNTHETIC | CFR_ACC_ENUM)
+#define CFR_INTERFACE_FIELD_ACCESS_MASK (CFR_ACC_PUBLIC | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_SYNTHETIC)
+#define CFR_INTERFACE_FIELD_ACCESS_REQUIRED (CFR_ACC_PUBLIC | CFR_ACC_STATIC | CFR_ACC_FINAL)
+#define CFR_METHOD_ACCESS_MASK                                                                                    \
+    (CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_STATIC | CFR_ACC_FINAL | CFR_ACC_SYNCHRONIZED \
+        | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_NATIVE | CFR_ACC_STRICT | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
+#define CFR_ABSTRACT_METHOD_ACCESS_MASK \
+    (CFR_ACC_PUBLIC | CFR_ACC_PROTECTED | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
+#define CFR_INTERFACE_METHOD_ACCESS_MASK \
+    (CFR_ACC_PUBLIC | CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_ABSTRACT | CFR_ACC_SYNTHETIC)
+#define CFR_INTERFACE_METHOD_ACCESS_REQUIRED (CFR_ACC_PUBLIC | CFR_ACC_ABSTRACT)
+#define CFR_INIT_METHOD_ACCESS_MASK \
+    (CFR_ACC_PUBLIC | CFR_ACC_PRIVATE | CFR_ACC_PROTECTED | CFR_ACC_SYNTHETIC | CFR_ACC_VARARGS | CFR_ACC_STRICT)
+#define CFR_CLINIT_METHOD_ACCESS_MASK (CFR_ACC_STRICT | CFR_ACC_STATIC)
+#define CFR_CLASS_ACCESS_NEWJDK5_MASK \
+    (CFR_ACC_SYNTHETIC | CFR_ACC_ANNOTATION | CFR_ACC_ENUM) /* Defines access flags not available prior to JDK 5.0 */
+#define CFR_FIELD_ACCESS_NEWJDK5_MASK (CFR_ACC_SYNTHETIC | CFR_ACC_ENUM)
+#define CFR_METHOD_ACCESS_NEWJDK5_MASK (CFR_ACC_BRIDGE | CFR_ACC_VARARGS | CFR_ACC_SYNTHETIC)
 #define CFR_ATTRIBUTE_METHOD_PARAMETERS_MASK (CFR_ACC_FINAL | CFR_ACC_SYNTHETIC | CFR_ACC_MANDATED)
-#define CFR_DECODE_SIMPLE  			1
-#define CFR_DECODE_I8  				2
-#define CFR_DECODE_I16  			3
-#define CFR_DECODE_U8  				4
-#define CFR_DECODE_U16  			5
-#define CFR_DECODE_U8_I8  			6
-#define CFR_DECODE_U16_I16  		7
-#define CFR_DECODE_CP8  			8
-#define CFR_DECODE_CP16  			9
-#define CFR_DECODE_L16  			10
-#define CFR_DECODE_L32 				11
-#define CFR_DECODE_TABLESWITCH 		12
-#define CFR_DECODE_LOOKUPSWITCH 	13
-#define CFR_DECODE_NEWARRAY  		14
-#define CFR_DECODE_MULTIANEWARRAY	15
-#define CFR_DECODE_J9_LDC  			16
-#define CFR_DECODE_J9_LDCW  		17
-#define CFR_DECODE_J9_LDC2DW  		18
-#define CFR_DECODE_J9_LDC2LW  		19
-#define CFR_DECODE_J9_CLASSREF  	20
-#define CFR_DECODE_J9_METHODREF  	21
-#define CFR_DECODE_J9_FIELDREF  	22
-#define CFR_DECODE_J9_MULTIANEWARRAY	23
-#define CFR_DECODE_J9_METHODTYPEREF		24
-#define CFR_J9FLAG_HAS_JSR  		1
+#define CFR_DECODE_SIMPLE 1
+#define CFR_DECODE_I8 2
+#define CFR_DECODE_I16 3
+#define CFR_DECODE_U8 4
+#define CFR_DECODE_U16 5
+#define CFR_DECODE_U8_I8 6
+#define CFR_DECODE_U16_I16 7
+#define CFR_DECODE_CP8 8
+#define CFR_DECODE_CP16 9
+#define CFR_DECODE_L16 10
+#define CFR_DECODE_L32 11
+#define CFR_DECODE_TABLESWITCH 12
+#define CFR_DECODE_LOOKUPSWITCH 13
+#define CFR_DECODE_NEWARRAY 14
+#define CFR_DECODE_MULTIANEWARRAY 15
+#define CFR_DECODE_J9_LDC 16
+#define CFR_DECODE_J9_LDCW 17
+#define CFR_DECODE_J9_LDC2DW 18
+#define CFR_DECODE_J9_LDC2LW 19
+#define CFR_DECODE_J9_CLASSREF 20
+#define CFR_DECODE_J9_METHODREF 21
+#define CFR_DECODE_J9_FIELDREF 22
+#define CFR_DECODE_J9_MULTIANEWARRAY 23
+#define CFR_DECODE_J9_METHODTYPEREF 24
+#define CFR_J9FLAG_HAS_JSR 1
 
 #if defined(J9VM_ENV_DATA64)
 #define ROM_ADDRESS_LENGTH 16

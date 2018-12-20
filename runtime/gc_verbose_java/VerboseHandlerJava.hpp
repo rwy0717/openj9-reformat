@@ -31,27 +31,26 @@
 class MM_VerboseManager;
 class MM_EnvironmentBase;
 
-class MM_VerboseHandlerJava : public MM_Base
-{
+class MM_VerboseHandlerJava : public MM_Base {
 public:
-	/**
-	 * Output finalizable list summary.
-	 * @param manager
-	 * @param env GC thread used for output.
-	 * @param indent base level of indentation for the summary.
-	 */
-	static void outputFinalizableInfo(MM_VerboseManager *manager, MM_EnvironmentBase *env, UDATA indent);
+    /**
+     * Output finalizable list summary.
+     * @param manager
+     * @param env GC thread used for output.
+     * @param indent base level of indentation for the summary.
+     */
+    static void outputFinalizableInfo(MM_VerboseManager* manager, MM_EnvironmentBase* env, UDATA indent);
 
-	/**
-	 * Output the name of the thread into the buffer.
-	 * @return Whether the thread name was truncated.
-	 */
-	static bool getThreadName(char *buf, UDATA bufLen, OMR_VMThread *omrThread);
+    /**
+     * Output the name of the thread into the buffer.
+     * @return Whether the thread name was truncated.
+     */
+    static bool getThreadName(char* buf, UDATA bufLen, OMR_VMThread* omrThread);
 
-	/**
-	 * Output Java VM arguments.
-	 */
-	static void writeVmArgs(MM_VerboseManager *manager, MM_EnvironmentBase* env, J9JavaVM *vm);
+    /**
+     * Output Java VM arguments.
+     */
+    static void writeVmArgs(MM_VerboseManager* manager, MM_EnvironmentBase* env, J9JavaVM* vm);
 };
 
 #endif /* VERBOSEHANDLERJAVA_HPP_ */

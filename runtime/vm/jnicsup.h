@@ -32,44 +32,44 @@
 #include "vm_internal.h"
 
 typedef struct J9RedirectedCallInArgs {
-	JNIEnv *env;
-	jobject receiver;
-	jclass clazz;
-	jmethodID methodID;
-	void *args;
+    JNIEnv* env;
+    jobject receiver;
+    jclass clazz;
+    jmethodID methodID;
+    void* args;
 } J9RedirectedCallInArgs;
 
 typedef struct J9RedirectedToReflectedArgs {
-	void *(JNICALL * func) (JNIEnv * env, jclass clazz, void *id, jboolean isStatic);
-	JNIEnv *env;
-	jclass clazz;
-	void *id;
-	jboolean isStatic;
+    void*(JNICALL* func)(JNIEnv* env, jclass clazz, void* id, jboolean isStatic);
+    JNIEnv* env;
+    jclass clazz;
+    void* id;
+    jboolean isStatic;
 } J9RedirectedToReflectedArgs;
 
 typedef struct J9RedirectedInitializeArgs {
-	J9VMThread* env;
-	J9Class* clazz;
+    J9VMThread* env;
+    J9Class* clazz;
 } J9RedirectedInitializeArgs;
 
 typedef struct J9RedirectedSetCurrentExceptionArgs {
-	J9VMThread* env;
-	UDATA exceptionNumber;
-	UDATA* detailMessage;
+    J9VMThread* env;
+    UDATA exceptionNumber;
+    UDATA* detailMessage;
 } J9RedirectedSetCurrentExceptionArgs;
 
 typedef struct J9RedirectedSetCurrentExceptionNLSArgs {
-	J9VMThread* env;
-	UDATA exceptionNumber;
-	U_32 moduleName;
-	U_32 messageNumber;
+    J9VMThread* env;
+    UDATA exceptionNumber;
+    U_32 moduleName;
+    U_32 messageNumber;
 } J9RedirectedSetCurrentExceptionNLSArgs;
 
 typedef struct J9RedirectedFindClassArgs {
-	JNIEnv *env;
-	const char *name;
+    JNIEnv* env;
+    const char* name;
 } J9RedirectedFindClassArgs;
 
 #include "vm_api.h"
 
-#endif     /* jnicsup_h */
+#endif /* jnicsup_h */

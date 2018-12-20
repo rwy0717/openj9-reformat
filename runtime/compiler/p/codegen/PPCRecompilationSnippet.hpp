@@ -25,35 +25,36 @@
 
 #include "codegen/Snippet.hpp"
 
-namespace TR { class CodeGenerator; }
-namespace TR { class Instruction; }
-namespace TR { class LabelSymbol; }
+namespace TR {
+class CodeGenerator;
+}
+namespace TR {
+class Instruction;
+}
+namespace TR {
+class LabelSymbol;
+}
 
 namespace TR {
 
-class PPCRecompilationSnippet : public TR::Snippet
-   {
-   TR::Instruction *branchToSnippet;
+class PPCRecompilationSnippet : public TR::Snippet {
+    TR::Instruction* branchToSnippet;
 
-   public:
+public:
+    PPCRecompilationSnippet(TR::LabelSymbol* snippetlab, TR::Instruction* bts, TR::CodeGenerator* cg)
+        : TR::Snippet(cg, 0, snippetlab, false)
+        , branchToSnippet(bts)
+    {}
 
-   PPCRecompilationSnippet(
-         TR::LabelSymbol *snippetlab,
-         TR::Instruction *bts,
-         TR::CodeGenerator *cg)
-      : TR::Snippet(cg, 0, snippetlab, false), branchToSnippet(bts)
-      {
-      }
+    virtual Kind getKind() { return IsRecompilation; }
 
-   virtual Kind getKind() { return IsRecompilation; }
+    TR::Instruction* getBranchToSnippet() { return branchToSnippet; }
 
-   TR::Instruction *getBranchToSnippet() {return branchToSnippet;}
+    virtual uint8_t* emitSnippetBody();
 
-   virtual uint8_t *emitSnippetBody();
+    virtual uint32_t getLength(int32_t estimatedSnippetStart);
+};
 
-   virtual uint32_t getLength(int32_t estimatedSnippetStart);
-   };
-
-}
+} // namespace TR
 
 #endif

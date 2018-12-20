@@ -27,42 +27,43 @@
 UDATA
 getSendSlotsFromSignature(const U_8* signature)
 {
-	UDATA sendArgs = 0;
-	UDATA i = 1; /* 1 to skip the opening '(' */
+    UDATA sendArgs = 0;
+    UDATA i = 1; /* 1 to skip the opening '(' */
 
-	for (; ; i++) {
-		switch (signature[i]) {
-		case ')':
-			return sendArgs;
-		case '[':
-			/* skip all '['s */
-			for (i++; signature[i] == '['; i++);
-			if ((signature[i] == 'L')
+    for (;; i++) {
+        switch (signature[i]) {
+        case ')':
+            return sendArgs;
+        case '[':
+            /* skip all '['s */
+            for (i++; signature[i] == '['; i++)
+                ;
+            if ((signature[i] == 'L')
 #if defined(J9VM_OPT_VALHALLA_VALUE_TYPES)
-				|| (signature[i] == 'Q')
+                || (signature[i] == 'Q')
 #endif /* J9VM_OPT_VALHALLA_VALUE_TYPES */
-			) {
-				/* FALL THRU */
-			} else {
-				sendArgs++;
-				break;
-			}
-		case 'L':
+            ) {
+                /* FALL THRU */
+            } else {
+                sendArgs++;
+                break;
+            }
+        case 'L':
 #if defined(J9VM_OPT_VALHALLA_VALUE_TYPES)
-		case 'Q':
+        case 'Q':
 #endif /* J9VM_OPT_VALHALLA_VALUE_TYPES */
-			for (i++; signature[i] != ';'; i++);
-			sendArgs++;
-			break;
-		case 'D':
-		case 'J':
-			sendArgs += 2;
-			break;
-		default:
-			/* any other primitive type */
-			sendArgs++;
-			break;
-		}
-	}
+            for (i++; signature[i] != ';'; i++)
+                ;
+            sendArgs++;
+            break;
+        case 'D':
+        case 'J':
+            sendArgs += 2;
+            break;
+        default:
+            /* any other primitive type */
+            sendArgs++;
+            break;
+        }
+    }
 }
-

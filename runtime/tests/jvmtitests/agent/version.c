@@ -23,47 +23,37 @@
 
 #include "jvmti_test.h"
 
-const static char *versionNames[] =
-{
-	"JVMTI 1.0",
-	"JVMTI 1.1",
-	"JVMTI 1.2",
-	"JVMTI 9.0",
-	"unknown"
-};
+const static char* versionNames[] = { "JVMTI 1.0", "JVMTI 1.1", "JVMTI 1.2", "JVMTI 9.0", "unknown" };
 
-
-jboolean
-ensureVersion(agentEnv * agent_env, jint version)
+jboolean ensureVersion(agentEnv* agent_env, jint version)
 {
 
-	if ((agent_env->jvmtiVersion & ~JVMTI_VERSION_MASK_MICRO) == version) {
-		const char *versionName = getVersionName(agent_env, version);
+    if ((agent_env->jvmtiVersion & ~JVMTI_VERSION_MASK_MICRO) == version) {
+        const char* versionName = getVersionName(agent_env, version);
 
-		error(agent_env, JVMTI_ERROR_UNSUPPORTED_VERSION, "Test requires %s",
-				versionName ? versionName : "Unknown Version");
+        error(agent_env, JVMTI_ERROR_UNSUPPORTED_VERSION, "Test requires %s",
+            versionName ? versionName : "Unknown Version");
 
-		return JNI_FALSE;
-	}
+        return JNI_FALSE;
+    }
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 }
 
-const char *
-getVersionName(agentEnv * agent_env, jint version)
+const char* getVersionName(agentEnv* agent_env, jint version)
 {
-	switch ((version & ~JVMTI_VERSION_MASK_MICRO)) {
-		case JVMTI_VERSION_1_0:
-			return versionNames[0];
-		case JVMTI_VERSION_1_1:
-			return versionNames[1];
-		case JVMTI_VERSION_1_2:
-			return versionNames[2];
-		case JVMTI_VERSION_9_0:
-			return versionNames[3];
-		default:
-			error(agent_env, JVMTI_ERROR_UNSUPPORTED_VERSION, "Query for an unknown version");
-	}
+    switch ((version & ~JVMTI_VERSION_MASK_MICRO)) {
+    case JVMTI_VERSION_1_0:
+        return versionNames[0];
+    case JVMTI_VERSION_1_1:
+        return versionNames[1];
+    case JVMTI_VERSION_1_2:
+        return versionNames[2];
+    case JVMTI_VERSION_9_0:
+        return versionNames[3];
+    default:
+        error(agent_env, JVMTI_ERROR_UNSUPPORTED_VERSION, "Query for an unknown version");
+    }
 
-	return NULL;
+    return NULL;
 }

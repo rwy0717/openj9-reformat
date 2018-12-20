@@ -34,129 +34,116 @@
 #include "j9port.h"
 #include "ut_j9jcl.h"
 
+#define J9_SIQUIT_CYCLE_MSEC 200
 
-
-#define J9_SIQUIT_CYCLE_MSEC  200
-
-#if defined(J9VM_INTERP_SIG_QUIT_THREAD)   /* priv. proto (autogen) */
+#if defined(J9VM_INTERP_SIG_QUIT_THREAD) /* priv. proto (autogen) */
 static UDATA sigQuitHandler(struct J9PortLibrary* portLibrary, void* userData);
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD && PORT_SIGNAL_SUPPORT (autogen) */
 
-#if defined(J9VM_INTERP_SIG_QUIT_THREAD)   /* priv. proto (autogen) */
+#if defined(J9VM_INTERP_SIG_QUIT_THREAD) /* priv. proto (autogen) */
 static UDATA sigQuitWrapper(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* userData);
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD && PORT_SIGNAL_SUPPORT (autogen) */
 
 #if (defined(J9VM_INTERP_SIG_QUIT_THREAD)) /* priv. proto (autogen) */
 
-jint
-J9SigQuitStartup(J9JavaVM * vm)
+jint J9SigQuitStartup(J9JavaVM* vm)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	Trc_JCL_J9SigQuitStartup_Entry();
+    Trc_JCL_J9SigQuitStartup_Entry();
 
-	if (vm->sigFlags & J9_SIG_NO_SIG_QUIT) {
-		/* Set if -Xrs command-line option */
-		Trc_JCL_J9SigQuitStartup_Disabled();
-		return 0;
-	}
+    if (vm->sigFlags & J9_SIG_NO_SIG_QUIT) {
+        /* Set if -Xrs command-line option */
+        Trc_JCL_J9SigQuitStartup_Disabled();
+        return 0;
+    }
 
-	if (j9sig_set_async_signal_handler(sigQuitWrapper, vm, J9PORT_SIG_FLAG_SIGQUIT)) {
-		Trc_JCL_J9SigQuitStartup_Failure();
-		return JNI_ERR;
-	}
+    if (j9sig_set_async_signal_handler(sigQuitWrapper, vm, J9PORT_SIG_FLAG_SIGQUIT)) {
+        Trc_JCL_J9SigQuitStartup_Failure();
+        return JNI_ERR;
+    }
 
-	vm->J9SigQuitShutdown = J9SigQuitShutdown;
+    vm->J9SigQuitShutdown = J9SigQuitShutdown;
 
-	Trc_JCL_J9SigQuitStartup_Exit();
+    Trc_JCL_J9SigQuitStartup_Exit();
 
-	return 0;
+    return 0;
 }
 
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD (autogen) */
-
 
 #if (defined(J9VM_INTERP_SIG_QUIT_THREAD)) /* priv. proto (autogen) */
 
-void
-J9SigQuitShutdown(J9JavaVM * vm)
+void J9SigQuitShutdown(J9JavaVM* vm)
 {
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	Trc_JCL_J9SigQuitShutdown_Entry();
-	j9sig_set_async_signal_handler(sigQuitWrapper, vm, 0);
-	Trc_JCL_J9SigQuitShutdown_Exit();
+    Trc_JCL_J9SigQuitShutdown_Entry();
+    j9sig_set_async_signal_handler(sigQuitWrapper, vm, 0);
+    Trc_JCL_J9SigQuitShutdown_Exit();
 }
 
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD (autogen) */
 
+#if defined(J9VM_INTERP_SIG_QUIT_THREAD) /* priv. proto (autogen) */
 
-#if defined(J9VM_INTERP_SIG_QUIT_THREAD)   /* priv. proto (autogen) */
-
-static UDATA 
-sigQuitHandler(struct J9PortLibrary* portLibrary, void* userData)
+static UDATA sigQuitHandler(struct J9PortLibrary* portLibrary, void* userData)
 {
-	J9JavaVM* vm = userData;
-	omrthread_t currentThread;
-	static U_64 lastDumpTime = 0;
-	UDATA currentPriority;
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    J9JavaVM* vm = userData;
+    omrthread_t currentThread;
+    static U_64 lastDumpTime = 0;
+    UDATA currentPriority;
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	if (omrthread_attach_ex(&currentThread, J9THREAD_ATTR_DEFAULT)) {
-		return 0;
-	}
+    if (omrthread_attach_ex(&currentThread, J9THREAD_ATTR_DEFAULT)) {
+        return 0;
+    }
 
-	/* Minimise overlapping dump requests (Note that this probably won't work very well 
-	 * with multiple VM instances, since lastDumpTime is a static). The proper solution is
-	 * to make this handler multi-VM aware, rather than registering one handler per VM
-	 */
-	if ( j9time_hires_delta(lastDumpTime, j9time_hires_clock(), J9PORT_TIME_DELTA_IN_MILLISECONDS) < J9_SIQUIT_CYCLE_MSEC ) {
-		return 0;
-	}
+    /* Minimise overlapping dump requests (Note that this probably won't work very well
+     * with multiple VM instances, since lastDumpTime is a static). The proper solution is
+     * to make this handler multi-VM aware, rather than registering one handler per VM
+     */
+    if (j9time_hires_delta(lastDumpTime, j9time_hires_clock(), J9PORT_TIME_DELTA_IN_MILLISECONDS)
+        < J9_SIQUIT_CYCLE_MSEC) {
+        return 0;
+    }
 
-	currentPriority = omrthread_get_priority(currentThread);
-	omrthread_set_priority(currentThread, J9THREAD_PRIORITY_MAX);
+    currentPriority = omrthread_get_priority(currentThread);
+    omrthread_set_priority(currentThread, J9THREAD_PRIORITY_MAX);
 
-	/**** WARNING: do not try and attach a VM thread here, as we may be debugging a deadlock ****/
+    /**** WARNING: do not try and attach a VM thread here, as we may be debugging a deadlock ****/
 
 #ifdef J9VM_RAS_DUMP_AGENTS
-	J9DMP_TRIGGER( vm, NULL, J9RAS_DUMP_ON_USER_SIGNAL );
+    J9DMP_TRIGGER(vm, NULL, J9RAS_DUMP_ON_USER_SIGNAL);
 #else
-	vm->internalVMFunctions->printThreadInfo(vm, NULL, NULL, TRUE);
+    vm->internalVMFunctions->printThreadInfo(vm, NULL, NULL, TRUE);
 #endif
 
-	/* Listeners to this event may deadlock, so run dumps first */
-	TRIGGER_J9HOOK_VM_USER_INTERRUPT(vm->hookInterface, vm);
+    /* Listeners to this event may deadlock, so run dumps first */
+    TRIGGER_J9HOOK_VM_USER_INTERRUPT(vm->hookInterface, vm);
 
-	/* Update cycle time only after finished dumps */
-	lastDumpTime = j9time_hires_clock();
+    /* Update cycle time only after finished dumps */
+    lastDumpTime = j9time_hires_clock();
 
-	omrthread_set_priority(currentThread, currentPriority);
-	omrthread_detach(currentThread);
+    omrthread_set_priority(currentThread, currentPriority);
+    omrthread_detach(currentThread);
 
-	return 0;
+    return 0;
 }
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD  (autogen) */
 
+#if defined(J9VM_INTERP_SIG_QUIT_THREAD) /* priv. proto (autogen) */
 
-#if defined(J9VM_INTERP_SIG_QUIT_THREAD)   /* priv. proto (autogen) */
-
-static UDATA 
-sigQuitWrapper(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* userData)
+static UDATA sigQuitWrapper(struct J9PortLibrary* portLibrary, U_32 gpType, void* gpInfo, void* userData)
 {
-	J9JavaVM* vm = userData;
-	UDATA result;
+    J9JavaVM* vm = userData;
+    UDATA result;
 
-	PORT_ACCESS_FROM_JAVAVM(vm);
+    PORT_ACCESS_FROM_JAVAVM(vm);
 
-	j9sig_protect(sigQuitHandler, vm,
-		vm->internalVMFunctions->structuredSignalHandlerVM, vm,
-		J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
-		&result);
+    j9sig_protect(sigQuitHandler, vm, vm->internalVMFunctions->structuredSignalHandlerVM, vm,
+        J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION, &result);
 
-	return result;
+    return result;
 }
 #endif /* J9VM_INTERP_SIG_QUIT_THREAD  (autogen) */
-
-
-

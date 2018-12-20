@@ -23,38 +23,34 @@
 #include "x/codegen/PassJNINullSnippet.hpp"
 #include "env/IO.hpp"
 
-uint8_t *TR::X86PassJNINullSnippet::emitSnippetBody()
-   {
-   uint8_t *buffer = cg()->getBinaryBufferCursor();
-   getSnippetLabel()->setCodeLocation(buffer);
+uint8_t* TR::X86PassJNINullSnippet::emitSnippetBody()
+{
+    uint8_t* buffer = cg()->getBinaryBufferCursor();
+    getSnippetLabel()->setCodeLocation(buffer);
 
-   *buffer++ = 0x6a; // push   imms
-   *buffer++ = 0;
+    *buffer++ = 0x6a; // push   imms
+    *buffer++ = 0;
 
-   return genRestartJump(buffer);
-   }
+    return genRestartJump(buffer);
+}
 
+void TR_Debug::print(TR::FILE* pOutFile, TR::X86PassJNINullSnippet* snippet)
+{
+    if (pOutFile == NULL)
+        return;
 
-void
-TR_Debug::print(TR::FILE *pOutFile, TR::X86PassJNINullSnippet  * snippet)
-   {
-   if (pOutFile == NULL)
-      return;
+    uint8_t* bufferPos = snippet->getSnippetLabel()->getCodeLocation();
 
-   uint8_t *bufferPos = snippet->getSnippetLabel()->getCodeLocation();
+    printSnippetLabel(pOutFile, snippet->getSnippetLabel(), bufferPos, getName(snippet));
 
-   printSnippetLabel(pOutFile, snippet->getSnippetLabel(), bufferPos, getName(snippet));
+    printPrefix(pOutFile, NULL, bufferPos, 2);
+    trfprintf(pOutFile, "push\t0\t%s push explicit JNI NULL", commentString());
+    bufferPos += 2;
 
-   printPrefix(pOutFile, NULL, bufferPos, 2);
-   trfprintf(pOutFile, "push\t0\t%s push explicit JNI NULL",
-                 commentString());
-   bufferPos += 2;
-
-   printRestartJump(pOutFile, snippet, bufferPos);
-   }
-
+    printRestartJump(pOutFile, snippet, bufferPos);
+}
 
 uint32_t TR::X86PassJNINullSnippet::getLength(int32_t estimatedSnippetStart)
-   {
-   return 2 + estimateRestartJumpLength(estimatedSnippetStart + 2);
-   }
+{
+    return 2 + estimateRestartJumpLength(estimatedSnippetStart + 2);
+}

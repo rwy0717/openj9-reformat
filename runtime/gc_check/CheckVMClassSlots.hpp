@@ -34,23 +34,22 @@
 #include "Check.hpp"
 
 /**
- * 
+ *
  */
-class GC_CheckVMClassSlots : public GC_Check
-{
+class GC_CheckVMClassSlots : public GC_Check {
 private:
-	virtual void check(); /**< run the check */
-	virtual void print(); /**< dump the check structure to tty */
+    virtual void check(); /**< run the check */
+    virtual void print(); /**< dump the check structure to tty */
 
 public:
-	static GC_Check *newInstance(J9JavaVM *javaVM, GC_CheckEngine *engine);
-	virtual void kill();
+    static GC_Check* newInstance(J9JavaVM* javaVM, GC_CheckEngine* engine);
+    virtual void kill();
 
-	virtual const char *getCheckName() { return "VM CLASS SLOTS"; };
+    virtual const char* getCheckName() { return "VM CLASS SLOTS"; };
 
-	GC_CheckVMClassSlots(J9JavaVM *javaVM, GC_CheckEngine *engine) :
-		GC_Check(javaVM, engine)
-	{}
+    GC_CheckVMClassSlots(J9JavaVM* javaVM, GC_CheckEngine* engine)
+        : GC_Check(javaVM, engine)
+    {}
 };
 
 #endif /* CHECKVMCLASSSLOTS_HPP_ */

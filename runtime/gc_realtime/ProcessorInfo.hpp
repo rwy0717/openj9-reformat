@@ -1,4 +1,4 @@
- 
+
 /*******************************************************************************
  * Copyright (c) 1991, 2014 IBM Corp. and others
  *
@@ -42,30 +42,27 @@ class MM_OSInterface;
  * @todo Provide class documentation
  * @ingroup GC_Metronome
  */
-class MM_ProcessorInfo : public MM_BaseVirtual
-{
+class MM_ProcessorInfo : public MM_BaseVirtual {
 public:
+    MM_ProcessorInfo()
+        : _freq(0)
+    {
+        _typeId = __FUNCTION__;
+    }
 
-	MM_ProcessorInfo() :
-		_freq(0)
-	{
-		_typeId = __FUNCTION__;
-	}
-	
-	static MM_ProcessorInfo *newInstance(MM_EnvironmentBase *env);
-	bool initialize(MM_EnvironmentBase *env);
+    static MM_ProcessorInfo* newInstance(MM_EnvironmentBase* env);
+    bool initialize(MM_EnvironmentBase* env);
 
-	virtual void kill(MM_EnvironmentBase *env);
-	void tearDown(MM_EnvironmentBase *env);
+    virtual void kill(MM_EnvironmentBase* env);
+    void tearDown(MM_EnvironmentBase* env);
 
-	double _freq;   /**< The measured frequency of this processor */
+    double _freq; /**< The measured frequency of this processor */
 
-	double tickToSecond(U_64 t);
-	U_64 secondToTick(double s); /**< Users should note that double's have less precision than U_64 */
+    double tickToSecond(U_64 t);
+    U_64 secondToTick(double s); /**< Users should note that double's have less precision than U_64 */
 
 private:
-	double readFrequency();
+    double readFrequency();
 };
-
 
 #endif /* PROCESSORINFO_HPP_ */
